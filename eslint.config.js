@@ -37,7 +37,12 @@ export default [
                 showSuccess: "readonly",
                 hideProgress: "readonly",
                 FileReader: "readonly",
-                Image: "readonly"
+                Image: "readonly",
+                Worker: "readonly",
+                indexedDB: "readonly",
+                location: "readonly",
+                process: "readonly",
+                module: "readonly"
             }
         },
         rules: {

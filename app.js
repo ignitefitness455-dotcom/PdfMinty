@@ -227,9 +227,9 @@
         const script = document.createElement('script');
         script.id = scriptId;
         
-        // Use relative path but ensure it's not starting with / to avoid root issues on some hosts
-        // unless we are sure we want root. Netlify usually works fine with relative paths.
-        const scriptPath = `tools/${toolId}.js`;
+        // Robust absolute path resolution for tools
+        const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+        const scriptPath = `${baseUrl}tools/${toolId}.js?v=1.4`;
         script.src = scriptPath;
         
         
@@ -636,7 +636,8 @@
 
     window.initPdfWorker = function() {
         if (!pdfWorker) {
-            pdfWorker = new Worker('pdf-worker.js');
+            const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+            pdfWorker = new Worker(`${baseUrl}pdf-worker.js`);
             pdfWorker.onmessage = function(e) {
                 const { id, status, result, error, progress } = e.data;
                 if (status === 'progress') {

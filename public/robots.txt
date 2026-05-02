@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: https://pdfminty.netlify.app/sitemap.xml
