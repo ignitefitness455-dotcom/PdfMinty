@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDFMinty - Free Online PDF Tools</title>
+    <meta name="description" content="Merge, split, compress, and edit PDFs for free directly in your browser. No server uploads required.">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Core Library -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">🌿</span>
+                <span>PDFMinty</span>
+            </a>
+            <div class="nav-links">
+                <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Mode">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Router will inject Homepage or Tools here -->
+    <main id="app" class="container"></main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-trust">
+                <span class="trust-icon">🔒</span>
+                <span><strong>100% Secure & Private.</strong> All files are processed locally on your device. No data is ever uploaded to our servers.</span>
+            </div>
+            <p class="footer-copyright">&copy; 2026 PDFMinty. Free and open-source PDF tools.</p>
+        </div>
+    </footer>
+
+    <!-- Global App Engine -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
