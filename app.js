@@ -744,8 +744,7 @@
     };
     
     if ('serviceWorker' in navigator) {
-        const swUrl = import.meta.env?.DEV ? '/src/sw.js' : '/sw.js';
-        navigator.serviceWorker.register(swUrl).catch(err => console.error("SW reg failed", err));
+        navigator.serviceWorker.register('/sw.js').catch(err => console.error("SW reg failed", err));
     }
 
     // Clear leftover files on load/refresh
