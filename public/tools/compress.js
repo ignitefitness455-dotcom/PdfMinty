@@ -123,7 +123,17 @@
         if (!files || files.length === 0) return;
         const file = files[0];
         
-        if (typeof window.validateFile === 'function' && !window.validateFile([file])) return;
+        
+        if (typeof window.validateFile === 'function') {
+            for (const f of files) {
+                const check = window.validateFile(f);
+                if (!check.valid) {
+                    if (typeof window.showError === 'function') window.showError(check.reason);
+                    return;
+                }
+            }
+        }
+        
 
         try {
             if (typeof showProgress === 'function') showProgress(30);
@@ -212,10 +222,19 @@
     }
 
     btnApply.addEventListener('click', async () => {
+            if (!btnApply.hasAttribute('data-original-text')) {
+                btnApply.setAttribute('data-original-text', btnApply.textContent);
+            }
+            btnApply.disabled = true;
+            btnApply.textContent = "Processing...";
+            if (typeof window.showProgress === 'function') window.showProgress(10);
+            
+            try {
+                
         if (!originalPdfBytes) return;
 
         try {
-            btnApply.disabled = true;
+            
             
             const compLevel = document.querySelector('input[name="comp-level"]:checked').value;
             let modifiedPdfBytes;
@@ -223,32 +242,32 @@
             if (compLevel === 'strong' || compLevel === 'deep') {
                 const scale = compLevel === 'deep' ? 1.0 : 1.5;
                 const quality = compLevel === 'deep' ? 0.35 : 0.6;
-                btnApply.textContent = "Processing...";
+                
                 let actualBytes = originalPdfBytes instanceof ArrayBuffer ? originalPdfBytes : await window.pdfDB.getFile(originalPdfBytes);
                 modifiedPdfBytes = await compressStrong(actualBytes, scale, quality);
                 actualBytes = null;
             } else if (compLevel === 'super-strong' /* fallback fix */) {
-                btnApply.textContent = "Processing...";
+                
                 let actualBytes = originalPdfBytes instanceof ArrayBuffer ? originalPdfBytes : await window.pdfDB.getFile(originalPdfBytes);
                 modifiedPdfBytes = await compressStrong(actualBytes);
             } else {
-                btnApply.textContent = "Processing...";
+                
                 if (typeof window.runPdfWorkerTask === 'function') {
                     const payload = { fileBytes: new Uint8Array(originalPdfBytes.slice(0)) };
                     modifiedPdfBytes = await window.runPdfWorkerTask('compress', payload, [payload.fileBytes.buffer], (progress) => {
-                        if (typeof showProgress === 'function') showProgress(progress);
+                        
                     });
                 } else {
-                    if (typeof showProgress === 'function') showProgress(30);
+                    
                     let actualBytesSync = originalPdfBytes instanceof ArrayBuffer ? originalPdfBytes : await window.pdfDB.getFile(originalPdfBytes);
                     const pdfDoc = await PDFLib.PDFDocument.load(actualBytesSync, { ignoreEncryption: true });
                     actualBytesSync = null;
-                    if (typeof showProgress === 'function') showProgress(80);
+                    
                     modifiedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
                 }
             }
 
-            if (typeof showProgress === 'function') showProgress(100);
+            
             
             if (typeof downloadFile === 'function') {
                 downloadFile(modifiedPdfBytes, `${currentFileName}_compressed.pdf`);
@@ -266,9 +285,23 @@
             console.error('Compress Error:', error);
             if (typeof showError === 'function') showError(error.message || "Error compressing PDF.");
         } finally {
-            if (typeof hideProgress === 'function') hideProgress();
-            btnApply.disabled = false;
-            btnApply.textContent = "🗜️ Compress PDF";
+            
+            
+            
         }
+    
+                if (typeof window.showProgress === 'function') window.showProgress(100);
+            } catch (err) {
+                console.error("PDF Processing Error:", err);
+                if (typeof window.hideProgress === 'function') window.hideProgress();
+                if (typeof window.showError === 'function') {
+                    window.showError(err.message || "An error occurred while processing the PDF.");
+                } else {
+                    alert("Error: " + (err.message || "An error occurred"));
+                }
+            } finally {
+                btnApply.disabled = false;
+                btnApply.textContent = btnApply.getAttribute('data-original-text');
+            }
     });
 })();

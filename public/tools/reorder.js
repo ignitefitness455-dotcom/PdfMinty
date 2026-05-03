@@ -97,7 +97,17 @@
         if (!files || files.length === 0) return;
         const file = files[0];
         
-        if (typeof window.validateFile === 'function' && !window.validateFile([file])) return;
+        
+        if (typeof window.validateFile === 'function') {
+            for (const f of files) {
+                const check = window.validateFile(f);
+                if (!check.valid) {
+                    if (typeof window.showError === 'function') window.showError(check.reason);
+                    return;
+                }
+            }
+        }
+        
 
         try {
             if (typeof showProgress === 'function') showProgress(30);
@@ -154,6 +164,15 @@
     }
 
     btnApply.addEventListener('click', async () => {
+            if (!btnApply.hasAttribute('data-original-text')) {
+                btnApply.setAttribute('data-original-text', btnApply.textContent);
+            }
+            btnApply.disabled = true;
+            btnApply.textContent = "Processing...";
+            if (typeof window.showProgress === 'function') window.showProgress(10);
+            
+            try {
+                
         if (!originalPdfBytes) return;
         
         const inputStr = orderInput.value.trim();
@@ -172,9 +191,9 @@
         }
 
         try {
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof showProgress === 'function') showProgress(30);
+            
+            
+            
 
             const srcDoc = await PDFLib.PDFDocument.load(originalPdfBytes);
             const newDoc = await PDFLib.PDFDocument.create();
@@ -188,10 +207,10 @@
                 if (copyIdx % 50 === 0) await new Promise(r => setTimeout(r, 0));
             }
 
-            if (typeof showProgress === 'function') showProgress(80);
+            
             const modifiedPdfBytes = await newDoc.save({ useObjectStreams: true });
 
-            if (typeof showProgress === 'function') showProgress(100);
+            
             if (typeof downloadFile === 'function') {
                 downloadFile(modifiedPdfBytes, `${currentFileName}_reordered.pdf`);
                 originalPdfBytes = null; // GC Hint
@@ -202,9 +221,23 @@
             console.error('Reorder Error:', error);
             if (typeof showError === 'function') showError(error.message || "Error reordering PDF.");
         } finally {
-            if (typeof hideProgress === 'function') hideProgress();
-            btnApply.disabled = false;
-            btnApply.textContent = "🔄 Reorder PDF";
+            
+            
+            
         }
+    
+                if (typeof window.showProgress === 'function') window.showProgress(100);
+            } catch (err) {
+                console.error("PDF Processing Error:", err);
+                if (typeof window.hideProgress === 'function') window.hideProgress();
+                if (typeof window.showError === 'function') {
+                    window.showError(err.message || "An error occurred while processing the PDF.");
+                } else {
+                    alert("Error: " + (err.message || "An error occurred"));
+                }
+            } finally {
+                btnApply.disabled = false;
+                btnApply.textContent = btnApply.getAttribute('data-original-text');
+            }
     });
 })();

@@ -969,7 +969,7 @@ body.light-mode .tool-card:hover {
     transform: translateX(0);
 }
 
-.toast-danger { background-color: rgba(239, 68, 68, 0.9) !important; }
+.toast-error, .toast-danger { background-color: rgba(239, 68, 68, 0.9) !important; }
 .toast-success { background-color: rgba(16, 185, 129, 0.9) !important; }
 
 /* Enhanced Dropzone */

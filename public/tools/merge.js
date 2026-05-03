@@ -74,7 +74,17 @@
         if (!files || files.length === 0) return;
         
         const validFiles = Array.from(files);
-        if (typeof window.validateFile === 'function' && !window.validateFile(validFiles)) return;
+        
+        if (typeof window.validateFile === 'function') {
+            for (const f of files) {
+                const check = window.validateFile(f);
+                if (!check.valid) {
+                    if (typeof window.showError === 'function') window.showError(check.reason);
+                    return;
+                }
+            }
+        }
+        
     
 
         // Store to IDB to save memory
@@ -139,15 +149,24 @@
     }
 
     btnApply.addEventListener('click', async () => {
+            if (!btnApply.hasAttribute('data-original-text')) {
+                btnApply.setAttribute('data-original-text', btnApply.textContent);
+            }
+            btnApply.disabled = true;
+            btnApply.textContent = "Processing...";
+            if (typeof window.showProgress === 'function') window.showProgress(10);
+            
+            try {
+                
         if (filesArray.length < 2) {
             if (typeof showError === 'function') showError("Please add at least 2 PDFs to merge.");
             return;
         }
 
         try {
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof showProgress === 'function') showProgress(20);
+            
+            
+            
 
             let mergedPdfBytes;
             if (typeof window.runPdfWorkerTask === 'function') {
@@ -165,7 +184,7 @@
                 const transferables = payload.files.map(arr => arr.buffer);
                 
                 mergedPdfBytes = await window.runPdfWorkerTask('merge', payload, transferables, (progress) => {
-                    if (typeof showProgress === 'function') showProgress(progress);
+                    
                 });
             } else {
                 const mergedPdf = await PDFLib.PDFDocument.create();
@@ -183,11 +202,11 @@
                     }
                     fileBytes = null;
                     pdf = null;
-                    if (typeof showProgress === 'function') showProgress(20 + ((i+1)/filesArray.length * 60));
+                    
                 }
                 mergedPdfBytes = await mergedPdf.save({ useObjectStreams: true });
             }
-            if (typeof showProgress === 'function') showProgress(100);
+            
 
             if (typeof downloadFile === 'function') {
                 downloadFile(mergedPdfBytes, 'merged-document.pdf');
@@ -197,9 +216,23 @@
             console.error(error);
             if (typeof showError === 'function') showError("Error merging PDFs: " + error.message);
         } finally {
-            if (typeof hideProgress === 'function') hideProgress();
-            btnApply.disabled = false;
-            btnApply.textContent = "🔗 Merge PDFs";
+            
+            
+            
         }
+    
+                if (typeof window.showProgress === 'function') window.showProgress(100);
+            } catch (err) {
+                console.error("PDF Processing Error:", err);
+                if (typeof window.hideProgress === 'function') window.hideProgress();
+                if (typeof window.showError === 'function') {
+                    window.showError(err.message || "An error occurred while processing the PDF.");
+                } else {
+                    alert("Error: " + (err.message || "An error occurred"));
+                }
+            } finally {
+                btnApply.disabled = false;
+                btnApply.textContent = btnApply.getAttribute('data-original-text');
+            }
     });
 })();

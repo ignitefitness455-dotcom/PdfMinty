@@ -86,7 +86,17 @@
         if (!files || files.length === 0) return;
         const file = files[0];
         
-        if (typeof window.validateFile === 'function' && !window.validateFile([file])) return;
+        
+        if (typeof window.validateFile === 'function') {
+            for (const f of files) {
+                const check = window.validateFile(f);
+                if (!check.valid) {
+                    if (typeof window.showError === 'function') window.showError(check.reason);
+                    return;
+                }
+            }
+        }
+        
 
         try {
             if (typeof showProgress === 'function') showProgress(30);
@@ -128,67 +138,73 @@
     }
 
     btnApply.addEventListener('click', async () => {
-        if (!originalFile) return;
-
-        try {
-            if (typeof JSZip === 'undefined') {
-                try {
-                    await window.loadExternalScript('https://unpkg.com/jszip@3.10.1/dist/jszip.min.js');
-                } catch (e) {
-                    throw new Error("Failed to load JSZip library. Cannot create ZIP file.", { cause: e });
-                }
+            if (!btnApply.hasAttribute('data-original-text')) {
+                btnApply.setAttribute('data-original-text', btnApply.textContent);
             }
-
             btnApply.disabled = true;
             btnApply.textContent = "Processing...";
-            if (typeof showProgress === 'function') showProgress(10);
-
-            const arrayBuffer = await originalFile.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            const zip = new JSZip();
-
-            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                const page = await pdf.getPage(pageNum);
-                const viewport = page.getViewport({ scale: 2.0 }); // Scale 2.0 for better quality
-                
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport
-                };
-                
-                await page.render(renderContext).promise;
-                
-                // Convert canvas to blob
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
-                
-                // Add to zip
-                zip.file(`${currentFileName}_page_${pageNum}.jpg`, blob);
-                
-                if (typeof showProgress === 'function') {
-                    showProgress(10 + (pageNum / pdf.numPages * 80));
-                }
-            }
-
-            const zipContent = await zip.generateAsync({ type: "uint8array" });
-            if (typeof showProgress === 'function') showProgress(100);
+            if (typeof window.showProgress === 'function') window.showProgress(10);
             
-            if (typeof downloadFile === 'function') {
-                downloadFile(zipContent, `${currentFileName}_images.zip`);
-            }
-            if (typeof showSuccess === 'function') showSuccess('PDF converted to images successfully!');
+            try {
+                
+        if (!originalFile) return;
 
-        } catch (error) {
-            console.error('Convert Error:', error);
-            if (typeof showError === 'function') showError(error.message || "Error converting PDF to images.");
-        } finally {
-            if (typeof hideProgress === 'function') hideProgress();
-            btnApply.disabled = false;
-            btnApply.textContent = "🖼️ Convert to JPG";
+        if (typeof JSZip === 'undefined') {
+            try {
+                await window.loadExternalScript('https://unpkg.com/jszip@3.10.1/dist/jszip.min.js');
+            } catch (e) {
+                throw new Error("Failed to load JSZip library. Cannot create ZIP file.", { cause: e });
+            }
         }
+
+        const arrayBuffer = await originalFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const zip = new JSZip();
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const viewport = page.getViewport({ scale: 2.0 }); // Scale 2.0 for better quality
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+            
+            await page.render(renderContext).promise;
+            
+            // Convert canvas to blob
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+            
+            // Add to zip
+            zip.file(`${currentFileName}_page_${pageNum}.jpg`, blob);
+        }
+
+        const zipContent = await zip.generateAsync({ type: "uint8array" });
+        
+        if (typeof window.downloadFile === 'function') {
+            window.downloadFile(zipContent, `${currentFileName}_images.zip`);
+        } else {
+            console.error('downloadFile function missing');
+        }
+        if (typeof showSuccess === 'function') showSuccess('PDF converted to images successfully!');
+    
+                if (typeof window.showProgress === 'function') window.showProgress(100);
+            } catch (err) {
+                console.error("PDF Processing Error:", err);
+                if (typeof window.hideProgress === 'function') window.hideProgress();
+                if (typeof window.showError === 'function') {
+                    window.showError(err.message || "An error occurred while processing the PDF.");
+                } else {
+                    alert("Error: " + (err.message || "An error occurred"));
+                }
+            } finally {
+                btnApply.disabled = false;
+                btnApply.textContent = btnApply.getAttribute('data-original-text');
+            }
     });
 })();

@@ -204,7 +204,17 @@
         const file = files[0];
         
         
-        if (typeof window.validateFile === 'function' && !window.validateFile([file])) return;
+        
+        if (typeof window.validateFile === 'function') {
+            for (const f of files) {
+                const check = window.validateFile(f);
+                if (!check.valid) {
+                    if (typeof window.showError === 'function') window.showError(check.reason);
+                    return;
+                }
+            }
+        }
+        
 
         try {
             if (typeof showProgress === 'function') showProgress(50);

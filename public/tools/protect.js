@@ -119,7 +119,17 @@
         if (!files || files.length === 0) return;
         const file = files[0];
         
-        if (typeof window.validateFile === 'function' && !window.validateFile([file])) return;
+        
+        if (typeof window.validateFile === 'function') {
+            for (const f of files) {
+                const check = window.validateFile(f);
+                if (!check.valid) {
+                    if (typeof window.showError === 'function') window.showError(check.reason);
+                    return;
+                }
+            }
+        }
+        
 
         try {
             const ab = await file.arrayBuffer();
@@ -149,6 +159,15 @@
     }
 
     btnApply.addEventListener('click', async () => {
+            if (!btnApply.hasAttribute('data-original-text')) {
+                btnApply.setAttribute('data-original-text', btnApply.textContent);
+            }
+            btnApply.disabled = true;
+            btnApply.textContent = "Processing...";
+            if (typeof window.showProgress === 'function') window.showProgress(10);
+            
+            try {
+                
         if (!originalPdfBytes) return;
         
         const pwd = passwordInput.value;
@@ -158,10 +177,6 @@
         }
 
         try {
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof showProgress === 'function') showProgress(10);
-
             // Load required libraries dynamically
             if (typeof pdfjsLib === 'undefined') {
                 await window.loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
@@ -184,10 +199,6 @@
             let doc = null;
 
             for (let i = 1; i <= totalPages; i++) {
-                if (typeof showProgress === 'function') {
-                    showProgress(10 + Math.round((i / totalPages) * 80));
-                }
-
                 const page = await pdf.getPage(i);
                 // Scale 2.0 provides good quality for the output PDF
                 const viewport = page.getViewport({ scale: 2.0 });
@@ -239,7 +250,7 @@
                 doc.addImage(imgData, 'JPEG', 0, 0, widthMm, heightMm);
             }
 
-            if (typeof showProgress === 'function') showProgress(100);
+            
 
             // Generate the protected PDF
             const pdfOutput = doc.output('arraybuffer');
@@ -259,9 +270,23 @@
             console.error('Protect Error:', error);
             if (typeof showError === 'function') showError(error.message || "Error protecting PDF.");
         } finally {
-            if (typeof hideProgress === 'function') hideProgress();
-            btnApply.disabled = false;
-            btnApply.textContent = "🔒 Protect PDF";
+            
+            
+            
         }
+    
+                if (typeof window.showProgress === 'function') window.showProgress(100);
+            } catch (err) {
+                console.error("PDF Processing Error:", err);
+                if (typeof window.hideProgress === 'function') window.hideProgress();
+                if (typeof window.showError === 'function') {
+                    window.showError(err.message || "An error occurred while processing the PDF.");
+                } else {
+                    alert("Error: " + (err.message || "An error occurred"));
+                }
+            } finally {
+                btnApply.disabled = false;
+                btnApply.textContent = btnApply.getAttribute('data-original-text');
+            }
     });
 })();

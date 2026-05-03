@@ -76,7 +76,17 @@
             if (typeof showError === 'function') showError('Please select valid JPG or PNG images.');
             return;
         }
-        if (typeof window.validateSizeOnly === 'function' && !window.validateSizeOnly(validFiles)) return;
+        
+        if (typeof window.validateFile === 'function') {
+            for (const f of files) {
+                const check = window.validateFile(f);
+                if (!check.valid) {
+                    if (typeof window.showError === 'function') window.showError(check.reason);
+                    return;
+                }
+            }
+        }
+        
 
         filesArray = filesArray.concat(validFiles);
         renderFileList();
@@ -119,12 +129,21 @@
     }
 
     btnApply.addEventListener('click', async () => {
+            if (!btnApply.hasAttribute('data-original-text')) {
+                btnApply.setAttribute('data-original-text', btnApply.textContent);
+            }
+            btnApply.disabled = true;
+            btnApply.textContent = "Processing...";
+            if (typeof window.showProgress === 'function') window.showProgress(10);
+            
+            try {
+                
         if (filesArray.length === 0) return;
 
         try {
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof showProgress === 'function') showProgress(20);
+            
+            
+            
 
             const pdfDoc = await PDFLib.PDFDocument.create();
             
@@ -148,11 +167,11 @@
                     height: height,
                 });
                 
-                if (typeof showProgress === 'function') showProgress(20 + ((i+1)/filesArray.length * 60));
+                
             }
 
             const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
-            if (typeof showProgress === 'function') showProgress(100);
+            
 
             if (typeof downloadFile === 'function') {
                 downloadFile(pdfBytes, 'images-converted.pdf');
@@ -162,9 +181,23 @@
             console.error(error);
             if (typeof showError === 'function') showError("Error converting images: " + error.message);
         } finally {
-            if (typeof hideProgress === 'function') hideProgress();
-            btnApply.disabled = false;
-            btnApply.textContent = "🖼️ Convert to PDF";
+            
+            
+            
         }
+    
+                if (typeof window.showProgress === 'function') window.showProgress(100);
+            } catch (err) {
+                console.error("PDF Processing Error:", err);
+                if (typeof window.hideProgress === 'function') window.hideProgress();
+                if (typeof window.showError === 'function') {
+                    window.showError(err.message || "An error occurred while processing the PDF.");
+                } else {
+                    alert("Error: " + (err.message || "An error occurred"));
+                }
+            } finally {
+                btnApply.disabled = false;
+                btnApply.textContent = btnApply.getAttribute('data-original-text');
+            }
     });
 })();

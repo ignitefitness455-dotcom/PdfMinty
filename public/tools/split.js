@@ -97,7 +97,17 @@
         if (!files || files.length === 0) return;
         const file = files[0];
         
-        if (typeof window.validateFile === 'function' && !window.validateFile([file])) return;
+        
+        if (typeof window.validateFile === 'function') {
+            for (const f of files) {
+                const check = window.validateFile(f);
+                if (!check.valid) {
+                    if (typeof window.showError === 'function') window.showError(check.reason);
+                    return;
+                }
+            }
+        }
+        
 
         try {
             if (typeof showProgress === 'function') showProgress(30);
@@ -158,6 +168,15 @@
     }
 
     btnApply.addEventListener('click', async () => {
+            if (!btnApply.hasAttribute('data-original-text')) {
+                btnApply.setAttribute('data-original-text', btnApply.textContent);
+            }
+            btnApply.disabled = true;
+            btnApply.textContent = "Processing...";
+            if (typeof window.showProgress === 'function') window.showProgress(10);
+            
+            try {
+                
         if (!originalPdfBytes) return;
         
         const rangeStr = rangesInput.value.trim();
@@ -176,9 +195,9 @@
         }
 
         try {
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof showProgress === 'function') showProgress(20);
+            
+            
+            
 
 let results;
             if (typeof window.runPdfWorkerTask === 'function') {
@@ -189,7 +208,7 @@ let results;
                 };
                 
                 results = await window.runPdfWorkerTask('split', payload, [payload.fileBytes.buffer], (progress) => {
-                    if (typeof showProgress === 'function') showProgress(progress);
+                    
                 });
             } else {
                 let syncActualBytes = originalPdfBytes instanceof ArrayBuffer ? originalPdfBytes : await window.pdfDB.getFile(originalPdfBytes);
@@ -210,12 +229,12 @@ let results;
                     
                     const pdfBytes = await newDoc.save({ useObjectStreams: true });
                     results.push({ name: `${currentFileName}_${r.start}-${r.end}.pdf`, bytes: pdfBytes });
-                    if (typeof showProgress === 'function') showProgress(20 + ((i+1)/parsedRanges.length * 60));
+                    
                 }
             }
 
             if (results.length === 1) {
-                if (typeof showProgress === 'function') showProgress(100);
+                
                 if (typeof downloadFile === 'function') {
                     downloadFile(results[0].bytes, results[0].name);
                     originalPdfBytes = null;
@@ -235,7 +254,7 @@ let results;
                 }
                 
                 const zipContent = await zip.generateAsync({ type: "uint8array" });
-                if (typeof showProgress === 'function') showProgress(100);
+                
                 if (typeof downloadFile === 'function') {
                     downloadFile(zipContent, `${currentFileName}_split.zip`);
                     originalPdfBytes = null;
@@ -247,9 +266,23 @@ let results;
             console.error(error);
             if (typeof showError === 'function') showError("Error splitting PDF: " + error.message);
         } finally {
-            if (typeof hideProgress === 'function') hideProgress();
-            btnApply.disabled = false;
-            btnApply.textContent = "✂️ Split PDF";
+            
+            
+            
         }
+    
+                if (typeof window.showProgress === 'function') window.showProgress(100);
+            } catch (err) {
+                console.error("PDF Processing Error:", err);
+                if (typeof window.hideProgress === 'function') window.hideProgress();
+                if (typeof window.showError === 'function') {
+                    window.showError(err.message || "An error occurred while processing the PDF.");
+                } else {
+                    alert("Error: " + (err.message || "An error occurred"));
+                }
+            } finally {
+                btnApply.disabled = false;
+                btnApply.textContent = btnApply.getAttribute('data-original-text');
+            }
     });
 })();

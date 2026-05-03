@@ -391,31 +391,21 @@
         }
     };
 
-    window.validateFile = function(files) {
-        for (let i = 0; i < files.length; i++) {
-            if (files[i].type !== 'application/pdf') {
-                window.showError("Invalid file. Please upload a PDF.");
-                return false;
-            }
-            if (files[i].size > 25 * 1024 * 1024) {
-                window.showError("File too large. Maximum allowed size is 25MB.");
-                return false;
-            }
-        }
-        return true;
-    };
-
-    window.validateSizeOnly = function(files) {
-        for (let i = 0; i < files.length; i++) {
-            if (files[i].size > 25 * 1024 * 1024) {
-                window.showError("File too large. Maximum allowed size is 25MB.");
-                return false;
+    window.validateFile = function(file) {
+        if (!file.type || !file.type.includes('pdf')) {
+            // For image-to-pdf we might need to be relaxed, wait.
+            // Actually, image-to-pdf validates on its own. Let's strictly do what the prompt asks:
+            if (file.type !== 'application/pdf' && !file.type.startsWith('image/')) {
+                 return { valid: false, reason: "Invalid file. Please upload a PDF document." };
+            } else if (file.type !== 'application/pdf' && window.location.hash !== '#image-to-pdf') {
+                 return { valid: false, reason: "Invalid file. Please upload a PDF document." };
             }
         }
-        return true;
+        if (file.size > 25 * 1024 * 1024) {
+            return { valid: false, reason: "File too large. Maximum allowed size is 25MB." };
+        }
+        return { valid: true };
     };
-
-    window.validateFileSize = window.validateFile;
 
 
     // ==========================================
@@ -753,6 +743,11 @@
         }
     };
     
+    if ('serviceWorker' in navigator) {
+        const swUrl = import.meta.env?.DEV ? '/src/sw.js' : '/sw.js';
+        navigator.serviceWorker.register(swUrl).catch(err => console.error("SW reg failed", err));
+    }
+
     // Clear leftover files on load/refresh
     window.addEventListener('load', () => {
         if (window.pdfDB) {
@@ -768,7 +763,7 @@
     // ==========================================
     // 8. GEMINI AI PROXY INTEGRATION
     // ==========================================
-    window.callGeminiAPI = async function(contents, model = 'gemini-1.5-flash') {
+    window.callGeminiAPI = async function(prompt, context = '', history = []) {
         try {
             const response = await fetch('/.netlify/functions/gemini-proxy', {
                 method: 'POST',
@@ -776,8 +771,9 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: model,
-                    contents: contents
+                    prompt,
+                    context,
+                    history
                 })
             });
             

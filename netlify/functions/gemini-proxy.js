@@ -20,20 +20,26 @@ exports.handler = async function(event, context) {
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({ error: "Server Configuration Error: GEMINI_API_KEY is not set." })
+                body: JSON.stringify({ error: "AI service unavailable", detail: "Server Configuration Error: GEMINI_API_KEY is not set." })
             };
         }
 
         const payload = JSON.parse(event.body);
-        const model = payload.model || 'gemini-1.5-flash';
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const { prompt, context: promptContext, history } = payload;
+        
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        // Prepare the body for the Gemini API
+        // Construct the contents array for Gemini
+        let textContent = "";
+        if (promptContext) textContent += `Context: ${promptContext}\n\n`;
+        if (prompt) textContent += `Prompt: ${prompt}\n\n`;
+        if (history) textContent += `History: ${JSON.stringify(history)}\n\n`;
+
         const fetchBody = {
-            contents: payload.contents
+            contents: [{
+                parts: [{ text: textContent }]
+            }]
         };
-        if (payload.systemInstruction) fetchBody.systemInstruction = payload.systemInstruction;
-        if (payload.generationConfig) fetchBody.generationConfig = payload.generationConfig;
 
         const response = await fetch(url, {
             method: 'POST',
@@ -45,8 +51,13 @@ exports.handler = async function(event, context) {
 
         const data = await response.json();
 
+        if (!response.ok) {
+            console.error('Gemini API Error details:', data);
+            throw new Error("AI service unavailable");
+        }
+
         return {
-            statusCode: response.status,
+            statusCode: 200,
             headers,
             body: JSON.stringify(data)
         };
@@ -55,7 +66,7 @@ exports.handler = async function(event, context) {
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: "Failed to communicate with Gemini API." })
+            body: JSON.stringify({ error: "AI service unavailable" })
         };
     }
 };
