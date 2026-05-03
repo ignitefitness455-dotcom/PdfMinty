@@ -42,7 +42,8 @@ export default [
                 indexedDB: "readonly",
                 location: "readonly",
                 process: "readonly",
-                module: "readonly"
+                module: "readonly",
+                exports: "writable"
             }
         },
         rules: {

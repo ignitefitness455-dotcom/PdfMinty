@@ -203,11 +203,8 @@
         if (!files || files.length === 0) return;
         const file = files[0];
         
-        if (file.type !== 'application/pdf') {
-            if (typeof showError === 'function') showError('Please select a valid PDF file.');
-            return;
-        }
-        if (typeof validateFileSize === 'function' && !validateFileSize([file])) return;
+        
+        if (typeof window.validateFile === 'function' && !window.validateFile([file])) return;
 
         try {
             if (typeof showProgress === 'function') showProgress(50);

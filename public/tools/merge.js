@@ -41,6 +41,7 @@
                 <div style="font-size: 3rem; margin-bottom: 1rem;">🔗</div>
                 <p style="font-size: 1.25rem; margin: 0;">Drag & drop PDFs here, or click to select</p>
             </div>
+            <p style="text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 1rem;">🔒 No upload. No servers. 100% private.</p>
             <div id="workspace" class="workspace hidden">
                 <p style="margin-bottom: 1rem; color: var(--muted); font-size: 0.9rem;">Files will be merged in the order shown below.</p>
                 <div id="file-list" class="file-list grid"></div>
@@ -71,12 +72,10 @@
 
     function handleFiles(files) {
         if (!files || files.length === 0) return;
-        const validFiles = Array.from(files).filter(f => f.type === 'application/pdf');
-        if (validFiles.length === 0) {
-            if (typeof showError === 'function') showError('Please select valid PDF files.');
-            return;
-        }
-        if (typeof validateFileSize === 'function' && !validateFileSize(validFiles)) return;
+        
+        const validFiles = Array.from(files);
+        if (typeof window.validateFile === 'function' && !window.validateFile(validFiles)) return;
+    
 
         // Store to IDB to save memory
         if (window.pdfDB) {
@@ -147,7 +146,7 @@
 
         try {
             btnApply.disabled = true;
-            btnApply.textContent = "Merging...";
+            btnApply.textContent = "Processing...";
             if (typeof showProgress === 'function') showProgress(20);
 
             let mergedPdfBytes;

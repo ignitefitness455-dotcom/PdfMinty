@@ -42,6 +42,7 @@
                 <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
                 <p style="font-size: 1.25rem; margin: 0;">Drag & drop a PDF here, or click to select</p>
             </div>
+            <p style="text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 1rem;">🔒 No upload. No servers. 100% private.</p>
             <div id="workspace" class="workspace hidden">
                 <div class="file-info" style="display: flex; gap: 1rem; align-items: center; text-align: left;">
                     <img id="file-preview-img" style="width: 60px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.1);" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0iZmVhdGhlciBmZWF0aGVyLWZpbGUtdGV4dCI+PHBhdGggZD0iTTE0IDJIMmE2IDYgMCAwIDAtNiA2djEyYTYgNiAwIDAgMCA2IDRoMTJhNiA2IDAgMCAwIDYtNlY4eiI+PC9wYXRoPjxwb2x5bGluZSBwb2ludHM9IjE0IDIgMTQgOCAyMCA4Ij48L3BvbHlsaW5lPjxsaW5lIHgxPSIxNiIgeTE9IjEzIiB4Mj0iOCIgeTI9IjEzIj48L2xpbmU+PGxpbmUgeDE9IjE2IiB5MT0iMTciIHgyPSI4IiB5Mj0iMTciPjwvbGluZT48bGluZSB4MT0iMTAiIHkxPSI5IiB4Mj0iOCIgeTI9IjkiPjwvbGluZT48L3N2Zz4=" />
@@ -117,11 +118,8 @@
     async function handleFiles(files) {
         if (!files || files.length === 0) return;
         const file = files[0];
-        if (file.type !== 'application/pdf') {
-            if (typeof showError === 'function') showError('Please select a valid PDF file.');
-            return;
-        }
-        if (typeof validateFileSize === 'function' && !validateFileSize([file])) return;
+        
+        if (typeof window.validateFile === 'function' && !window.validateFile([file])) return;
 
         try {
             const ab = await file.arrayBuffer();

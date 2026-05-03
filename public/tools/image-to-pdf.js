@@ -40,6 +40,7 @@
                 <div style="font-size: 3rem; margin-bottom: 1rem;">🖼️</div>
                 <p style="font-size: 1.25rem; margin: 0;">Drag & drop images here, or click to select</p>
             </div>
+            <p style="text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 1rem;">🔒 No upload. No servers. 100% private.</p>
             <div id="workspace" class="workspace hidden">
                 <p style="margin-bottom: 1rem; color: var(--muted); font-size: 0.9rem;">Images will be converted in the order shown below.</p>
                 <div id="file-list" class="file-list grid"></div>
@@ -75,7 +76,7 @@
             if (typeof showError === 'function') showError('Please select valid JPG or PNG images.');
             return;
         }
-        if (typeof validateFileSize === 'function' && !validateFileSize(validFiles)) return;
+        if (typeof window.validateSizeOnly === 'function' && !window.validateSizeOnly(validFiles)) return;
 
         filesArray = filesArray.concat(validFiles);
         renderFileList();
@@ -122,7 +123,7 @@
 
         try {
             btnApply.disabled = true;
-            btnApply.textContent = "Converting...";
+            btnApply.textContent = "Processing...";
             if (typeof showProgress === 'function') showProgress(20);
 
             const pdfDoc = await PDFLib.PDFDocument.create();

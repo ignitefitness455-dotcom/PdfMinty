@@ -84,17 +84,17 @@
                     <div class="step-card">
                         <div class="step-number">1</div>
                         <h3>Select Files</h3>
-                        <p style="color: var(--muted);">Choose your PDF files from your computer or mobile device.</p>
+                        <p style="color: var(--muted);">Choose your PDF files from your computer or mobile device. Files are stored entirely temporarily in your browser's IndexedDB storage.</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">2</div>
                         <h3>Process Locally</h3>
-                        <p style="color: var(--muted);">Our browser-based engine handles the work. Your data never leaves your device.</p>
+                        <p style="color: var(--muted);">Our browser-based engine handles the work. They are never sent to any external server or third-party service.</p>
                     </div>
                     <div class="step-card">
                         <div class="step-number">3</div>
-                        <h3>Download</h3>
-                        <p style="color: var(--muted);">Get your processed PDF instantly. No waiting for server queues.</p>
+                        <h3>Download & Clean</h3>
+                        <p style="color: var(--muted);">Get your processed PDF instantly. All temporary data is cleared automatically when you close the browser tab.</p>
                     </div>
                 </div>
             </section>
@@ -391,23 +391,31 @@
         }
     };
 
-    window.validateFileSize = function(files) {
-        // Detect if mobile device (screen width < 768px or userAgent match)
-        const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
-        // Heavy Processing Limits: 500MB for Mobile, 1500MB (1.5GB) for Desktop
-        const maxSizeMB = isMobile ? 500 : 1500; 
-        const maxBytes = maxSizeMB * 1024 * 1024;
-
+    window.validateFile = function(files) {
         for (let i = 0; i < files.length; i++) {
-            if (files[i].size > maxBytes) {
-                const deviceType = isMobile ? "Mobile" : "Desktop";
-                window.showError(`File "${files[i].name}" is too large. Limit for ${deviceType} is ${maxSizeMB}MB.`);
+            if (files[i].type !== 'application/pdf') {
+                window.showError("Invalid file. Please upload a PDF.");
+                return false;
+            }
+            if (files[i].size > 25 * 1024 * 1024) {
+                window.showError("File too large. Maximum allowed size is 25MB.");
                 return false;
             }
         }
         return true;
     };
+
+    window.validateSizeOnly = function(files) {
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].size > 25 * 1024 * 1024) {
+                window.showError("File too large. Maximum allowed size is 25MB.");
+                return false;
+            }
+        }
+        return true;
+    };
+
+    window.validateFileSize = window.validateFile;
 
 
     // ==========================================
@@ -756,3 +764,32 @@
             window.pdfDB.clearAll().catch(e => {});
         }
     });
+
+    // ==========================================
+    // 8. GEMINI AI PROXY INTEGRATION
+    // ==========================================
+    window.callGeminiAPI = async function(contents, model = 'gemini-1.5-flash') {
+        try {
+            const response = await fetch('/.netlify/functions/gemini-proxy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: model,
+                    contents: contents
+                })
+            });
+            
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to fetch from AI proxy');
+            }
+            return data;
+        } catch (error) {
+            console.error('Gemini API Error:', error);
+            window.showError("AI features are currently unavailable.");
+            throw error;
+        }
+    };
+
