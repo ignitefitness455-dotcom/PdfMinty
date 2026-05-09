@@ -2,17 +2,26 @@
   "name": "pdfminty",
   "version": "1.0.0",
   "description": "PDFMinty - Free Online PDF Tools",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build:android": "vite build && npx cap sync android",
+    "open:android": "npx cap open android"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.1.0",
+    "typescript": "^6.0.3",
     "vite": "^5.0.0"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.2",
+    "@capacitor/cli": "^8.3.2",
+    "@capacitor/core": "^8.3.2",
+    "canvas-confetti": "^1.9.4",
+    "pdf-lib": "^1.17.1"
   }
 }

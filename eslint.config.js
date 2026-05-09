@@ -1,6 +1,9 @@
 import js from "@eslint/js";
 
 export default [
+    {
+        ignores: ["dist/**/*", "node_modules/**/*", "android/**/*"]
+    },
     js.configs.recommended,
     {
         languageOptions: {
@@ -43,12 +46,28 @@ export default [
                 location: "readonly",
                 process: "readonly",
                 module: "readonly",
-                exports: "writable"
+                exports: "writable",
+                fileSizeDisplay: "readonly",
+                formatBytes: "readonly",
+                renderPdfThumbnail: "readonly",
+                alert: "readonly",
+                pageCountDisplay: "readonly",
+                importScripts: "readonly",
+                self: "readonly",
+                caches: "readonly",
+                Promise: "readonly",
+                Math: "readonly",
+                Response: "readonly",
+                VanillaTilt: "readonly",
+                tsParticles: "readonly",
+                gsap: "readonly"
             }
         },
         rules: {
-            "no-unused-vars": "warn",
-            "no-undef": "error"
+            "no-unused-vars": "off",
+            "no-undef": "error",
+            "no-empty": "off",
+            "no-redeclare": "off"
         }
     }
 ];

@@ -1,9 +1,16 @@
+import confetti from 'canvas-confetti';
+
 /**
  * app.js - PDFMinty Global Engine
  * Handles Routing, State Management, File Validation, and UI Utilities
  */
+;(function() {
+    // Force the home page to load on initial visit by clearing any lingering hash.
+    // This fixes the issue where the browser or preview iframe retains the old #merge state.
+    if (window.location.hash) {
+        history.replaceState(null, null, window.location.pathname + window.location.search);
+    }
 
-(function() {
     // ==========================================
     // 1. HASH ROUTER SYSTEM
     // ==========================================
@@ -27,187 +34,196 @@
     ];
 
     function renderHomePage(container) {
-        let html = `
-            <header class="hero">
-                <div class="hero-badge">✨ 100% Free & Secure</div>
-                <h1>The Ultimate <span class="text-gradient">PDF Tools</span> Collection</h1>
-                <p>Merge, split, compress, and edit PDFs directly in your browser. <strong>No server uploads. No registration.</strong></p>
-                <div class="trust-indicators">
-                    <span>🔒 Local Processing</span>
-                    <span>⚡ Lightning Fast</span>
-                    <span>🛡️ Privacy First</span>
-                </div>
-            </header>
-
-            <div class="tools-section" id="tools-section">
-                <div class="section-header">
-                    <h2 class="section-title">Popular Tools</h2>
-                    <div class="search-container">
-                        <input type="text" id="tool-search" placeholder="Search tools (e.g. merge, split)...">
-                        <span class="search-icon">🔍</span>
+        try {
+            let html = `
+                <header class="hero">
+                    <div class="hero-badge">✨ 100% Free & Secure</div>
+                    <h1>The Ultimate <span class="text-gradient">PDF Tools</span> Collection</h1>
+                    <p>Merge, split, compress, and edit PDFs directly in your browser. <strong>No server uploads. No registration.</strong></p>
+                    <div class="trust-indicators">
+                        <span>🔒 Local Processing</span>
+                        <span>⚡ Lightning Fast</span>
+                        <span>🛡️ Privacy First</span>
                     </div>
-                </div>
+                </header>
 
-                <div class="category-tabs">
-                    <div class="category-tab active" data-cat="all">All Tools</div>
-                    <div class="category-tab" data-cat="organize">Organize</div>
-                    <div class="category-tab" data-cat="optimize">Optimize</div>
-                    <div class="category-tab" data-cat="edit">Edit</div>
-                    <div class="category-tab" data-cat="convert">Convert</div>
-                    <div class="category-tab" data-cat="security">Security</div>
-                </div>
-
-                <div class="tools-grid" id="tools-grid">
-        `;
-        toolsList.forEach(t => {
-            html += `
-                <a href="#${t.id}" class="tool-card" data-cat="${t.cat}" data-title="${t.title.toLowerCase()}" data-desc="${t.desc.toLowerCase()}">
-                    <div class="tool-icon-wrapper">${t.icon}</div>
-                    <div class="tool-info">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                            <h3 style="margin-bottom: 0;">${t.title}</h3>
-                            <span class="category-badge">${t.cat}</span>
+                <div class="tools-section" id="tools-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Popular Tools</h2>
+                        <div class="search-container">
+                            <input type="text" id="tool-search" placeholder="Search tools (e.g. merge, split)...">
+                            <span class="search-icon">🔍</span>
                         </div>
-                        <p>${t.desc}</p>
                     </div>
-                </a>
+
+                    <div class="category-tabs">
+                        <div class="category-tab active" data-cat="all">All Tools</div>
+                        <div class="category-tab" data-cat="organize">Organize</div>
+                        <div class="category-tab" data-cat="optimize">Optimize</div>
+                        <div class="category-tab" data-cat="edit">Edit</div>
+                        <div class="category-tab" data-cat="convert">Convert</div>
+                        <div class="category-tab" data-cat="security">Security</div>
+                    </div>
+
+                    <div class="tools-grid" id="tools-grid">
             `;
-        });
-        html += `
-                </div>
-            </div>
-
-            <section class="how-it-works">
-                <h2 class="section-title">How PDFMinty Works</h2>
-                <p style="color: var(--muted); margin-bottom: 3rem;">Three simple steps to manage your documents</p>
-                <div class="steps-grid">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <h3>Select Files</h3>
-                        <p style="color: var(--muted);">Choose your PDF files from your computer or mobile device. Files are stored entirely temporarily in your browser's IndexedDB storage.</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <h3>Process Locally</h3>
-                        <p style="color: var(--muted);">Our browser-based engine handles the work. They are never sent to any external server or third-party service.</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <h3>Download & Clean</h3>
-                        <p style="color: var(--muted);">Get your processed PDF instantly. All temporary data is cleared automatically when you close the browser tab.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="features-section">
-                <div class="features-header">
-                    <h2>Why Choose PDFMinty?</h2>
-                    <p>Professional grade tools without the premium price tag.</p>
-                </div>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">🛡️</div>
-                        <h3>100% Private</h3>
-                        <p>Your files never leave your device. All processing happens locally in your browser.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">⚡</div>
-                        <h3>Lightning Fast</h3>
-                        <p>No waiting for uploads or downloads. Get your results instantly.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🆓</div>
-                        <h3>Completely Free</h3>
-                        <p>No hidden fees, no subscriptions, and no watermarks on your documents.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="faq-section">
-                <h2 class="section-title" style="text-align: center;">Frequently Asked Questions</h2>
-                <div class="faq-item">
-                    <div class="faq-question">Are my files safe? <span class="faq-icon">▼</span></div>
-                    <div class="faq-answer">Yes! PDFMinty processes all files locally in your browser. Your files are never uploaded to any server, ensuring 100% privacy.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">Is it really free? <span class="faq-icon">▼</span></div>
-                    <div class="faq-answer">Absolutely. There are no hidden costs, no subscriptions, and no limits on how many files you can process.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">Do I need to install anything? <span class="faq-icon">▼</span></div>
-                    <div class="faq-answer">No installation required. PDFMinty works directly in any modern web browser on your computer, tablet, or smartphone.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">Does it work offline? <span class="faq-icon">▼</span></div>
-                    <div class="faq-answer">Once the page is loaded, most tools will work even if you disconnect from the internet, as all logic is client-side.</div>
-                </div>
-            </section>
-
-            <section class="bottom-cta">
-                <h2>Ready to Mint Your PDF?</h2>
-                <p>Experience the fastest and most secure PDF tools today.</p>
-                <button id="cta-get-started" class="btn-cta-white" style="border: none; cursor: pointer;">Get Started Now</button>
-            </section>
-        `;
-        container.innerHTML = html;
-
-        // CTA Logic
-        const ctaBtn = document.getElementById('cta-get-started');
-        if (ctaBtn) {
-            ctaBtn.addEventListener('click', () => {
-                document.getElementById('tools-section').scrollIntoView({ behavior: 'smooth' });
+            toolsList.forEach(t => {
+                html += `
+                    <a href="#${t.id}" class="tool-card" data-cat="${t.cat}" data-title="${t.title.toLowerCase()}" data-desc="${t.desc.toLowerCase()}">
+                        <div class="tool-icon-wrapper">${t.icon}</div>
+                        <div class="tool-info">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                                <h3 style="margin-bottom: 0;">${t.title}</h3>
+                                <span class="category-badge">${t.cat}</span>
+                            </div>
+                            <p>${t.desc}</p>
+                        </div>
+                    </a>
+                `;
             });
+            html += `
+                    </div>
+                </div>
+
+                <section class="how-it-works">
+                    <h2 class="section-title">How PDFMinty Works</h2>
+                    <p style="color: var(--muted); margin-bottom: 3rem;">Three simple steps to manage your documents</p>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <h3>Select Files</h3>
+                            <p style="color: var(--muted);">Choose your PDF files from your computer or mobile device. Files are stored entirely temporarily in your browser's IndexedDB storage.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <h3>Process Locally</h3>
+                            <p style="color: var(--muted);">Our browser-based engine handles the work. They are never sent to any external server or third-party service.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <h3>Download & Clean</h3>
+                            <p style="color: var(--muted);">Get your processed PDF instantly. All temporary data is cleared automatically when you close the browser tab.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="features-section">
+                    <div class="features-header">
+                        <h2>Why Choose PDFMinty?</h2>
+                        <p>Professional grade tools without the premium price tag.</p>
+                    </div>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🛡️</div>
+                            <h3>100% Private</h3>
+                            <p>Your files never leave your device. All processing happens locally in your browser.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">⚡</div>
+                            <h3>Lightning Fast</h3>
+                            <p>No waiting for uploads or downloads. Get your results instantly.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🆓</div>
+                            <h3>Completely Free</h3>
+                            <p>No hidden fees, no subscriptions, and no watermarks on your documents.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="faq-section">
+                    <h2 class="section-title" style="text-align: center;">Frequently Asked Questions</h2>
+                    <div class="faq-item">
+                        <div class="faq-question">Are my files safe? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer">Yes! PDFMinty processes all files locally in your browser. Your files are never uploaded to any server, ensuring 100% privacy.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Is it really free? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer">Absolutely. There are no hidden costs, no subscriptions, and no limits on how many files you can process.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Do I need to install anything? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer">No installation required. PDFMinty works directly in any modern web browser on your computer, tablet, or smartphone.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Does it work offline? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer">Once the page is loaded, most tools will work even if you disconnect from the internet, as all logic is client-side.</div>
+                    </div>
+                </section>
+
+                <section class="bottom-cta">
+                    <h2>Ready to Mint Your PDF?</h2>
+                    <p>Experience the fastest and most secure PDF tools today.</p>
+                    <button id="cta-get-started" class="btn-cta-white" style="border: none; cursor: pointer;">Get Started Now</button>
+                </section>
+            `;
+            container.innerHTML = html;
+
+            // CTA Logic
+            const ctaBtn = document.getElementById('cta-get-started');
+            if (ctaBtn) {
+                ctaBtn.addEventListener('click', () => {
+                    const ts = document.getElementById('tools-section');
+                    if (ts) ts.scrollIntoView({ behavior: 'smooth' });
+                });
+            }
+
+            // Search Logic
+            const searchInput = document.getElementById('tool-search');
+            const toolsGrid = document.getElementById('tools-grid');
+            if (searchInput && toolsGrid) {
+                const cards = toolsGrid.querySelectorAll('.tool-card');
+
+                const filterTools = () => {
+                    const query = searchInput.value.toLowerCase();
+                    const activeTab = document.querySelector('.category-tab.active');
+                    const activeCat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
+                    
+                    cards.forEach(card => {
+                        const title = card.getAttribute('data-title') || '';
+                        const desc = card.getAttribute('data-desc') || '';
+                        const cat = card.getAttribute('data-cat') || '';
+                        
+                        const matchesSearch = title.includes(query) || desc.includes(query);
+                        const matchesCat = activeCat === 'all' || cat === activeCat;
+                        
+                        if (matchesSearch && matchesCat) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                };
+
+                searchInput.addEventListener('input', filterTools);
+
+                // Category Logic
+                const tabs = document.querySelectorAll('.category-tab');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        filterTools();
+                    });
+                });
+            }
+
+            // FAQ Logic
+            const faqs = document.querySelectorAll('.faq-question');
+            faqs.forEach(q => {
+                q.addEventListener('click', () => {
+                    const item = q.parentElement;
+                    if (item) {
+                        const wasActive = item.classList.contains('active');
+                        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+                        if (!wasActive) item.classList.add('active');
+                    }
+                });
+            });
+        } catch (err) {
+            console.error('Home Page Render Error:', err);
+            container.innerHTML = `<div style="padding: 2rem; text-align: center; color: red;"><h2>Failed to load landing page</h2><p>${err.message}</p></div>`;
         }
-
-        // Search Logic
-        const searchInput = document.getElementById('tool-search');
-        const toolsGrid = document.getElementById('tools-grid');
-        const cards = toolsGrid.querySelectorAll('.tool-card');
-
-        const filterTools = () => {
-            const query = searchInput.value.toLowerCase();
-            const activeCat = document.querySelector('.category-tab.active').getAttribute('data-cat');
-            
-            cards.forEach(card => {
-                const title = card.getAttribute('data-title');
-                const desc = card.getAttribute('data-desc');
-                const cat = card.getAttribute('data-cat');
-                
-                const matchesSearch = title.includes(query) || desc.includes(query);
-                const matchesCat = activeCat === 'all' || cat === activeCat;
-                
-                if (matchesSearch && matchesCat) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        };
-
-        if (searchInput) {
-            searchInput.addEventListener('input', filterTools);
-        }
-
-        // Category Logic
-        const tabs = document.querySelectorAll('.category-tab');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                filterTools();
-            });
-        });
-
-        // FAQ Logic
-        const faqs = document.querySelectorAll('.faq-question');
-        faqs.forEach(q => {
-            q.addEventListener('click', () => {
-                const item = q.parentElement;
-                const wasActive = item.classList.contains('active');
-                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-                if (!wasActive) item.classList.add('active');
-            });
-        });
     }
 
     function loadToolScript(toolId) {
@@ -219,37 +235,21 @@
             </div>
         `;
 
-        const scriptId = `script-${toolId}`;
-        // Remove old script if exists to re-trigger IIFE
-        const oldScript = document.getElementById(scriptId);
-        if (oldScript) oldScript.remove();
-
-        const script = document.createElement('script');
-        script.id = scriptId;
-        
-        // Robust absolute path resolution for tools
-        const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-        const scriptPath = `${baseUrl}tools/${toolId}.js?v=1.4`;
-        script.src = scriptPath;
-        
-        
-
-        script.onerror = () => {
-            console.error(`[PDFMinty] Failed to load tool script: ${scriptPath}`);
-            appContainer.innerHTML = `
-                <div style="text-align: center; padding: 4rem 2rem; color: var(--text);">
-                    <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
-                    <h2>Tool Loading Failed</h2>
-                    <p style="color: var(--muted); margin-bottom: 2rem;">We couldn't load the "${toolId}" tool. This might be due to a slow connection or the file missing on the server.</p>
-                    <a href="#" class="btn-secondary" style="text-decoration: none; display: inline-block;">Go Back Home</a>
-                    <button onclick="location.reload()" class="btn-action" style="margin-left: 1rem; border: none; cursor: pointer;">Retry</button>
-                    <p style="font-size: 0.8rem; color: var(--muted); margin-top: 2rem;">Debug Path: ${scriptPath}</p>
-                </div>
-            `;
-            window.showError(`Error loading tool: ${toolId}`);
-        };
-        
-        document.body.appendChild(script);
+        import(`./tools/${toolId}.js`)
+            .catch(err => {
+                console.error(`[PDFMinty] Failed to load tool script: ./tools/${toolId}.js`, err);
+                appContainer.innerHTML = `
+                    <div style="text-align: center; padding: 4rem 2rem; color: var(--text);">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+                        <h2>Tool Loading Failed</h2>
+                        <p style="color: var(--muted); margin-bottom: 2rem;">We couldn't load the "${toolId}" tool. This might be due to a slow connection or the file missing on the server.</p>
+                        <a href="#" class="btn-secondary" style="text-decoration: none; display: inline-block;">Go Back Home</a>
+                        <button onclick="location.reload()" class="btn-action" style="margin-left: 1rem; border: none; cursor: pointer;">Retry</button>
+                        <p style="font-size: 0.8rem; color: var(--muted); margin-top: 2rem;">Debug Path: ./tools/${toolId}.js</p>
+                    </div>
+                `;
+                window.showError(`Error loading tool: ${toolId}`);
+            });
     }
 
     function router() {
@@ -295,6 +295,15 @@
             btt.classList.add('visible');
         } else {
             btt.classList.remove('visible');
+        }
+        
+        const banner = document.querySelector('.privacy-banner');
+        if (banner) {
+            if (window.scrollY > 20) {
+                banner.classList.add('hidden-banner');
+            } else {
+                banner.classList.remove('hidden-banner');
+            }
         }
     });
 
@@ -634,8 +643,7 @@
 
     window.initPdfWorker = function() {
         if (!pdfWorker) {
-            const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-            pdfWorker = new Worker(`${baseUrl}pdf-worker.js`);
+            pdfWorker = new Worker(new URL('./pdf-worker.js', import.meta.url), { type: 'module' });
             pdfWorker.onmessage = function(e) {
                 const { id, status, result, error, progress } = e.data;
                 if (status === 'progress') {
@@ -744,7 +752,11 @@
     };
     
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(err => console.error("SW reg failed", err));
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+                registration.unregister();
+            }
+        });
     }
 
     // Clear leftover files on load/refresh
