@@ -1,4 +1,7 @@
 import confetti from 'canvas-confetti';
+import { ToastManager } from './utils/ToastManager.js';
+
+window.confetti = confetti;
 
 /**
  * app.js - PDFMinty Global Engine
@@ -8,7 +11,7 @@ import confetti from 'canvas-confetti';
     // Force the home page to load on initial visit by clearing any lingering hash.
     // This fixes the issue where the browser or preview iframe retains the old #merge state.
     if (window.location.hash) {
-        history.replaceState(null, null, window.location.pathname + window.location.search);
+        window.history.replaceState(null, null, window.location.pathname + window.location.search);
     }
 
     // ==========================================
@@ -132,10 +135,10 @@ import confetti from 'canvas-confetti';
                 </section>
 
                 <section class="faq-section">
-                    <h2 class="section-title" style="text-align: center;">Frequently Asked Questions</h2>
+                    <h2 class="section-title" style="text-align: center;">Frequently Asked Questions / Privacy & Security</h2>
                     <div class="faq-item">
-                        <div class="faq-question">Are my files safe? <span class="faq-icon">▼</span></div>
-                        <div class="faq-answer">Yes! PDFMinty processes all files locally in your browser. Your files are never uploaded to any server, ensuring 100% privacy.</div>
+                        <div class="faq-question">Privacy & Security: Are my files safe? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer">আপনার সমস্ত PDF প্রক্রিয়াকরণ সম্পূর্ণভাবে আপনার ব্রাউজারে (লোকাল) সম্পন্ন হয়। টুল চালানোর জন্য প্রয়োজনীয় কোডগুলো শুধুমাত্র বিশ্বস্ত CDN থেকে লোড করা হয়, কিন্তু আপনার ফাইল কখনোই কোনো সার্ভারে আপলোড করা হয়না। (All your PDF processing is done entirely locally in your browser. The code required to run the tools is loaded from trusted CDNs, but your files are never uploaded to any server.)</div>
                     </div>
                     <div class="faq-item">
                         <div class="faq-question">Is it really free? <span class="faq-icon">▼</span></div>
@@ -402,16 +405,17 @@ import confetti from 'canvas-confetti';
 
     window.validateFile = function(file) {
         if (!file.type || !file.type.includes('pdf')) {
-            // For image-to-pdf we might need to be relaxed, wait.
-            // Actually, image-to-pdf validates on its own. Let's strictly do what the prompt asks:
             if (file.type !== 'application/pdf' && !file.type.startsWith('image/')) {
-                 return { valid: false, reason: "Invalid file. Please upload a PDF document." };
+                 return { valid: false, reason: "Error: Invalid file format. Please upload a valid PDF document." };
             } else if (file.type !== 'application/pdf' && window.location.hash !== '#image-to-pdf') {
-                 return { valid: false, reason: "Invalid file. Please upload a PDF document." };
+                 return { valid: false, reason: "Error: Invalid file format. Please upload a valid PDF document." };
             }
         }
-        if (file.size > 25 * 1024 * 1024) {
-            return { valid: false, reason: "File too large. Maximum allowed size is 25MB." };
+        if (file.size > 500 * 1024 * 1024) {
+            return { valid: false, reason: "Error: File too large. Maximum allowed size is 500MB." };
+        }
+        if (file.size > 50 * 1024 * 1024) {
+            window.showError("Warning: File size is large (50MB+), processing might take a while.");
         }
         return { valid: true };
     };
@@ -420,47 +424,8 @@ import confetti from 'canvas-confetti';
     // ==========================================
     // 3. GLOBAL UI UTILITIES & DROPZONE
     // ==========================================
-    window.showError = function(message) { showToast(message, 'var(--danger)'); };
-    window.showSuccess = function(message) { 
-        showToast(message, 'var(--success)'); 
-        // Trigger Confetti
-        if (typeof confetti === 'function') {
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#6366f1', '#0ea5e9', '#10b981']
-            });
-        }
-    };
-
-    function showToast(message, color) {
-        let toast = document.getElementById('pdfminty-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'pdfminty-toast';
-            toast.className = 'toast';
-            document.body.appendChild(toast);
-        }
-        
-        const isSuccess = color.includes('success');
-        const icon = isSuccess ? '✅' : '⚠️';
-        toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
-        
-        // Reset classes
-        toast.className = 'toast';
-        toast.classList.add(isSuccess ? 'toast-success' : 'toast-danger');
-        
-        // Show toast
-        requestAnimationFrame(() => {
-            toast.classList.add('visible');
-        });
-        
-        if (window.toastTimeout) clearTimeout(window.toastTimeout);
-        window.toastTimeout = setTimeout(() => {
-            toast.classList.remove('visible');
-        }, 4000);
-    }
+    window.showError = function(message) { ToastManager.error(message); };
+    window.showSuccess = function(message) { ToastManager.success(message); };
 
     const loadingMessages = [
         "Minting your PDF...",
@@ -476,6 +441,8 @@ import confetti from 'canvas-confetti';
         let overlay = document.getElementById('modern-progress-overlay');
         
         if (!overlay) {
+            window._progressStartTime = Date.now();
+            window._progressLastETAUpdate = Date.now();
             overlay = document.createElement('div');
             overlay.id = 'modern-progress-overlay';
             
@@ -493,6 +460,10 @@ import confetti from 'canvas-confetti';
                     <div class="modern-progress-track">
                         <div id="modern-progress-bar" class="modern-progress-fill"></div>
                     </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem;">
+                        <span id="modern-progress-pct">0%</span>
+                        <span id="modern-progress-eta">Calculating ETA...</span>
+                    </div>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -506,20 +477,52 @@ import confetti from 'canvas-confetti';
         
         const bar = document.getElementById('modern-progress-bar');
         const msg = document.getElementById('modern-progress-msg');
+        const pctText = document.getElementById('modern-progress-pct');
+        const etaText = document.getElementById('modern-progress-eta');
         
-        if (bar) bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+        const cleanPercent = Math.min(100, Math.max(0, percent));
+        if (bar) bar.style.width = `${cleanPercent}%`;
+        if (pctText) pctText.textContent = `${Math.round(cleanPercent)}%`;
         
-        if (percent % 25 === 0 && msg) {
+        // Calculate ETA
+        if (cleanPercent > 0 && cleanPercent < 100 && window._progressStartTime) {
+            const elapsed = Date.now() - window._progressStartTime;
+            if (elapsed > 1000) { // wait a bit before calculating
+                const totalEstimated = elapsed / (cleanPercent / 100);
+                const etaMs = Math.max(0, totalEstimated - elapsed);
+                
+                // Update ETA every second
+                if (Date.now() - window._progressLastETAUpdate > 1000) {
+                    window._progressLastETAUpdate = Date.now();
+                    const etaSecs = Math.ceil(etaMs / 1000);
+                    if (etaSecs < 2) {
+                        etaText.textContent = "Almost done...";
+                    } else if (etaSecs < 60) {
+                        etaText.textContent = `ETA: ${etaSecs}s`;
+                    } else {
+                        const m = Math.floor(etaSecs / 60);
+                        const s = (etaSecs % 60).toString().padStart(2, '0');
+                        etaText.textContent = `ETA: ${m}:${s}`;
+                    }
+                }
+            }
+        }
+        
+        if (cleanPercent > 0 && Math.round(cleanPercent) % 25 === 0 && msg) {
             msg.textContent = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
         }
 
-        if (percent >= 100) {
+        if (cleanPercent >= 100) {
             if (msg) msg.textContent = "Done! 🎉";
+            if (etaText) etaText.textContent = "";
             setTimeout(() => {
                 if(overlay) {
                     overlay.style.opacity = '0';
                     overlay.style.backdropFilter = 'blur(0px)';
-                    setTimeout(() => overlay.remove(), 400);
+                    setTimeout(() => { 
+                        if (overlay.parentNode) overlay.parentNode.removeChild(overlay); 
+                        window._progressStartTime = null;
+                    }, 400);
                 }
             }, 800);
         }
@@ -530,7 +533,10 @@ import confetti from 'canvas-confetti';
         if (overlay) {
             overlay.style.opacity = '0';
             overlay.style.backdropFilter = 'blur(0px)';
-            setTimeout(() => overlay.remove(), 400);
+            setTimeout(() => {
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                window._progressStartTime = null;
+            }, 400);
         }
     };
 

@@ -8,20 +8,28 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
     "build:android": "vite build && npx cap sync android",
     "open:android": "npx cap open android"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.59.1",
     "eslint": "^10.1.0",
+    "jsdom": "^29.1.1",
     "typescript": "^6.0.3",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "vitest": "^4.1.6"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.2",
     "@capacitor/cli": "^8.3.2",
     "@capacitor/core": "^8.3.2",
     "canvas-confetti": "^1.9.4",
-    "pdf-lib": "^1.17.1"
+    "jspdf": "^4.2.1",
+    "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^5.7.284"
   }
 }

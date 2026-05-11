@@ -1,21 +1,26 @@
 {
-  "name": "PDFMinty",
-  "short_name": "PDFMinty",
-  "description": "Free privacy-first PDF tools",
+  "name": "Local PDF Tools",
+  "short_name": "PDF Tools",
+  "description": "100% Privacy-friendly Local PDF Tools",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#10b981",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
     },
     {
-      "src": "/icon-512.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjE1IiBmaWxsPSIjMTBiOTgxIi8+PHBhdGggZD0iTTI1IDI1aDUwdjUwaC01MHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI1Ii8+PC9zdmc+",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjE1IiBmaWxsPSIjMTBiOTgxIi8+PHBhdGggZD0iTTI1IDI1aDUwdjUwaC01MHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI1Ii8+PC9zdmc+",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml"
     }
   ]
 }

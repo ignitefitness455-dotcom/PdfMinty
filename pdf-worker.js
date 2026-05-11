@@ -1,4 +1,4 @@
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib';
 
 self.onmessage = async function(e) {
     const { id, task, payload } = e.data;
@@ -9,8 +9,14 @@ self.onmessage = async function(e) {
         
         } else if (task === 'compress') {
             result = await executeCompress(payload);
-} else if (task === 'split') {
+        } else if (task === 'split') {
             result = await executeSplit(payload);
+        } else if (task === 'watermark') {
+            result = await executeWatermark(payload);
+        } else if (task === 'add-page-numbers') {
+            result = await executeAddPageNumbers(payload);
+        } else if (task === 'reorder') {
+            result = await executeReorder(payload);
         } else {
              throw new Error('Unknown task: ' + task);
         }
@@ -94,4 +100,111 @@ async function executeCompress(payload) {
     
     self.postMessage({ id: payload.id, status: 'progress', progress: 95 });
     return await newPdf.save({ useObjectStreams: true });
+}
+
+async function executeWatermark(payload) {
+    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
+    const pdfDoc = await PDFDocument.load(payload.fileBytes, { ignoreEncryption: true });
+    const pages = pdfDoc.getPages();
+    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    
+    const { text, colorRgb, opacity, textSize, rotationDeg, position } = payload;
+    const angle = rotationDeg * (Math.PI / 180);
+
+    for (let k = 0; k < pages.length; k++) {
+        const page = pages[k];
+        const { width, height } = page.getSize();
+        const textWidth = font.widthOfTextAtSize(text, textSize);
+        const textHeight = font.heightAtSize(textSize);
+
+        // Calculate the center X
+        const centerX = width / 2;
+        
+        // Calculate the center Y based on position
+        let centerY = height / 2;
+        if (position === 'top') {
+            centerY = height - (textHeight * 2);
+        } else if (position === 'bottom') {
+            centerY = textHeight * 2;
+        }
+
+        // Draw text rotated, roughly centered at (centerX, centerY)
+        page.drawText(text, {
+            x: centerX - (textWidth / 2) * Math.cos(angle) + (textHeight / 2) * Math.sin(angle),
+            y: centerY - (textWidth / 2) * Math.sin(angle) - (textHeight / 2) * Math.cos(angle),
+            size: textSize,
+            font: font,
+            color: rgb(colorRgb.r, colorRgb.g, colorRgb.b),
+            opacity: opacity,
+            rotate: degrees(rotationDeg),
+        });
+        
+        if (k % 50 === 0) self.postMessage({ id: payload.id, status: 'progress', progress: Math.min(95, Math.round(10 + (k / pages.length) * 80)) });
+    }
+
+    self.postMessage({ id: payload.id, status: 'progress', progress: 95 });
+    return await pdfDoc.save({ useObjectStreams: true });
+}
+
+async function executeAddPageNumbers(payload) {
+    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
+    const pdfDoc = await PDFDocument.load(payload.fileBytes, { ignoreEncryption: true });
+    const pages = pdfDoc.getPages();
+    const totalPages = pages.length;
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    const { position, format, size, margin, colorRgb } = payload;
+
+    for (let index = 0; index < pages.length; index++) {
+        const page = pages[index];
+        const { width, height } = page.getSize();
+        const pageNum = index + 1;
+        
+        let text = String(pageNum);
+        if (format === 'page_1') text = `Page ${pageNum}`;
+        else if (format === '1_of_n') text = `${pageNum} of ${totalPages}`;
+        else if (format === 'page_1_of_n') text = `Page ${pageNum} of ${totalPages}`;
+        else if (format === '-1-') text = `- ${pageNum} -`;
+
+        const textWidth = font.widthOfTextAtSize(text, size);
+        
+        let x, y;
+
+        if (position.includes('left')) x = margin;
+        else if (position.includes('right')) x = width - margin - textWidth;
+        else x = width / 2 - textWidth / 2; // center
+
+        if (position.includes('top')) y = height - margin - size;
+        else y = margin; // bottom
+
+        page.drawText(text, {
+            x: x,
+            y: y,
+            size: size,
+            font: font,
+            color: rgb(colorRgb.r, colorRgb.g, colorRgb.b),
+        });
+
+        if (index % 50 === 0) self.postMessage({ id: payload.id, status: 'progress', progress: Math.min(95, Math.round(10 + (index / pages.length) * 80)) });
+    }
+
+    self.postMessage({ id: payload.id, status: 'progress', progress: 95 });
+    return await pdfDoc.save({ useObjectStreams: true });
+}
+
+async function executeReorder(payload) {
+    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
+    const srcDoc = await PDFDocument.load(payload.fileBytes, { ignoreEncryption: true });
+    const newDoc = await PDFDocument.create();
+    
+    const indices = payload.newOrder.map(p => p - 1);
+    const copiedPages = await newDoc.copyPages(srcDoc, indices);
+    
+    for (let copyIdx = 0; copyIdx < copiedPages.length; copyIdx++) {
+        newDoc.addPage(copiedPages[copyIdx]);
+        if (copyIdx % 50 === 0) self.postMessage({ id: payload.id, status: 'progress', progress: Math.min(95, Math.round(10 + (copyIdx / copiedPages.length) * 80)) });
+    }
+
+    self.postMessage({ id: payload.id, status: 'progress', progress: 95 });
+    return await newDoc.save({ useObjectStreams: true });
 }
