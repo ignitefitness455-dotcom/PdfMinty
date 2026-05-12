@@ -1,4 +1,4 @@
-exports.handler = async function(event, context) {
+exports.handler = async function(event) {
     // Determine allowed origin (allowing AI Studio preview domains while restricting generally as requested)
     const origin = event.headers.origin || event.headers.Origin;
     let allowedOrigin = 'https://pdfminty.netlify.app';

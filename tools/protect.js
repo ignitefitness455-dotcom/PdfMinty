@@ -1,6 +1,6 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-(function() {
+export default function renderTool() {
     setupToolUI({
         toolId: 'protect',
         title: 'Protect PDF',
@@ -25,4 +25,4 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
             if (typeof showSuccess === 'function') showSuccess('PDF protected successfully!');
         }
     });
-})();
+}

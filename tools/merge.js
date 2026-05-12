@@ -1,6 +1,6 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-(function() {
+export default function renderTool() {
     setupToolUI({
         toolId: 'merge',
         title: 'Merge PDF',
@@ -53,4 +53,4 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
             if (typeof showSuccess === 'function') showSuccess('PDFs merged successfully!');
         }
     });
-})();
+}

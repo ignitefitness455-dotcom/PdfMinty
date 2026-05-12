@@ -1,4 +1,4 @@
-import { PDFDocument } from 'pdf-lib';
+
 
 export async function getPdfBytes(input) {
     if (input instanceof ArrayBuffer) return input;
@@ -22,13 +22,13 @@ export async function processPdfTask(btnElem, processFn) {
         await processFn();
     } catch (error) {
         console.error("PDF Processing Error:", error);
-        if (typeof window.hideProgress === 'function') window.hideProgress();
         if (typeof window.showError === 'function') {
             window.showError(error.message || "An error occurred while processing the PDF.");
         } else {
             alert("Error: " + (error.message || "An error occurred"));
         }
     } finally {
+        if (typeof window.hideProgress === 'function') window.hideProgress();
         if (btnElem) {
             btnElem.disabled = false;
             btnElem.textContent = btnElem.getAttribute('data-original-text');

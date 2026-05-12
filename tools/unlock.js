@@ -1,6 +1,6 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-(function() {
+export default function renderTool() {
     setupToolUI({
         toolId: 'unlock',
         title: 'Unlock PDF',
@@ -31,4 +31,4 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
         }
     });
-})();
+}

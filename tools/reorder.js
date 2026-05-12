@@ -1,6 +1,6 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-(function() {
+export default function renderTool() {
     setupToolUI({
         toolId: 'reorder',
         title: 'Reorder PDF',
@@ -40,4 +40,4 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
         }
     });
-})();
+}

@@ -1,6 +1,6 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-(function() {
+export default function renderTool() {
     setupToolUI({
         toolId: 'rotate',
         title: 'Rotate PDF',
@@ -27,4 +27,4 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
         }
     });
-})();
+}

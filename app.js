@@ -17,7 +17,6 @@ window.confetti = confetti;
     // ==========================================
     // 1. HASH ROUTER SYSTEM
     // ==========================================
-    console.log("[PDFMinty] Engine v1.2 Loaded - 2026-03-27");
     const toolsList = [
         { id: 'merge', title: 'Merge PDF', icon: '🔗', desc: 'Combine multiple PDFs into one', cat: 'organize' },
         { id: 'split', title: 'Split PDF', icon: '✂️', desc: 'Extract pages from your PDF', cat: 'organize' },
@@ -229,6 +228,24 @@ window.confetti = confetti;
         }
     }
 
+    const toolLoaders = {
+        'merge': () => import('./tools/merge.js'),
+        'split': () => import('./tools/split.js'),
+        'compress': () => import('./tools/compress.js'),
+        'rotate': () => import('./tools/rotate.js'),
+        'reorder': () => import('./tools/reorder.js'),
+        'delete-pages': () => import('./tools/delete-pages.js'),
+        'extract-pages': () => import('./tools/extract-pages.js'),
+        'image-to-pdf': () => import('./tools/image-to-pdf.js'),
+        'pdf-to-image': () => import('./tools/pdf-to-image.js'),
+        'protect': () => import('./tools/protect.js'),
+        'unlock': () => import('./tools/unlock.js'),
+        'watermark': () => import('./tools/watermark.js'),
+        'add-page-numbers': () => import('./tools/add-page-numbers.js'),
+        'add-blank-page': () => import('./tools/add-blank-page.js'),
+        'crop-resize': () => import('./tools/crop-resize.js')
+    };
+
     function loadToolScript(toolId) {
         const appContainer = document.getElementById('app');
         appContainer.innerHTML = `
@@ -238,21 +255,32 @@ window.confetti = confetti;
             </div>
         `;
 
-        import(`./tools/${toolId}.js`)
-            .catch(err => {
-                console.error(`[PDFMinty] Failed to load tool script: ./tools/${toolId}.js`, err);
-                appContainer.innerHTML = `
-                    <div style="text-align: center; padding: 4rem 2rem; color: var(--text);">
-                        <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
-                        <h2>Tool Loading Failed</h2>
-                        <p style="color: var(--muted); margin-bottom: 2rem;">We couldn't load the "${toolId}" tool. This might be due to a slow connection or the file missing on the server.</p>
-                        <a href="#" class="btn-secondary" style="text-decoration: none; display: inline-block;">Go Back Home</a>
-                        <button onclick="location.reload()" class="btn-action" style="margin-left: 1rem; border: none; cursor: pointer;">Retry</button>
-                        <p style="font-size: 0.8rem; color: var(--muted); margin-top: 2rem;">Debug Path: ./tools/${toolId}.js</p>
-                    </div>
-                `;
-                window.showError(`Error loading tool: ${toolId}`);
-            });
+        if (toolLoaders[toolId]) {
+            toolLoaders[toolId]()
+                .then(module => {
+                    if (module.default) {
+                        module.default();
+                    } else if (typeof module.renderTool === 'function') {
+                        module.renderTool();
+                    } else {
+                        throw new Error("Module doesn't have a default export. Keys: " + Object.keys(module));
+                    }
+                })
+                .catch(err => {
+                    console.error(`[PDFMinty] Failed to load tool script: ./tools/${toolId}.js`, err);
+                    appContainer.innerHTML = `
+                        <div style="text-align: center; padding: 4rem 2rem; color: var(--text);">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+                            <h2>Tool Loading Failed</h2>
+                            <p style="color: var(--muted); margin-bottom: 2rem;">We couldn't load the "${toolId}" tool. Error: ${err.message}</p>
+                            <a href="#" class="btn-secondary" style="text-decoration: none; display: inline-block;">Go Back Home</a>
+                            <button onclick="location.reload()" class="btn-action" style="margin-left: 1rem; border: none; cursor: pointer;">Retry</button>
+                            <p style="font-size: 0.8rem; color: var(--muted); margin-top: 2rem;">Debug Path: ./tools/${toolId}.js</p>
+                        </div>
+                    `;
+                    window.showError(`Error loading tool: ${toolId}`);
+                });
+        }
     }
 
     function router() {
@@ -361,7 +389,7 @@ window.confetti = confetti;
     if (typeof pdfjsLib === 'undefined') {
         window.loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js').then(() => {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        }).catch(err => {});
+        }).catch(() => {});
     }
 
     window.addEventListener('hashchange', router);
@@ -768,12 +796,12 @@ window.confetti = confetti;
     // Clear leftover files on load/refresh
     window.addEventListener('load', () => {
         if (window.pdfDB) {
-            window.pdfDB.clearAll().catch(e => {});
+            window.pdfDB.clearAll().catch(() => {});
         }
     });
     window.addEventListener('beforeunload', () => {
         if (window.pdfDB) {
-            window.pdfDB.clearAll().catch(e => {});
+            window.pdfDB.clearAll().catch(() => {});
         }
     });
 

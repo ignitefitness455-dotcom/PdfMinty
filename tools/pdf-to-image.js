@@ -1,6 +1,6 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-(function() {
+export default function renderTool() {
     setupToolUI({
         toolId: 'pdf-to-image',
         title: 'PDF to Image',
@@ -36,4 +36,4 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
         }
     });
-})();
+}

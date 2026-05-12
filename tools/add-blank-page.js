@@ -1,6 +1,6 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-(function() {
+export default function renderTool() {
     setupToolUI({
         toolId: 'add-blank-page',
         title: 'Add Blank Page',
@@ -106,4 +106,4 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
             if (typeof showSuccess === 'function') showSuccess('Blank pages added successfully!');
         }
     });
-})();
+}

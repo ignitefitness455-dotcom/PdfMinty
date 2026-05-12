@@ -1,6 +1,6 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-(function() {
+export default function renderTool() {
     const MM_TO_PT = 2.835;
 
     setupToolUI({
@@ -169,4 +169,4 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
             }
         }
     });
-})();
+}
