@@ -9,20 +9,20 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
         actionText: '🔒 Protect PDF',
         isMultiFile: false,
         onApply: async ({ actualBytes, currentFileName }) => {
-
             const password = document.getElementById('pdf-password').value;
             if(!password) throw new Error("Password is required");
+            if (typeof window.showProgress === 'function') window.showProgress(5);
             
-            const pdfDoc = await (await import('pdf-lib')).PDFDocument.load(actualBytes);
-            const resultBytes = await pdfDoc.save({
-                useObjectStreams: true,
-                userPassword: password,
-                ownerPassword: password,
-                permissions: { printing: 'highResolution', modifying: false, copying: false }
+            const resultBytes = await window.runPdfWorkerTask('protect', {
+                fileBytes: actualBytes,
+                password: password,
+                fileName: currentFileName
+            }, [actualBytes.buffer], (prog) => {
+                if (typeof window.showProgress === 'function') window.showProgress(prog);
             });
+            
             if (typeof downloadFile === 'function') downloadFile(resultBytes, currentFileName + '_protected.pdf');
             if (typeof showSuccess === 'function') showSuccess('PDF protected successfully!');
-
         }
     });
 })();

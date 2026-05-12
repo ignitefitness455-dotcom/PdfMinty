@@ -138,7 +138,7 @@ window.confetti = confetti;
                     <h2 class="section-title" style="text-align: center;">Frequently Asked Questions / Privacy & Security</h2>
                     <div class="faq-item">
                         <div class="faq-question">Privacy & Security: Are my files safe? <span class="faq-icon">▼</span></div>
-                        <div class="faq-answer">আপনার সমস্ত PDF প্রক্রিয়াকরণ সম্পূর্ণভাবে আপনার ব্রাউজারে (লোকাল) সম্পন্ন হয়। টুল চালানোর জন্য প্রয়োজনীয় কোডগুলো শুধুমাত্র বিশ্বস্ত CDN থেকে লোড করা হয়, কিন্তু আপনার ফাইল কখনোই কোনো সার্ভারে আপলোড করা হয়না। (All your PDF processing is done entirely locally in your browser. The code required to run the tools is loaded from trusted CDNs, but your files are never uploaded to any server.)</div>
+                        <div class="faq-answer">All your PDF processing is done entirely locally in your browser. The code required to run the tools is loaded from trusted CDNs, but your files are never uploaded to any server.</div>
                     </div>
                     <div class="faq-item">
                         <div class="faq-question">Is it really free? <span class="faq-icon">▼</span></div>

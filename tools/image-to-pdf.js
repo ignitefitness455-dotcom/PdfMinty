@@ -10,28 +10,26 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
         isMultiFile: true,
         onApply: async ({ filesArray }) => {
             if (filesArray.length === 0) return;
-            const { PDFDocument } = await import('pdf-lib');
-            const pdfDoc = await PDFDocument.create();
             
-            for (let i = 0; i < filesArray.length; i++) {
-                const file = filesArray[i].fileObj;
-                const fileBytes = await file.arrayBuffer();
-                let image;
-                
-                if (file.type === 'image/jpeg') {
-                    image = await pdfDoc.embedJpg(fileBytes);
-                } else if (file.type === 'image/png') {
-                    image = await pdfDoc.embedPng(fileBytes);
-                } else {
-                    continue;
-                }
-                
-                const { width, height } = image.scale(1);
-                const page = pdfDoc.addPage([width, height]);
-                page.drawImage(image, { x: 0, y: 0, width, height });
-            }
-
-            const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
+            if (typeof window.showProgress === 'function') window.showProgress(5);
+            
+            // Read all images first
+            const fileDatas = await Promise.all(filesArray.map(async item => {
+                const buffer = await item.fileObj.arrayBuffer();
+                return {
+                    bytes: new Uint8Array(buffer),
+                    type: item.fileObj.type,
+                    name: item.fileObj.name
+                };
+            }));
+            
+            const transferables = fileDatas.map(f => f.bytes.buffer);
+            
+            const pdfBytes = await window.runPdfWorkerTask('image-to-pdf', {
+                files: fileDatas
+            }, transferables, (prog) => {
+                if (typeof window.showProgress === 'function') window.showProgress(prog);
+            });
             
             if (typeof downloadFile === 'function') {
                 downloadFile(pdfBytes, 'images-converted.pdf');

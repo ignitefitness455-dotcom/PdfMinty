@@ -72,7 +72,10 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
             if (isNaN(count) || count < 1 || count > 10) throw new Error("Please enter a valid number of pages to insert (1-10).");
 
-            const pdfDoc = await (await import('pdf-lib')).PDFDocument.load(actualBytes);
+            if (typeof window.showProgress === 'function') window.showProgress(5);
+
+            // We must calculate dimensions before sending to worker because it requires totalPages
+            const pdfDoc = await (await import('pdf-lib')).PDFDocument.load(actualBytes, { ignoreEncryption: true });
             const totalPages = pdfDoc.getPageCount();
             
             let targetPage = isNaN(targetPageRaw) ? totalPages : Math.min(Math.max(1, targetPageRaw), totalPages);
@@ -90,10 +93,14 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
                 dims = [612.00, 792.00];
             }
 
-            for (let i = 0; i < count; i++) {
-                pdfDoc.insertPage(insertIndex + i, dims);
-            }
-            const modifiedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
+            const modifiedPdfBytes = await window.runPdfWorkerTask('add-blank-page', {
+                fileBytes: actualBytes,
+                count,
+                insertIndex,
+                dims
+            }, [actualBytes.buffer], (prog) => {
+                if (typeof window.showProgress === 'function') window.showProgress(prog);
+            });
             
             if (typeof downloadFile === 'function') downloadFile(modifiedPdfBytes, currentFileName + '_blank_added.pdf');
             if (typeof showSuccess === 'function') showSuccess('Blank pages added successfully!');

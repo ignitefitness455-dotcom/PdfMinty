@@ -17,6 +17,20 @@ self.onmessage = async function(e) {
             result = await executeAddPageNumbers(payload);
         } else if (task === 'reorder') {
             result = await executeReorder(payload);
+        } else if (task === 'protect') {
+            result = await executeProtect(payload);
+        } else if (task === 'add-blank-page') {
+            result = await executeAddBlankPage(payload);
+        } else if (task === 'delete-pages') {
+            result = await executeDeletePages(payload);
+        } else if (task === 'extract-pages') {
+            result = await executeExtractPages(payload);
+        } else if (task === 'rotate') {
+            result = await executeRotate(payload);
+        } else if (task === 'unlock') {
+            result = await executeUnlock(payload);
+        } else if (task === 'image-to-pdf') {
+            result = await executeImageToPdf(payload);
         } else {
              throw new Error('Unknown task: ' + task);
         }
@@ -207,4 +221,145 @@ async function executeReorder(payload) {
 
     self.postMessage({ id: payload.id, status: 'progress', progress: 95 });
     return await newDoc.save({ useObjectStreams: true });
+}
+
+async function executeProtect(payload) {
+    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
+    const pdfDoc = await PDFDocument.load(payload.fileBytes); // Cannot use ignoreEncryption inside protect because we want to preserve or just load
+    const resultBytes = await pdfDoc.save({
+        useObjectStreams: true,
+        userPassword: payload.password,
+        ownerPassword: payload.password,
+        permissions: { printing: 'highResolution', modifying: false, copying: false }
+    });
+    self.postMessage({ id: payload.id, status: 'progress', progress: 100 });
+    return resultBytes;
+}
+
+async function executeAddBlankPage(payload) {
+    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
+    const pdfDoc = await PDFDocument.load(payload.fileBytes, { ignoreEncryption: true });
+    
+    for (let i = 0; i < payload.count; i++) {
+        pdfDoc.insertPage(payload.insertIndex + i, payload.dims);
+    }
+    
+    self.postMessage({ id: payload.id, status: 'progress', progress: 80 });
+    return await pdfDoc.save({ useObjectStreams: true });
+}
+
+async function executeDeletePages(payload) {
+    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
+    const pdfDoc = await PDFDocument.load(payload.fileBytes, { ignoreEncryption: true });
+    const totalPages = pdfDoc.getPageCount();
+
+    const toDelete = new Set();
+    for (let part of payload.rangesText.split(',')) {
+        part = part.trim();
+        if (!part) continue;
+        if (part.includes('-')) {
+            const [s, e] = part.split('-').map(Number);
+            if (s && e) {
+                for (let i = s; i <= e; i++) toDelete.add(i);
+            }
+        } else if (!isNaN(Number(part))) {
+            toDelete.add(Number(part));
+        }
+    }
+    
+    const indices = Array.from(toDelete).sort((a,b) => b - a).map(p => p - 1);
+    
+    for (const idx of indices) {
+        if (idx >= 0 && idx < totalPages) {
+            pdfDoc.removePage(idx);
+        }
+    }
+    
+    self.postMessage({ id: payload.id, status: 'progress', progress: 80 });
+    return await pdfDoc.save({ useObjectStreams: true });
+}
+
+async function executeExtractPages(payload) {
+    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
+    const pdfDoc = await PDFDocument.load(payload.fileBytes, { ignoreEncryption: true });
+    const totalPages = pdfDoc.getPageCount();
+
+    const toExtract = new Set();
+    for (let part of payload.rangesText.split(',')) {
+        part = part.trim();
+        if (!part) continue;
+        if (part.includes('-')) {
+            const [s, e] = part.split('-').map(Number);
+            if (s && e) {
+                for (let i = s; i <= e; i++) toExtract.add(i);
+            }
+        } else if (!isNaN(Number(part))) {
+            toExtract.add(Number(part));
+        }
+    }
+    
+    const indices = Array.from(toExtract).sort((a,b) => a - b).map(p => p - 1).filter(i => i >= 0 && i < totalPages);
+    if(indices.length === 0) throw new Error("No valid pages to extract");
+    
+    const newDoc = await PDFDocument.create();
+    const copied = await newDoc.copyPages(pdfDoc, indices);
+    for (let i = 0; i < copied.length; i++) {
+        newDoc.addPage(copied[i]);
+        if (i % 50 === 0) self.postMessage({ id: payload.id, status: 'progress', progress: Math.min(95, Math.round(10 + (i / copied.length) * 80)) });
+    }
+    
+    self.postMessage({ id: payload.id, status: 'progress', progress: 95 });
+    return await newDoc.save({ useObjectStreams: true });
+}
+
+async function executeRotate(payload) {
+    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
+    const pdfDoc = await PDFDocument.load(payload.fileBytes, { ignoreEncryption: true });
+    const pages = pdfDoc.getPages();
+    const deg = payload.degree || 90;
+
+    for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+        const currentRotation = page.getRotation().angle;
+        page.setRotation(degrees(currentRotation + deg));
+        if (i % 50 === 0) self.postMessage({ id: payload.id, status: 'progress', progress: Math.min(95, Math.round(10 + (i / pages.length) * 80)) });
+    }
+
+    self.postMessage({ id: payload.id, status: 'progress', progress: 95 });
+    return await pdfDoc.save({ useObjectStreams: true });
+}
+
+async function executeUnlock(payload) {
+    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
+    const pdfDoc = await PDFDocument.load(payload.fileBytes, { password: payload.password });
+    
+    self.postMessage({ id: payload.id, status: 'progress', progress: 50 });
+    return await pdfDoc.save({ useObjectStreams: true }); // By default, save doesn't encrypt unless options provided
+}
+
+async function executeImageToPdf(payload) {
+    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
+    const pdfDoc = await PDFDocument.create();
+    
+    for (let i = 0; i < payload.files.length; i++) {
+        const fileData = payload.files[i];
+        let image;
+        
+        if (fileData.type === 'image/jpeg') {
+            image = await pdfDoc.embedJpg(fileData.bytes);
+        } else if (fileData.type === 'image/png') {
+            image = await pdfDoc.embedPng(fileData.bytes);
+        } else {
+            continue;
+        }
+        
+        const { width, height } = image.scale(1);
+        const page = pdfDoc.addPage([width, height]);
+        page.drawImage(image, { x: 0, y: 0, width, height });
+        
+        self.postMessage({ id: payload.id, status: 'progress', progress: Math.min(95, Math.round(10 + ((i + 1) / payload.files.length) * 80)) });
+    }
+
+    self.postMessage({ id: payload.id, status: 'progress', progress: 95 });
+    return await pdfDoc.save({ useObjectStreams: true });
 }

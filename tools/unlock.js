@@ -12,20 +12,22 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
             const password = document.getElementById('pdf-password') ? document.getElementById('pdf-password').value : document.querySelector('input[type="password"]').value;
             
-            let pdfDoc;
+            if (typeof window.showProgress === 'function') window.showProgress(5);
+            
             try {
-                pdfDoc = await (await import('pdf-lib')).PDFDocument.load(actualBytes, { password });
+                const resultBytes = await window.runPdfWorkerTask('unlock', {
+                    fileBytes: actualBytes,
+                    password: password
+                }, [actualBytes.buffer], (prog) => {
+                    if (typeof window.showProgress === 'function') window.showProgress(prog);
+                });
+                
+                if (typeof downloadFile === 'function') downloadFile(resultBytes, currentFileName + '_unlocked.pdf');
+                if (typeof showSuccess === 'function') showSuccess('PDF unlocked successfully!');
             } catch(e) {
+                if(e.message && e.message.includes('Incorrect password')) throw e;
                 throw new Error("Incorrect password or unable to unlock.", { cause: e });
             }
-            
-            const newDoc = await (await import('pdf-lib')).PDFDocument.create();
-            const copied = await newDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
-            copied.forEach(p => newDoc.addPage(p));
-            
-            const resultBytes = await newDoc.save({ useObjectStreams: true });
-            if (typeof downloadFile === 'function') downloadFile(resultBytes, currentFileName + '_unlocked.pdf');
-            if (typeof showSuccess === 'function') showSuccess('PDF unlocked successfully!');
 
         }
     });

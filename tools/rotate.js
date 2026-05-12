@@ -11,16 +11,17 @@ import { setupToolUI } from '../utils/pdfToolsSetup.js';
         onApply: async ({ actualBytes, currentFileName }) => {
 
             const direction = document.getElementById('rotate-direction').value;
-            const pdfDoc = await (await import('pdf-lib')).PDFDocument.load(actualBytes);
+            const degree = direction === 'right' ? 90 : -90;
             
-            const pages = pdfDoc.getPages();
-            for (let p of pages) {
-                const currentAngle = p.getRotation().angle;
-                let newAngle = currentAngle + (direction === 'right' ? 90 : -90);
-                p.setRotation({ angle: newAngle });
-            }
+            if (typeof window.showProgress === 'function') window.showProgress(5);
             
-            const resultBytes = await pdfDoc.save({ useObjectStreams: true });
+            const resultBytes = await window.runPdfWorkerTask('rotate', {
+                fileBytes: actualBytes,
+                degree: degree
+            }, [actualBytes.buffer], (prog) => {
+                if (typeof window.showProgress === 'function') window.showProgress(prog);
+            });
+            
             if (typeof downloadFile === 'function') downloadFile(resultBytes, currentFileName + '_rotated.pdf');
             if (typeof showSuccess === 'function') showSuccess('PDF rotated successfully!');
 
