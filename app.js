@@ -71,12 +71,12 @@ window.confetti = confetti;
             `;
             toolsList.forEach(t => {
                 html += `
-                    <a href="#${t.id}" class="tool-card" data-cat="${t.cat}" data-title="${t.title.toLowerCase()}" data-desc="${t.desc.toLowerCase()}">
-                        <div class="tool-icon-wrapper">${t.icon}</div>
+                    <a href="#${t.id}" class="tool-card" data-cat="${t.cat}" data-title="${t.title.toLowerCase()}" data-desc="${t.desc.toLowerCase()}" aria-label="Tool: ${t.title}. ${t.desc}">
+                        <div class="tool-icon-wrapper" aria-hidden="true">${t.icon}</div>
                         <div class="tool-info">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
                                 <h3 style="margin-bottom: 0;">${t.title}</h3>
-                                <span class="category-badge">${t.cat}</span>
+                                <span class="category-badge" aria-label="Category: ${t.cat}">${t.cat}</span>
                             </div>
                             <p>${t.desc}</p>
                         </div>
@@ -283,6 +283,30 @@ window.confetti = confetti;
         }
     }
 
+    const SEO = {
+        updateTags(toolId) {
+            const tool = toolsList.find(t => t.id === toolId);
+            if (!tool) return;
+            
+            document.title = `${tool.title} — PdfMinty Free Online Tools`;
+            
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) metaDesc.setAttribute('content', tool.desc);
+            
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) ogTitle.setAttribute('content', `${tool.title} — PdfMinty`);
+            
+            const ogDesc = document.querySelector('meta[property="og:description"]');
+            if (ogDesc) ogDesc.setAttribute('content', tool.desc);
+            
+            const twTitle = document.querySelector('meta[name="twitter:title"]');
+            if (twTitle) twTitle.setAttribute('content', `${tool.title} — PdfMinty`);
+            
+            const twDesc = document.querySelector('meta[name="twitter:description"]');
+            if (twDesc) twDesc.setAttribute('content', tool.desc);
+        }
+    };
+
     function router() {
         const hash = window.location.hash.substring(1);
         const appContainer = document.getElementById('app');
@@ -297,10 +321,12 @@ window.confetti = confetti;
             
             if (!hash) {
                 renderHomePage(appContainer);
+                document.title = 'PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF';
             } else {
                 // Check if valid tool
                 const isValidTool = toolsList.some(t => t.id === hash);
                 if (isValidTool) {
+                    SEO.updateTags(hash);
                     loadToolScript(hash);
                 } else {
                     window.location.hash = ''; // Redirect to home if invalid
@@ -407,10 +433,14 @@ window.confetti = confetti;
     // ==========================================
     // 2. DEVICE-AWARE FILE SIZE VALIDATION
     // ==========================================
-    window.renderPdfThumbnail = async function(file, imgElement) {
+    window.PdfMinty = window.PdfMinty || {};
+    window.PdfMinty.utils = window.PdfMinty.utils || {};
+    window.PdfMinty.ui = window.PdfMinty.ui || {};
+
+    window.PdfMinty.utils.renderPdfThumbnail = async function(file, imgElement) {
         try {
             if (typeof pdfjsLib === 'undefined') {
-                await window.loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+                await window.PdfMinty.utils.loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
                 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             }
             const arrayBuffer = await file.arrayBuffer();
@@ -431,29 +461,22 @@ window.confetti = confetti;
         }
     };
 
-    window.validateFile = function(file) {
-        if (!file.type || !file.type.includes('pdf')) {
-            if (file.type !== 'application/pdf' && !file.type.startsWith('image/')) {
-                 return { valid: false, reason: "Error: Invalid file format. Please upload a valid PDF document." };
-            } else if (file.type !== 'application/pdf' && window.location.hash !== '#image-to-pdf') {
-                 return { valid: false, reason: "Error: Invalid file format. Please upload a valid PDF document." };
-            }
-        }
-        if (file.size > 500 * 1024 * 1024) {
-            return { valid: false, reason: "Error: File too large. Maximum allowed size is 500MB." };
-        }
-        if (file.size > 50 * 1024 * 1024) {
-            window.showError("Warning: File size is large (50MB+), processing might take a while.");
-        }
-        return { valid: true };
+    window.PdfMinty.utils.formatBytes = function(bytes, decimals = 2) {
+        if (!+bytes) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
     };
 
-
-    // ==========================================
+    // Keep global proxy for backward compatibility with older tools
+    window.renderPdfThumbnail = window.PdfMinty.utils.renderPdfThumbnail;
+    window.f    // ==========================================
     // 3. GLOBAL UI UTILITIES & DROPZONE
     // ==========================================
-    window.showError = function(message) { ToastManager.error(message); };
-    window.showSuccess = function(message) { ToastManager.success(message); };
+    window.PdfMinty.ui.showError = function(message) { ToastManager.error(message); };
+    window.PdfMinty.ui.showSuccess = function(message) { ToastManager.success(message); };
 
     const loadingMessages = [
         "Minting your PDF...",
@@ -465,7 +488,7 @@ window.confetti = confetti;
         "Doing the heavy lifting..."
     ];
 
-    window.showProgress = function(percent) {
+    window.PdfMinty.ui.showProgress = function(percent) {
         let overlay = document.getElementById('modern-progress-overlay');
         
         if (!overlay) {
@@ -556,7 +579,7 @@ window.confetti = confetti;
         }
     };
 
-    window.hideProgress = function() {
+    window.PdfMinty.ui.hideProgress = function() {
         let overlay = document.getElementById('modern-progress-overlay');
         if (overlay) {
             overlay.style.opacity = '0';
@@ -568,7 +591,7 @@ window.confetti = confetti;
         }
     };
 
-    window.downloadFile = function(uint8Array, filename) {
+    window.PdfMinty.utils.downloadFile = function(uint8Array, filename) {
         const blob = new Blob([uint8Array], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -580,92 +603,14 @@ window.confetti = confetti;
         setTimeout(() => URL.revokeObjectURL(url), 100);
     };
 
-    window.initDropZone = function(zoneId, inputId, callback, accept = '') {
-        const zone = document.getElementById(zoneId);
-        const input = document.getElementById(inputId);
-        if (!zone || !input) return;
+    // Keep global proxy for backward compatibility with older tools
+    window.showError = window.PdfMinty.ui.showError;
+    window.showSuccess = window.PdfMinty.ui.showSuccess;
+    window.showProgress = window.PdfMinty.ui.showProgress;
+    window.hideProgress = window.PdfMinty.ui.hideProgress;
+    window.downloadFile = window.PdfMinty.utils.downloadFile;
 
-        if (accept) input.accept = accept;
-
-        zone.classList.add('drop-zone-enhanced');
-
-        const overlay = document.createElement('div');
-        overlay.className = 'drop-overlay';
-        overlay.innerHTML = `
-            <div class="drop-icon-large">📥</div>
-            <div class="drop-text-large">Release to add files</div>
-            <div class="drop-progress-container hidden">
-                <div class="drop-progress-bar"></div>
-            </div>
-        `;
-        zone.appendChild(overlay);
-
-        const icon = overlay.querySelector('.drop-icon-large');
-        const text = overlay.querySelector('.drop-text-large');
-        const progContainer = overlay.querySelector('.drop-progress-container');
-        const progBar = overlay.querySelector('.drop-progress-bar');
-
-        const setOverlayState = (i, t, showProg = false) => {
-            icon.textContent = i;
-            text.textContent = t;
-            if (showProg) {
-                progContainer.classList.remove('hidden');
-                icon.style.animation = 'none';
-            } else {
-                progContainer.classList.add('hidden');
-                icon.style.animation = '';
-            }
-        };
-
-        zone.addEventListener('click', (e) => { if (e.target !== input) input.click(); });
-        zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-active'); setOverlayState('📥', 'Release to add files'); });
-        zone.addEventListener('dragleave', (e) => { e.preventDefault(); if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-active'); });
-        zone.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            zone.classList.remove('drag-active');
-            if (e.dataTransfer.files.length > 0) await processFiles(e.dataTransfer.files);
-        });
-        input.addEventListener('change', async (e) => {
-            if (e.target.files.length > 0) await processFiles(e.target.files);
-        });
-
-        async function processFiles(files) {
-            overlay.classList.add('active');
-            setOverlayState('⏳', `Processing ${files.length} file(s)...`, true);
-            for (let i = 0; i <= 100; i += 20) {
-                progBar.style.width = `${i}%`;
-                await new Promise(r => setTimeout(r, 30));
-            }
-            
-            // Success Animation
-            overlay.innerHTML = `
-                <div class="success-checkmark">
-                    <div class="check-icon">
-                        <span class="icon-line line-tip"></span>
-                        <span class="icon-line line-long"></span>
-                        <div class="icon-circle"></div>
-                        <div class="icon-fix"></div>
-                    </div>
-                </div>
-                <div class="drop-text-large" style="margin-top: 1rem;">Files added successfully!</div>
-            `;
-            
-            setTimeout(() => {
-                overlay.classList.remove('active');
-                // Restore original overlay content for next time
-                overlay.innerHTML = `
-                    <div class="drop-icon-large">📥</div>
-                    <div class="drop-text-large">Release to add files</div>
-                    <div class="drop-progress-container hidden">
-                        <div class="drop-progress-bar"></div>
-                    </div>
-                `;
-                callback(files);
-                input.value = ''; 
-            }, 1500);
-        }
-    };
-})();
+    // (initDropZone moved to utils/fileHandler.js)
 
 
     // ==========================================
@@ -675,7 +620,7 @@ window.confetti = confetti;
     let workerTaskId = 0;
     const workerCallbacks = {};
 
-    window.initPdfWorker = function() {
+    window.PdfMinty.utils.initPdfWorker = function() {
         if (!pdfWorker) {
             pdfWorker = new Worker(new URL('./pdf-worker.js', import.meta.url), { type: 'module' });
             pdfWorker.onmessage = function(e) {
@@ -707,8 +652,8 @@ window.confetti = confetti;
         }
     };
 
-    window.runPdfWorkerTask = function(task, payload, transferables = [], onProgress = null) {
-        window.initPdfWorker();
+    window.PdfMinty.utils.runPdfWorkerTask = function(task, payload, transferables = [], onProgress = null) {
+        window.PdfMinty.utils.initPdfWorker();
         return new Promise((resolve, reject) => {
             const id = ++workerTaskId;
             workerCallbacks[id] = { resolve, reject, onProgress };
@@ -716,12 +661,16 @@ window.confetti = confetti;
             pdfWorker.postMessage({ id, task, payload }, transferables);
         });
     };
+    
+    // Keep global proxy for backward compatibility
+    window.initPdfWorker = window.PdfMinty.utils.initPdfWorker;
+    window.runPdfWorkerTask = window.PdfMinty.utils.runPdfWorkerTask;
 
 
     // ==========================================
     // 7. INDEXEDDB FILE STORAGE (Memory Optimization)
     // ==========================================
-    window.pdfDB = {
+    window.PdfMinty.db = {
         dbName: 'PDFMintyDB',
         storeName: 'files',
         dbVersion: 1,
@@ -785,6 +734,9 @@ window.confetti = confetti;
         }
     };
     
+    // Keep global proxy for backward compatibility
+    window.pdfDB = window.PdfMinty.db;
+    
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
             for(let registration of registrations) {
@@ -795,20 +747,20 @@ window.confetti = confetti;
 
     // Clear leftover files on load/refresh
     window.addEventListener('load', () => {
-        if (window.pdfDB) {
-            window.pdfDB.clearAll().catch(() => {});
+        if (window.PdfMinty && window.PdfMinty.db) {
+            window.PdfMinty.db.clearAll().catch(() => {});
         }
     });
     window.addEventListener('beforeunload', () => {
-        if (window.pdfDB) {
-            window.pdfDB.clearAll().catch(() => {});
+        if (window.PdfMinty && window.PdfMinty.db) {
+            window.PdfMinty.db.clearAll().catch(() => {});
         }
     });
 
     // ==========================================
     // 8. GEMINI AI PROXY INTEGRATION
     // ==========================================
-    window.callGeminiAPI = async function(prompt, context = '', history = []) {
+    window.PdfMinty.utils.callGeminiAPI = async function(prompt, context = '', history = []) {
         try {
             const response = await fetch('/.netlify/functions/gemini-proxy', {
                 method: 'POST',
@@ -829,8 +781,13 @@ window.confetti = confetti;
             return data;
         } catch (error) {
             console.error('Gemini API Error:', error);
-            window.showError("AI features are currently unavailable.");
+            if(window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.showError("AI features are currently unavailable.");
             throw error;
         }
     };
+
+    // Keep global proxy for backward compatibility with older tools
+    window.callGeminiAPI = window.PdfMinty.utils.callGeminiAPI;
+
+})();
 

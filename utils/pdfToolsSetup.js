@@ -1,5 +1,6 @@
 import { getPdfBytes, processPdfTask } from '../tools/shared.js';
 import { singleFilePreviewHtml, renderToolBase } from '../shared-ui.js';
+import { FileHandler } from './fileHandler.js';
 
 export function setupToolUI({
     toolId,
@@ -91,70 +92,65 @@ export function setupToolUI({
     }
 
     // Default dropzone logic
-    if (typeof window.initDropZone === 'function') {
-        window.initDropZone('drop-zone', 'file-input', handleFiles, isMultiFile ? 'image/*,.pdf' : '.pdf');
-    } else {
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-    }
+    FileHandler.initDropZone('drop-zone', 'file-input', handleFiles, isMultiFile ? 'image/*,.pdf' : '.pdf');
 
     if (isMultiFile) {
         document.getElementById('btn-add-more')?.addEventListener('click', () => fileInput.click());
-    }
-
-    async function handleFiles(files) {
+    }    async function handleFiles(files) {
         if (!files || files.length === 0) return;
         
-        if (typeof window.validateFile === 'function') {
-            for (const f of files) {
-                const check = window.validateFile(f);
-                if (!check.valid) {
-                    if (typeof window.showError === 'function') window.showError(check.reason);
-                    return;
+        for (const f of files) {
+            const check = FileHandler.validateFile(f);
+            if (!check.valid) {
+                if (window.PdfMinty && window.PdfMinty.ui) {
+                    window.PdfMinty.ui.showError(check.reason);
                 }
+                return;
             }
         }
         
         if (!isMultiFile) {
             const file = files[0];
             try {
-                if (typeof window.showProgress === 'function') window.showProgress(50);
-                const ab = await file.arrayBuffer();
-                if (window.pdfDB) {
-                    await window.pdfDB.saveFile(toolId + '_target', ab);
+                if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.showProgress(50);
+                const ab = await FileHandler.readFileAsArrayBuffer(file);
+                if (window.PdfMinty && window.PdfMinty.db) {
+                    await window.PdfMinty.db.saveFile(toolId + '_target', ab);
                     originalPdfBytes = toolId + '_target';
                 } else {
                     originalPdfBytes = ab;
                 }
-                currentFileName = file.name.replace(/\\.[^/.]+$/, "");
+                currentFileName = file.name.replace(/\.[^/.]+$/, "");
                 
                 const fileNameDisplay = document.getElementById('file-name-display');
                 if(fileNameDisplay) fileNameDisplay.textContent = file.name;
                 
                 const fileSizeDisplay = document.getElementById('file-size-display');
-                if (typeof formatBytes === 'function' && fileSizeDisplay) fileSizeDisplay.textContent = formatBytes(file.size);
+                if (window.PdfMinty && window.PdfMinty.utils && fileSizeDisplay) {
+                    fileSizeDisplay.textContent = window.PdfMinty.utils.formatBytes(file.size);
+                }
                 
-                if (typeof window.renderPdfThumbnail === 'function') {
+                if (window.PdfMinty && window.PdfMinty.utils && window.PdfMinty.utils.renderPdfThumbnail) {
                     const imgEl = document.getElementById('file-preview-img');
-                    if (imgEl && file.type === 'application/pdf') window.renderPdfThumbnail(file, imgEl);
+                    if (imgEl && file.type === 'application/pdf') window.PdfMinty.utils.renderPdfThumbnail(file, imgEl);
                 }
                 
                 dropZone.classList.add('hidden');
                 workspace.classList.remove('hidden');
             } catch(err) {
                 console.error(err);
-                if (typeof window.showError === 'function') window.showError(err.message);
+                if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.showError(err.message);
             } finally {
-                if (typeof window.hideProgress === 'function') window.hideProgress();
+                if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.hideProgress();
             }
         } else {
             // Multi-file logic
             const validFiles = Array.from(files);
-            if (window.pdfDB) {
+            if (window.PdfMinty && window.PdfMinty.db) {
                 Promise.all(validFiles.map(async (file) => {
                     const id = toolId + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    const ab = await file.arrayBuffer();
-                    await window.pdfDB.saveFile(id, ab);
+                    const ab = await FileHandler.readFileAsArrayBuffer(file);
+                    await window.PdfMinty.db.saveFile(id, ab);
                     return { name: file.name, id, fileObj: file };
                 })).then(mapped => {
                     filesArray = filesArray.concat(mapped);
@@ -186,8 +182,8 @@ export function setupToolUI({
                 item.appendChild(img);
             } else {
                 const img = document.createElement('img');
-                if (typeof window.renderPdfThumbnail === 'function') {
-                    window.renderPdfThumbnail(file.fileObj, img);
+                if (window.PdfMinty && window.PdfMinty.utils && window.PdfMinty.utils.renderPdfThumbnail) {
+                    window.PdfMinty.utils.renderPdfThumbnail(file.fileObj, img);
                 }
                 item.appendChild(img);
             }
@@ -210,7 +206,7 @@ export function setupToolUI({
             btn.addEventListener('click', (e) => {
                 const idx = parseInt(e.target.dataset.index);
                 const removed = filesArray.splice(idx, 1)[0];
-                if (window.pdfDB && removed.id) window.pdfDB.deleteFile(removed.id);
+                if (window.PdfMinty && window.PdfMinty.db && removed.id) window.PdfMinty.db.deleteFile(removed.id);
                 renderFileList();
                 if (filesArray.length === 0) {
                     workspace.classList.add('hidden');

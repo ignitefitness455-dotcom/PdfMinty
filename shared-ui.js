@@ -6,9 +6,9 @@ export function renderToolBase({ title, description, icon, dropText, extraWorksp
                 <h1>${title}</h1>
                 <p>${description}</p>
             </div>
-            <div id="drop-zone" style="border: 2px dashed var(--primary); padding: 4rem 2rem; text-align: center; border-radius: 0.5rem; cursor: pointer; background: var(--card); transition: border-color 0.2s;">
-                <input type="file" id="file-input" accept=".pdf" style="display: none;" ${title.includes('Merge') ? 'multiple' : ''} />
-                <div style="font-size: 3rem; margin-bottom: 1rem;">${icon}</div>
+            <div id="drop-zone" tabindex="0" role="button" aria-label="File upload zone: ${dropText || 'Drag & drop a PDF here, or click to select'}" style="border: 2px dashed var(--primary); padding: 4rem 2rem; text-align: center; border-radius: 0.5rem; cursor: pointer; background: var(--card); transition: border-color 0.2s;">
+                <input type="file" id="file-input" aria-hidden="true" tabindex="-1" accept=".pdf" style="display: none;" ${title.includes('Merge') ? 'multiple' : ''} />
+                <div style="font-size: 3rem; margin-bottom: 1rem;" aria-hidden="true">${icon}</div>
                 <p style="font-size: 1.25rem; margin: 0;">${dropText || 'Drag & drop a PDF here, or click to select'}</p>
             </div>
             <p style="text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 1rem;">🔒 No upload. No servers. 100% private.</p>
@@ -33,6 +33,12 @@ export function setupToolLogic({ onFiles, onRemove, onApply }) {
         window.initDropZone('drop-zone', 'file-input', onFiles, '.pdf');
     } else {
         dropZone?.addEventListener('click', () => fileInput.click());
+        dropZone?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInput?.click();
+            }
+        });
         fileInput?.addEventListener('change', (e) => onFiles(e.target.files));
     }
     

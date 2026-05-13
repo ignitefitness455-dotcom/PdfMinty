@@ -1,3 +1,5 @@
+const sanitizeString = (str) => str.replace(/[<>]/g, ''); // Simple XSS prevention
+
 exports.handler = async function(event) {
     // Determine allowed origin (allowing AI Studio preview domains while restricting generally as requested)
     const origin = event.headers.origin || event.headers.Origin;
@@ -32,24 +34,24 @@ exports.handler = async function(event) {
         }
 
         const payload = JSON.parse(event.body);
-        const { prompt, context: promptContext, history } = payload;
+        let { prompt, context, history } = payload;
         
-        // Input Validation
-        if (prompt !== undefined && (typeof prompt !== 'string' || prompt.length > 500)) {
-            return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid prompt. Must be a string under 500 characters." }) };
-        }
-        if (promptContext !== undefined && (typeof promptContext !== 'string' || promptContext.length > 500)) {
-            return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid context. Must be a string under 500 characters." }) };
-        }
-        if (history !== undefined && (!Array.isArray(history) || history.length > 10)) {
-            return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid history. Must be an array with max 10 entries." }) };
+        prompt = prompt ? sanitizeString(prompt).substring(0, 500) : '';
+        context = context ? sanitizeString(context).substring(0, 500) : '';
+
+        // Ensure history is sanitized
+        if (history && Array.isArray(history)) {
+            history = history.map(h => ({
+                role: h.role,
+                parts: h.parts.map(p => ({ text: sanitizeString(p.text) }))
+            })).slice(0, 10);
         }
         
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
         // Construct the contents array with separated parts to mitigate prompt injection
         const parts = [];
-        if (promptContext) parts.push({ text: `Context: ${promptContext}` });
+        if (context) parts.push({ text: `Context: ${context}` });
         if (history) parts.push({ text: `History: ${JSON.stringify(history)}` });
         if (prompt) parts.push({ text: `Prompt: ${prompt}` });
 

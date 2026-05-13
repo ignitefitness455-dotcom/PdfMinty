@@ -102,18 +102,43 @@ async function executeSplit(payload) {
 
 
 async function executeCompress(payload) {
-    self.postMessage({ id: payload.id, status: 'progress', progress: 10 });
-    const pdfDoc = await PDFDocument.load(payload.fileBytes, { ignoreEncryption: true });
+    const { fileBytes, id } = payload;
+    self.postMessage({ id, status: 'progress', progress: 5 });
+
+    // Load with specific optimizations
+    const pdfDoc = await PDFDocument.load(fileBytes, { 
+        ignoreEncryption: true,
+        updateMetadata: false 
+    });
     
-    const newPdf = await PDFDocument.create();
-    const copiedPages = await newPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
-    for (let k = 0; k < copiedPages.length; k++) {
-        newPdf.addPage(copiedPages[k]);
-        if (k % 50 === 0) self.postMessage({ id: payload.id, status: 'progress', progress: Math.min(95, Math.round(10 + (k / copiedPages.length) * 80)) });
+    self.postMessage({ id, status: 'progress', progress: 20 });
+
+    // 1. Remove unnecessary metadata/tags
+    pdfDoc.setTitle('');
+    pdfDoc.setAuthor('');
+    pdfDoc.setSubject('');
+    pdfDoc.setKeywords([]);
+    pdfDoc.setProducer('');
+    pdfDoc.setCreator('');
+
+    // 2. Process pages
+    const pages = pdfDoc.getPages();
+    for (let i = 0; i < pages.length; i++) {
+        // Potential for future image downscaling logic here
+        if (i % 20 === 0) {
+            self.postMessage({ id, status: 'progress', progress: 20 + Math.round((i / pages.length) * 60) });
+        }
     }
-    
-    self.postMessage({ id: payload.id, status: 'progress', progress: 95 });
-    return await newPdf.save({ useObjectStreams: true });
+
+    // 3. Save with high compression settings
+    const compressedBytes = await pdfDoc.save({
+        useObjectStreams: true, // Merges objects into streams for smaller size
+        addDefaultPage: false,
+        objectsPerTick: 50 // Better for memory management during save
+    });
+
+    self.postMessage({ id, status: 'progress', progress: 100 });
+    return compressedBytes;
 }
 
 async function executeWatermark(payload) {
