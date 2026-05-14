@@ -1,10 +1,11 @@
-(function() {
-    const appContainer = document.getElementById('app') || document.querySelector('main') || document.body;
-    const styleId = 'pdfminty-pdf2img-styles';
-    if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
+(function () {
+  const appContainer =
+    document.getElementById('app') || document.querySelector('main') || document.body;
+  const styleId = 'pdfminty-pdf2img-styles';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -23,10 +24,10 @@
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    appContainer.innerHTML = `
+  appContainer.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -56,155 +57,160 @@
         </div>
     `;
 
-    let originalFile = null;
-    let currentFileName = "";
-    let totalPages = 0;
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const workspace = document.getElementById('workspace');
-    const fileNameDisplay = document.getElementById('file-name-display');
-    const removeFileBtn = document.getElementById('remove-file-btn');
-    const btnApply = document.getElementById('btn-apply');
+  let originalFile = null;
+  let currentFileName = '';
+  let totalPages = 0;
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const workspace = document.getElementById('workspace');
+  const fileNameDisplay = document.getElementById('file-name-display');
+  const removeFileBtn = document.getElementById('remove-file-btn');
+  const btnApply = document.getElementById('btn-apply');
 
-    if (typeof initDropZone === 'function') {
-        initDropZone('drop-zone', 'file-input', handleFiles, '.pdf');
-    } else {
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  if (typeof initDropZone === 'function') {
+    initDropZone('drop-zone', 'file-input', handleFiles, '.pdf');
+  } else {
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  }
+
+  removeFileBtn.addEventListener('click', () => {
+    originalFile = null;
+    currentFileName = '';
+    totalPages = 0;
+    fileInput.value = '';
+    workspace.classList.add('hidden');
+    dropZone.classList.remove('hidden');
+  });
+
+  async function handleFiles(files) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    if (typeof window.validateFile === 'function') {
+      for (const f of files) {
+        const check = window.validateFile(f);
+        if (!check.valid) {
+          if (typeof window.showError === 'function') window.showError(check.reason);
+          return;
+        }
+      }
     }
 
-    removeFileBtn.addEventListener('click', () => {
-        originalFile = null;
-        currentFileName = "";
-        totalPages = 0;
-        fileInput.value = '';
-        workspace.classList.add('hidden');
-        dropZone.classList.remove('hidden');
-    });
+    try {
+      if (typeof showProgress === 'function') showProgress(30);
+      originalFile = file;
+      currentFileName = file.name.replace(/\.[^/.]+$/, '');
 
-    async function handleFiles(files) {
-        if (!files || files.length === 0) return;
-        const file = files[0];
-        
-        
-        if (typeof window.validateFile === 'function') {
-            for (const f of files) {
-                const check = window.validateFile(f);
-                if (!check.valid) {
-                    if (typeof window.showError === 'function') window.showError(check.reason);
-                    return;
-                }
-            }
-        }
-        
-
+      // Load pdf.js dynamically
+      if (typeof pdfjsLib === 'undefined') {
         try {
-            if (typeof showProgress === 'function') showProgress(30);
-            originalFile = file;
-            currentFileName = file.name.replace(/\.[^/.]+$/, "");
-            
-            // Load pdf.js dynamically
-            if (typeof pdfjsLib === 'undefined') {
-                try {
-                    await window.loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                } catch (e) {
-                    throw new Error("Failed to load PDF.js library.", { cause: e });
-                }
-            }
-
-            // Use pdf.js to get page count
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            totalPages = pdf.numPages;
-            
-            fileNameDisplay.textContent = file.name;
-            if (typeof formatBytes === 'function' && typeof fileSizeDisplay !== 'undefined' && fileSizeDisplay) fileSizeDisplay.textContent = formatBytes(file.size);
-            
-            if (typeof renderPdfThumbnail === 'function') {
-                const imgEl = document.getElementById('file-preview-img');
-                if (imgEl) renderPdfThumbnail(file, imgEl);
-            }
-            
-            dropZone.classList.add('hidden');
-            workspace.classList.remove('hidden');
-            
-            if (typeof hideProgress === 'function') hideProgress();
-        } catch (err) {
-            console.error(err);
-            if (typeof showError === 'function') showError('Error loading PDF: ' + err.message);
-            if (typeof hideProgress === 'function') hideProgress();
+          await window.loadExternalScript(
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+          );
+          pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        } catch (e) {
+          throw new Error('Failed to load PDF.js library.', { cause: e });
         }
+      }
+
+      // Use pdf.js to get page count
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      totalPages = pdf.numPages;
+
+      fileNameDisplay.textContent = file.name;
+      if (
+        typeof formatBytes === 'function' &&
+        typeof fileSizeDisplay !== 'undefined' &&
+        fileSizeDisplay
+      )
+        fileSizeDisplay.textContent = formatBytes(file.size);
+
+      if (typeof renderPdfThumbnail === 'function') {
+        const imgEl = document.getElementById('file-preview-img');
+        if (imgEl) renderPdfThumbnail(file, imgEl);
+      }
+
+      dropZone.classList.add('hidden');
+      workspace.classList.remove('hidden');
+
+      if (typeof hideProgress === 'function') hideProgress();
+    } catch (err) {
+      console.error(err);
+      if (typeof showError === 'function') showError('Error loading PDF: ' + err.message);
+      if (typeof hideProgress === 'function') hideProgress();
     }
+  }
 
-    btnApply.addEventListener('click', async () => {
-            if (!btnApply.hasAttribute('data-original-text')) {
-                btnApply.setAttribute('data-original-text', btnApply.textContent);
-            }
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof window.showProgress === 'function') window.showProgress(10);
-            
-            try {
-                
-        if (!originalFile) return;
+  btnApply.addEventListener('click', async () => {
+    if (!btnApply.hasAttribute('data-original-text')) {
+      btnApply.setAttribute('data-original-text', btnApply.textContent);
+    }
+    btnApply.disabled = true;
+    btnApply.textContent = 'Processing...';
+    if (typeof window.showProgress === 'function') window.showProgress(10);
 
-        if (typeof JSZip === 'undefined') {
-            try {
-                await window.loadExternalScript('https://unpkg.com/jszip@3.10.1/dist/jszip.min.js');
-            } catch (e) {
-                throw new Error("Failed to load JSZip library. Cannot create ZIP file.", { cause: e });
-            }
+    try {
+      if (!originalFile) return;
+
+      if (typeof JSZip === 'undefined') {
+        try {
+          await window.loadExternalScript('https://unpkg.com/jszip@3.10.1/dist/jszip.min.js');
+        } catch (e) {
+          throw new Error('Failed to load JSZip library. Cannot create ZIP file.', { cause: e });
         }
+      }
 
-        const arrayBuffer = await originalFile.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        const zip = new JSZip();
+      const arrayBuffer = await originalFile.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const zip = new JSZip();
 
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            const page = await pdf.getPage(pageNum);
-            const viewport = page.getViewport({ scale: 2.0 }); // Scale 2.0 for better quality
-            
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 2.0 }); // Scale 2.0 for better quality
 
-            const renderContext = {
-                canvasContext: ctx,
-                viewport: viewport
-            };
-            
-            await page.render(renderContext).promise;
-            
-            // Convert canvas to blob
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
-            
-            // Add to zip
-            zip.file(`${currentFileName}_page_${pageNum}.jpg`, blob);
-        }
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
 
-        const zipContent = await zip.generateAsync({ type: "uint8array" });
-        
-        if (typeof window.downloadFile === 'function') {
-            window.downloadFile(zipContent, `${currentFileName}_images.zip`);
-        } else {
-            console.error('downloadFile function missing');
-        }
-        if (typeof showSuccess === 'function') showSuccess('PDF converted to images successfully!');
-    
-                if (typeof window.showProgress === 'function') window.showProgress(100);
-            } catch (err) {
-                console.error("PDF Processing Error:", err);
-                if (typeof window.hideProgress === 'function') window.hideProgress();
-                if (typeof window.showError === 'function') {
-                    window.showError(err.message || "An error occurred while processing the PDF.");
-                } else {
-                    alert("Error: " + (err.message || "An error occurred"));
-                }
-            } finally {
-                btnApply.disabled = false;
-                btnApply.textContent = btnApply.getAttribute('data-original-text');
-            }
-    });
+        const renderContext = {
+          canvasContext: ctx,
+          viewport: viewport,
+        };
+
+        await page.render(renderContext).promise;
+
+        // Convert canvas to blob
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+
+        // Add to zip
+        zip.file(`${currentFileName}_page_${pageNum}.jpg`, blob);
+      }
+
+      const zipContent = await zip.generateAsync({ type: 'uint8array' });
+
+      if (typeof window.downloadFile === 'function') {
+        window.downloadFile(zipContent, `${currentFileName}_images.zip`);
+      } else {
+        console.error('downloadFile function missing');
+      }
+      if (typeof showSuccess === 'function') showSuccess('PDF converted to images successfully!');
+
+      if (typeof window.showProgress === 'function') window.showProgress(100);
+    } catch (err) {
+      console.error('PDF Processing Error:', err);
+      if (typeof window.hideProgress === 'function') window.hideProgress();
+      if (typeof window.showError === 'function') {
+        window.showError(err.message || 'An error occurred while processing the PDF.');
+      } else {
+        alert('Error: ' + (err.message || 'An error occurred'));
+      }
+    } finally {
+      btnApply.disabled = false;
+      btnApply.textContent = btnApply.getAttribute('data-original-text');
+    }
+  });
 })();

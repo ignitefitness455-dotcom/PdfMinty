@@ -1,10 +1,11 @@
-(function() {
-    const appContainer = document.getElementById('app') || document.querySelector('main') || document.body;
-    const styleId = 'pdfminty-merge-styles';
-    if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
+(function () {
+  const appContainer =
+    document.getElementById('app') || document.querySelector('main') || document.body;
+  const styleId = 'pdfminty-merge-styles';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -26,10 +27,10 @@
             .btn-secondary:hover { border-color: var(--accent); }
             .hidden { display: none !important; }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    appContainer.innerHTML = `
+  appContainer.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -53,186 +54,185 @@
         </div>
     `;
 
-    let filesArray = [];
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const workspace = document.getElementById('workspace');
-    const fileListEl = document.getElementById('file-list');
-    const btnAddMore = document.getElementById('btn-add-more');
-    const btnApply = document.getElementById('btn-apply');
+  let filesArray = [];
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const workspace = document.getElementById('workspace');
+  const fileListEl = document.getElementById('file-list');
+  const btnAddMore = document.getElementById('btn-add-more');
+  const btnApply = document.getElementById('btn-apply');
 
-    if (typeof initDropZone === 'function') {
-        initDropZone('drop-zone', 'file-input', handleFiles, '.pdf');
-    } else {
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  if (typeof initDropZone === 'function') {
+    initDropZone('drop-zone', 'file-input', handleFiles, '.pdf');
+  } else {
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  }
+
+  btnAddMore.addEventListener('click', () => fileInput.click());
+
+  function handleFiles(files) {
+    if (!files || files.length === 0) return;
+
+    const validFiles = Array.from(files);
+
+    if (typeof window.validateFile === 'function') {
+      for (const f of files) {
+        const check = window.validateFile(f);
+        if (!check.valid) {
+          if (typeof window.showError === 'function') window.showError(check.reason);
+          return;
+        }
+      }
     }
 
-    btnAddMore.addEventListener('click', () => fileInput.click());
-
-    function handleFiles(files) {
-        if (!files || files.length === 0) return;
-        
-        const validFiles = Array.from(files);
-        
-        if (typeof window.validateFile === 'function') {
-            for (const f of files) {
-                const check = window.validateFile(f);
-                if (!check.valid) {
-                    if (typeof window.showError === 'function') window.showError(check.reason);
-                    return;
-                }
-            }
-        }
-        
-    
-
-        // Store to IDB to save memory
-        if (window.pdfDB) {
-            Promise.all(validFiles.map(async (file) => {
-                const id = 'merge_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                const ab = await file.arrayBuffer();
-                await window.pdfDB.saveFile(id, ab);
-                return { name: file.name, id, fileObj: file }; // Keep fileObj for thumbnail
-            })).then(mapped => {
-                filesArray = filesArray.concat(mapped);
-                renderFileList();
-            });
-        } else {
-            filesArray = filesArray.concat(validFiles.map(f => ({ name: f.name, fileObj: f })));
-            renderFileList();
-        }
+    // Store to IDB to save memory
+    if (window.pdfDB) {
+      Promise.all(
+        validFiles.map(async (file) => {
+          const id = 'merge_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          const ab = await file.arrayBuffer();
+          await window.pdfDB.saveFile(id, ab);
+          return { name: file.name, id, fileObj: file }; // Keep fileObj for thumbnail
+        }),
+      ).then((mapped) => {
+        filesArray = filesArray.concat(mapped);
         renderFileList();
-        
-        dropZone.classList.add('hidden');
-        workspace.classList.remove('hidden');
+      });
+    } else {
+      filesArray = filesArray.concat(validFiles.map((f) => ({ name: f.name, fileObj: f })));
+      renderFileList();
     }
+    renderFileList();
 
-    function renderFileList() {
-        fileListEl.innerHTML = '';
-        filesArray.forEach((file, index) => {
-            const item = document.createElement('div');
-            item.className = 'file-item';
-            
-            const img = document.createElement('img');
-            if (typeof renderPdfThumbnail === 'function') {
-                renderPdfThumbnail(file.fileObj, img);
-            }
-            
-            const btn = document.createElement('button');
-            btn.className = 'remove-btn';
-            btn.innerHTML = '✕';
-            btn.dataset.index = index;
-            
-            const nameBadge = document.createElement('div');
-            nameBadge.className = 'file-name-badge';
-            nameBadge.textContent = file.name;
-            
-            item.appendChild(img);
-            item.appendChild(nameBadge);
-            item.appendChild(btn);
-            fileListEl.appendChild(item);
-        });
+    dropZone.classList.add('hidden');
+    workspace.classList.remove('hidden');
+  }
 
-        document.querySelectorAll('.remove-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.target.dataset.index);
-                const removed = filesArray.splice(idx, 1)[0];
-                if (window.pdfDB && removed.id) window.pdfDB.deleteFile(removed.id);
-                renderFileList();
-                if (filesArray.length === 0) {
-                    workspace.classList.add('hidden');
-                    dropZone.classList.remove('hidden');
-                }
-            });
-        });
-    }
+  function renderFileList() {
+    fileListEl.innerHTML = '';
+    filesArray.forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'file-item';
 
-    btnApply.addEventListener('click', async () => {
-            if (!btnApply.hasAttribute('data-original-text')) {
-                btnApply.setAttribute('data-original-text', btnApply.textContent);
-            }
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof window.showProgress === 'function') window.showProgress(10);
-            
-            try {
-                
-        if (filesArray.length < 2) {
-            if (typeof showError === 'function') showError("Please add at least 2 PDFs to merge.");
-            return;
-        }
+      const img = document.createElement('img');
+      if (typeof renderPdfThumbnail === 'function') {
+        renderPdfThumbnail(file.fileObj, img);
+      }
 
-        try {
-            
-            
-            
+      const btn = document.createElement('button');
+      btn.className = 'remove-btn';
+      btn.innerHTML = '✕';
+      btn.dataset.index = index;
 
-            let mergedPdfBytes;
-            if (typeof window.runPdfWorkerTask === 'function') {
-                const payload = { files: [] };
-                for (let i = 0; i < filesArray.length; i++) {
-                    let ab;
-                    if (filesArray[i].id && window.pdfDB) {
-                        try {
-                            ab = await window.pdfDB.getFile(filesArray[i].id);
-                        } catch(err) { console.error(err); }
-                    }
-                    if (!ab) ab = await filesArray[i].fileObj.arrayBuffer();
-                    payload.files.push(new Uint8Array(ab));
-                }
-                const transferables = payload.files.map(arr => arr.buffer);
-                
-                mergedPdfBytes = await window.runPdfWorkerTask('merge', payload, transferables, (progress) => {
-                    
-                });
-            } else {
-                const mergedPdf = await PDFLib.PDFDocument.create();
-                for (let i = 0; i < filesArray.length; i++) {
-                    let fileBytes;
-                    if (filesArray[i].id && window.pdfDB) {
-                        try { fileBytes = await window.pdfDB.getFile(filesArray[i].id); } catch(err) { console.error(err); }
-                    }
-                    if (!fileBytes) fileBytes = await filesArray[i].fileObj.arrayBuffer();
-                    let pdf = await PDFLib.PDFDocument.load(fileBytes, { ignoreEncryption: true });
-                    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-                    for (let j = 0; j < copiedPages.length; j++) {
-                        mergedPdf.addPage(copiedPages[j]);
-                        if (j % 50 === 0) await new Promise(r => setTimeout(r, 0));
-                    }
-                    fileBytes = null;
-                    pdf = null;
-                    
-                }
-                mergedPdfBytes = await mergedPdf.save({ useObjectStreams: true });
-            }
-            
+      const nameBadge = document.createElement('div');
+      nameBadge.className = 'file-name-badge';
+      nameBadge.textContent = file.name;
 
-            if (typeof downloadFile === 'function') {
-                downloadFile(mergedPdfBytes, 'merged-document.pdf');
-            }
-            if (typeof showSuccess === 'function') showSuccess('PDFs merged successfully!');
-        } catch (error) {
-            console.error(error);
-            if (typeof showError === 'function') showError("Error merging PDFs: " + error.message);
-        } finally {
-            
-            
-            
-        }
-    
-                if (typeof window.showProgress === 'function') window.showProgress(100);
-            } catch (err) {
-                console.error("PDF Processing Error:", err);
-                if (typeof window.hideProgress === 'function') window.hideProgress();
-                if (typeof window.showError === 'function') {
-                    window.showError(err.message || "An error occurred while processing the PDF.");
-                } else {
-                    alert("Error: " + (err.message || "An error occurred"));
-                }
-            } finally {
-                btnApply.disabled = false;
-                btnApply.textContent = btnApply.getAttribute('data-original-text');
-            }
+      item.appendChild(img);
+      item.appendChild(nameBadge);
+      item.appendChild(btn);
+      fileListEl.appendChild(item);
     });
+
+    document.querySelectorAll('.remove-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.target.dataset.index);
+        const removed = filesArray.splice(idx, 1)[0];
+        if (window.pdfDB && removed.id) window.pdfDB.deleteFile(removed.id);
+        renderFileList();
+        if (filesArray.length === 0) {
+          workspace.classList.add('hidden');
+          dropZone.classList.remove('hidden');
+        }
+      });
+    });
+  }
+
+  btnApply.addEventListener('click', async () => {
+    if (!btnApply.hasAttribute('data-original-text')) {
+      btnApply.setAttribute('data-original-text', btnApply.textContent);
+    }
+    btnApply.disabled = true;
+    btnApply.textContent = 'Processing...';
+    if (typeof window.showProgress === 'function') window.showProgress(10);
+
+    try {
+      if (filesArray.length < 2) {
+        if (typeof showError === 'function') showError('Please add at least 2 PDFs to merge.');
+        return;
+      }
+
+      try {
+        let mergedPdfBytes;
+        if (typeof window.runPdfWorkerTask === 'function') {
+          const payload = { files: [] };
+          for (let i = 0; i < filesArray.length; i++) {
+            let ab;
+            if (filesArray[i].id && window.pdfDB) {
+              try {
+                ab = await window.pdfDB.getFile(filesArray[i].id);
+              } catch (err) {
+                console.error(err);
+              }
+            }
+            if (!ab) ab = await filesArray[i].fileObj.arrayBuffer();
+            payload.files.push(new Uint8Array(ab));
+          }
+          const transferables = payload.files.map((arr) => arr.buffer);
+
+          mergedPdfBytes = await window.runPdfWorkerTask(
+            'merge',
+            payload,
+            transferables,
+            (progress) => {},
+          );
+        } else {
+          const mergedPdf = await PDFLib.PDFDocument.create();
+          for (let i = 0; i < filesArray.length; i++) {
+            let fileBytes;
+            if (filesArray[i].id && window.pdfDB) {
+              try {
+                fileBytes = await window.pdfDB.getFile(filesArray[i].id);
+              } catch (err) {
+                console.error(err);
+              }
+            }
+            if (!fileBytes) fileBytes = await filesArray[i].fileObj.arrayBuffer();
+            let pdf = await PDFLib.PDFDocument.load(fileBytes, { ignoreEncryption: true });
+            const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+            for (let j = 0; j < copiedPages.length; j++) {
+              mergedPdf.addPage(copiedPages[j]);
+              if (j % 50 === 0) await new Promise((r) => setTimeout(r, 0));
+            }
+            fileBytes = null;
+            pdf = null;
+          }
+          mergedPdfBytes = await mergedPdf.save({ useObjectStreams: true });
+        }
+
+        if (typeof downloadFile === 'function') {
+          downloadFile(mergedPdfBytes, 'merged-document.pdf');
+        }
+        if (typeof showSuccess === 'function') showSuccess('PDFs merged successfully!');
+      } catch (error) {
+        console.error(error);
+        if (typeof showError === 'function') showError('Error merging PDFs: ' + error.message);
+      } finally {
+      }
+
+      if (typeof window.showProgress === 'function') window.showProgress(100);
+    } catch (err) {
+      console.error('PDF Processing Error:', err);
+      if (typeof window.hideProgress === 'function') window.hideProgress();
+      if (typeof window.showError === 'function') {
+        window.showError(err.message || 'An error occurred while processing the PDF.');
+      } else {
+        alert('Error: ' + (err.message || 'An error occurred'));
+      }
+    } finally {
+      btnApply.disabled = false;
+      btnApply.textContent = btnApply.getAttribute('data-original-text');
+    }
+  });
 })();

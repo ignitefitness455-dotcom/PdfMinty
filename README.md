@@ -4,7 +4,7 @@ A modern, fast, and completely free set of PDF tools that run entirely in your b
 
 ## Deployment Instructions
 
-Before deploying to Netlify, go to 
-Site Settings → Environment Variables and 
-add GEMINI_API_KEY with your actual key 
+Before deploying to Netlify, go to
+Site Settings → Environment Variables and
+add GEMINI_API_KEY with your actual key
 from Google AI Studio.

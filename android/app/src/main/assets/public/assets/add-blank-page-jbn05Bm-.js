@@ -1,4 +1,11 @@
-import{P as h}from"./PDFButton-56eB-KER.js";(function(){const w=document.getElementById("app")||document.querySelector("main")||document.body,b="pdfminty-addblank-styles";if(!document.getElementById(b)){const e=document.createElement("style");e.id=b,e.textContent=`
+import { P as h } from './PDFButton-56eB-KER.js';
+(function () {
+  const w = document.getElementById('app') || document.querySelector('main') || document.body,
+    b = 'pdfminty-addblank-styles';
+  if (!document.getElementById(b)) {
+    const e = document.createElement('style');
+    ((e.id = b),
+      (e.textContent = `
             .addblank-tool { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .addblank-header { text-align: center; margin-bottom: 2rem; }
             .addblank-header h1 { margin-bottom: 0.5rem; }
@@ -41,7 +48,10 @@ import{P as h}from"./PDFButton-56eB-KER.js";(function(){const w=document.getElem
             .btn-apply:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}w.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  w.innerHTML = `
         <div class="addblank-tool">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             
@@ -112,4 +122,122 @@ import{P as h}from"./PDFButton-56eB-KER.js";(function(){const w=document.getElem
                 </div>
             </div>
         </div>
-    `;let i=null,p="",n=0;const m=document.getElementById("addblank-drop-zone"),g=document.getElementById("addblank-file-input"),y=document.getElementById("addblank-workspace"),x=document.getElementById("file-name-display"),I=document.getElementById("remove-file-btn"),s=document.getElementById("apply-btn"),k=document.getElementById("blank-count"),u=document.getElementById("pos-type"),l=document.getElementById("target-page"),P=document.getElementById("btn-beginning"),E=document.getElementById("btn-end");typeof initDropZone=="function"?initDropZone("addblank-drop-zone","addblank-file-input",v,".pdf"):(m.addEventListener("click",()=>g.click()),g.addEventListener("change",e=>v(e.target.files))),I.addEventListener("click",()=>{i=null,p="",n=0,g.value="",y.classList.add("hidden"),m.classList.remove("hidden")}),P.addEventListener("click",()=>{u.value="before",l.value=1}),E.addEventListener("click",()=>{u.value="after",l.value=n});async function v(e){if(!e||e.length===0)return;const t=e[0];if(typeof window.validateFile=="function")for(const o of e){const r=window.validateFile(o);if(!r.valid){typeof window.showError=="function"&&window.showError(r.reason);return}}try{if(typeof showProgress=="function"&&showProgress(30),i=await t.arrayBuffer(),p=t.name.replace(/\.[^/.]+$/,""),n=(await h.load(i,{ignoreEncryption:!0})).getPageCount(),x.textContent=t.name,typeof formatBytes=="function"&&typeof fileSizeDisplay<"u"&&fileSizeDisplay&&(fileSizeDisplay.textContent=formatBytes(t.size)),typeof renderPdfThumbnail=="function"){const r=document.getElementById("file-preview-img");r&&renderPdfThumbnail(t,r)}m.classList.add("hidden"),y.classList.remove("hidden"),typeof hideProgress=="function"&&hideProgress()}catch(o){console.error(o),typeof showError=="function"&&showError("Error loading PDF: "+o.message),typeof hideProgress=="function"&&hideProgress()}}s.addEventListener("click",async()=>{if(!i)return;const e=parseInt(k.value,10),t=parseInt(l.value,10),o=u.value,r=document.querySelector('input[name="page-size"]:checked').value;if(isNaN(e)||e<1||e>10){typeof showError=="function"&&showError("Please enter a valid number of pages to insert (1-10).");return}if(isNaN(t)||t<1||t>n){typeof showError=="function"&&showError(`Please enter a valid target page (1-${n}).`);return}try{s.disabled=!0,s.textContent="Processing...",typeof showProgress=="function"&&showProgress(20);const a=await h.load(i);typeof showProgress=="function"&&showProgress(40);let f=o==="before"?t-1:t,c=[595.28,841.89];if(r==="same"){const d=Math.min(Math.max(0,f>0?f-1:0),n-1),z=a.getPage(d),{width:D,height:j}=z.getSize();c=[D,j]}else r==="a4"?c=[595.28,841.89]:r==="letter"&&(c=[612,792]);for(let d=0;d<e;d++)a.insertPage(f+d,c);typeof showProgress=="function"&&showProgress(80);const B=await a.save({useObjectStreams:!0});typeof showProgress=="function"&&showProgress(100),typeof downloadFile=="function"&&(downloadFile(B,`${p}-with-blank.pdf`),i=null),typeof showSuccess=="function"&&showSuccess(`Successfully inserted ${e} blank page(s)!`)}catch(a){console.error("Add Blank Page Error:",a),typeof showError=="function"&&showError(a.message||"Error adding blank pages to PDF.")}finally{typeof hideProgress=="function"&&hideProgress(),s.disabled=!1,s.textContent="➕ Add Blank Page",n+=e,pageCountDisplay.textContent=`Total pages: ${n}`,l.max=n}})})();
+    `;
+  let i = null,
+    p = '',
+    n = 0;
+  const m = document.getElementById('addblank-drop-zone'),
+    g = document.getElementById('addblank-file-input'),
+    y = document.getElementById('addblank-workspace'),
+    x = document.getElementById('file-name-display'),
+    I = document.getElementById('remove-file-btn'),
+    s = document.getElementById('apply-btn'),
+    k = document.getElementById('blank-count'),
+    u = document.getElementById('pos-type'),
+    l = document.getElementById('target-page'),
+    P = document.getElementById('btn-beginning'),
+    E = document.getElementById('btn-end');
+  (typeof initDropZone == 'function'
+    ? initDropZone('addblank-drop-zone', 'addblank-file-input', v, '.pdf')
+    : (m.addEventListener('click', () => g.click()),
+      g.addEventListener('change', (e) => v(e.target.files))),
+    I.addEventListener('click', () => {
+      ((i = null),
+        (p = ''),
+        (n = 0),
+        (g.value = ''),
+        y.classList.add('hidden'),
+        m.classList.remove('hidden'));
+    }),
+    P.addEventListener('click', () => {
+      ((u.value = 'before'), (l.value = 1));
+    }),
+    E.addEventListener('click', () => {
+      ((u.value = 'after'), (l.value = n));
+    }));
+  async function v(e) {
+    if (!e || e.length === 0) return;
+    const t = e[0];
+    if (typeof window.validateFile == 'function')
+      for (const o of e) {
+        const r = window.validateFile(o);
+        if (!r.valid) {
+          typeof window.showError == 'function' && window.showError(r.reason);
+          return;
+        }
+      }
+    try {
+      if (
+        (typeof showProgress == 'function' && showProgress(30),
+        (i = await t.arrayBuffer()),
+        (p = t.name.replace(/\.[^/.]+$/, '')),
+        (n = (await h.load(i, { ignoreEncryption: !0 })).getPageCount()),
+        (x.textContent = t.name),
+        typeof formatBytes == 'function' &&
+          typeof fileSizeDisplay < 'u' &&
+          fileSizeDisplay &&
+          (fileSizeDisplay.textContent = formatBytes(t.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const r = document.getElementById('file-preview-img');
+        r && renderPdfThumbnail(t, r);
+      }
+      (m.classList.add('hidden'),
+        y.classList.remove('hidden'),
+        typeof hideProgress == 'function' && hideProgress());
+    } catch (o) {
+      (console.error(o),
+        typeof showError == 'function' && showError('Error loading PDF: ' + o.message),
+        typeof hideProgress == 'function' && hideProgress());
+    }
+  }
+  s.addEventListener('click', async () => {
+    if (!i) return;
+    const e = parseInt(k.value, 10),
+      t = parseInt(l.value, 10),
+      o = u.value,
+      r = document.querySelector('input[name="page-size"]:checked').value;
+    if (isNaN(e) || e < 1 || e > 10) {
+      typeof showError == 'function' &&
+        showError('Please enter a valid number of pages to insert (1-10).');
+      return;
+    }
+    if (isNaN(t) || t < 1 || t > n) {
+      typeof showError == 'function' && showError(`Please enter a valid target page (1-${n}).`);
+      return;
+    }
+    try {
+      ((s.disabled = !0),
+        (s.textContent = 'Processing...'),
+        typeof showProgress == 'function' && showProgress(20));
+      const a = await h.load(i);
+      typeof showProgress == 'function' && showProgress(40);
+      let f = o === 'before' ? t - 1 : t,
+        c = [595.28, 841.89];
+      if (r === 'same') {
+        const d = Math.min(Math.max(0, f > 0 ? f - 1 : 0), n - 1),
+          z = a.getPage(d),
+          { width: D, height: j } = z.getSize();
+        c = [D, j];
+      } else r === 'a4' ? (c = [595.28, 841.89]) : r === 'letter' && (c = [612, 792]);
+      for (let d = 0; d < e; d++) a.insertPage(f + d, c);
+      typeof showProgress == 'function' && showProgress(80);
+      const B = await a.save({ useObjectStreams: !0 });
+      (typeof showProgress == 'function' && showProgress(100),
+        typeof downloadFile == 'function' && (downloadFile(B, `${p}-with-blank.pdf`), (i = null)),
+        typeof showSuccess == 'function' &&
+          showSuccess(`Successfully inserted ${e} blank page(s)!`));
+    } catch (a) {
+      (console.error('Add Blank Page Error:', a),
+        typeof showError == 'function' &&
+          showError(a.message || 'Error adding blank pages to PDF.'));
+    } finally {
+      (typeof hideProgress == 'function' && hideProgress(),
+        (s.disabled = !1),
+        (s.textContent = '➕ Add Blank Page'),
+        (n += e),
+        (pageCountDisplay.textContent = `Total pages: ${n}`),
+        (l.max = n));
+    }
+  });
+})();

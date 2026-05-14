@@ -1,65 +1,90 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF</title>
-    <meta name="description" content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required.">
-    <meta property="og:title" content="PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF">
-    <meta property="og:description" content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required.">
-    <meta property="og:url" content="https://pdfminty.netlify.app">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="/og-image.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF">
-    <meta name="twitter:description" content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required.">
-    <link rel="canonical" href="https://pdfminty.netlify.app">
-    <meta name="robots" content="index, follow">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#10b981">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="PDFMinty">
+    <meta
+      name="description"
+      content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required."
+    />
+    <meta
+      property="og:title"
+      content="PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF"
+    />
+    <meta
+      property="og:description"
+      content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required."
+    />
+    <meta property="og:url" content="https://pdfminty.netlify.app" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF"
+    />
+    <meta
+      name="twitter:description"
+      content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required."
+    />
+    <link rel="canonical" href="https://pdfminty.netlify.app" />
+    <meta name="robots" content="index, follow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#10b981" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="PDFMinty" />
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "PDFMinty",
-      "url": "https://pdfminty.netlify.app",
-      "description": "Free privacy-first PDF tools. Merge, split, compress PDFs in your browser with no uploads and no signup.",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "PDFMinty",
+        "url": "https://pdfminty.netlify.app",
+        "description": "Free privacy-first PDF tools. Merge, split, compress PDFs in your browser with no uploads and no signup.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
       }
-    }
     </script>
-    
+
     <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
-    
+    <link rel="stylesheet" href="style.css" />
+
     <!-- Core Library -->
-</head>
-<body>
+  </head>
+  <body>
+    <script>
+      (function () {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'dark') {
+          document.body.classList.add('dark-mode');
+        } else if (!theme) {
+          localStorage.setItem('theme', 'light');
+        }
+      })();
+    </script>
 
     <!-- Navigation Bar -->
     <nav class="navbar">
-        <div class="nav-content">
-            <a href="#" class="logo">
-                <span class="logo-icon">🌿</span>
-                <span>PDFMinty</span>
-            </a>
-            <div class="nav-links">
-                <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Mode">🌙</button>
-            </div>
+      <div class="nav-content">
+        <a href="#" class="logo">
+          <span class="logo-icon">🌿</span>
+          <span>PDFMinty</span>
+        </a>
+        <div class="nav-links">
+          <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Mode">🌙</button>
         </div>
+      </div>
     </nav>
-    
+
     <div class="privacy-banner">
-        🔒 Your files never leave your device. All processing happens locally in your browser.
+      🔒 Your files never leave your device. All processing happens locally in your browser.
     </div>
 
     <!-- Router will inject Homepage or Tools here -->
@@ -67,16 +92,22 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-trust">
-                <span class="trust-icon">🔒</span>
-                <span><strong>100% Secure & Private.</strong> All files are processed locally on your device. No data is ever uploaded to our servers.</span>
-            </div>
-            <p class="footer-copyright">&copy; 2026 PDFMinty. Free and open-source PDF tools.</p>
+      <div class="footer-content">
+        <div class="footer-trust">
+          <span class="trust-icon">🔒</span>
+          <span
+            ><strong>100% Secure & Private.</strong> All files are processed locally on your device.
+            No data is ever uploaded to our servers.</span
+          >
         </div>
+        <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; margin-bottom: 0.5rem;">
+          <button id="footer-feedback-btn" style="background: none; border: none; color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 0.9rem;" tabindex="0" aria-label="Provide Feedback">💬 Provide Feedback</button>
+        </div>
+        <p class="footer-copyright">&copy; 2026 PDFMinty. Free and open-source PDF tools.</p>
+      </div>
     </footer>
 
     <!-- Global App Engine -->
     <script type="module" src="app.js" defer></script>
-</body>
+  </body>
 </html>

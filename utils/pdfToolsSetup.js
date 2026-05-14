@@ -3,23 +3,24 @@ import { singleFilePreviewHtml, renderToolBase } from '../shared-ui.js';
 import { FileHandler } from './fileHandler.js';
 
 export function setupToolUI({
-    toolId,
-    title,
-    description,
-    icon,
-    actionText,
-    isMultiFile = false,
-    settingsHtml = '',
-    onInit = null,
-    onApply = null
+  toolId,
+  title,
+  description,
+  icon,
+  actionText,
+  isMultiFile = false,
+  settingsHtml = '',
+  onInit = null,
+  onApply = null,
 }) {
-    const appContainer = document.getElementById('app') || document.querySelector('main') || document.body;
-    
-    const styleId = 'pdfminty-common-styles';
-    if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
+  const appContainer =
+    document.getElementById('app') || document.querySelector('main') || document.body;
+
+  const styleId = 'pdfminty-common-styles';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -63,184 +64,194 @@ export function setupToolUI({
             .btn-secondary:hover { border-color: var(--accent); }
             .hidden { display: none !important; }
         `;
-        document.head.appendChild(style);
+    document.head.appendChild(style);
+  }
+
+  const fileListHtml = isMultiFile
+    ? '<p style="margin-bottom: 1rem; color: var(--muted); font-size: 0.9rem;">Files will be processed in the order shown below.</p><div id="file-list" class="file-list"></div><div class="actions" style="margin-top:0.5rem; margin-bottom: 1.5rem;"><button id="btn-add-more" class="btn-secondary">➕ Add More</button></div>'
+    : singleFilePreviewHtml;
+
+  appContainer.innerHTML = renderToolBase({
+    title,
+    description,
+    icon,
+    actionText,
+    extraWorkspaceHtml: fileListHtml + (settingsHtml || ''),
+  });
+
+  let originalPdfBytes = null;
+  let currentFileName = '';
+  let filesArray = [];
+
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const workspace = document.getElementById('workspace');
+
+  // Default init behavior
+  if (onInit) {
+    onInit();
+  }
+
+  // Default dropzone logic
+  FileHandler.initDropZone(
+    'drop-zone',
+    'file-input',
+    handleFiles,
+    isMultiFile ? 'image/*,.pdf' : '.pdf',
+  );
+
+  if (isMultiFile) {
+    document.getElementById('btn-add-more')?.addEventListener('click', () => fileInput.click());
+  }
+  async function handleFiles(files) {
+    if (!files || files.length === 0) return;
+
+    for (const f of files) {
+      const check = FileHandler.validateFile(f);
+      if (!check.valid) {
+        if (window.PdfMinty && window.PdfMinty.ui) {
+          window.PdfMinty.ui.showError(check.reason);
+        }
+        return;
+      }
     }
 
-    const fileListHtml = isMultiFile 
-        ? '<p style="margin-bottom: 1rem; color: var(--muted); font-size: 0.9rem;">Files will be processed in the order shown below.</p><div id="file-list" class="file-list"></div><div class="actions" style="margin-top:0.5rem; margin-bottom: 1.5rem;"><button id="btn-add-more" class="btn-secondary">➕ Add More</button></div>' 
-        : singleFilePreviewHtml;
-    
-    appContainer.innerHTML = renderToolBase({
-        title,
-        description,
-        icon,
-        actionText,
-        extraWorkspaceHtml: fileListHtml + (settingsHtml || '')
+    if (!isMultiFile) {
+      const file = files[0];
+      try {
+        if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.showProgress(50);
+        const ab = await FileHandler.readFileAsArrayBuffer(file);
+        if (window.PdfMinty && window.PdfMinty.db) {
+          await window.PdfMinty.db.saveFile(toolId + '_target', ab);
+          originalPdfBytes = toolId + '_target';
+        } else {
+          originalPdfBytes = ab;
+        }
+        currentFileName = file.name.replace(/\.[^/.]+$/, '');
+
+        const fileNameDisplay = document.getElementById('file-name-display');
+        if (fileNameDisplay) fileNameDisplay.textContent = file.name;
+
+        const fileSizeDisplay = document.getElementById('file-size-display');
+        if (window.PdfMinty && window.PdfMinty.utils && fileSizeDisplay) {
+          fileSizeDisplay.textContent = window.PdfMinty.utils.formatBytes(file.size);
+        }
+
+        if (window.PdfMinty && window.PdfMinty.utils && window.PdfMinty.utils.renderPdfThumbnail) {
+          const imgEl = document.getElementById('file-preview-img');
+          if (imgEl && file.type === 'application/pdf')
+            window.PdfMinty.utils.renderPdfThumbnail(file, imgEl);
+        }
+
+        dropZone.classList.add('hidden');
+        workspace.classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.showError(err.message);
+      } finally {
+        if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.hideProgress();
+      }
+    } else {
+      // Multi-file logic
+      const validFiles = Array.from(files);
+      if (window.PdfMinty && window.PdfMinty.db) {
+        Promise.all(
+          validFiles.map(async (file) => {
+            const id = toolId + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const ab = await FileHandler.readFileAsArrayBuffer(file);
+            await window.PdfMinty.db.saveFile(id, ab);
+            return { name: file.name, id, fileObj: file };
+          }),
+        ).then((mapped) => {
+          filesArray = filesArray.concat(mapped);
+          renderFileList();
+        });
+      } else {
+        filesArray = filesArray.concat(validFiles.map((f) => ({ name: f.name, fileObj: f })));
+        renderFileList();
+      }
+      dropZone.classList.add('hidden');
+      workspace.classList.remove('hidden');
+    }
+  }
+
+  function renderFileList() {
+    if (!isMultiFile) return;
+    const fileListEl = document.getElementById('file-list');
+    if (!fileListEl) return;
+    fileListEl.innerHTML = '';
+    filesArray.forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'file-item';
+
+      if (file.fileObj.type.startsWith('image/')) {
+        const img = document.createElement('img');
+        const reader = new FileReader();
+        reader.onload = (e) => (img.src = e.target.result);
+        reader.readAsDataURL(file.fileObj);
+        item.appendChild(img);
+      } else {
+        const img = document.createElement('img');
+        if (window.PdfMinty && window.PdfMinty.utils && window.PdfMinty.utils.renderPdfThumbnail) {
+          window.PdfMinty.utils.renderPdfThumbnail(file.fileObj, img);
+        }
+        item.appendChild(img);
+      }
+
+      const btn = document.createElement('button');
+      btn.className = 'remove-btn';
+      btn.innerHTML = '✕';
+      btn.dataset.index = index;
+
+      const nameBadge = document.createElement('div');
+      nameBadge.className = 'file-name-badge';
+      nameBadge.textContent = file.name;
+
+      item.appendChild(nameBadge);
+      item.appendChild(btn);
+      fileListEl.appendChild(item);
     });
 
-    let originalPdfBytes = null;
-    let currentFileName = "";
-    let filesArray = []; 
-
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const workspace = document.getElementById('workspace');
-
-    // Default init behavior
-    if (onInit) {
-        onInit();
-    }
-
-    // Default dropzone logic
-    FileHandler.initDropZone('drop-zone', 'file-input', handleFiles, isMultiFile ? 'image/*,.pdf' : '.pdf');
-
-    if (isMultiFile) {
-        document.getElementById('btn-add-more')?.addEventListener('click', () => fileInput.click());
-    }    async function handleFiles(files) {
-        if (!files || files.length === 0) return;
-        
-        for (const f of files) {
-            const check = FileHandler.validateFile(f);
-            if (!check.valid) {
-                if (window.PdfMinty && window.PdfMinty.ui) {
-                    window.PdfMinty.ui.showError(check.reason);
-                }
-                return;
-            }
+    document.querySelectorAll('.remove-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.target.dataset.index);
+        const removed = filesArray.splice(idx, 1)[0];
+        if (window.PdfMinty && window.PdfMinty.db && removed.id)
+          window.PdfMinty.db.deleteFile(removed.id);
+        renderFileList();
+        if (filesArray.length === 0) {
+          workspace.classList.add('hidden');
+          dropZone.classList.remove('hidden');
         }
-        
-        if (!isMultiFile) {
-            const file = files[0];
-            try {
-                if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.showProgress(50);
-                const ab = await FileHandler.readFileAsArrayBuffer(file);
-                if (window.PdfMinty && window.PdfMinty.db) {
-                    await window.PdfMinty.db.saveFile(toolId + '_target', ab);
-                    originalPdfBytes = toolId + '_target';
-                } else {
-                    originalPdfBytes = ab;
-                }
-                currentFileName = file.name.replace(/\.[^/.]+$/, "");
-                
-                const fileNameDisplay = document.getElementById('file-name-display');
-                if(fileNameDisplay) fileNameDisplay.textContent = file.name;
-                
-                const fileSizeDisplay = document.getElementById('file-size-display');
-                if (window.PdfMinty && window.PdfMinty.utils && fileSizeDisplay) {
-                    fileSizeDisplay.textContent = window.PdfMinty.utils.formatBytes(file.size);
-                }
-                
-                if (window.PdfMinty && window.PdfMinty.utils && window.PdfMinty.utils.renderPdfThumbnail) {
-                    const imgEl = document.getElementById('file-preview-img');
-                    if (imgEl && file.type === 'application/pdf') window.PdfMinty.utils.renderPdfThumbnail(file, imgEl);
-                }
-                
-                dropZone.classList.add('hidden');
-                workspace.classList.remove('hidden');
-            } catch(err) {
-                console.error(err);
-                if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.showError(err.message);
-            } finally {
-                if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.hideProgress();
-            }
-        } else {
-            // Multi-file logic
-            const validFiles = Array.from(files);
-            if (window.PdfMinty && window.PdfMinty.db) {
-                Promise.all(validFiles.map(async (file) => {
-                    const id = toolId + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    const ab = await FileHandler.readFileAsArrayBuffer(file);
-                    await window.PdfMinty.db.saveFile(id, ab);
-                    return { name: file.name, id, fileObj: file };
-                })).then(mapped => {
-                    filesArray = filesArray.concat(mapped);
-                    renderFileList();
-                });
-            } else {
-                filesArray = filesArray.concat(validFiles.map(f => ({ name: f.name, fileObj: f })));
-                renderFileList();
-            }
-            dropZone.classList.add('hidden');
-            workspace.classList.remove('hidden');
+      });
+    });
+  }
+
+  const removeFileBtn = document.getElementById('remove-file-btn');
+  if (removeFileBtn) {
+    removeFileBtn.addEventListener('click', () => {
+      originalPdfBytes = null;
+      currentFileName = '';
+      fileInput.value = '';
+      workspace.classList.add('hidden');
+      dropZone.classList.remove('hidden');
+    });
+  }
+
+  const btnApply = document.getElementById('btn-apply');
+  if (btnApply && onApply) {
+    btnApply.addEventListener('click', () => {
+      processPdfTask(btnApply, async () => {
+        let actualBytes;
+        if (!isMultiFile && originalPdfBytes) {
+          actualBytes = await getPdfBytes(originalPdfBytes);
         }
-    }
-
-    function renderFileList() {
-        if (!isMultiFile) return;
-        const fileListEl = document.getElementById('file-list');
-        if (!fileListEl) return;
-        fileListEl.innerHTML = '';
-        filesArray.forEach((file, index) => {
-            const item = document.createElement('div');
-            item.className = 'file-item';
-            
-            if (file.fileObj.type.startsWith('image/')) {
-                const img = document.createElement('img');
-                const reader = new FileReader();
-                reader.onload = (e) => img.src = e.target.result;
-                reader.readAsDataURL(file.fileObj);
-                item.appendChild(img);
-            } else {
-                const img = document.createElement('img');
-                if (window.PdfMinty && window.PdfMinty.utils && window.PdfMinty.utils.renderPdfThumbnail) {
-                    window.PdfMinty.utils.renderPdfThumbnail(file.fileObj, img);
-                }
-                item.appendChild(img);
-            }
-            
-            const btn = document.createElement('button');
-            btn.className = 'remove-btn';
-            btn.innerHTML = '✕';
-            btn.dataset.index = index;
-            
-            const nameBadge = document.createElement('div');
-            nameBadge.className = 'file-name-badge';
-            nameBadge.textContent = file.name;
-            
-            item.appendChild(nameBadge);
-            item.appendChild(btn);
-            fileListEl.appendChild(item);
+        await onApply({
+          actualBytes,
+          currentFileName,
+          filesArray, // For multi file
         });
-
-        document.querySelectorAll('.remove-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.target.dataset.index);
-                const removed = filesArray.splice(idx, 1)[0];
-                if (window.PdfMinty && window.PdfMinty.db && removed.id) window.PdfMinty.db.deleteFile(removed.id);
-                renderFileList();
-                if (filesArray.length === 0) {
-                    workspace.classList.add('hidden');
-                    dropZone.classList.remove('hidden');
-                }
-            });
-        });
-    }
-
-    const removeFileBtn = document.getElementById('remove-file-btn');
-    if(removeFileBtn) {
-        removeFileBtn.addEventListener('click', () => {
-            originalPdfBytes = null;
-            currentFileName = "";
-            fileInput.value = '';
-            workspace.classList.add('hidden');
-            dropZone.classList.remove('hidden');
-        });
-    }
-
-    const btnApply = document.getElementById('btn-apply');
-    if (btnApply && onApply) {
-        btnApply.addEventListener('click', () => {
-            processPdfTask(btnApply, async () => {
-                let actualBytes;
-                if (!isMultiFile && originalPdfBytes) {
-                     actualBytes = await getPdfBytes(originalPdfBytes);
-                }
-                await onApply({
-                    actualBytes,
-                    currentFileName,
-                    filesArray // For multi file
-                });
-            });
-        });
-    }
+      });
+    });
+  }
 }

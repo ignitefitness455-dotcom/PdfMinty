@@ -1,4 +1,11 @@
-import{P as H,S as G,d as R,r as O}from"./PDFButton-56eB-KER.js";(function(){const B=document.getElementById("app")||document.querySelector("main")||document.body,g="pdfminty-watermark-styles";if(!document.getElementById(g)){const e=document.createElement("style");e.id=g,e.textContent=`
+import { P as H, S as G, d as R, r as O } from './PDFButton-56eB-KER.js';
+(function () {
+  const B = document.getElementById('app') || document.querySelector('main') || document.body,
+    g = 'pdfminty-watermark-styles';
+  if (!document.getElementById(g)) {
+    const e = document.createElement('style');
+    ((e.id = g),
+      (e.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -27,7 +34,10 @@ import{P as H,S as G,d as R,r as O}from"./PDFButton-56eB-KER.js";(function(){con
             .btn-action:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}B.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  B.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -87,4 +97,137 @@ import{P as H,S as G,d as R,r as O}from"./PDFButton-56eB-KER.js";(function(){con
                 </div>
             </div>
         </div>
-    `;let r=null,l="";const d=document.getElementById("drop-zone"),c=document.getElementById("file-input"),f=document.getElementById("workspace"),z=document.getElementById("file-name-display"),D=document.getElementById("remove-file-btn"),o=document.getElementById("btn-apply"),C=document.getElementById("wm-text"),b=document.getElementById("wm-color"),A=document.getElementById("color-hex"),M=document.getElementById("wm-position"),y=document.getElementById("wm-size"),j=document.getElementById("size-val"),v=document.getElementById("wm-opacity"),T=document.getElementById("opacity-val"),h=document.getElementById("wm-rotation"),F=document.getElementById("rotation-val");b.addEventListener("input",e=>A.textContent=e.target.value.toUpperCase()),y.addEventListener("input",e=>j.textContent=e.target.value+"px"),v.addEventListener("input",e=>T.textContent=e.target.value+"%"),h.addEventListener("input",e=>F.textContent=e.target.value+"°"),typeof initDropZone=="function"?initDropZone("drop-zone","file-input",w,".pdf"):(d.addEventListener("click",()=>c.click()),c.addEventListener("change",e=>w(e.target.files))),D.addEventListener("click",()=>{r=null,l="",c.value="",f.classList.add("hidden"),d.classList.remove("hidden")});async function w(e){if(!e||e.length===0)return;const t=e[0];if(typeof window.validateFile=="function")for(const n of e){const i=window.validateFile(n);if(!i.valid){typeof window.showError=="function"&&window.showError(i.reason);return}}try{if(typeof showProgress=="function"&&showProgress(50),r=await t.arrayBuffer(),l=t.name.replace(/\.[^/.]+$/,""),z.textContent=t.name,typeof formatBytes=="function"&&typeof fileSizeDisplay<"u"&&fileSizeDisplay&&(fileSizeDisplay.textContent=formatBytes(t.size)),typeof renderPdfThumbnail=="function"){const n=document.getElementById("file-preview-img");n&&renderPdfThumbnail(t,n)}d.classList.add("hidden"),f.classList.remove("hidden"),typeof hideProgress=="function"&&hideProgress()}catch(n){console.error(n),typeof showError=="function"&&showError("Error loading PDF: "+n.message),typeof hideProgress=="function"&&hideProgress()}}function S(e){const t=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(e);return t?{r:parseInt(t[1],16)/255,g:parseInt(t[2],16)/255,b:parseInt(t[3],16)/255}:{r:0,g:0,b:0}}o.addEventListener("click",async()=>{o.hasAttribute("data-original-text")||o.setAttribute("data-original-text",o.textContent),o.disabled=!0,o.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(!r)return;const e=C.value.trim();if(!e){typeof showError=="function"&&showError("Please enter watermark text.");return}try{const t=await H.load(r.slice(0)),n=t.getPages(),i=await t.embedFont(G.HelveticaBold),p=S(b.value),L=parseInt(v.value)/100,m=parseInt(y.value),x=parseInt(h.value),I=M.value,a=x*(Math.PI/180);n.forEach(E=>{const{width:N,height:k}=E.getSize(),P=i.widthOfTextAtSize(e,m),s=i.heightAtSize(m),W=N/2;let u=k/2;I==="top"?u=k-s*2:I==="bottom"&&(u=s*2),E.drawText(e,{x:W-P/2*Math.cos(a)+s/2*Math.sin(a),y:u-P/2*Math.sin(a)-s/2*Math.cos(a),size:m,font:i,color:O(p.r,p.g,p.b),opacity:L,rotate:R(x)})});const Z=await t.save({useObjectStreams:!0});typeof downloadFile=="function"&&(downloadFile(Z,`${l}_watermarked.pdf`),r=null),typeof showSuccess=="function"&&showSuccess("Watermark added successfully!")}catch(t){console.error("Watermark Error:",t),typeof showError=="function"&&showError(t.message||"Error adding watermark.")}finally{}typeof window.showProgress=="function"&&window.showProgress(100)}catch(e){console.error("PDF Processing Error:",e),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(e.message||"An error occurred while processing the PDF."):alert("Error: "+(e.message||"An error occurred"))}finally{o.disabled=!1,o.textContent=o.getAttribute("data-original-text")}})})();
+    `;
+  let r = null,
+    l = '';
+  const d = document.getElementById('drop-zone'),
+    c = document.getElementById('file-input'),
+    f = document.getElementById('workspace'),
+    z = document.getElementById('file-name-display'),
+    D = document.getElementById('remove-file-btn'),
+    o = document.getElementById('btn-apply'),
+    C = document.getElementById('wm-text'),
+    b = document.getElementById('wm-color'),
+    A = document.getElementById('color-hex'),
+    M = document.getElementById('wm-position'),
+    y = document.getElementById('wm-size'),
+    j = document.getElementById('size-val'),
+    v = document.getElementById('wm-opacity'),
+    T = document.getElementById('opacity-val'),
+    h = document.getElementById('wm-rotation'),
+    F = document.getElementById('rotation-val');
+  (b.addEventListener('input', (e) => (A.textContent = e.target.value.toUpperCase())),
+    y.addEventListener('input', (e) => (j.textContent = e.target.value + 'px')),
+    v.addEventListener('input', (e) => (T.textContent = e.target.value + '%')),
+    h.addEventListener('input', (e) => (F.textContent = e.target.value + '°')),
+    typeof initDropZone == 'function'
+      ? initDropZone('drop-zone', 'file-input', w, '.pdf')
+      : (d.addEventListener('click', () => c.click()),
+        c.addEventListener('change', (e) => w(e.target.files))),
+    D.addEventListener('click', () => {
+      ((r = null),
+        (l = ''),
+        (c.value = ''),
+        f.classList.add('hidden'),
+        d.classList.remove('hidden'));
+    }));
+  async function w(e) {
+    if (!e || e.length === 0) return;
+    const t = e[0];
+    if (typeof window.validateFile == 'function')
+      for (const n of e) {
+        const i = window.validateFile(n);
+        if (!i.valid) {
+          typeof window.showError == 'function' && window.showError(i.reason);
+          return;
+        }
+      }
+    try {
+      if (
+        (typeof showProgress == 'function' && showProgress(50),
+        (r = await t.arrayBuffer()),
+        (l = t.name.replace(/\.[^/.]+$/, '')),
+        (z.textContent = t.name),
+        typeof formatBytes == 'function' &&
+          typeof fileSizeDisplay < 'u' &&
+          fileSizeDisplay &&
+          (fileSizeDisplay.textContent = formatBytes(t.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const n = document.getElementById('file-preview-img');
+        n && renderPdfThumbnail(t, n);
+      }
+      (d.classList.add('hidden'),
+        f.classList.remove('hidden'),
+        typeof hideProgress == 'function' && hideProgress());
+    } catch (n) {
+      (console.error(n),
+        typeof showError == 'function' && showError('Error loading PDF: ' + n.message),
+        typeof hideProgress == 'function' && hideProgress());
+    }
+  }
+  function S(e) {
+    const t = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(e);
+    return t
+      ? { r: parseInt(t[1], 16) / 255, g: parseInt(t[2], 16) / 255, b: parseInt(t[3], 16) / 255 }
+      : { r: 0, g: 0, b: 0 };
+  }
+  o.addEventListener('click', async () => {
+    (o.hasAttribute('data-original-text') || o.setAttribute('data-original-text', o.textContent),
+      (o.disabled = !0),
+      (o.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (!r) return;
+      const e = C.value.trim();
+      if (!e) {
+        typeof showError == 'function' && showError('Please enter watermark text.');
+        return;
+      }
+      try {
+        const t = await H.load(r.slice(0)),
+          n = t.getPages(),
+          i = await t.embedFont(G.HelveticaBold),
+          p = S(b.value),
+          L = parseInt(v.value) / 100,
+          m = parseInt(y.value),
+          x = parseInt(h.value),
+          I = M.value,
+          a = x * (Math.PI / 180);
+        n.forEach((E) => {
+          const { width: N, height: k } = E.getSize(),
+            P = i.widthOfTextAtSize(e, m),
+            s = i.heightAtSize(m),
+            W = N / 2;
+          let u = k / 2;
+          (I === 'top' ? (u = k - s * 2) : I === 'bottom' && (u = s * 2),
+            E.drawText(e, {
+              x: W - (P / 2) * Math.cos(a) + (s / 2) * Math.sin(a),
+              y: u - (P / 2) * Math.sin(a) - (s / 2) * Math.cos(a),
+              size: m,
+              font: i,
+              color: O(p.r, p.g, p.b),
+              opacity: L,
+              rotate: R(x),
+            }));
+        });
+        const Z = await t.save({ useObjectStreams: !0 });
+        (typeof downloadFile == 'function' && (downloadFile(Z, `${l}_watermarked.pdf`), (r = null)),
+          typeof showSuccess == 'function' && showSuccess('Watermark added successfully!'));
+      } catch (t) {
+        (console.error('Watermark Error:', t),
+          typeof showError == 'function' && showError(t.message || 'Error adding watermark.'));
+      } finally {
+      }
+      typeof window.showProgress == 'function' && window.showProgress(100);
+    } catch (e) {
+      (console.error('PDF Processing Error:', e),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(e.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (e.message || 'An error occurred')));
+    } finally {
+      ((o.disabled = !1), (o.textContent = o.getAttribute('data-original-text')));
+    }
+  });
+})();

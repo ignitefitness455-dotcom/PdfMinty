@@ -1,4 +1,11 @@
-import{P as y}from"./PDFButton-56eB-KER.js";(function(){const w=document.getElementById("app")||document.querySelector("main")||document.body,g="pdfminty-delete-styles";if(!document.getElementById(g)){const e=document.createElement("style");e.id=g,e.textContent=`
+import { P as y } from './PDFButton-56eB-KER.js';
+(function () {
+  const w = document.getElementById('app') || document.querySelector('main') || document.body,
+    g = 'pdfminty-delete-styles';
+  if (!document.getElementById(g)) {
+    const e = document.createElement('style');
+    ((e.id = g),
+      (e.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -21,7 +28,10 @@ import{P as y}from"./PDFButton-56eB-KER.js";(function(){const w=document.getElem
             .btn-action:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}w.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  w.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -53,4 +63,122 @@ import{P as y}from"./PDFButton-56eB-KER.js";(function(){const w=document.getElem
                 </div>
             </div>
         </div>
-    `;let s=null,p="",l=0;const f=document.getElementById("drop-zone"),m=document.getElementById("file-input"),u=document.getElementById("workspace"),h=document.getElementById("file-name-display"),v=document.getElementById("remove-file-btn"),n=document.getElementById("btn-apply"),x=document.getElementById("delete-pages-input");typeof initDropZone=="function"?initDropZone("drop-zone","file-input",b,".pdf"):(f.addEventListener("click",()=>m.click()),m.addEventListener("change",e=>b(e.target.files))),v.addEventListener("click",()=>{s=null,p="",l=0,m.value="",u.classList.add("hidden"),f.classList.remove("hidden")});async function b(e){if(!e||e.length===0)return;const r=e[0];if(typeof window.validateFile=="function")for(const t of e){const a=window.validateFile(t);if(!a.valid){typeof window.showError=="function"&&window.showError(a.reason);return}}try{if(typeof showProgress=="function"&&showProgress(30),s=await r.arrayBuffer(),p=r.name.replace(/\.[^/.]+$/,""),l=(await y.load(s,{ignoreEncryption:!0})).getPageCount(),h.textContent=r.name,typeof formatBytes=="function"&&typeof fileSizeDisplay<"u"&&fileSizeDisplay&&(fileSizeDisplay.textContent=formatBytes(r.size)),typeof renderPdfThumbnail=="function"){const a=document.getElementById("file-preview-img");a&&renderPdfThumbnail(r,a)}f.classList.add("hidden"),u.classList.remove("hidden"),typeof hideProgress=="function"&&hideProgress()}catch(t){console.error(t),typeof showError=="function"&&showError("Error loading PDF: "+t.message),typeof hideProgress=="function"&&hideProgress()}}function I(e,r){const t=new Set,a=e.split(",");for(let o of a)if(o=o.trim(),!!o)if(o.includes("-")){const[i,c]=o.split("-").map(d=>parseInt(d.trim(),10));if(isNaN(i)||isNaN(c)||i<1||c>r||i>c)throw new Error(`Invalid range: ${o}`);for(let d=i;d<=c;d++)t.add(d)}else{const i=parseInt(o,10);if(isNaN(i)||i<1||i>r)throw new Error(`Invalid page number: ${o}`);t.add(i)}return Array.from(t).sort((o,i)=>i-o)}n.addEventListener("click",async()=>{n.hasAttribute("data-original-text")||n.setAttribute("data-original-text",n.textContent),n.disabled=!0,n.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(!s)return;const e=x.value.trim();if(!e){typeof showError=="function"&&showError("Please enter pages to delete.");return}let r;try{if(r=I(e,l),r.length===0)throw new Error("No valid pages specified.");if(r.length===l)throw new Error("You cannot delete all pages.")}catch(t){typeof showError=="function"&&showError(t.message);return}try{const t=await y.load(s);for(const o of r)t.removePage(o-1);const a=await t.save({useObjectStreams:!0});typeof downloadFile=="function"&&(downloadFile(a,`${p}_deleted.pdf`),s=null),typeof showSuccess=="function"&&showSuccess("Pages deleted successfully!")}catch(t){console.error("Delete Error:",t),typeof showError=="function"&&showError(t.message||"Error deleting pages.")}finally{}typeof window.showProgress=="function"&&window.showProgress(100)}catch(e){console.error("PDF Processing Error:",e),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(e.message||"An error occurred while processing the PDF."):alert("Error: "+(e.message||"An error occurred"))}finally{n.disabled=!1,n.textContent=n.getAttribute("data-original-text")}})})();
+    `;
+  let s = null,
+    p = '',
+    l = 0;
+  const f = document.getElementById('drop-zone'),
+    m = document.getElementById('file-input'),
+    u = document.getElementById('workspace'),
+    h = document.getElementById('file-name-display'),
+    v = document.getElementById('remove-file-btn'),
+    n = document.getElementById('btn-apply'),
+    x = document.getElementById('delete-pages-input');
+  (typeof initDropZone == 'function'
+    ? initDropZone('drop-zone', 'file-input', b, '.pdf')
+    : (f.addEventListener('click', () => m.click()),
+      m.addEventListener('change', (e) => b(e.target.files))),
+    v.addEventListener('click', () => {
+      ((s = null),
+        (p = ''),
+        (l = 0),
+        (m.value = ''),
+        u.classList.add('hidden'),
+        f.classList.remove('hidden'));
+    }));
+  async function b(e) {
+    if (!e || e.length === 0) return;
+    const r = e[0];
+    if (typeof window.validateFile == 'function')
+      for (const t of e) {
+        const a = window.validateFile(t);
+        if (!a.valid) {
+          typeof window.showError == 'function' && window.showError(a.reason);
+          return;
+        }
+      }
+    try {
+      if (
+        (typeof showProgress == 'function' && showProgress(30),
+        (s = await r.arrayBuffer()),
+        (p = r.name.replace(/\.[^/.]+$/, '')),
+        (l = (await y.load(s, { ignoreEncryption: !0 })).getPageCount()),
+        (h.textContent = r.name),
+        typeof formatBytes == 'function' &&
+          typeof fileSizeDisplay < 'u' &&
+          fileSizeDisplay &&
+          (fileSizeDisplay.textContent = formatBytes(r.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const a = document.getElementById('file-preview-img');
+        a && renderPdfThumbnail(r, a);
+      }
+      (f.classList.add('hidden'),
+        u.classList.remove('hidden'),
+        typeof hideProgress == 'function' && hideProgress());
+    } catch (t) {
+      (console.error(t),
+        typeof showError == 'function' && showError('Error loading PDF: ' + t.message),
+        typeof hideProgress == 'function' && hideProgress());
+    }
+  }
+  function I(e, r) {
+    const t = new Set(),
+      a = e.split(',');
+    for (let o of a)
+      if (((o = o.trim()), !!o))
+        if (o.includes('-')) {
+          const [i, c] = o.split('-').map((d) => parseInt(d.trim(), 10));
+          if (isNaN(i) || isNaN(c) || i < 1 || c > r || i > c)
+            throw new Error(`Invalid range: ${o}`);
+          for (let d = i; d <= c; d++) t.add(d);
+        } else {
+          const i = parseInt(o, 10);
+          if (isNaN(i) || i < 1 || i > r) throw new Error(`Invalid page number: ${o}`);
+          t.add(i);
+        }
+    return Array.from(t).sort((o, i) => i - o);
+  }
+  n.addEventListener('click', async () => {
+    (n.hasAttribute('data-original-text') || n.setAttribute('data-original-text', n.textContent),
+      (n.disabled = !0),
+      (n.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (!s) return;
+      const e = x.value.trim();
+      if (!e) {
+        typeof showError == 'function' && showError('Please enter pages to delete.');
+        return;
+      }
+      let r;
+      try {
+        if (((r = I(e, l)), r.length === 0)) throw new Error('No valid pages specified.');
+        if (r.length === l) throw new Error('You cannot delete all pages.');
+      } catch (t) {
+        typeof showError == 'function' && showError(t.message);
+        return;
+      }
+      try {
+        const t = await y.load(s);
+        for (const o of r) t.removePage(o - 1);
+        const a = await t.save({ useObjectStreams: !0 });
+        (typeof downloadFile == 'function' && (downloadFile(a, `${p}_deleted.pdf`), (s = null)),
+          typeof showSuccess == 'function' && showSuccess('Pages deleted successfully!'));
+      } catch (t) {
+        (console.error('Delete Error:', t),
+          typeof showError == 'function' && showError(t.message || 'Error deleting pages.'));
+      } finally {
+      }
+      typeof window.showProgress == 'function' && window.showProgress(100);
+    } catch (e) {
+      (console.error('PDF Processing Error:', e),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(e.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (e.message || 'An error occurred')));
+    } finally {
+      ((n.disabled = !1), (n.textContent = n.getAttribute('data-original-text')));
+    }
+  });
+})();

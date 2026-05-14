@@ -8,8 +8,8 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: false,
     appendUserAgent: 'PDFMintyApp',
-    backgroundColor: '#ffffff'
-  }
+    backgroundColor: '#ffffff',
+  },
 };
 
 export default config;

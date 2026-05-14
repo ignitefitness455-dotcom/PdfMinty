@@ -1,14 +1,18 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-export default function renderTool() {
-    setupToolUI({
-        toolId: 'add-page-numbers',
-        title: 'Add Page Numbers',
-        description: 'Insert page numbers into your PDF document',
-        icon: '🔢',
-        actionText: '🔢 Add Page Numbers',
-        isMultiFile: false,
-        settingsHtml: `<div class="settings-panel">
+/**
+ * Initializes and renders the tool UI and logic.
+ * @returns {void}
+ */
+export function init() {
+  setupToolUI({
+    toolId: 'add-page-numbers',
+    title: 'Add Page Numbers',
+    description: 'Insert page numbers into your PDF document',
+    icon: window.PdfMinty.ICONS.add_page_numbers || '📄',
+    actionText: '🔢 Add Page Numbers',
+    isMultiFile: false,
+    settingsHtml: `<div class="settings-panel">
                     <div class="setting-group">
                         <label class="input-label">Format</label>
                         <select id="format-select" class="select-input">
@@ -47,35 +51,57 @@ export default function renderTool() {
                     </div>
                 </div>`,
 
-        onInit: () => {
-            const sizeInput = document.getElementById('size-input');
-    const sizeVal = document.getElementById('size-val');
-    const marginInput = document.getElementById('margin-input');
-    const marginVal = document.getElementById('margin-val');
-    const colorInput = document.getElementById('color-input');
-    const colorHex = document.getElementById('color-hex');
+    onInit: () => {
+      const sizeInput = document.getElementById('size-input');
+      const sizeVal = document.getElementById('size-val');
+      const marginInput = document.getElementById('margin-input');
+      const marginVal = document.getElementById('margin-val');
+      const colorInput = document.getElementById('color-input');
+      const colorHex = document.getElementById('color-hex');
 
-    if (sizeInput) sizeInput.addEventListener('input', (e) => sizeVal.textContent = e.target.value + 'px');
-    if (marginInput) marginInput.addEventListener('input', (e) => marginVal.textContent = e.target.value + 'px');
-    if (colorInput) colorInput.addEventListener('input', (e) => colorHex.textContent = e.target.value.toUpperCase());
-        },
-        onApply: async ({ actualBytes, currentFileName }) => {
+      if (sizeInput)
+        sizeInput.addEventListener('input', (e) => (sizeVal.textContent = e.target.value + 'px'));
+      if (marginInput)
+        marginInput.addEventListener(
+          'input',
+          (e) => (marginVal.textContent = e.target.value + 'px'),
+        );
+      if (colorInput)
+        colorInput.addEventListener(
+          'input',
+          (e) => (colorHex.textContent = e.target.value.toUpperCase()),
+        );
+    },
+    onApply: async ({ actualBytes, currentFileName }) => {
+      const format = document.getElementById('num-format').value;
+      const position = document.getElementById('num-position').value;
+      const size = parseInt(document.getElementById('num-size').value, 10);
+      const margin = parseInt(document.getElementById('num-margin').value, 10);
 
-            const format = document.getElementById('num-format').value;
-            const position = document.getElementById('num-position').value;
-            const size = parseInt(document.getElementById('num-size').value, 10);
-            const margin = parseInt(document.getElementById('num-margin').value, 10);
-            
-            let resultBytes;
-            if (typeof window.runPdfWorkerTask === 'function') {
-                const payload = { fileBytes: new Uint8Array(actualBytes), format, position, size, margin, colorRgb: {r:0,g:0,b:0} };
-                resultBytes = await window.runPdfWorkerTask('add-page-numbers', payload, [payload.fileBytes.buffer]);
-            } else {
-                throw new Error("Worker not found");
-            }
-            if (typeof downloadFile === 'function') downloadFile(resultBytes, currentFileName + '_numbered.pdf');
-            if (typeof showSuccess === 'function') showSuccess('Page numbers added successfully!');
+      let resultBytes;
+      if (typeof window.runPdfWorkerTask === 'function') {
+        const payload = {
+          fileBytes: new Uint8Array(actualBytes),
+          format,
+          position,
+          size,
+          margin,
+          colorRgb: { r: 0, g: 0, b: 0 },
+        };
+        resultBytes = await window.runPdfWorkerTask('add-page-numbers', payload, [
+          payload.fileBytes.buffer,
+        ]);
+      } else {
+        throw new Error('Worker not found');
+      }
+      if (typeof downloadFile === 'function')
+        downloadFile(resultBytes, currentFileName + '_numbered.pdf');
+      if (typeof showSuccess === 'function') showSuccess('Page numbers added successfully!');
+    },
+  });
+}
 
-        }
-    });
+
+export function destroy() {
+  // Cleanup logic here if necessary
 }

@@ -1,4 +1,11 @@
-import"./PDFButton-56eB-KER.js";(function(){const P=document.getElementById("app")||document.querySelector("main")||document.body,w="pdfminty-protect-styles";if(!document.getElementById(w)){const e=document.createElement("style");e.id=w,e.textContent=`
+import './PDFButton-56eB-KER.js';
+(function () {
+  const P = document.getElementById('app') || document.querySelector('main') || document.body,
+    w = 'pdfminty-protect-styles';
+  if (!document.getElementById(w)) {
+    const e = document.createElement('style');
+    ((e.id = w),
+      (e.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -20,7 +27,10 @@ import"./PDFButton-56eB-KER.js";(function(){const P=document.getElementById("app
             .btn-action:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}P.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  P.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -76,4 +86,138 @@ import"./PDFButton-56eB-KER.js";(function(){const P=document.getElementById("app
                 </div>
             </div>
         </div>
-    `;let i=null,g="";const u=document.getElementById("drop-zone"),y=document.getElementById("file-input"),b=document.getElementById("workspace"),k=document.getElementById("file-name-display"),E=document.getElementById("remove-file-btn"),r=document.getElementById("btn-apply"),d=document.getElementById("password-input");typeof initDropZone=="function"?initDropZone("drop-zone","file-input",h,".pdf"):(u.addEventListener("click",()=>y.click()),y.addEventListener("change",e=>h(e.target.files))),E.addEventListener("click",()=>{i=null,g="",y.value="",d.value="",b.classList.add("hidden"),u.classList.remove("hidden")});async function h(e){if(!e||e.length===0)return;const t=e[0];if(typeof window.validateFile=="function")for(const o of e){const n=window.validateFile(o);if(!n.valid){typeof window.showError=="function"&&window.showError(n.reason);return}}try{const o=await t.arrayBuffer();if(window.pdfDB?(await window.pdfDB.saveFile("protect_target",o),i="protect_target"):i=o,g=t.name.replace(/\.[^/.]+$/,""),k.textContent=t.name,typeof formatBytes=="function"&&typeof fileSizeDisplay<"u"&&fileSizeDisplay&&(fileSizeDisplay.textContent=formatBytes(t.size)),typeof renderPdfThumbnail=="function"){const n=document.getElementById("file-preview-img");n&&renderPdfThumbnail(t,n)}u.classList.add("hidden"),b.classList.remove("hidden"),d.focus()}catch(o){console.error(o),typeof showError=="function"&&showError("Error reading file: "+o.message)}}r.addEventListener("click",async()=>{r.hasAttribute("data-original-text")||r.setAttribute("data-original-text",r.textContent),r.disabled=!0,r.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(!i)return;const e=d.value;if(!e){typeof showError=="function"&&showError("Please enter a password.");return}try{typeof pdfjsLib>"u"&&(await window.loadExternalScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"),pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"),typeof window.jspdf>"u"&&await window.loadExternalScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");const{jsPDF:t}=window.jspdf;let o=i instanceof ArrayBuffer?i:await window.pdfDB.getFile(i);const n=pdfjsLib.getDocument({data:o.slice(0)});o=null;const v=await n.promise,j=v.numPages;let l=null;for(let c=1;c<=j;c++){const x=await v.getPage(c),a=x.getViewport({scale:2}),p=document.createElement("canvas"),D=p.getContext("2d");p.width=a.width,p.height=a.height;const A={canvasContext:D,viewport:a};await x.render(A).promise;const z=p.toDataURL("image/jpeg",.85),m=a.width/2*(25.4/72),f=a.height/2*(25.4/72),I=m>f?"l":"p";if(c===1){const s=[];document.getElementById("perm-print").checked&&s.push("print"),document.getElementById("perm-modify").checked&&s.push("modify"),document.getElementById("perm-copy").checked&&s.push("copy"),document.getElementById("perm-annot").checked&&s.push("annot-forms"),l=new t({orientation:I,unit:"mm",format:[m,f],encryption:{userPassword:e,ownerPassword:e+"_owner",userPermissions:s}})}else l.addPage([m,f],I);l.addImage(z,"JPEG",0,0,m,f)}const B=l.output("arraybuffer");typeof downloadFile=="function"&&(downloadFile(new Uint8Array(B),`${g}_protected.pdf`),i=null),typeof showSuccess=="function"&&showSuccess("PDF protected successfully!"),d.value=""}catch(t){console.error("Protect Error:",t),typeof showError=="function"&&showError(t.message||"Error protecting PDF.")}finally{}typeof window.showProgress=="function"&&window.showProgress(100)}catch(e){console.error("PDF Processing Error:",e),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(e.message||"An error occurred while processing the PDF."):alert("Error: "+(e.message||"An error occurred"))}finally{r.disabled=!1,r.textContent=r.getAttribute("data-original-text")}})})();
+    `;
+  let i = null,
+    g = '';
+  const u = document.getElementById('drop-zone'),
+    y = document.getElementById('file-input'),
+    b = document.getElementById('workspace'),
+    k = document.getElementById('file-name-display'),
+    E = document.getElementById('remove-file-btn'),
+    r = document.getElementById('btn-apply'),
+    d = document.getElementById('password-input');
+  (typeof initDropZone == 'function'
+    ? initDropZone('drop-zone', 'file-input', h, '.pdf')
+    : (u.addEventListener('click', () => y.click()),
+      y.addEventListener('change', (e) => h(e.target.files))),
+    E.addEventListener('click', () => {
+      ((i = null),
+        (g = ''),
+        (y.value = ''),
+        (d.value = ''),
+        b.classList.add('hidden'),
+        u.classList.remove('hidden'));
+    }));
+  async function h(e) {
+    if (!e || e.length === 0) return;
+    const t = e[0];
+    if (typeof window.validateFile == 'function')
+      for (const o of e) {
+        const n = window.validateFile(o);
+        if (!n.valid) {
+          typeof window.showError == 'function' && window.showError(n.reason);
+          return;
+        }
+      }
+    try {
+      const o = await t.arrayBuffer();
+      if (
+        (window.pdfDB
+          ? (await window.pdfDB.saveFile('protect_target', o), (i = 'protect_target'))
+          : (i = o),
+        (g = t.name.replace(/\.[^/.]+$/, '')),
+        (k.textContent = t.name),
+        typeof formatBytes == 'function' &&
+          typeof fileSizeDisplay < 'u' &&
+          fileSizeDisplay &&
+          (fileSizeDisplay.textContent = formatBytes(t.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const n = document.getElementById('file-preview-img');
+        n && renderPdfThumbnail(t, n);
+      }
+      (u.classList.add('hidden'), b.classList.remove('hidden'), d.focus());
+    } catch (o) {
+      (console.error(o),
+        typeof showError == 'function' && showError('Error reading file: ' + o.message));
+    }
+  }
+  r.addEventListener('click', async () => {
+    (r.hasAttribute('data-original-text') || r.setAttribute('data-original-text', r.textContent),
+      (r.disabled = !0),
+      (r.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (!i) return;
+      const e = d.value;
+      if (!e) {
+        typeof showError == 'function' && showError('Please enter a password.');
+        return;
+      }
+      try {
+        (typeof pdfjsLib > 'u' &&
+          (await window.loadExternalScript(
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+          ),
+          (pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')),
+          typeof window.jspdf > 'u' &&
+            (await window.loadExternalScript(
+              'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+            )));
+        const { jsPDF: t } = window.jspdf;
+        let o = i instanceof ArrayBuffer ? i : await window.pdfDB.getFile(i);
+        const n = pdfjsLib.getDocument({ data: o.slice(0) });
+        o = null;
+        const v = await n.promise,
+          j = v.numPages;
+        let l = null;
+        for (let c = 1; c <= j; c++) {
+          const x = await v.getPage(c),
+            a = x.getViewport({ scale: 2 }),
+            p = document.createElement('canvas'),
+            D = p.getContext('2d');
+          ((p.width = a.width), (p.height = a.height));
+          const A = { canvasContext: D, viewport: a };
+          await x.render(A).promise;
+          const z = p.toDataURL('image/jpeg', 0.85),
+            m = (a.width / 2) * (25.4 / 72),
+            f = (a.height / 2) * (25.4 / 72),
+            I = m > f ? 'l' : 'p';
+          if (c === 1) {
+            const s = [];
+            (document.getElementById('perm-print').checked && s.push('print'),
+              document.getElementById('perm-modify').checked && s.push('modify'),
+              document.getElementById('perm-copy').checked && s.push('copy'),
+              document.getElementById('perm-annot').checked && s.push('annot-forms'),
+              (l = new t({
+                orientation: I,
+                unit: 'mm',
+                format: [m, f],
+                encryption: { userPassword: e, ownerPassword: e + '_owner', userPermissions: s },
+              })));
+          } else l.addPage([m, f], I);
+          l.addImage(z, 'JPEG', 0, 0, m, f);
+        }
+        const B = l.output('arraybuffer');
+        (typeof downloadFile == 'function' &&
+          (downloadFile(new Uint8Array(B), `${g}_protected.pdf`), (i = null)),
+          typeof showSuccess == 'function' && showSuccess('PDF protected successfully!'),
+          (d.value = ''));
+      } catch (t) {
+        (console.error('Protect Error:', t),
+          typeof showError == 'function' && showError(t.message || 'Error protecting PDF.'));
+      } finally {
+      }
+      typeof window.showProgress == 'function' && window.showProgress(100);
+    } catch (e) {
+      (console.error('PDF Processing Error:', e),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(e.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (e.message || 'An error occurred')));
+    } finally {
+      ((r.disabled = !1), (r.textContent = r.getAttribute('data-original-text')));
+    }
+  });
+})();

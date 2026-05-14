@@ -1,4 +1,11 @@
-import"./PDFButton-56eB-KER.js";(function(){const b=document.getElementById("app")||document.querySelector("main")||document.body,f="pdfminty-pdf2img-styles";if(!document.getElementById(f)){const e=document.createElement("style");e.id=f,e.textContent=`
+import './PDFButton-56eB-KER.js';
+(function () {
+  const b = document.getElementById('app') || document.querySelector('main') || document.body,
+    f = 'pdfminty-pdf2img-styles';
+  if (!document.getElementById(f)) {
+    const e = document.createElement('style');
+    ((e.id = f),
+      (e.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -16,7 +23,10 @@ import"./PDFButton-56eB-KER.js";(function(){const b=document.getElementById("app
             .btn-action:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}b.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  b.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -44,4 +54,118 @@ import"./PDFButton-56eB-KER.js";(function(){const b=document.getElementById("app
                 </div>
             </div>
         </div>
-    `;let a=null,s="",m=0;const l=document.getElementById("drop-zone"),c=document.getElementById("file-input"),g=document.getElementById("workspace"),y=document.getElementById("file-name-display"),h=document.getElementById("remove-file-btn"),i=document.getElementById("btn-apply");typeof initDropZone=="function"?initDropZone("drop-zone","file-input",u,".pdf"):(l.addEventListener("click",()=>c.click()),c.addEventListener("change",e=>u(e.target.files))),h.addEventListener("click",()=>{a=null,s="",m=0,c.value="",g.classList.add("hidden"),l.classList.remove("hidden")});async function u(e){if(!e||e.length===0)return;const o=e[0];if(typeof window.validateFile=="function")for(const r of e){const n=window.validateFile(r);if(!n.valid){typeof window.showError=="function"&&window.showError(n.reason);return}}try{if(typeof showProgress=="function"&&showProgress(30),a=o,s=o.name.replace(/\.[^/.]+$/,""),typeof pdfjsLib>"u")try{await window.loadExternalScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"),pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"}catch(t){throw new Error("Failed to load PDF.js library.",{cause:t})}const r=await o.arrayBuffer();if(m=(await pdfjsLib.getDocument({data:r}).promise).numPages,y.textContent=o.name,typeof formatBytes=="function"&&typeof fileSizeDisplay<"u"&&fileSizeDisplay&&(fileSizeDisplay.textContent=formatBytes(o.size)),typeof renderPdfThumbnail=="function"){const t=document.getElementById("file-preview-img");t&&renderPdfThumbnail(o,t)}l.classList.add("hidden"),g.classList.remove("hidden"),typeof hideProgress=="function"&&hideProgress()}catch(r){console.error(r),typeof showError=="function"&&showError("Error loading PDF: "+r.message),typeof hideProgress=="function"&&hideProgress()}}i.addEventListener("click",async()=>{i.hasAttribute("data-original-text")||i.setAttribute("data-original-text",i.textContent),i.disabled=!0,i.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(!a)return;if(typeof JSZip>"u")try{await window.loadExternalScript("https://unpkg.com/jszip@3.10.1/dist/jszip.min.js")}catch(t){throw new Error("Failed to load JSZip library. Cannot create ZIP file.",{cause:t})}const e=await a.arrayBuffer(),o=await pdfjsLib.getDocument({data:e}).promise,r=new JSZip;for(let t=1;t<=o.numPages;t++){const w=await o.getPage(t),p=w.getViewport({scale:2}),d=document.createElement("canvas"),v=d.getContext("2d");d.height=p.height,d.width=p.width;const x={canvasContext:v,viewport:p};await w.render(x).promise;const I=await new Promise(P=>d.toBlob(P,"image/jpeg",.9));r.file(`${s}_page_${t}.jpg`,I)}const n=await r.generateAsync({type:"uint8array"});typeof window.downloadFile=="function"?window.downloadFile(n,`${s}_images.zip`):console.error("downloadFile function missing"),typeof showSuccess=="function"&&showSuccess("PDF converted to images successfully!"),typeof window.showProgress=="function"&&window.showProgress(100)}catch(e){console.error("PDF Processing Error:",e),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(e.message||"An error occurred while processing the PDF."):alert("Error: "+(e.message||"An error occurred"))}finally{i.disabled=!1,i.textContent=i.getAttribute("data-original-text")}})})();
+    `;
+  let a = null,
+    s = '',
+    m = 0;
+  const l = document.getElementById('drop-zone'),
+    c = document.getElementById('file-input'),
+    g = document.getElementById('workspace'),
+    y = document.getElementById('file-name-display'),
+    h = document.getElementById('remove-file-btn'),
+    i = document.getElementById('btn-apply');
+  (typeof initDropZone == 'function'
+    ? initDropZone('drop-zone', 'file-input', u, '.pdf')
+    : (l.addEventListener('click', () => c.click()),
+      c.addEventListener('change', (e) => u(e.target.files))),
+    h.addEventListener('click', () => {
+      ((a = null),
+        (s = ''),
+        (m = 0),
+        (c.value = ''),
+        g.classList.add('hidden'),
+        l.classList.remove('hidden'));
+    }));
+  async function u(e) {
+    if (!e || e.length === 0) return;
+    const o = e[0];
+    if (typeof window.validateFile == 'function')
+      for (const r of e) {
+        const n = window.validateFile(r);
+        if (!n.valid) {
+          typeof window.showError == 'function' && window.showError(n.reason);
+          return;
+        }
+      }
+    try {
+      if (
+        (typeof showProgress == 'function' && showProgress(30),
+        (a = o),
+        (s = o.name.replace(/\.[^/.]+$/, '')),
+        typeof pdfjsLib > 'u')
+      )
+        try {
+          (await window.loadExternalScript(
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+          ),
+            (pdfjsLib.GlobalWorkerOptions.workerSrc =
+              'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'));
+        } catch (t) {
+          throw new Error('Failed to load PDF.js library.', { cause: t });
+        }
+      const r = await o.arrayBuffer();
+      if (
+        ((m = (await pdfjsLib.getDocument({ data: r }).promise).numPages),
+        (y.textContent = o.name),
+        typeof formatBytes == 'function' &&
+          typeof fileSizeDisplay < 'u' &&
+          fileSizeDisplay &&
+          (fileSizeDisplay.textContent = formatBytes(o.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const t = document.getElementById('file-preview-img');
+        t && renderPdfThumbnail(o, t);
+      }
+      (l.classList.add('hidden'),
+        g.classList.remove('hidden'),
+        typeof hideProgress == 'function' && hideProgress());
+    } catch (r) {
+      (console.error(r),
+        typeof showError == 'function' && showError('Error loading PDF: ' + r.message),
+        typeof hideProgress == 'function' && hideProgress());
+    }
+  }
+  i.addEventListener('click', async () => {
+    (i.hasAttribute('data-original-text') || i.setAttribute('data-original-text', i.textContent),
+      (i.disabled = !0),
+      (i.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (!a) return;
+      if (typeof JSZip > 'u')
+        try {
+          await window.loadExternalScript('https://unpkg.com/jszip@3.10.1/dist/jszip.min.js');
+        } catch (t) {
+          throw new Error('Failed to load JSZip library. Cannot create ZIP file.', { cause: t });
+        }
+      const e = await a.arrayBuffer(),
+        o = await pdfjsLib.getDocument({ data: e }).promise,
+        r = new JSZip();
+      for (let t = 1; t <= o.numPages; t++) {
+        const w = await o.getPage(t),
+          p = w.getViewport({ scale: 2 }),
+          d = document.createElement('canvas'),
+          v = d.getContext('2d');
+        ((d.height = p.height), (d.width = p.width));
+        const x = { canvasContext: v, viewport: p };
+        await w.render(x).promise;
+        const I = await new Promise((P) => d.toBlob(P, 'image/jpeg', 0.9));
+        r.file(`${s}_page_${t}.jpg`, I);
+      }
+      const n = await r.generateAsync({ type: 'uint8array' });
+      (typeof window.downloadFile == 'function'
+        ? window.downloadFile(n, `${s}_images.zip`)
+        : console.error('downloadFile function missing'),
+        typeof showSuccess == 'function' && showSuccess('PDF converted to images successfully!'),
+        typeof window.showProgress == 'function' && window.showProgress(100));
+    } catch (e) {
+      (console.error('PDF Processing Error:', e),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(e.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (e.message || 'An error occurred')));
+    } finally {
+      ((i.disabled = !1), (i.textContent = i.getAttribute('data-original-text')));
+    }
+  });
+})();

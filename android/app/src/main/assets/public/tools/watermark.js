@@ -1,10 +1,11 @@
-(function() {
-    const appContainer = document.getElementById('app') || document.querySelector('main') || document.body;
-    const styleId = 'pdfminty-watermark-styles';
-    if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
+(function () {
+  const appContainer =
+    document.getElementById('app') || document.querySelector('main') || document.body;
+  const styleId = 'pdfminty-watermark-styles';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -34,10 +35,10 @@
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    appContainer.innerHTML = `
+  appContainer.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -99,190 +100,187 @@
         </div>
     `;
 
-    let originalPdfBytes = null;
-    let currentFileName = "";
+  let originalPdfBytes = null;
+  let currentFileName = '';
 
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const workspace = document.getElementById('workspace');
-    const fileNameDisplay = document.getElementById('file-name-display');
-    const removeFileBtn = document.getElementById('remove-file-btn');
-    const btnApply = document.getElementById('btn-apply');
-    
-    const textInput = document.getElementById('wm-text');
-    const colorInput = document.getElementById('wm-color');
-    const colorHex = document.getElementById('color-hex');
-    const positionInput = document.getElementById('wm-position');
-    const sizeInput = document.getElementById('wm-size');
-    const sizeVal = document.getElementById('size-val');
-    const opacityInput = document.getElementById('wm-opacity');
-    const opacityVal = document.getElementById('opacity-val');
-    const rotationInput = document.getElementById('wm-rotation');
-    const rotationVal = document.getElementById('rotation-val');
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const workspace = document.getElementById('workspace');
+  const fileNameDisplay = document.getElementById('file-name-display');
+  const removeFileBtn = document.getElementById('remove-file-btn');
+  const btnApply = document.getElementById('btn-apply');
 
-    // Live update UI values
-    colorInput.addEventListener('input', (e) => colorHex.textContent = e.target.value.toUpperCase());
-    sizeInput.addEventListener('input', (e) => sizeVal.textContent = e.target.value + 'px');
-    opacityInput.addEventListener('input', (e) => opacityVal.textContent = e.target.value + '%');
-    rotationInput.addEventListener('input', (e) => rotationVal.textContent = e.target.value + '°');
+  const textInput = document.getElementById('wm-text');
+  const colorInput = document.getElementById('wm-color');
+  const colorHex = document.getElementById('color-hex');
+  const positionInput = document.getElementById('wm-position');
+  const sizeInput = document.getElementById('wm-size');
+  const sizeVal = document.getElementById('size-val');
+  const opacityInput = document.getElementById('wm-opacity');
+  const opacityVal = document.getElementById('opacity-val');
+  const rotationInput = document.getElementById('wm-rotation');
+  const rotationVal = document.getElementById('rotation-val');
 
-    if (typeof initDropZone === 'function') {
-        initDropZone('drop-zone', 'file-input', handleFiles, '.pdf');
-    } else {
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  // Live update UI values
+  colorInput.addEventListener(
+    'input',
+    (e) => (colorHex.textContent = e.target.value.toUpperCase()),
+  );
+  sizeInput.addEventListener('input', (e) => (sizeVal.textContent = e.target.value + 'px'));
+  opacityInput.addEventListener('input', (e) => (opacityVal.textContent = e.target.value + '%'));
+  rotationInput.addEventListener('input', (e) => (rotationVal.textContent = e.target.value + '°'));
+
+  if (typeof initDropZone === 'function') {
+    initDropZone('drop-zone', 'file-input', handleFiles, '.pdf');
+  } else {
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  }
+
+  removeFileBtn.addEventListener('click', () => {
+    originalPdfBytes = null;
+    currentFileName = '';
+    fileInput.value = '';
+    workspace.classList.add('hidden');
+    dropZone.classList.remove('hidden');
+  });
+
+  async function handleFiles(files) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    if (typeof window.validateFile === 'function') {
+      for (const f of files) {
+        const check = window.validateFile(f);
+        if (!check.valid) {
+          if (typeof window.showError === 'function') window.showError(check.reason);
+          return;
+        }
+      }
     }
 
-    removeFileBtn.addEventListener('click', () => {
-        originalPdfBytes = null;
-        currentFileName = "";
-        fileInput.value = '';
-        workspace.classList.add('hidden');
-        dropZone.classList.remove('hidden');
-    });
+    try {
+      if (typeof showProgress === 'function') showProgress(50);
+      originalPdfBytes = await file.arrayBuffer();
+      currentFileName = file.name.replace(/\.[^/.]+$/, '');
 
-    async function handleFiles(files) {
-        if (!files || files.length === 0) return;
-        const file = files[0];
-        
-        
-        if (typeof window.validateFile === 'function') {
-            for (const f of files) {
-                const check = window.validateFile(f);
-                if (!check.valid) {
-                    if (typeof window.showError === 'function') window.showError(check.reason);
-                    return;
-                }
-            }
-        }
-        
+      fileNameDisplay.textContent = file.name;
+      if (
+        typeof formatBytes === 'function' &&
+        typeof fileSizeDisplay !== 'undefined' &&
+        fileSizeDisplay
+      )
+        fileSizeDisplay.textContent = formatBytes(file.size);
 
-        try {
-            if (typeof showProgress === 'function') showProgress(50);
-            originalPdfBytes = await file.arrayBuffer();
-            currentFileName = file.name.replace(/\.[^/.]+$/, "");
-            
-            fileNameDisplay.textContent = file.name;
-            if (typeof formatBytes === 'function' && typeof fileSizeDisplay !== 'undefined' && fileSizeDisplay) fileSizeDisplay.textContent = formatBytes(file.size);
-            
-            if (typeof renderPdfThumbnail === 'function') {
-                const imgEl = document.getElementById('file-preview-img');
-                if (imgEl) renderPdfThumbnail(file, imgEl);
-            }
-            
-            dropZone.classList.add('hidden');
-            workspace.classList.remove('hidden');
-            
-            if (typeof hideProgress === 'function') hideProgress();
-        } catch (err) {
-            console.error(err);
-            if (typeof showError === 'function') showError('Error loading PDF: ' + err.message);
-            if (typeof hideProgress === 'function') hideProgress();
-        }
+      if (typeof renderPdfThumbnail === 'function') {
+        const imgEl = document.getElementById('file-preview-img');
+        if (imgEl) renderPdfThumbnail(file, imgEl);
+      }
+
+      dropZone.classList.add('hidden');
+      workspace.classList.remove('hidden');
+
+      if (typeof hideProgress === 'function') hideProgress();
+    } catch (err) {
+      console.error(err);
+      if (typeof showError === 'function') showError('Error loading PDF: ' + err.message);
+      if (typeof hideProgress === 'function') hideProgress();
     }
+  }
 
-    function hexToRgb(hex) {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16) / 255,
-            g: parseInt(result[2], 16) / 255,
-            b: parseInt(result[3], 16) / 255
-        } : { r: 0, g: 0, b: 0 };
+  function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? {
+          r: parseInt(result[1], 16) / 255,
+          g: parseInt(result[2], 16) / 255,
+          b: parseInt(result[3], 16) / 255,
+        }
+      : { r: 0, g: 0, b: 0 };
+  }
+
+  btnApply.addEventListener('click', async () => {
+    if (!btnApply.hasAttribute('data-original-text')) {
+      btnApply.setAttribute('data-original-text', btnApply.textContent);
     }
+    btnApply.disabled = true;
+    btnApply.textContent = 'Processing...';
+    if (typeof window.showProgress === 'function') window.showProgress(10);
 
-    btnApply.addEventListener('click', async () => {
-            if (!btnApply.hasAttribute('data-original-text')) {
-                btnApply.setAttribute('data-original-text', btnApply.textContent);
-            }
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof window.showProgress === 'function') window.showProgress(10);
-            
-            try {
-                
-        if (!originalPdfBytes) return;
-        
-        const text = textInput.value.trim();
-        if (!text) {
-            if (typeof showError === 'function') showError("Please enter watermark text.");
-            return;
+    try {
+      if (!originalPdfBytes) return;
+
+      const text = textInput.value.trim();
+      if (!text) {
+        if (typeof showError === 'function') showError('Please enter watermark text.');
+        return;
+      }
+
+      try {
+        const pdfDoc = await PDFLib.PDFDocument.load(originalPdfBytes.slice(0));
+        const pages = pdfDoc.getPages();
+        const font = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+
+        const colorRgb = hexToRgb(colorInput.value);
+        const opacity = parseInt(opacityInput.value) / 100;
+        const textSize = parseInt(sizeInput.value);
+        const rotationDeg = parseInt(rotationInput.value);
+        const position = positionInput.value;
+        const angle = rotationDeg * (Math.PI / 180);
+
+        pages.forEach((page) => {
+          const { width, height } = page.getSize();
+          const textWidth = font.widthOfTextAtSize(text, textSize);
+          const textHeight = font.heightAtSize(textSize);
+
+          // Calculate the center X
+          const centerX = width / 2;
+
+          // Calculate the center Y based on position
+          let centerY = height / 2;
+          if (position === 'top') {
+            centerY = height - textHeight * 2;
+          } else if (position === 'bottom') {
+            centerY = textHeight * 2;
+          }
+
+          // Draw text rotated, roughly centered at (centerX, centerY)
+          page.drawText(text, {
+            x: centerX - (textWidth / 2) * Math.cos(angle) + (textHeight / 2) * Math.sin(angle),
+            y: centerY - (textWidth / 2) * Math.sin(angle) - (textHeight / 2) * Math.cos(angle),
+            size: textSize,
+            font: font,
+            color: PDFLib.rgb(colorRgb.r, colorRgb.g, colorRgb.b),
+            opacity: opacity,
+            rotate: PDFLib.degrees(rotationDeg),
+          });
+        });
+
+        const modifiedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
+
+        if (typeof downloadFile === 'function') {
+          downloadFile(modifiedPdfBytes, `${currentFileName}_watermarked.pdf`);
+          originalPdfBytes = null; // GC Hint
         }
+        if (typeof showSuccess === 'function') showSuccess('Watermark added successfully!');
+      } catch (error) {
+        console.error('Watermark Error:', error);
+        if (typeof showError === 'function') showError(error.message || 'Error adding watermark.');
+      } finally {
+      }
 
-        try {
-            
-            
-            
-
-            const pdfDoc = await PDFLib.PDFDocument.load(originalPdfBytes.slice(0));
-            const pages = pdfDoc.getPages();
-            const font = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
-            
-            const colorRgb = hexToRgb(colorInput.value);
-            const opacity = parseInt(opacityInput.value) / 100;
-            const textSize = parseInt(sizeInput.value);
-            const rotationDeg = parseInt(rotationInput.value);
-            const position = positionInput.value;
-            const angle = rotationDeg * (Math.PI / 180);
-
-            pages.forEach(page => {
-                const { width, height } = page.getSize();
-                const textWidth = font.widthOfTextAtSize(text, textSize);
-                const textHeight = font.heightAtSize(textSize);
-
-                // Calculate the center X
-                const centerX = width / 2;
-                
-                // Calculate the center Y based on position
-                let centerY = height / 2;
-                if (position === 'top') {
-                    centerY = height - (textHeight * 2);
-                } else if (position === 'bottom') {
-                    centerY = textHeight * 2;
-                }
-
-                // Draw text rotated, roughly centered at (centerX, centerY)
-                page.drawText(text, {
-                    x: centerX - (textWidth / 2) * Math.cos(angle) + (textHeight / 2) * Math.sin(angle),
-                    y: centerY - (textWidth / 2) * Math.sin(angle) - (textHeight / 2) * Math.cos(angle),
-                    size: textSize,
-                    font: font,
-                    color: PDFLib.rgb(colorRgb.r, colorRgb.g, colorRgb.b),
-                    opacity: opacity,
-                    rotate: PDFLib.degrees(rotationDeg),
-                });
-            });
-
-            
-            const modifiedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
-
-            
-            if (typeof downloadFile === 'function') {
-                downloadFile(modifiedPdfBytes, `${currentFileName}_watermarked.pdf`);
-                originalPdfBytes = null; // GC Hint
-            }
-            if (typeof showSuccess === 'function') showSuccess('Watermark added successfully!');
-
-        } catch (error) {
-            console.error('Watermark Error:', error);
-            if (typeof showError === 'function') showError(error.message || "Error adding watermark.");
-        } finally {
-            
-            
-            
-        }
-    
-                if (typeof window.showProgress === 'function') window.showProgress(100);
-            } catch (err) {
-                console.error("PDF Processing Error:", err);
-                if (typeof window.hideProgress === 'function') window.hideProgress();
-                if (typeof window.showError === 'function') {
-                    window.showError(err.message || "An error occurred while processing the PDF.");
-                } else {
-                    alert("Error: " + (err.message || "An error occurred"));
-                }
-            } finally {
-                btnApply.disabled = false;
-                btnApply.textContent = btnApply.getAttribute('data-original-text');
-            }
-    });
+      if (typeof window.showProgress === 'function') window.showProgress(100);
+    } catch (err) {
+      console.error('PDF Processing Error:', err);
+      if (typeof window.hideProgress === 'function') window.hideProgress();
+      if (typeof window.showError === 'function') {
+        window.showError(err.message || 'An error occurred while processing the PDF.');
+      } else {
+        alert('Error: ' + (err.message || 'An error occurred'));
+      }
+    } finally {
+      btnApply.disabled = false;
+      btnApply.textContent = btnApply.getAttribute('data-original-text');
+    }
+  });
 })();

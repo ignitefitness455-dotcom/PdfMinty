@@ -12,9 +12,9 @@ self.addEventListener('activate', (event) => {
           if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
-        })
+        }),
       );
-    })
+    }),
   );
   self.clients.claim();
 });
@@ -23,7 +23,7 @@ self.addEventListener('fetch', (event) => {
   // Network-first strategy to ensure users always get the latest Vite build.
   // We fall back to cache only if offline.
   if (event.request.method !== 'GET') return;
-  
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
@@ -39,6 +39,6 @@ self.addEventListener('fetch', (event) => {
       .catch(() => {
         // If network fails, try cache
         return caches.match(event.request);
-      })
+      }),
   );
 });

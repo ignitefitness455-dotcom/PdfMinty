@@ -1,4 +1,11 @@
-import{P as u}from"./PDFButton-56eB-KER.js";(function(){const g=document.getElementById("app")||document.querySelector("main")||document.body,p="pdfminty-unlock-styles";if(!document.getElementById(p)){const e=document.createElement("style");e.id=p,e.textContent=`
+import { P as u } from './PDFButton-56eB-KER.js';
+(function () {
+  const g = document.getElementById('app') || document.querySelector('main') || document.body,
+    p = 'pdfminty-unlock-styles';
+  if (!document.getElementById(p)) {
+    const e = document.createElement('style');
+    ((e.id = p),
+      (e.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -20,7 +27,10 @@ import{P as u}from"./PDFButton-56eB-KER.js";(function(){const g=document.getElem
             .btn-action:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}g.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  g.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -52,4 +62,109 @@ import{P as u}from"./PDFButton-56eB-KER.js";(function(){const g=document.getElem
                 </div>
             </div>
         </div>
-    `;let i=null,d="";const l=document.getElementById("drop-zone"),c=document.getElementById("file-input"),f=document.getElementById("workspace"),w=document.getElementById("file-name-display"),y=document.getElementById("remove-file-btn"),o=document.getElementById("btn-apply"),a=document.getElementById("password-input");typeof initDropZone=="function"?initDropZone("drop-zone","file-input",m,".pdf"):(l.addEventListener("click",()=>c.click()),c.addEventListener("change",e=>m(e.target.files))),y.addEventListener("click",()=>{i=null,d="",c.value="",a.value="",f.classList.add("hidden"),l.classList.remove("hidden")});async function m(e){if(!e||e.length===0)return;const t=e[0];if(typeof window.validateFile=="function")for(const r of e){const s=window.validateFile(r);if(!s.valid){typeof window.showError=="function"&&window.showError(s.reason);return}}try{if(i=await t.arrayBuffer(),d=t.name.replace(/\.[^/.]+$/,""),w.textContent=t.name,typeof formatBytes=="function"&&typeof fileSizeDisplay<"u"&&fileSizeDisplay&&(fileSizeDisplay.textContent=formatBytes(t.size)),typeof renderPdfThumbnail=="function"){const r=document.getElementById("file-preview-img");r&&renderPdfThumbnail(t,r)}l.classList.add("hidden"),f.classList.remove("hidden"),a.focus()}catch(r){console.error(r),typeof showError=="function"&&showError("Error reading file: "+r.message)}}o.addEventListener("click",async()=>{o.hasAttribute("data-original-text")||o.setAttribute("data-original-text",o.textContent),o.disabled=!0,o.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(!i)return;const e=a.value;if(!e){typeof showError=="function"&&showError("Please enter the password.");return}try{let t=!1;try{await u.load(i.slice(0)),t=!1}catch(n){if(n.message&&n.message.toLowerCase().includes("encrypted"))t=!0;else throw n}if(!t){typeof showError=="function"&&showError("This PDF is not password protected.");return}let r;try{r=await u.load(i.slice(0),{password:e})}catch(n){console.error("Password Error:",n),typeof showError=="function"&&showError("Incorrect password.");return}const s=await r.save({useObjectStreams:!0});typeof downloadFile=="function"&&(downloadFile(s,`${d}_unlocked.pdf`),i=null),typeof showSuccess=="function"&&showSuccess("PDF unlocked successfully!"),a.value=""}catch(t){console.error("Unlock Error:",t),typeof showError=="function"&&showError(t.message||"Error unlocking PDF.")}finally{}typeof window.showProgress=="function"&&window.showProgress(100)}catch(e){console.error("PDF Processing Error:",e),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(e.message||"An error occurred while processing the PDF."):alert("Error: "+(e.message||"An error occurred"))}finally{o.disabled=!1,o.textContent=o.getAttribute("data-original-text")}})})();
+    `;
+  let i = null,
+    d = '';
+  const l = document.getElementById('drop-zone'),
+    c = document.getElementById('file-input'),
+    f = document.getElementById('workspace'),
+    w = document.getElementById('file-name-display'),
+    y = document.getElementById('remove-file-btn'),
+    o = document.getElementById('btn-apply'),
+    a = document.getElementById('password-input');
+  (typeof initDropZone == 'function'
+    ? initDropZone('drop-zone', 'file-input', m, '.pdf')
+    : (l.addEventListener('click', () => c.click()),
+      c.addEventListener('change', (e) => m(e.target.files))),
+    y.addEventListener('click', () => {
+      ((i = null),
+        (d = ''),
+        (c.value = ''),
+        (a.value = ''),
+        f.classList.add('hidden'),
+        l.classList.remove('hidden'));
+    }));
+  async function m(e) {
+    if (!e || e.length === 0) return;
+    const t = e[0];
+    if (typeof window.validateFile == 'function')
+      for (const r of e) {
+        const s = window.validateFile(r);
+        if (!s.valid) {
+          typeof window.showError == 'function' && window.showError(s.reason);
+          return;
+        }
+      }
+    try {
+      if (
+        ((i = await t.arrayBuffer()),
+        (d = t.name.replace(/\.[^/.]+$/, '')),
+        (w.textContent = t.name),
+        typeof formatBytes == 'function' &&
+          typeof fileSizeDisplay < 'u' &&
+          fileSizeDisplay &&
+          (fileSizeDisplay.textContent = formatBytes(t.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const r = document.getElementById('file-preview-img');
+        r && renderPdfThumbnail(t, r);
+      }
+      (l.classList.add('hidden'), f.classList.remove('hidden'), a.focus());
+    } catch (r) {
+      (console.error(r),
+        typeof showError == 'function' && showError('Error reading file: ' + r.message));
+    }
+  }
+  o.addEventListener('click', async () => {
+    (o.hasAttribute('data-original-text') || o.setAttribute('data-original-text', o.textContent),
+      (o.disabled = !0),
+      (o.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (!i) return;
+      const e = a.value;
+      if (!e) {
+        typeof showError == 'function' && showError('Please enter the password.');
+        return;
+      }
+      try {
+        let t = !1;
+        try {
+          (await u.load(i.slice(0)), (t = !1));
+        } catch (n) {
+          if (n.message && n.message.toLowerCase().includes('encrypted')) t = !0;
+          else throw n;
+        }
+        if (!t) {
+          typeof showError == 'function' && showError('This PDF is not password protected.');
+          return;
+        }
+        let r;
+        try {
+          r = await u.load(i.slice(0), { password: e });
+        } catch (n) {
+          (console.error('Password Error:', n),
+            typeof showError == 'function' && showError('Incorrect password.'));
+          return;
+        }
+        const s = await r.save({ useObjectStreams: !0 });
+        (typeof downloadFile == 'function' && (downloadFile(s, `${d}_unlocked.pdf`), (i = null)),
+          typeof showSuccess == 'function' && showSuccess('PDF unlocked successfully!'),
+          (a.value = ''));
+      } catch (t) {
+        (console.error('Unlock Error:', t),
+          typeof showError == 'function' && showError(t.message || 'Error unlocking PDF.'));
+      } finally {
+      }
+      typeof window.showProgress == 'function' && window.showProgress(100);
+    } catch (e) {
+      (console.error('PDF Processing Error:', e),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(e.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (e.message || 'An error occurred')));
+    } finally {
+      ((o.disabled = !1), (o.textContent = o.getAttribute('data-original-text')));
+    }
+  });
+})();

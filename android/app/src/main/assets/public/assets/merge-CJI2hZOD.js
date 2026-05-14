@@ -1,4 +1,11 @@
-import{P as w}from"./PDFButton-56eB-KER.js";(function(){const b=document.getElementById("app")||document.querySelector("main")||document.body,f="pdfminty-merge-styles";if(!document.getElementById(f)){const e=document.createElement("style");e.id=f,e.textContent=`
+import { P as w } from './PDFButton-56eB-KER.js';
+(function () {
+  const b = document.getElementById('app') || document.querySelector('main') || document.body,
+    f = 'pdfminty-merge-styles';
+  if (!document.getElementById(f)) {
+    const e = document.createElement('style');
+    ((e.id = f),
+      (e.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -19,7 +26,10 @@ import{P as w}from"./PDFButton-56eB-KER.js";(function(){const b=document.getElem
             .btn-secondary { background: var(--bg); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 0.75rem 2rem; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
             .btn-secondary:hover { border-color: var(--accent); }
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}b.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  b.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -41,4 +51,133 @@ import{P as w}from"./PDFButton-56eB-KER.js";(function(){const b=document.getElem
                 </div>
             </div>
         </div>
-    `;let o=[];const c=document.getElementById("drop-zone"),m=document.getElementById("file-input"),p=document.getElementById("workspace"),g=document.getElementById("file-list"),h=document.getElementById("btn-add-more"),a=document.getElementById("btn-apply");typeof initDropZone=="function"?initDropZone("drop-zone","file-input",u,".pdf"):(c.addEventListener("click",()=>m.click()),m.addEventListener("change",e=>u(e.target.files))),h.addEventListener("click",()=>m.click());function u(e){if(!e||e.length===0)return;const i=Array.from(e);if(typeof window.validateFile=="function")for(const t of e){const r=window.validateFile(t);if(!r.valid){typeof window.showError=="function"&&window.showError(r.reason);return}}window.pdfDB?Promise.all(i.map(async t=>{const r="merge_"+Date.now()+"_"+Math.random().toString(36).substr(2,9),n=await t.arrayBuffer();return await window.pdfDB.saveFile(r,n),{name:t.name,id:r,fileObj:t}})).then(t=>{o=o.concat(t),l()}):(o=o.concat(i.map(t=>({name:t.name,fileObj:t}))),l()),l(),c.classList.add("hidden"),p.classList.remove("hidden")}function l(){g.innerHTML="",o.forEach((e,i)=>{const t=document.createElement("div");t.className="file-item";const r=document.createElement("img");typeof renderPdfThumbnail=="function"&&renderPdfThumbnail(e.fileObj,r);const n=document.createElement("button");n.className="remove-btn",n.innerHTML="✕",n.dataset.index=i;const d=document.createElement("div");d.className="file-name-badge",d.textContent=e.name,t.appendChild(r),t.appendChild(d),t.appendChild(n),g.appendChild(t)}),document.querySelectorAll(".remove-btn").forEach(e=>{e.addEventListener("click",i=>{const t=parseInt(i.target.dataset.index),r=o.splice(t,1)[0];window.pdfDB&&r.id&&window.pdfDB.deleteFile(r.id),l(),o.length===0&&(p.classList.add("hidden"),c.classList.remove("hidden"))})})}a.addEventListener("click",async()=>{a.hasAttribute("data-original-text")||a.setAttribute("data-original-text",a.textContent),a.disabled=!0,a.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(o.length<2){typeof showError=="function"&&showError("Please add at least 2 PDFs to merge.");return}try{let e;if(typeof window.runPdfWorkerTask=="function"){const i={files:[]};for(let r=0;r<o.length;r++){let n;if(o[r].id&&window.pdfDB)try{n=await window.pdfDB.getFile(o[r].id)}catch(d){console.error(d)}n||(n=await o[r].fileObj.arrayBuffer()),i.files.push(new Uint8Array(n))}const t=i.files.map(r=>r.buffer);e=await window.runPdfWorkerTask("merge",i,t,r=>{})}else{const i=await w.create();for(let t=0;t<o.length;t++){let r;if(o[t].id&&window.pdfDB)try{r=await window.pdfDB.getFile(o[t].id)}catch(s){console.error(s)}r||(r=await o[t].fileObj.arrayBuffer());let n=await w.load(r,{ignoreEncryption:!0});const d=await i.copyPages(n,n.getPageIndices());for(let s=0;s<d.length;s++)i.addPage(d[s]),s%50===0&&await new Promise(y=>setTimeout(y,0));r=null,n=null}e=await i.save({useObjectStreams:!0})}typeof downloadFile=="function"&&downloadFile(e,"merged-document.pdf"),typeof showSuccess=="function"&&showSuccess("PDFs merged successfully!")}catch(e){console.error(e),typeof showError=="function"&&showError("Error merging PDFs: "+e.message)}finally{}typeof window.showProgress=="function"&&window.showProgress(100)}catch(e){console.error("PDF Processing Error:",e),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(e.message||"An error occurred while processing the PDF."):alert("Error: "+(e.message||"An error occurred"))}finally{a.disabled=!1,a.textContent=a.getAttribute("data-original-text")}})})();
+    `;
+  let o = [];
+  const c = document.getElementById('drop-zone'),
+    m = document.getElementById('file-input'),
+    p = document.getElementById('workspace'),
+    g = document.getElementById('file-list'),
+    h = document.getElementById('btn-add-more'),
+    a = document.getElementById('btn-apply');
+  (typeof initDropZone == 'function'
+    ? initDropZone('drop-zone', 'file-input', u, '.pdf')
+    : (c.addEventListener('click', () => m.click()),
+      m.addEventListener('change', (e) => u(e.target.files))),
+    h.addEventListener('click', () => m.click()));
+  function u(e) {
+    if (!e || e.length === 0) return;
+    const i = Array.from(e);
+    if (typeof window.validateFile == 'function')
+      for (const t of e) {
+        const r = window.validateFile(t);
+        if (!r.valid) {
+          typeof window.showError == 'function' && window.showError(r.reason);
+          return;
+        }
+      }
+    (window.pdfDB
+      ? Promise.all(
+          i.map(async (t) => {
+            const r = 'merge_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+              n = await t.arrayBuffer();
+            return (await window.pdfDB.saveFile(r, n), { name: t.name, id: r, fileObj: t });
+          }),
+        ).then((t) => {
+          ((o = o.concat(t)), l());
+        })
+      : ((o = o.concat(i.map((t) => ({ name: t.name, fileObj: t })))), l()),
+      l(),
+      c.classList.add('hidden'),
+      p.classList.remove('hidden'));
+  }
+  function l() {
+    ((g.innerHTML = ''),
+      o.forEach((e, i) => {
+        const t = document.createElement('div');
+        t.className = 'file-item';
+        const r = document.createElement('img');
+        typeof renderPdfThumbnail == 'function' && renderPdfThumbnail(e.fileObj, r);
+        const n = document.createElement('button');
+        ((n.className = 'remove-btn'), (n.innerHTML = '✕'), (n.dataset.index = i));
+        const d = document.createElement('div');
+        ((d.className = 'file-name-badge'),
+          (d.textContent = e.name),
+          t.appendChild(r),
+          t.appendChild(d),
+          t.appendChild(n),
+          g.appendChild(t));
+      }),
+      document.querySelectorAll('.remove-btn').forEach((e) => {
+        e.addEventListener('click', (i) => {
+          const t = parseInt(i.target.dataset.index),
+            r = o.splice(t, 1)[0];
+          (window.pdfDB && r.id && window.pdfDB.deleteFile(r.id),
+            l(),
+            o.length === 0 && (p.classList.add('hidden'), c.classList.remove('hidden')));
+        });
+      }));
+  }
+  a.addEventListener('click', async () => {
+    (a.hasAttribute('data-original-text') || a.setAttribute('data-original-text', a.textContent),
+      (a.disabled = !0),
+      (a.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (o.length < 2) {
+        typeof showError == 'function' && showError('Please add at least 2 PDFs to merge.');
+        return;
+      }
+      try {
+        let e;
+        if (typeof window.runPdfWorkerTask == 'function') {
+          const i = { files: [] };
+          for (let r = 0; r < o.length; r++) {
+            let n;
+            if (o[r].id && window.pdfDB)
+              try {
+                n = await window.pdfDB.getFile(o[r].id);
+              } catch (d) {
+                console.error(d);
+              }
+            (n || (n = await o[r].fileObj.arrayBuffer()), i.files.push(new Uint8Array(n)));
+          }
+          const t = i.files.map((r) => r.buffer);
+          e = await window.runPdfWorkerTask('merge', i, t, (r) => {});
+        } else {
+          const i = await w.create();
+          for (let t = 0; t < o.length; t++) {
+            let r;
+            if (o[t].id && window.pdfDB)
+              try {
+                r = await window.pdfDB.getFile(o[t].id);
+              } catch (s) {
+                console.error(s);
+              }
+            r || (r = await o[t].fileObj.arrayBuffer());
+            let n = await w.load(r, { ignoreEncryption: !0 });
+            const d = await i.copyPages(n, n.getPageIndices());
+            for (let s = 0; s < d.length; s++)
+              (i.addPage(d[s]), s % 50 === 0 && (await new Promise((y) => setTimeout(y, 0))));
+            ((r = null), (n = null));
+          }
+          e = await i.save({ useObjectStreams: !0 });
+        }
+        (typeof downloadFile == 'function' && downloadFile(e, 'merged-document.pdf'),
+          typeof showSuccess == 'function' && showSuccess('PDFs merged successfully!'));
+      } catch (e) {
+        (console.error(e),
+          typeof showError == 'function' && showError('Error merging PDFs: ' + e.message));
+      } finally {
+      }
+      typeof window.showProgress == 'function' && window.showProgress(100);
+    } catch (e) {
+      (console.error('PDF Processing Error:', e),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(e.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (e.message || 'An error occurred')));
+    } finally {
+      ((a.disabled = !1), (a.textContent = a.getAttribute('data-original-text')));
+    }
+  });
+})();

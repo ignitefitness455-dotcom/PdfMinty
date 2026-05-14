@@ -1,10 +1,11 @@
-(function() {
-    const appContainer = document.getElementById('app') || document.querySelector('main') || document.body;
-    const styleId = 'pdfminty-protect-styles';
-    if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
+(function () {
+  const appContainer =
+    document.getElementById('app') || document.querySelector('main') || document.body;
+  const styleId = 'pdfminty-protect-styles';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -27,10 +28,10 @@
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    appContainer.innerHTML = `
+  appContainer.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -88,205 +89,209 @@
         </div>
     `;
 
-    let originalPdfBytes = null;
-    let currentFileName = "";
+  let originalPdfBytes = null;
+  let currentFileName = '';
 
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const workspace = document.getElementById('workspace');
-    const fileNameDisplay = document.getElementById('file-name-display');
-    const removeFileBtn = document.getElementById('remove-file-btn');
-    const btnApply = document.getElementById('btn-apply');
-    const passwordInput = document.getElementById('password-input');
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const workspace = document.getElementById('workspace');
+  const fileNameDisplay = document.getElementById('file-name-display');
+  const removeFileBtn = document.getElementById('remove-file-btn');
+  const btnApply = document.getElementById('btn-apply');
+  const passwordInput = document.getElementById('password-input');
 
-    if (typeof initDropZone === 'function') {
-        initDropZone('drop-zone', 'file-input', handleFiles, '.pdf');
-    } else {
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  if (typeof initDropZone === 'function') {
+    initDropZone('drop-zone', 'file-input', handleFiles, '.pdf');
+  } else {
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  }
+
+  removeFileBtn.addEventListener('click', () => {
+    originalPdfBytes = null;
+    currentFileName = '';
+    fileInput.value = '';
+    passwordInput.value = '';
+    workspace.classList.add('hidden');
+    dropZone.classList.remove('hidden');
+  });
+
+  async function handleFiles(files) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    if (typeof window.validateFile === 'function') {
+      for (const f of files) {
+        const check = window.validateFile(f);
+        if (!check.valid) {
+          if (typeof window.showError === 'function') window.showError(check.reason);
+          return;
+        }
+      }
     }
 
-    removeFileBtn.addEventListener('click', () => {
-        originalPdfBytes = null;
-        currentFileName = "";
-        fileInput.value = '';
+    try {
+      const ab = await file.arrayBuffer();
+      if (window.pdfDB) {
+        await window.pdfDB.saveFile('protect_target', ab);
+        originalPdfBytes = 'protect_target';
+      } else {
+        originalPdfBytes = ab;
+      }
+      currentFileName = file.name.replace(/\.[^/.]+$/, '');
+
+      fileNameDisplay.textContent = file.name;
+      if (
+        typeof formatBytes === 'function' &&
+        typeof fileSizeDisplay !== 'undefined' &&
+        fileSizeDisplay
+      )
+        fileSizeDisplay.textContent = formatBytes(file.size);
+
+      if (typeof renderPdfThumbnail === 'function') {
+        const imgEl = document.getElementById('file-preview-img');
+        if (imgEl) renderPdfThumbnail(file, imgEl);
+      }
+
+      dropZone.classList.add('hidden');
+      workspace.classList.remove('hidden');
+      passwordInput.focus();
+    } catch (err) {
+      console.error(err);
+      if (typeof showError === 'function') showError('Error reading file: ' + err.message);
+    }
+  }
+
+  btnApply.addEventListener('click', async () => {
+    if (!btnApply.hasAttribute('data-original-text')) {
+      btnApply.setAttribute('data-original-text', btnApply.textContent);
+    }
+    btnApply.disabled = true;
+    btnApply.textContent = 'Processing...';
+    if (typeof window.showProgress === 'function') window.showProgress(10);
+
+    try {
+      if (!originalPdfBytes) return;
+
+      const pwd = passwordInput.value;
+      if (!pwd) {
+        if (typeof showError === 'function') showError('Please enter a password.');
+        return;
+      }
+
+      try {
+        // Load required libraries dynamically
+        if (typeof pdfjsLib === 'undefined') {
+          await window.loadExternalScript(
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+          );
+          pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+        if (typeof window.jspdf === 'undefined') {
+          await window.loadExternalScript(
+            'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+          );
+        }
+
+        const { jsPDF } = window.jspdf;
+
+        // Read the original PDF
+        // Pass a copy of the ArrayBuffer to prevent "detached ArrayBuffer" errors
+        let actualBytes =
+          originalPdfBytes instanceof ArrayBuffer
+            ? originalPdfBytes
+            : await window.pdfDB.getFile(originalPdfBytes);
+        const loadingTask = pdfjsLib.getDocument({ data: actualBytes.slice(0) });
+        actualBytes = null;
+        const pdf = await loadingTask.promise;
+        const totalPages = pdf.numPages;
+
+        let doc = null;
+
+        for (let i = 1; i <= totalPages; i++) {
+          const page = await pdf.getPage(i);
+          // Scale 2.0 provides good quality for the output PDF
+          const viewport = page.getViewport({ scale: 2.0 });
+
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          const renderContext = {
+            canvasContext: ctx,
+            viewport: viewport,
+          };
+
+          await page.render(renderContext).promise;
+
+          // Convert canvas to JPEG
+          const imgData = canvas.toDataURL('image/jpeg', 0.85);
+
+          // Calculate dimensions in mm (jsPDF default is mm)
+          // 1 point = 1/72 inch = 25.4/72 mm
+          const widthMm = (viewport.width / 2.0) * (25.4 / 72);
+          const heightMm = (viewport.height / 2.0) * (25.4 / 72);
+
+          const orientation = widthMm > heightMm ? 'l' : 'p';
+
+          if (i === 1) {
+            // Create the jsPDF document with encryption on the first page
+            const perms = [];
+            if (document.getElementById('perm-print').checked) perms.push('print');
+            if (document.getElementById('perm-modify').checked) perms.push('modify');
+            if (document.getElementById('perm-copy').checked) perms.push('copy');
+            if (document.getElementById('perm-annot').checked) perms.push('annot-forms');
+
+            doc = new jsPDF({
+              orientation: orientation,
+              unit: 'mm',
+              format: [widthMm, heightMm],
+              encryption: {
+                userPassword: pwd,
+                ownerPassword: pwd + '_owner', // Give distinct owner password so perm restrictions apply to users
+                userPermissions: perms,
+              },
+            });
+          } else {
+            doc.addPage([widthMm, heightMm], orientation);
+          }
+
+          doc.addImage(imgData, 'JPEG', 0, 0, widthMm, heightMm);
+        }
+
+        // Generate the protected PDF
+        const pdfOutput = doc.output('arraybuffer');
+
+        if (typeof downloadFile === 'function') {
+          downloadFile(new Uint8Array(pdfOutput), `${currentFileName}_protected.pdf`);
+          originalPdfBytes = null; // GC Hint
+        }
+        if (typeof showSuccess === 'function') {
+          showSuccess('PDF protected successfully!');
+        }
+
+        // Clear password field
         passwordInput.value = '';
-        workspace.classList.add('hidden');
-        dropZone.classList.remove('hidden');
-    });
+      } catch (error) {
+        console.error('Protect Error:', error);
+        if (typeof showError === 'function') showError(error.message || 'Error protecting PDF.');
+      } finally {
+      }
 
-    async function handleFiles(files) {
-        if (!files || files.length === 0) return;
-        const file = files[0];
-        
-        
-        if (typeof window.validateFile === 'function') {
-            for (const f of files) {
-                const check = window.validateFile(f);
-                if (!check.valid) {
-                    if (typeof window.showError === 'function') window.showError(check.reason);
-                    return;
-                }
-            }
-        }
-        
-
-        try {
-            const ab = await file.arrayBuffer();
-            if (window.pdfDB) {
-                await window.pdfDB.saveFile('protect_target', ab);
-                originalPdfBytes = 'protect_target';
-            } else {
-                originalPdfBytes = ab;
-            }
-            currentFileName = file.name.replace(/\.[^/.]+$/, "");
-            
-            fileNameDisplay.textContent = file.name;
-            if (typeof formatBytes === 'function' && typeof fileSizeDisplay !== 'undefined' && fileSizeDisplay) fileSizeDisplay.textContent = formatBytes(file.size);
-            
-            if (typeof renderPdfThumbnail === 'function') {
-                const imgEl = document.getElementById('file-preview-img');
-                if (imgEl) renderPdfThumbnail(file, imgEl);
-            }
-            
-            dropZone.classList.add('hidden');
-            workspace.classList.remove('hidden');
-            passwordInput.focus();
-        } catch (err) {
-            console.error(err);
-            if (typeof showError === 'function') showError('Error reading file: ' + err.message);
-        }
+      if (typeof window.showProgress === 'function') window.showProgress(100);
+    } catch (err) {
+      console.error('PDF Processing Error:', err);
+      if (typeof window.hideProgress === 'function') window.hideProgress();
+      if (typeof window.showError === 'function') {
+        window.showError(err.message || 'An error occurred while processing the PDF.');
+      } else {
+        alert('Error: ' + (err.message || 'An error occurred'));
+      }
+    } finally {
+      btnApply.disabled = false;
+      btnApply.textContent = btnApply.getAttribute('data-original-text');
     }
-
-    btnApply.addEventListener('click', async () => {
-            if (!btnApply.hasAttribute('data-original-text')) {
-                btnApply.setAttribute('data-original-text', btnApply.textContent);
-            }
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof window.showProgress === 'function') window.showProgress(10);
-            
-            try {
-                
-        if (!originalPdfBytes) return;
-        
-        const pwd = passwordInput.value;
-        if (!pwd) {
-            if (typeof showError === 'function') showError("Please enter a password.");
-            return;
-        }
-
-        try {
-            // Load required libraries dynamically
-            if (typeof pdfjsLib === 'undefined') {
-                await window.loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
-                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-            }
-            if (typeof window.jspdf === 'undefined') {
-                await window.loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-            }
-
-            const { jsPDF } = window.jspdf;
-            
-            // Read the original PDF
-            // Pass a copy of the ArrayBuffer to prevent "detached ArrayBuffer" errors
-            let actualBytes = originalPdfBytes instanceof ArrayBuffer ? originalPdfBytes : await window.pdfDB.getFile(originalPdfBytes);
-            const loadingTask = pdfjsLib.getDocument({ data: actualBytes.slice(0) });
-            actualBytes = null;
-            const pdf = await loadingTask.promise;
-            const totalPages = pdf.numPages;
-
-            let doc = null;
-
-            for (let i = 1; i <= totalPages; i++) {
-                const page = await pdf.getPage(i);
-                // Scale 2.0 provides good quality for the output PDF
-                const viewport = page.getViewport({ scale: 2.0 });
-
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport
-                };
-
-                await page.render(renderContext).promise;
-
-                // Convert canvas to JPEG
-                const imgData = canvas.toDataURL('image/jpeg', 0.85);
-
-                // Calculate dimensions in mm (jsPDF default is mm)
-                // 1 point = 1/72 inch = 25.4/72 mm
-                const widthMm = (viewport.width / 2.0) * (25.4 / 72);
-                const heightMm = (viewport.height / 2.0) * (25.4 / 72);
-                
-                const orientation = widthMm > heightMm ? 'l' : 'p';
-
-                if (i === 1) {
-                    // Create the jsPDF document with encryption on the first page
-                    const perms = [];
-                    if (document.getElementById('perm-print').checked) perms.push('print');
-                    if (document.getElementById('perm-modify').checked) perms.push('modify');
-                    if (document.getElementById('perm-copy').checked) perms.push('copy');
-                    if (document.getElementById('perm-annot').checked) perms.push('annot-forms');
-                    
-                    doc = new jsPDF({
-                        orientation: orientation,
-                        unit: 'mm',
-                        format: [widthMm, heightMm],
-                        encryption: {
-                            userPassword: pwd,
-                            ownerPassword: pwd + '_owner', // Give distinct owner password so perm restrictions apply to users
-                            userPermissions: perms
-                        }
-                    });
-                } else {
-                    doc.addPage([widthMm, heightMm], orientation);
-                }
-
-                doc.addImage(imgData, 'JPEG', 0, 0, widthMm, heightMm);
-            }
-
-            
-
-            // Generate the protected PDF
-            const pdfOutput = doc.output('arraybuffer');
-            
-            if (typeof downloadFile === 'function') {
-                downloadFile(new Uint8Array(pdfOutput), `${currentFileName}_protected.pdf`);
-                originalPdfBytes = null; // GC Hint
-            }
-            if (typeof showSuccess === 'function') {
-                showSuccess("PDF protected successfully!");
-            }
-
-            // Clear password field
-            passwordInput.value = '';
-
-        } catch (error) {
-            console.error('Protect Error:', error);
-            if (typeof showError === 'function') showError(error.message || "Error protecting PDF.");
-        } finally {
-            
-            
-            
-        }
-    
-                if (typeof window.showProgress === 'function') window.showProgress(100);
-            } catch (err) {
-                console.error("PDF Processing Error:", err);
-                if (typeof window.hideProgress === 'function') window.hideProgress();
-                if (typeof window.showError === 'function') {
-                    window.showError(err.message || "An error occurred while processing the PDF.");
-                } else {
-                    alert("Error: " + (err.message || "An error occurred"));
-                }
-            } finally {
-                btnApply.disabled = false;
-                btnApply.textContent = btnApply.getAttribute('data-original-text');
-            }
-    });
+  });
 })();

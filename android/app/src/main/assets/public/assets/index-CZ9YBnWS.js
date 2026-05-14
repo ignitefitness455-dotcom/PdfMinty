@@ -1,6 +1,819 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/add-blank-page-jbn05Bm-.js","assets/PDFButton-56eB-KER.js","assets/add-page-numbers-Bi9rF5EA.js","assets/compress-CHJMIDnR.js","assets/crop-resize-rWqYeJSS.js","assets/delete-pages-CfKRV-MV.js","assets/extract-pages-CaGcRIwX.js","assets/image-to-pdf-qQiqSj9d.js","assets/merge-CJI2hZOD.js","assets/pdf-to-image-YOMo1AEe.js","assets/protect-YUsn3W4B.js","assets/reorder-DUmPk8Sm.js","assets/rotate-CtuFxYM0.js","assets/split-Bryzo1BY.js","assets/unlock-IOEueewQ.js","assets/watermark-Dy4Vprva.js"])))=>i.map(i=>d[i]);
-(function(){const s=document.createElement("link").relList;if(s&&s.supports&&s.supports("modulepreload"))return;for(const i of document.querySelectorAll('link[rel="modulepreload"]'))d(i);new MutationObserver(i=>{for(const g of i)if(g.type==="childList")for(const y of g.addedNodes)y.tagName==="LINK"&&y.rel==="modulepreload"&&d(y)}).observe(document,{childList:!0,subtree:!0});function v(i){const g={};return i.integrity&&(g.integrity=i.integrity),i.referrerPolicy&&(g.referrerPolicy=i.referrerPolicy),i.crossOrigin==="use-credentials"?g.credentials="include":i.crossOrigin==="anonymous"?g.credentials="omit":g.credentials="same-origin",g}function d(i){if(i.ep)return;i.ep=!0;const g=v(i);fetch(i.href,g)}})();const Pe="modulepreload",Ee=function(b){return"/"+b},ne={},j=function(s,v,d){let i=Promise.resolve();if(v&&v.length>0){document.getElementsByTagName("link");const y=document.querySelector("meta[property=csp-nonce]"),D=(y==null?void 0:y.nonce)||(y==null?void 0:y.getAttribute("nonce"));i=Promise.allSettled(v.map(r=>{if(r=Ee(r),r in ne)return;ne[r]=!0;const o=r.endsWith(".css"),p=o?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${r}"]${p}`))return;const u=document.createElement("link");if(u.rel=o?"stylesheet":Pe,o||(u.as="script"),u.crossOrigin="",u.href=r,D&&u.setAttribute("nonce",D),document.head.appendChild(u),o)return new Promise((E,_)=>{u.addEventListener("load",E),u.addEventListener("error",()=>_(new Error(`Unable to preload CSS for ${r}`)))})}))}function g(y){const D=new Event("vite:preloadError",{cancelable:!0});if(D.payload=y,window.dispatchEvent(D),!D.defaultPrevented)throw y}return i.then(y=>{for(const D of y||[])D.status==="rejected"&&g(D.reason);return s().catch(g)})},Ie=(b,s,v)=>{const d=b[s];return d?typeof d=="function"?d():Promise.resolve(d):new Promise((i,g)=>{(typeof queueMicrotask=="function"?queueMicrotask:setTimeout)(g.bind(null,new Error("Unknown variable dynamic import: "+s+(s.split("/").length!==v?". Note that variables only represent file names one level deep.":""))))})};var Q={};(function b(s,v,d,i){var g=!!(s.Worker&&s.Blob&&s.Promise&&s.OffscreenCanvas&&s.OffscreenCanvasRenderingContext2D&&s.HTMLCanvasElement&&s.HTMLCanvasElement.prototype.transferControlToOffscreen&&s.URL&&s.URL.createObjectURL),y=typeof Path2D=="function"&&typeof DOMMatrix=="function",D=function(){if(!s.OffscreenCanvas)return!1;try{var t=new OffscreenCanvas(1,1),e=t.getContext("2d");e.fillRect(0,0,1,1);var a=t.transferToImageBitmap();e.createPattern(a,"no-repeat")}catch{return!1}return!0}();function r(){}function o(t){var e=v.exports.Promise,a=e!==void 0?e:s.Promise;return typeof a=="function"?new a(t):(t(r,r),null)}var p=function(t,e){return{transform:function(a){if(t)return a;if(e.has(a))return e.get(a);var c=new OffscreenCanvas(a.width,a.height),l=c.getContext("2d");return l.drawImage(a,0,0),e.set(a,c),c},clear:function(){e.clear()}}}(D,new Map),u=function(){var t=Math.floor(16.666666666666668),e,a,c={},l=0;return typeof requestAnimationFrame=="function"&&typeof cancelAnimationFrame=="function"?(e=function(m){var f=Math.random();return c[f]=requestAnimationFrame(function n(h){l===h||l+t-1<h?(l=h,delete c[f],m()):c[f]=requestAnimationFrame(n)}),f},a=function(m){c[m]&&cancelAnimationFrame(c[m])}):(e=function(m){return setTimeout(m,t)},a=function(m){return clearTimeout(m)}),{frame:e,cancel:a}}(),E=function(){var t,e,a={};function c(l){function m(f,n){l.postMessage({options:f||{},callback:n})}l.init=function(n){var h=n.transferControlToOffscreen();l.postMessage({canvas:h},[h])},l.fire=function(n,h,I){if(e)return m(n,null),e;var x=Math.random().toString(36).slice(2);return e=o(function(T){function C(k){k.data.callback===x&&(delete a[x],l.removeEventListener("message",C),e=null,p.clear(),I(),T())}l.addEventListener("message",C),m(n,x),a[x]=C.bind(null,{data:{callback:x}})}),e},l.reset=function(){l.postMessage({reset:!0});for(var n in a)a[n](),delete a[n]}}return function(){if(t)return t;if(!d&&g){var l=["var CONFETTI, SIZE = {}, module = {};","("+b.toString()+")(this, module, true, SIZE);","onmessage = function(msg) {","  if (msg.data.options) {","    CONFETTI(msg.data.options).then(function () {","      if (msg.data.callback) {","        postMessage({ callback: msg.data.callback });","      }","    });","  } else if (msg.data.reset) {","    CONFETTI && CONFETTI.reset();","  } else if (msg.data.resize) {","    SIZE.width = msg.data.resize.width;","    SIZE.height = msg.data.resize.height;","  } else if (msg.data.canvas) {","    SIZE.width = msg.data.canvas.width;","    SIZE.height = msg.data.canvas.height;","    CONFETTI = module.exports.create(msg.data.canvas);","  }","}"].join(`
-`);try{t=new Worker(URL.createObjectURL(new Blob([l])))}catch(m){return typeof console<"u"&&typeof console.warn=="function"&&console.warn("🎊 Could not load worker",m),null}c(t)}return t}}(),_={particleCount:50,angle:90,spread:45,startVelocity:45,decay:.9,gravity:1,drift:0,ticks:200,x:.5,y:.5,shapes:["square","circle"],zIndex:100,colors:["#26ccff","#a25afd","#ff5e7e","#88ff5a","#fcff42","#ffa62d","#ff36ff"],disableForReducedMotion:!1,scalar:1};function w(t,e){return e?e(t):t}function F(t){return t!=null}function P(t,e,a){return w(t&&F(t[e])?t[e]:_[e],a)}function S(t){return t<0?0:Math.floor(t)}function V(t,e){return Math.floor(Math.random()*(e-t))+t}function W(t){return parseInt(t,16)}function q(t){return t.map(L)}function L(t){var e=String(t).replace(/[^0-9a-f]/gi,"");return e.length<6&&(e=e[0]+e[0]+e[1]+e[1]+e[2]+e[2]),{r:W(e.substring(0,2)),g:W(e.substring(2,4)),b:W(e.substring(4,6))}}function z(t){var e=P(t,"origin",Object);return e.x=P(e,"x",Number),e.y=P(e,"y",Number),e}function G(t){t.width=document.documentElement.clientWidth,t.height=document.documentElement.clientHeight}function X(t){var e=t.getBoundingClientRect();t.width=e.width,t.height=e.height}function K(t){var e=document.createElement("canvas");return e.style.position="fixed",e.style.top="0px",e.style.left="0px",e.style.pointerEvents="none",e.style.zIndex=t,e}function ie(t,e,a,c,l,m,f,n,h){t.save(),t.translate(e,a),t.rotate(m),t.scale(c,l),t.arc(0,0,1,f,n,h),t.restore()}function ce(t){var e=t.angle*(Math.PI/180),a=t.spread*(Math.PI/180);return{x:t.x,y:t.y,wobble:Math.random()*10,wobbleSpeed:Math.min(.11,Math.random()*.1+.05),velocity:t.startVelocity*.5+Math.random()*t.startVelocity,angle2D:-e+(.5*a-Math.random()*a),tiltAngle:(Math.random()*(.75-.25)+.25)*Math.PI,color:t.color,shape:t.shape,tick:0,totalTicks:t.ticks,decay:t.decay,drift:t.drift,random:Math.random()+2,tiltSin:0,tiltCos:0,wobbleX:0,wobbleY:0,gravity:t.gravity*3,ovalScalar:.6,scalar:t.scalar,flat:t.flat}}function le(t,e){e.x+=Math.cos(e.angle2D)*e.velocity+e.drift,e.y+=Math.sin(e.angle2D)*e.velocity+e.gravity,e.velocity*=e.decay,e.flat?(e.wobble=0,e.wobbleX=e.x+10*e.scalar,e.wobbleY=e.y+10*e.scalar,e.tiltSin=0,e.tiltCos=0,e.random=1):(e.wobble+=e.wobbleSpeed,e.wobbleX=e.x+10*e.scalar*Math.cos(e.wobble),e.wobbleY=e.y+10*e.scalar*Math.sin(e.wobble),e.tiltAngle+=.1,e.tiltSin=Math.sin(e.tiltAngle),e.tiltCos=Math.cos(e.tiltAngle),e.random=Math.random()+2);var a=e.tick++/e.totalTicks,c=e.x+e.random*e.tiltCos,l=e.y+e.random*e.tiltSin,m=e.wobbleX+e.random*e.tiltCos,f=e.wobbleY+e.random*e.tiltSin;if(t.fillStyle="rgba("+e.color.r+", "+e.color.g+", "+e.color.b+", "+(1-a)+")",t.beginPath(),y&&e.shape.type==="path"&&typeof e.shape.path=="string"&&Array.isArray(e.shape.matrix))t.fill(ue(e.shape.path,e.shape.matrix,e.x,e.y,Math.abs(m-c)*.1,Math.abs(f-l)*.1,Math.PI/10*e.wobble));else if(e.shape.type==="bitmap"){var n=Math.PI/10*e.wobble,h=Math.abs(m-c)*.1,I=Math.abs(f-l)*.1,x=e.shape.bitmap.width*e.scalar,T=e.shape.bitmap.height*e.scalar,C=new DOMMatrix([Math.cos(n)*h,Math.sin(n)*h,-Math.sin(n)*I,Math.cos(n)*I,e.x,e.y]);C.multiplySelf(new DOMMatrix(e.shape.matrix));var k=t.createPattern(p.transform(e.shape.bitmap),"no-repeat");k.setTransform(C),t.globalAlpha=1-a,t.fillStyle=k,t.fillRect(e.x-x/2,e.y-T/2,x,T),t.globalAlpha=1}else if(e.shape==="circle")t.ellipse?t.ellipse(e.x,e.y,Math.abs(m-c)*e.ovalScalar,Math.abs(f-l)*e.ovalScalar,Math.PI/10*e.wobble,0,2*Math.PI):ie(t,e.x,e.y,Math.abs(m-c)*e.ovalScalar,Math.abs(f-l)*e.ovalScalar,Math.PI/10*e.wobble,0,2*Math.PI);else if(e.shape==="star")for(var M=Math.PI/2*3,A=4*e.scalar,R=8*e.scalar,B=e.x,H=e.y,U=5,N=Math.PI/U;U--;)B=e.x+Math.cos(M)*R,H=e.y+Math.sin(M)*R,t.lineTo(B,H),M+=N,B=e.x+Math.cos(M)*A,H=e.y+Math.sin(M)*A,t.lineTo(B,H),M+=N;else t.moveTo(Math.floor(e.x),Math.floor(e.y)),t.lineTo(Math.floor(e.wobbleX),Math.floor(l)),t.lineTo(Math.floor(m),Math.floor(f)),t.lineTo(Math.floor(c),Math.floor(e.wobbleY));return t.closePath(),t.fill(),e.tick<e.totalTicks}function de(t,e,a,c,l){var m=e.slice(),f=t.getContext("2d"),n,h,I=o(function(x){function T(){n=h=null,f.clearRect(0,0,c.width,c.height),p.clear(),l(),x()}function C(){d&&!(c.width===i.width&&c.height===i.height)&&(c.width=t.width=i.width,c.height=t.height=i.height),!c.width&&!c.height&&(a(t),c.width=t.width,c.height=t.height),f.clearRect(0,0,c.width,c.height),m=m.filter(function(k){return le(f,k)}),m.length?n=u.frame(C):T()}n=u.frame(C),h=T});return{addFettis:function(x){return m=m.concat(x),I},canvas:t,promise:I,reset:function(){n&&u.cancel(n),h&&h()}}}function ee(t,e){var a=!t,c=!!P(e||{},"resize"),l=!1,m=P(e,"disableForReducedMotion",Boolean),f=g&&!!P(e||{},"useWorker"),n=f?E():null,h=a?G:X,I=t&&n?!!t.__confetti_initialized:!1,x=typeof matchMedia=="function"&&matchMedia("(prefers-reduced-motion)").matches,T;function C(M,A,R){for(var B=P(M,"particleCount",S),H=P(M,"angle",Number),U=P(M,"spread",Number),N=P(M,"startVelocity",Number),fe=P(M,"decay",Number),he=P(M,"gravity",Number),ve=P(M,"drift",Number),re=P(M,"colors",q),ge=P(M,"ticks",Number),oe=P(M,"shapes"),ye=P(M,"scalar"),we=!!P(M,"flat"),ae=z(M),se=B,J=[],be=t.width*ae.x,Me=t.height*ae.y;se--;)J.push(ce({x:be,y:Me,angle:H,spread:U,startVelocity:N,color:re[se%re.length],shape:oe[V(0,oe.length)],ticks:ge,decay:fe,gravity:he,drift:ve,scalar:ye,flat:we}));return T?T.addFettis(J):(T=de(t,J,h,A,R),T.promise)}function k(M){var A=m||P(M,"disableForReducedMotion",Boolean),R=P(M,"zIndex",Number);if(A&&x)return o(function(N){N()});a&&T?t=T.canvas:a&&!t&&(t=K(R),document.body.appendChild(t)),c&&!I&&h(t);var B={width:t.width,height:t.height};n&&!I&&n.init(t),I=!0,n&&(t.__confetti_initialized=!0);function H(){if(n){var N={getBoundingClientRect:function(){if(!a)return t.getBoundingClientRect()}};h(N),n.postMessage({resize:{width:N.width,height:N.height}});return}B.width=B.height=null}function U(){T=null,c&&(l=!1,s.removeEventListener("resize",H)),a&&t&&(document.body.contains(t)&&document.body.removeChild(t),t=null,I=!1)}return c&&!l&&(l=!0,s.addEventListener("resize",H,!1)),n?n.fire(M,B,U):C(M,B,U)}return k.reset=function(){n&&n.reset(),T&&T.reset()},k}var Y;function te(){return Y||(Y=ee(null,{useWorker:!0,resize:!0})),Y}function ue(t,e,a,c,l,m,f){var n=new Path2D(t),h=new Path2D;h.addPath(n,new DOMMatrix(e));var I=new Path2D;return I.addPath(h,new DOMMatrix([Math.cos(f)*l,Math.sin(f)*l,-Math.sin(f)*m,Math.cos(f)*m,a,c])),I}function me(t){if(!y)throw new Error("path confetti are not supported in this browser");var e,a;typeof t=="string"?e=t:(e=t.path,a=t.matrix);var c=new Path2D(e),l=document.createElement("canvas"),m=l.getContext("2d");if(!a){for(var f=1e3,n=f,h=f,I=0,x=0,T,C,k=0;k<f;k+=2)for(var M=0;M<f;M+=2)m.isPointInPath(c,k,M,"nonzero")&&(n=Math.min(n,k),h=Math.min(h,M),I=Math.max(I,k),x=Math.max(x,M));T=I-n,C=x-h;var A=10,R=Math.min(A/T,A/C);a=[R,0,0,R,-Math.round(T/2+n)*R,-Math.round(C/2+h)*R]}return{type:"path",path:e,matrix:a}}function pe(t){var e,a=1,c="#000000",l='"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", "Twemoji Mozilla", "system emoji", sans-serif';typeof t=="string"?e=t:(e=t.text,a="scalar"in t?t.scalar:a,l="fontFamily"in t?t.fontFamily:l,c="color"in t?t.color:c);var m=10*a,f=""+m+"px "+l,n=new OffscreenCanvas(m,m),h=n.getContext("2d");h.font=f;var I=h.measureText(e),x=Math.ceil(I.actualBoundingBoxRight+I.actualBoundingBoxLeft),T=Math.ceil(I.actualBoundingBoxAscent+I.actualBoundingBoxDescent),C=2,k=I.actualBoundingBoxLeft+C,M=I.actualBoundingBoxAscent+C;x+=C+C,T+=C+C,n=new OffscreenCanvas(x,T),h=n.getContext("2d"),h.font=f,h.fillStyle=c,h.fillText(e,k,M);var A=1/a;return{type:"bitmap",bitmap:n.transferToImageBitmap(),matrix:[A,0,0,A,-x*A/2,-T*A/2]}}v.exports=function(){return te().apply(this,arguments)},v.exports.reset=function(){te().reset()},v.exports.create=ee,v.exports.shapeFromPath=me,v.exports.shapeFromText=pe})(function(){return typeof window<"u"?window:typeof self<"u"?self:this||{}}(),Q,!1);const Z=Q.exports;Q.exports.create;(function(){console.log("[PDFMinty] Engine v1.2 Loaded - 2026-03-27");const b=[{id:"merge",title:"Merge PDF",icon:"🔗",desc:"Combine multiple PDFs into one",cat:"organize"},{id:"split",title:"Split PDF",icon:"✂️",desc:"Extract pages from your PDF",cat:"organize"},{id:"compress",title:"Compress PDF",icon:"🗜️",desc:"Reduce file size without losing quality",cat:"optimize"},{id:"rotate",title:"Rotate PDF",icon:"↻",desc:"Rotate pages to correct orientation",cat:"edit"},{id:"reorder",title:"Reorder PDF",icon:"🔄",desc:"Change the order of PDF pages",cat:"organize"},{id:"delete-pages",title:"Delete Pages",icon:"🗑️",desc:"Remove unwanted pages",cat:"organize"},{id:"extract-pages",title:"Extract Pages",icon:"📑",desc:"Get specific pages as a new PDF",cat:"organize"},{id:"image-to-pdf",title:"Image to PDF",icon:"🖼️",desc:"Convert JPG/PNG to PDF",cat:"convert"},{id:"pdf-to-image",title:"PDF to Image",icon:"🖼️",desc:"Convert PDF pages to JPG",cat:"convert"},{id:"protect",title:"Protect PDF",icon:"🔒",desc:"Add password to your PDF",cat:"security"},{id:"unlock",title:"Unlock PDF",icon:"🔓",desc:"Remove password from PDF",cat:"security"},{id:"watermark",title:"Watermark",icon:"💧",desc:"Stamp text on your PDF",cat:"edit"},{id:"add-page-numbers",title:"Page Numbers",icon:"🔢",desc:"Insert page numbers",cat:"edit"},{id:"add-blank-page",title:"Add Blank Page",icon:"📄",desc:"Insert blank pages anywhere",cat:"edit"},{id:"crop-resize",title:"Crop & Resize",icon:"📐",desc:"Adjust margins and dimensions",cat:"optimize"}];function s(r){try{let o=`
+const __vite__mapDeps = (
+  i,
+  m = __vite__mapDeps,
+  d = m.f ||
+    (m.f = [
+      'assets/add-blank-page-jbn05Bm-.js',
+      'assets/PDFButton-56eB-KER.js',
+      'assets/add-page-numbers-Bi9rF5EA.js',
+      'assets/compress-CHJMIDnR.js',
+      'assets/crop-resize-rWqYeJSS.js',
+      'assets/delete-pages-CfKRV-MV.js',
+      'assets/extract-pages-CaGcRIwX.js',
+      'assets/image-to-pdf-qQiqSj9d.js',
+      'assets/merge-CJI2hZOD.js',
+      'assets/pdf-to-image-YOMo1AEe.js',
+      'assets/protect-YUsn3W4B.js',
+      'assets/reorder-DUmPk8Sm.js',
+      'assets/rotate-CtuFxYM0.js',
+      'assets/split-Bryzo1BY.js',
+      'assets/unlock-IOEueewQ.js',
+      'assets/watermark-Dy4Vprva.js',
+    ]),
+) => i.map((i) => d[i]);
+(function () {
+  const s = document.createElement('link').relList;
+  if (s && s.supports && s.supports('modulepreload')) return;
+  for (const i of document.querySelectorAll('link[rel="modulepreload"]')) d(i);
+  new MutationObserver((i) => {
+    for (const g of i)
+      if (g.type === 'childList')
+        for (const y of g.addedNodes) y.tagName === 'LINK' && y.rel === 'modulepreload' && d(y);
+  }).observe(document, { childList: !0, subtree: !0 });
+  function v(i) {
+    const g = {};
+    return (
+      i.integrity && (g.integrity = i.integrity),
+      i.referrerPolicy && (g.referrerPolicy = i.referrerPolicy),
+      i.crossOrigin === 'use-credentials'
+        ? (g.credentials = 'include')
+        : i.crossOrigin === 'anonymous'
+          ? (g.credentials = 'omit')
+          : (g.credentials = 'same-origin'),
+      g
+    );
+  }
+  function d(i) {
+    if (i.ep) return;
+    i.ep = !0;
+    const g = v(i);
+    fetch(i.href, g);
+  }
+})();
+const Pe = 'modulepreload',
+  Ee = function (b) {
+    return '/' + b;
+  },
+  ne = {},
+  j = function (s, v, d) {
+    let i = Promise.resolve();
+    if (v && v.length > 0) {
+      document.getElementsByTagName('link');
+      const y = document.querySelector('meta[property=csp-nonce]'),
+        D = (y == null ? void 0 : y.nonce) || (y == null ? void 0 : y.getAttribute('nonce'));
+      i = Promise.allSettled(
+        v.map((r) => {
+          if (((r = Ee(r)), r in ne)) return;
+          ne[r] = !0;
+          const o = r.endsWith('.css'),
+            p = o ? '[rel="stylesheet"]' : '';
+          if (document.querySelector(`link[href="${r}"]${p}`)) return;
+          const u = document.createElement('link');
+          if (
+            ((u.rel = o ? 'stylesheet' : Pe),
+            o || (u.as = 'script'),
+            (u.crossOrigin = ''),
+            (u.href = r),
+            D && u.setAttribute('nonce', D),
+            document.head.appendChild(u),
+            o)
+          )
+            return new Promise((E, _) => {
+              (u.addEventListener('load', E),
+                u.addEventListener('error', () => _(new Error(`Unable to preload CSS for ${r}`))));
+            });
+        }),
+      );
+    }
+    function g(y) {
+      const D = new Event('vite:preloadError', { cancelable: !0 });
+      if (((D.payload = y), window.dispatchEvent(D), !D.defaultPrevented)) throw y;
+    }
+    return i.then((y) => {
+      for (const D of y || []) D.status === 'rejected' && g(D.reason);
+      return s().catch(g);
+    });
+  },
+  Ie = (b, s, v) => {
+    const d = b[s];
+    return d
+      ? typeof d == 'function'
+        ? d()
+        : Promise.resolve(d)
+      : new Promise((i, g) => {
+          (typeof queueMicrotask == 'function' ? queueMicrotask : setTimeout)(
+            g.bind(
+              null,
+              new Error(
+                'Unknown variable dynamic import: ' +
+                  s +
+                  (s.split('/').length !== v
+                    ? '. Note that variables only represent file names one level deep.'
+                    : ''),
+              ),
+            ),
+          );
+        });
+  };
+var Q = {};
+(function b(s, v, d, i) {
+  var g = !!(
+      s.Worker &&
+      s.Blob &&
+      s.Promise &&
+      s.OffscreenCanvas &&
+      s.OffscreenCanvasRenderingContext2D &&
+      s.HTMLCanvasElement &&
+      s.HTMLCanvasElement.prototype.transferControlToOffscreen &&
+      s.URL &&
+      s.URL.createObjectURL
+    ),
+    y = typeof Path2D == 'function' && typeof DOMMatrix == 'function',
+    D = (function () {
+      if (!s.OffscreenCanvas) return !1;
+      try {
+        var t = new OffscreenCanvas(1, 1),
+          e = t.getContext('2d');
+        e.fillRect(0, 0, 1, 1);
+        var a = t.transferToImageBitmap();
+        e.createPattern(a, 'no-repeat');
+      } catch {
+        return !1;
+      }
+      return !0;
+    })();
+  function r() {}
+  function o(t) {
+    var e = v.exports.Promise,
+      a = e !== void 0 ? e : s.Promise;
+    return typeof a == 'function' ? new a(t) : (t(r, r), null);
+  }
+  var p = (function (t, e) {
+      return {
+        transform: function (a) {
+          if (t) return a;
+          if (e.has(a)) return e.get(a);
+          var c = new OffscreenCanvas(a.width, a.height),
+            l = c.getContext('2d');
+          return (l.drawImage(a, 0, 0), e.set(a, c), c);
+        },
+        clear: function () {
+          e.clear();
+        },
+      };
+    })(D, new Map()),
+    u = (function () {
+      var t = Math.floor(16.666666666666668),
+        e,
+        a,
+        c = {},
+        l = 0;
+      return (
+        typeof requestAnimationFrame == 'function' && typeof cancelAnimationFrame == 'function'
+          ? ((e = function (m) {
+              var f = Math.random();
+              return (
+                (c[f] = requestAnimationFrame(function n(h) {
+                  l === h || l + t - 1 < h
+                    ? ((l = h), delete c[f], m())
+                    : (c[f] = requestAnimationFrame(n));
+                })),
+                f
+              );
+            }),
+            (a = function (m) {
+              c[m] && cancelAnimationFrame(c[m]);
+            }))
+          : ((e = function (m) {
+              return setTimeout(m, t);
+            }),
+            (a = function (m) {
+              return clearTimeout(m);
+            })),
+        { frame: e, cancel: a }
+      );
+    })(),
+    E = (function () {
+      var t,
+        e,
+        a = {};
+      function c(l) {
+        function m(f, n) {
+          l.postMessage({ options: f || {}, callback: n });
+        }
+        ((l.init = function (n) {
+          var h = n.transferControlToOffscreen();
+          l.postMessage({ canvas: h }, [h]);
+        }),
+          (l.fire = function (n, h, I) {
+            if (e) return (m(n, null), e);
+            var x = Math.random().toString(36).slice(2);
+            return (
+              (e = o(function (T) {
+                function C(k) {
+                  k.data.callback === x &&
+                    (delete a[x],
+                    l.removeEventListener('message', C),
+                    (e = null),
+                    p.clear(),
+                    I(),
+                    T());
+                }
+                (l.addEventListener('message', C),
+                  m(n, x),
+                  (a[x] = C.bind(null, { data: { callback: x } })));
+              })),
+              e
+            );
+          }),
+          (l.reset = function () {
+            l.postMessage({ reset: !0 });
+            for (var n in a) (a[n](), delete a[n]);
+          }));
+      }
+      return function () {
+        if (t) return t;
+        if (!d && g) {
+          var l = [
+            'var CONFETTI, SIZE = {}, module = {};',
+            '(' + b.toString() + ')(this, module, true, SIZE);',
+            'onmessage = function(msg) {',
+            '  if (msg.data.options) {',
+            '    CONFETTI(msg.data.options).then(function () {',
+            '      if (msg.data.callback) {',
+            '        postMessage({ callback: msg.data.callback });',
+            '      }',
+            '    });',
+            '  } else if (msg.data.reset) {',
+            '    CONFETTI && CONFETTI.reset();',
+            '  } else if (msg.data.resize) {',
+            '    SIZE.width = msg.data.resize.width;',
+            '    SIZE.height = msg.data.resize.height;',
+            '  } else if (msg.data.canvas) {',
+            '    SIZE.width = msg.data.canvas.width;',
+            '    SIZE.height = msg.data.canvas.height;',
+            '    CONFETTI = module.exports.create(msg.data.canvas);',
+            '  }',
+            '}',
+          ].join(`
+`);
+          try {
+            t = new Worker(URL.createObjectURL(new Blob([l])));
+          } catch (m) {
+            return (
+              typeof console < 'u' &&
+                typeof console.warn == 'function' &&
+                console.warn('🎊 Could not load worker', m),
+              null
+            );
+          }
+          c(t);
+        }
+        return t;
+      };
+    })(),
+    _ = {
+      particleCount: 50,
+      angle: 90,
+      spread: 45,
+      startVelocity: 45,
+      decay: 0.9,
+      gravity: 1,
+      drift: 0,
+      ticks: 200,
+      x: 0.5,
+      y: 0.5,
+      shapes: ['square', 'circle'],
+      zIndex: 100,
+      colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff'],
+      disableForReducedMotion: !1,
+      scalar: 1,
+    };
+  function w(t, e) {
+    return e ? e(t) : t;
+  }
+  function F(t) {
+    return t != null;
+  }
+  function P(t, e, a) {
+    return w(t && F(t[e]) ? t[e] : _[e], a);
+  }
+  function S(t) {
+    return t < 0 ? 0 : Math.floor(t);
+  }
+  function V(t, e) {
+    return Math.floor(Math.random() * (e - t)) + t;
+  }
+  function W(t) {
+    return parseInt(t, 16);
+  }
+  function q(t) {
+    return t.map(L);
+  }
+  function L(t) {
+    var e = String(t).replace(/[^0-9a-f]/gi, '');
+    return (
+      e.length < 6 && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]),
+      { r: W(e.substring(0, 2)), g: W(e.substring(2, 4)), b: W(e.substring(4, 6)) }
+    );
+  }
+  function z(t) {
+    var e = P(t, 'origin', Object);
+    return ((e.x = P(e, 'x', Number)), (e.y = P(e, 'y', Number)), e);
+  }
+  function G(t) {
+    ((t.width = document.documentElement.clientWidth),
+      (t.height = document.documentElement.clientHeight));
+  }
+  function X(t) {
+    var e = t.getBoundingClientRect();
+    ((t.width = e.width), (t.height = e.height));
+  }
+  function K(t) {
+    var e = document.createElement('canvas');
+    return (
+      (e.style.position = 'fixed'),
+      (e.style.top = '0px'),
+      (e.style.left = '0px'),
+      (e.style.pointerEvents = 'none'),
+      (e.style.zIndex = t),
+      e
+    );
+  }
+  function ie(t, e, a, c, l, m, f, n, h) {
+    (t.save(), t.translate(e, a), t.rotate(m), t.scale(c, l), t.arc(0, 0, 1, f, n, h), t.restore());
+  }
+  function ce(t) {
+    var e = t.angle * (Math.PI / 180),
+      a = t.spread * (Math.PI / 180);
+    return {
+      x: t.x,
+      y: t.y,
+      wobble: Math.random() * 10,
+      wobbleSpeed: Math.min(0.11, Math.random() * 0.1 + 0.05),
+      velocity: t.startVelocity * 0.5 + Math.random() * t.startVelocity,
+      angle2D: -e + (0.5 * a - Math.random() * a),
+      tiltAngle: (Math.random() * (0.75 - 0.25) + 0.25) * Math.PI,
+      color: t.color,
+      shape: t.shape,
+      tick: 0,
+      totalTicks: t.ticks,
+      decay: t.decay,
+      drift: t.drift,
+      random: Math.random() + 2,
+      tiltSin: 0,
+      tiltCos: 0,
+      wobbleX: 0,
+      wobbleY: 0,
+      gravity: t.gravity * 3,
+      ovalScalar: 0.6,
+      scalar: t.scalar,
+      flat: t.flat,
+    };
+  }
+  function le(t, e) {
+    ((e.x += Math.cos(e.angle2D) * e.velocity + e.drift),
+      (e.y += Math.sin(e.angle2D) * e.velocity + e.gravity),
+      (e.velocity *= e.decay),
+      e.flat
+        ? ((e.wobble = 0),
+          (e.wobbleX = e.x + 10 * e.scalar),
+          (e.wobbleY = e.y + 10 * e.scalar),
+          (e.tiltSin = 0),
+          (e.tiltCos = 0),
+          (e.random = 1))
+        : ((e.wobble += e.wobbleSpeed),
+          (e.wobbleX = e.x + 10 * e.scalar * Math.cos(e.wobble)),
+          (e.wobbleY = e.y + 10 * e.scalar * Math.sin(e.wobble)),
+          (e.tiltAngle += 0.1),
+          (e.tiltSin = Math.sin(e.tiltAngle)),
+          (e.tiltCos = Math.cos(e.tiltAngle)),
+          (e.random = Math.random() + 2)));
+    var a = e.tick++ / e.totalTicks,
+      c = e.x + e.random * e.tiltCos,
+      l = e.y + e.random * e.tiltSin,
+      m = e.wobbleX + e.random * e.tiltCos,
+      f = e.wobbleY + e.random * e.tiltSin;
+    if (
+      ((t.fillStyle =
+        'rgba(' + e.color.r + ', ' + e.color.g + ', ' + e.color.b + ', ' + (1 - a) + ')'),
+      t.beginPath(),
+      y &&
+        e.shape.type === 'path' &&
+        typeof e.shape.path == 'string' &&
+        Array.isArray(e.shape.matrix))
+    )
+      t.fill(
+        ue(
+          e.shape.path,
+          e.shape.matrix,
+          e.x,
+          e.y,
+          Math.abs(m - c) * 0.1,
+          Math.abs(f - l) * 0.1,
+          (Math.PI / 10) * e.wobble,
+        ),
+      );
+    else if (e.shape.type === 'bitmap') {
+      var n = (Math.PI / 10) * e.wobble,
+        h = Math.abs(m - c) * 0.1,
+        I = Math.abs(f - l) * 0.1,
+        x = e.shape.bitmap.width * e.scalar,
+        T = e.shape.bitmap.height * e.scalar,
+        C = new DOMMatrix([
+          Math.cos(n) * h,
+          Math.sin(n) * h,
+          -Math.sin(n) * I,
+          Math.cos(n) * I,
+          e.x,
+          e.y,
+        ]);
+      C.multiplySelf(new DOMMatrix(e.shape.matrix));
+      var k = t.createPattern(p.transform(e.shape.bitmap), 'no-repeat');
+      (k.setTransform(C),
+        (t.globalAlpha = 1 - a),
+        (t.fillStyle = k),
+        t.fillRect(e.x - x / 2, e.y - T / 2, x, T),
+        (t.globalAlpha = 1));
+    } else if (e.shape === 'circle')
+      t.ellipse
+        ? t.ellipse(
+            e.x,
+            e.y,
+            Math.abs(m - c) * e.ovalScalar,
+            Math.abs(f - l) * e.ovalScalar,
+            (Math.PI / 10) * e.wobble,
+            0,
+            2 * Math.PI,
+          )
+        : ie(
+            t,
+            e.x,
+            e.y,
+            Math.abs(m - c) * e.ovalScalar,
+            Math.abs(f - l) * e.ovalScalar,
+            (Math.PI / 10) * e.wobble,
+            0,
+            2 * Math.PI,
+          );
+    else if (e.shape === 'star')
+      for (
+        var M = (Math.PI / 2) * 3,
+          A = 4 * e.scalar,
+          R = 8 * e.scalar,
+          B = e.x,
+          H = e.y,
+          U = 5,
+          N = Math.PI / U;
+        U--;
+      )
+        ((B = e.x + Math.cos(M) * R),
+          (H = e.y + Math.sin(M) * R),
+          t.lineTo(B, H),
+          (M += N),
+          (B = e.x + Math.cos(M) * A),
+          (H = e.y + Math.sin(M) * A),
+          t.lineTo(B, H),
+          (M += N));
+    else
+      (t.moveTo(Math.floor(e.x), Math.floor(e.y)),
+        t.lineTo(Math.floor(e.wobbleX), Math.floor(l)),
+        t.lineTo(Math.floor(m), Math.floor(f)),
+        t.lineTo(Math.floor(c), Math.floor(e.wobbleY)));
+    return (t.closePath(), t.fill(), e.tick < e.totalTicks);
+  }
+  function de(t, e, a, c, l) {
+    var m = e.slice(),
+      f = t.getContext('2d'),
+      n,
+      h,
+      I = o(function (x) {
+        function T() {
+          ((n = h = null), f.clearRect(0, 0, c.width, c.height), p.clear(), l(), x());
+        }
+        function C() {
+          (d &&
+            !(c.width === i.width && c.height === i.height) &&
+            ((c.width = t.width = i.width), (c.height = t.height = i.height)),
+            !c.width && !c.height && (a(t), (c.width = t.width), (c.height = t.height)),
+            f.clearRect(0, 0, c.width, c.height),
+            (m = m.filter(function (k) {
+              return le(f, k);
+            })),
+            m.length ? (n = u.frame(C)) : T());
+        }
+        ((n = u.frame(C)), (h = T));
+      });
+    return {
+      addFettis: function (x) {
+        return ((m = m.concat(x)), I);
+      },
+      canvas: t,
+      promise: I,
+      reset: function () {
+        (n && u.cancel(n), h && h());
+      },
+    };
+  }
+  function ee(t, e) {
+    var a = !t,
+      c = !!P(e || {}, 'resize'),
+      l = !1,
+      m = P(e, 'disableForReducedMotion', Boolean),
+      f = g && !!P(e || {}, 'useWorker'),
+      n = f ? E() : null,
+      h = a ? G : X,
+      I = t && n ? !!t.__confetti_initialized : !1,
+      x = typeof matchMedia == 'function' && matchMedia('(prefers-reduced-motion)').matches,
+      T;
+    function C(M, A, R) {
+      for (
+        var B = P(M, 'particleCount', S),
+          H = P(M, 'angle', Number),
+          U = P(M, 'spread', Number),
+          N = P(M, 'startVelocity', Number),
+          fe = P(M, 'decay', Number),
+          he = P(M, 'gravity', Number),
+          ve = P(M, 'drift', Number),
+          re = P(M, 'colors', q),
+          ge = P(M, 'ticks', Number),
+          oe = P(M, 'shapes'),
+          ye = P(M, 'scalar'),
+          we = !!P(M, 'flat'),
+          ae = z(M),
+          se = B,
+          J = [],
+          be = t.width * ae.x,
+          Me = t.height * ae.y;
+        se--;
+      )
+        J.push(
+          ce({
+            x: be,
+            y: Me,
+            angle: H,
+            spread: U,
+            startVelocity: N,
+            color: re[se % re.length],
+            shape: oe[V(0, oe.length)],
+            ticks: ge,
+            decay: fe,
+            gravity: he,
+            drift: ve,
+            scalar: ye,
+            flat: we,
+          }),
+        );
+      return T ? T.addFettis(J) : ((T = de(t, J, h, A, R)), T.promise);
+    }
+    function k(M) {
+      var A = m || P(M, 'disableForReducedMotion', Boolean),
+        R = P(M, 'zIndex', Number);
+      if (A && x)
+        return o(function (N) {
+          N();
+        });
+      (a && T ? (t = T.canvas) : a && !t && ((t = K(R)), document.body.appendChild(t)),
+        c && !I && h(t));
+      var B = { width: t.width, height: t.height };
+      (n && !I && n.init(t), (I = !0), n && (t.__confetti_initialized = !0));
+      function H() {
+        if (n) {
+          var N = {
+            getBoundingClientRect: function () {
+              if (!a) return t.getBoundingClientRect();
+            },
+          };
+          (h(N), n.postMessage({ resize: { width: N.width, height: N.height } }));
+          return;
+        }
+        B.width = B.height = null;
+      }
+      function U() {
+        ((T = null),
+          c && ((l = !1), s.removeEventListener('resize', H)),
+          a &&
+            t &&
+            (document.body.contains(t) && document.body.removeChild(t), (t = null), (I = !1)));
+      }
+      return (
+        c && !l && ((l = !0), s.addEventListener('resize', H, !1)),
+        n ? n.fire(M, B, U) : C(M, B, U)
+      );
+    }
+    return (
+      (k.reset = function () {
+        (n && n.reset(), T && T.reset());
+      }),
+      k
+    );
+  }
+  var Y;
+  function te() {
+    return (Y || (Y = ee(null, { useWorker: !0, resize: !0 })), Y);
+  }
+  function ue(t, e, a, c, l, m, f) {
+    var n = new Path2D(t),
+      h = new Path2D();
+    h.addPath(n, new DOMMatrix(e));
+    var I = new Path2D();
+    return (
+      I.addPath(
+        h,
+        new DOMMatrix([Math.cos(f) * l, Math.sin(f) * l, -Math.sin(f) * m, Math.cos(f) * m, a, c]),
+      ),
+      I
+    );
+  }
+  function me(t) {
+    if (!y) throw new Error('path confetti are not supported in this browser');
+    var e, a;
+    typeof t == 'string' ? (e = t) : ((e = t.path), (a = t.matrix));
+    var c = new Path2D(e),
+      l = document.createElement('canvas'),
+      m = l.getContext('2d');
+    if (!a) {
+      for (var f = 1e3, n = f, h = f, I = 0, x = 0, T, C, k = 0; k < f; k += 2)
+        for (var M = 0; M < f; M += 2)
+          m.isPointInPath(c, k, M, 'nonzero') &&
+            ((n = Math.min(n, k)),
+            (h = Math.min(h, M)),
+            (I = Math.max(I, k)),
+            (x = Math.max(x, M)));
+      ((T = I - n), (C = x - h));
+      var A = 10,
+        R = Math.min(A / T, A / C);
+      a = [R, 0, 0, R, -Math.round(T / 2 + n) * R, -Math.round(C / 2 + h) * R];
+    }
+    return { type: 'path', path: e, matrix: a };
+  }
+  function pe(t) {
+    var e,
+      a = 1,
+      c = '#000000',
+      l =
+        '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", "Twemoji Mozilla", "system emoji", sans-serif';
+    typeof t == 'string'
+      ? (e = t)
+      : ((e = t.text),
+        (a = 'scalar' in t ? t.scalar : a),
+        (l = 'fontFamily' in t ? t.fontFamily : l),
+        (c = 'color' in t ? t.color : c));
+    var m = 10 * a,
+      f = '' + m + 'px ' + l,
+      n = new OffscreenCanvas(m, m),
+      h = n.getContext('2d');
+    h.font = f;
+    var I = h.measureText(e),
+      x = Math.ceil(I.actualBoundingBoxRight + I.actualBoundingBoxLeft),
+      T = Math.ceil(I.actualBoundingBoxAscent + I.actualBoundingBoxDescent),
+      C = 2,
+      k = I.actualBoundingBoxLeft + C,
+      M = I.actualBoundingBoxAscent + C;
+    ((x += C + C),
+      (T += C + C),
+      (n = new OffscreenCanvas(x, T)),
+      (h = n.getContext('2d')),
+      (h.font = f),
+      (h.fillStyle = c),
+      h.fillText(e, k, M));
+    var A = 1 / a;
+    return {
+      type: 'bitmap',
+      bitmap: n.transferToImageBitmap(),
+      matrix: [A, 0, 0, A, (-x * A) / 2, (-T * A) / 2],
+    };
+  }
+  ((v.exports = function () {
+    return te().apply(this, arguments);
+  }),
+    (v.exports.reset = function () {
+      te().reset();
+    }),
+    (v.exports.create = ee),
+    (v.exports.shapeFromPath = me),
+    (v.exports.shapeFromText = pe));
+})(
+  (function () {
+    return typeof window < 'u' ? window : typeof self < 'u' ? self : this || {};
+  })(),
+  Q,
+  !1,
+);
+const Z = Q.exports;
+Q.exports.create;
+(function () {
+  console.log('[PDFMinty] Engine v1.2 Loaded - 2026-03-27');
+  const b = [
+    {
+      id: 'merge',
+      title: 'Merge PDF',
+      icon: '🔗',
+      desc: 'Combine multiple PDFs into one',
+      cat: 'organize',
+    },
+    {
+      id: 'split',
+      title: 'Split PDF',
+      icon: '✂️',
+      desc: 'Extract pages from your PDF',
+      cat: 'organize',
+    },
+    {
+      id: 'compress',
+      title: 'Compress PDF',
+      icon: '🗜️',
+      desc: 'Reduce file size without losing quality',
+      cat: 'optimize',
+    },
+    {
+      id: 'rotate',
+      title: 'Rotate PDF',
+      icon: '↻',
+      desc: 'Rotate pages to correct orientation',
+      cat: 'edit',
+    },
+    {
+      id: 'reorder',
+      title: 'Reorder PDF',
+      icon: '🔄',
+      desc: 'Change the order of PDF pages',
+      cat: 'organize',
+    },
+    {
+      id: 'delete-pages',
+      title: 'Delete Pages',
+      icon: '🗑️',
+      desc: 'Remove unwanted pages',
+      cat: 'organize',
+    },
+    {
+      id: 'extract-pages',
+      title: 'Extract Pages',
+      icon: '📑',
+      desc: 'Get specific pages as a new PDF',
+      cat: 'organize',
+    },
+    {
+      id: 'image-to-pdf',
+      title: 'Image to PDF',
+      icon: '🖼️',
+      desc: 'Convert JPG/PNG to PDF',
+      cat: 'convert',
+    },
+    {
+      id: 'pdf-to-image',
+      title: 'PDF to Image',
+      icon: '🖼️',
+      desc: 'Convert PDF pages to JPG',
+      cat: 'convert',
+    },
+    {
+      id: 'protect',
+      title: 'Protect PDF',
+      icon: '🔒',
+      desc: 'Add password to your PDF',
+      cat: 'security',
+    },
+    {
+      id: 'unlock',
+      title: 'Unlock PDF',
+      icon: '🔓',
+      desc: 'Remove password from PDF',
+      cat: 'security',
+    },
+    {
+      id: 'watermark',
+      title: 'Watermark',
+      icon: '💧',
+      desc: 'Stamp text on your PDF',
+      cat: 'edit',
+    },
+    {
+      id: 'add-page-numbers',
+      title: 'Page Numbers',
+      icon: '🔢',
+      desc: 'Insert page numbers',
+      cat: 'edit',
+    },
+    {
+      id: 'add-blank-page',
+      title: 'Add Blank Page',
+      icon: '📄',
+      desc: 'Insert blank pages anywhere',
+      cat: 'edit',
+    },
+    {
+      id: 'crop-resize',
+      title: 'Crop & Resize',
+      icon: '📐',
+      desc: 'Adjust margins and dimensions',
+      cat: 'optimize',
+    },
+  ];
+  function s(r) {
+    try {
+      let o = `
                 <header class="hero">
                     <div class="hero-badge">✨ 100% Free & Secure</div>
                     <h1>The Ultimate <span class="text-gradient">PDF Tools</span> Collection</h1>
@@ -31,7 +844,9 @@ const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/add-blank-page-
                     </div>
 
                     <div class="tools-grid" id="tools-grid">
-            `;b.forEach(w=>{o+=`
+            `;
+      (b.forEach((w) => {
+        o += `
                     <a href="#${w.id}" class="tool-card" data-cat="${w.cat}" data-title="${w.title.toLowerCase()}" data-desc="${w.desc.toLowerCase()}">
                         <div class="tool-icon-wrapper">${w.icon}</div>
                         <div class="tool-info">
@@ -42,7 +857,9 @@ const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/add-blank-page-
                             <p>${w.desc}</p>
                         </div>
                     </a>
-                `}),o+=`
+                `;
+      }),
+        (o += `
                     </div>
                 </div>
 
@@ -117,12 +934,99 @@ const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/add-blank-page-
                     <p>Experience the fastest and most secure PDF tools today.</p>
                     <button id="cta-get-started" class="btn-cta-white" style="border: none; cursor: pointer;">Get Started Now</button>
                 </section>
-            `,r.innerHTML=o;const p=document.getElementById("cta-get-started");p&&p.addEventListener("click",()=>{const w=document.getElementById("tools-section");w&&w.scrollIntoView({behavior:"smooth"})});const u=document.getElementById("tool-search"),E=document.getElementById("tools-grid");if(u&&E){const w=E.querySelectorAll(".tool-card"),F=()=>{const S=u.value.toLowerCase(),V=document.querySelector(".category-tab.active"),W=V?V.getAttribute("data-cat"):"all";w.forEach(q=>{const L=q.getAttribute("data-title")||"",z=q.getAttribute("data-desc")||"",G=q.getAttribute("data-cat")||"";(L.includes(S)||z.includes(S))&&(W==="all"||G===W)?q.style.display="flex":q.style.display="none"})};u.addEventListener("input",F);const P=document.querySelectorAll(".category-tab");P.forEach(S=>{S.addEventListener("click",()=>{P.forEach(V=>V.classList.remove("active")),S.classList.add("active"),F()})})}document.querySelectorAll(".faq-question").forEach(w=>{w.addEventListener("click",()=>{const F=w.parentElement;if(F){const P=F.classList.contains("active");document.querySelectorAll(".faq-item").forEach(S=>S.classList.remove("active")),P||F.classList.add("active")}})})}catch(o){console.error("Home Page Render Error:",o),r.innerHTML=`<div style="padding: 2rem; text-align: center; color: red;"><h2>Failed to load landing page</h2><p>${o.message}</p></div>`}}function v(r){const o=document.getElementById("app");o.innerHTML=`
+            `),
+        (r.innerHTML = o));
+      const p = document.getElementById('cta-get-started');
+      p &&
+        p.addEventListener('click', () => {
+          const w = document.getElementById('tools-section');
+          w && w.scrollIntoView({ behavior: 'smooth' });
+        });
+      const u = document.getElementById('tool-search'),
+        E = document.getElementById('tools-grid');
+      if (u && E) {
+        const w = E.querySelectorAll('.tool-card'),
+          F = () => {
+            const S = u.value.toLowerCase(),
+              V = document.querySelector('.category-tab.active'),
+              W = V ? V.getAttribute('data-cat') : 'all';
+            w.forEach((q) => {
+              const L = q.getAttribute('data-title') || '',
+                z = q.getAttribute('data-desc') || '',
+                G = q.getAttribute('data-cat') || '';
+              (L.includes(S) || z.includes(S)) && (W === 'all' || G === W)
+                ? (q.style.display = 'flex')
+                : (q.style.display = 'none');
+            });
+          };
+        u.addEventListener('input', F);
+        const P = document.querySelectorAll('.category-tab');
+        P.forEach((S) => {
+          S.addEventListener('click', () => {
+            (P.forEach((V) => V.classList.remove('active')), S.classList.add('active'), F());
+          });
+        });
+      }
+      document.querySelectorAll('.faq-question').forEach((w) => {
+        w.addEventListener('click', () => {
+          const F = w.parentElement;
+          if (F) {
+            const P = F.classList.contains('active');
+            (document.querySelectorAll('.faq-item').forEach((S) => S.classList.remove('active')),
+              P || F.classList.add('active'));
+          }
+        });
+      });
+    } catch (o) {
+      (console.error('Home Page Render Error:', o),
+        (r.innerHTML = `<div style="padding: 2rem; text-align: center; color: red;"><h2>Failed to load landing page</h2><p>${o.message}</p></div>`));
+    }
+  }
+  function v(r) {
+    const o = document.getElementById('app');
+    ((o.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; color: var(--muted);">
                 <div class="loading-spinner" style="width: 40px; height: 40px; border: 3px solid rgba(99, 102, 241, 0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem;"></div>
                 <p>Loading ${r} tool...</p>
             </div>
-        `,Ie(Object.assign({"./tools/add-blank-page.js":()=>j(()=>import("./add-blank-page-jbn05Bm-.js"),__vite__mapDeps([0,1])),"./tools/add-page-numbers.js":()=>j(()=>import("./add-page-numbers-Bi9rF5EA.js"),__vite__mapDeps([2,1])),"./tools/compress.js":()=>j(()=>import("./compress-CHJMIDnR.js"),__vite__mapDeps([3,1])),"./tools/crop-resize.js":()=>j(()=>import("./crop-resize-rWqYeJSS.js"),__vite__mapDeps([4,1])),"./tools/delete-pages.js":()=>j(()=>import("./delete-pages-CfKRV-MV.js"),__vite__mapDeps([5,1])),"./tools/extract-pages.js":()=>j(()=>import("./extract-pages-CaGcRIwX.js"),__vite__mapDeps([6,1])),"./tools/image-to-pdf.js":()=>j(()=>import("./image-to-pdf-qQiqSj9d.js"),__vite__mapDeps([7,1])),"./tools/merge.js":()=>j(()=>import("./merge-CJI2hZOD.js"),__vite__mapDeps([8,1])),"./tools/pdf-to-image.js":()=>j(()=>import("./pdf-to-image-YOMo1AEe.js"),__vite__mapDeps([9,1])),"./tools/protect.js":()=>j(()=>import("./protect-YUsn3W4B.js"),__vite__mapDeps([10,1])),"./tools/reorder.js":()=>j(()=>import("./reorder-DUmPk8Sm.js"),__vite__mapDeps([11,1])),"./tools/rotate.js":()=>j(()=>import("./rotate-CtuFxYM0.js"),__vite__mapDeps([12,1])),"./tools/split.js":()=>j(()=>import("./split-Bryzo1BY.js"),__vite__mapDeps([13,1])),"./tools/unlock.js":()=>j(()=>import("./unlock-IOEueewQ.js"),__vite__mapDeps([14,1])),"./tools/watermark.js":()=>j(()=>import("./watermark-Dy4Vprva.js"),__vite__mapDeps([15,1]))}),`./tools/${r}.js`,3).catch(p=>{console.error(`[PDFMinty] Failed to load tool script: ./tools/${r}.js`,p),o.innerHTML=`
+        `),
+      Ie(
+        Object.assign({
+          './tools/add-blank-page.js': () =>
+            j(() => import('./add-blank-page-jbn05Bm-.js'), __vite__mapDeps([0, 1])),
+          './tools/add-page-numbers.js': () =>
+            j(() => import('./add-page-numbers-Bi9rF5EA.js'), __vite__mapDeps([2, 1])),
+          './tools/compress.js': () =>
+            j(() => import('./compress-CHJMIDnR.js'), __vite__mapDeps([3, 1])),
+          './tools/crop-resize.js': () =>
+            j(() => import('./crop-resize-rWqYeJSS.js'), __vite__mapDeps([4, 1])),
+          './tools/delete-pages.js': () =>
+            j(() => import('./delete-pages-CfKRV-MV.js'), __vite__mapDeps([5, 1])),
+          './tools/extract-pages.js': () =>
+            j(() => import('./extract-pages-CaGcRIwX.js'), __vite__mapDeps([6, 1])),
+          './tools/image-to-pdf.js': () =>
+            j(() => import('./image-to-pdf-qQiqSj9d.js'), __vite__mapDeps([7, 1])),
+          './tools/merge.js': () => j(() => import('./merge-CJI2hZOD.js'), __vite__mapDeps([8, 1])),
+          './tools/pdf-to-image.js': () =>
+            j(() => import('./pdf-to-image-YOMo1AEe.js'), __vite__mapDeps([9, 1])),
+          './tools/protect.js': () =>
+            j(() => import('./protect-YUsn3W4B.js'), __vite__mapDeps([10, 1])),
+          './tools/reorder.js': () =>
+            j(() => import('./reorder-DUmPk8Sm.js'), __vite__mapDeps([11, 1])),
+          './tools/rotate.js': () =>
+            j(() => import('./rotate-CtuFxYM0.js'), __vite__mapDeps([12, 1])),
+          './tools/split.js': () =>
+            j(() => import('./split-Bryzo1BY.js'), __vite__mapDeps([13, 1])),
+          './tools/unlock.js': () =>
+            j(() => import('./unlock-IOEueewQ.js'), __vite__mapDeps([14, 1])),
+          './tools/watermark.js': () =>
+            j(() => import('./watermark-Dy4Vprva.js'), __vite__mapDeps([15, 1])),
+        }),
+        `./tools/${r}.js`,
+        3,
+      ).catch((p) => {
+        (console.error(`[PDFMinty] Failed to load tool script: ./tools/${r}.js`, p),
+          (o.innerHTML = `
                     <div style="text-align: center; padding: 4rem 2rem; color: var(--text);">
                         <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
                         <h2>Tool Loading Failed</h2>
@@ -131,7 +1035,162 @@ const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/add-blank-page-
                         <button onclick="location.reload()" class="btn-action" style="margin-left: 1rem; border: none; cursor: pointer;">Retry</button>
                         <p style="font-size: 0.8rem; color: var(--muted); margin-top: 2rem;">Debug Path: ./tools/${r}.js</p>
                     </div>
-                `,window.showError(`Error loading tool: ${r}`)})}function d(){const r=window.location.hash.substring(1),o=document.getElementById("app");o.style.opacity="0",o.style.transform="translateY(10px)",o.style.transition="opacity 0.2s ease, transform 0.2s ease",setTimeout(()=>{o.innerHTML="",r?b.some(u=>u.id===r)?v(r):window.location.hash="":s(o),requestAnimationFrame(()=>{o.style.opacity="1",o.style.transform="translateY(0)"})},200)}const i=document.createElement("div");i.id="back-to-top",i.innerHTML="↑",document.body.appendChild(i),window.addEventListener("scroll",()=>{window.scrollY>300?i.classList.add("visible"):i.classList.remove("visible");const r=document.querySelector(".privacy-banner");r&&(window.scrollY>20?r.classList.add("hidden-banner"):r.classList.remove("hidden-banner"))}),i.addEventListener("click",()=>{window.scrollTo({top:0,behavior:"smooth"})});const g=document.getElementById("theme-toggle");g&&(localStorage.getItem("theme")==="light"&&(document.body.classList.add("light-mode"),g.innerHTML="☀️"),g.addEventListener("click",()=>{document.body.classList.toggle("light-mode");const o=document.body.classList.contains("light-mode"),p=o?"light":"dark";localStorage.setItem("theme",p),g.innerHTML=o?"☀️":"🌙",typeof Z=="function"&&Z({particleCount:40,spread:50,origin:{y:.8},colors:o?["#6366f1","#f59e0b"]:["#6366f1","#0ea5e9"]})})),window.loadExternalScript=function(r){return new Promise((o,p)=>{if(document.querySelector(`script[src="${r}"]`)){o();return}const u=document.createElement("script");u.src=r,u.onload=o,u.onerror=()=>p(new Error(`Failed to load script: ${r}`)),document.head.appendChild(u)})},typeof pdfjsLib>"u"&&window.loadExternalScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js").then(()=>{pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"}).catch(r=>{}),window.addEventListener("hashchange",d),document.readyState==="loading"?document.addEventListener("DOMContentLoaded",d):d(),window.renderPdfThumbnail=async function(r,o){try{typeof pdfjsLib>"u"&&(await window.loadExternalScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"),pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");const p=await r.arrayBuffer(),_=await(await pdfjsLib.getDocument({data:p}).promise).getPage(1),w=_.getViewport({scale:1}),F=document.createElement("canvas"),P=F.getContext("2d");F.width=w.width,F.height=w.height,await _.render({canvasContext:P,viewport:w}).promise,o.src=F.toDataURL()}catch(p){console.error("Error generating PDF thumbnail:",p),o.src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0iZmVhdGhlciBmZWF0aGVyLWZpbGUtdGV4dCI+PHBhdGggZD0iTTE0IDJIMmE2IDYgMCAwIDAtNiA2djEyYTYgNiAwIDAgMCA2IDRoMTJhNiA2IDAgMCAwIDYtNlY4eiI+PC9wYXRoPjxwb2x5bGluZSBwb2ludHM9IjE0IDIgMTQgOCAyMCA4Ij48L3BvbHlsaW5lPjxsaW5lIHgxPSIxNiIgeTE9IjEzIiB4Mj0iOCIgeTI9IjEzIj48L2xpbmU+PGxpbmUgeDE9IjE2IiB5MT0iMTciIHgyPSI4IiB5Mj0iMTciPjwvbGluZT48bGluZSB4MT0iMTAiIHkxPSI5IiB4Mj0iOCIgeTI9IjkiPjwvbGluZT48L3N2Zz4="}},window.validateFile=function(r){if(!r.type||!r.type.includes("pdf")){if(r.type!=="application/pdf"&&!r.type.startsWith("image/"))return{valid:!1,reason:"Invalid file. Please upload a PDF document."};if(r.type!=="application/pdf"&&window.location.hash!=="#image-to-pdf")return{valid:!1,reason:"Invalid file. Please upload a PDF document."}}return r.size>25*1024*1024?{valid:!1,reason:"File too large. Maximum allowed size is 25MB."}:{valid:!0}},window.showError=function(r){y(r,"var(--danger)")},window.showSuccess=function(r){y(r,"var(--success)"),typeof Z=="function"&&Z({particleCount:150,spread:70,origin:{y:.6},colors:["#6366f1","#0ea5e9","#10b981"]})};function y(r,o){let p=document.getElementById("pdfminty-toast");p||(p=document.createElement("div"),p.id="pdfminty-toast",p.className="toast",document.body.appendChild(p));const u=o.includes("success"),E=u?"✅":"⚠️";p.innerHTML=`<span>${E}</span> <span>${r}</span>`,p.className="toast",p.classList.add(u?"toast-success":"toast-danger"),requestAnimationFrame(()=>{p.classList.add("visible")}),window.toastTimeout&&clearTimeout(window.toastTimeout),window.toastTimeout=setTimeout(()=>{p.classList.remove("visible")},4e3)}const D=["Minting your PDF...","Polishing the pages...","Adding some minty fresh air...","Organizing the pixels...","Almost there, stay cool...","Making it perfect for you...","Doing the heavy lifting..."];window.showProgress=function(r){let o=document.getElementById("modern-progress-overlay");o||(o=document.createElement("div"),o.id="modern-progress-overlay",o.innerHTML=`
+                `),
+          window.showError(`Error loading tool: ${r}`));
+      }));
+  }
+  function d() {
+    const r = window.location.hash.substring(1),
+      o = document.getElementById('app');
+    ((o.style.opacity = '0'),
+      (o.style.transform = 'translateY(10px)'),
+      (o.style.transition = 'opacity 0.2s ease, transform 0.2s ease'),
+      setTimeout(() => {
+        ((o.innerHTML = ''),
+          r ? (b.some((u) => u.id === r) ? v(r) : (window.location.hash = '')) : s(o),
+          requestAnimationFrame(() => {
+            ((o.style.opacity = '1'), (o.style.transform = 'translateY(0)'));
+          }));
+      }, 200));
+  }
+  const i = document.createElement('div');
+  ((i.id = 'back-to-top'),
+    (i.innerHTML = '↑'),
+    document.body.appendChild(i),
+    window.addEventListener('scroll', () => {
+      window.scrollY > 300 ? i.classList.add('visible') : i.classList.remove('visible');
+      const r = document.querySelector('.privacy-banner');
+      r &&
+        (window.scrollY > 20
+          ? r.classList.add('hidden-banner')
+          : r.classList.remove('hidden-banner'));
+    }),
+    i.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }));
+  const g = document.getElementById('theme-toggle');
+  (g &&
+    (localStorage.getItem('theme') === 'light' &&
+      (document.body.classList.add('light-mode'), (g.innerHTML = '☀️')),
+    g.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      const o = document.body.classList.contains('light-mode'),
+        p = o ? 'light' : 'dark';
+      (localStorage.setItem('theme', p),
+        (g.innerHTML = o ? '☀️' : '🌙'),
+        typeof Z == 'function' &&
+          Z({
+            particleCount: 40,
+            spread: 50,
+            origin: { y: 0.8 },
+            colors: o ? ['#6366f1', '#f59e0b'] : ['#6366f1', '#0ea5e9'],
+          }));
+    })),
+    (window.loadExternalScript = function (r) {
+      return new Promise((o, p) => {
+        if (document.querySelector(`script[src="${r}"]`)) {
+          o();
+          return;
+        }
+        const u = document.createElement('script');
+        ((u.src = r),
+          (u.onload = o),
+          (u.onerror = () => p(new Error(`Failed to load script: ${r}`))),
+          document.head.appendChild(u));
+      });
+    }),
+    typeof pdfjsLib > 'u' &&
+      window
+        .loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js')
+        .then(() => {
+          pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        })
+        .catch((r) => {}),
+    window.addEventListener('hashchange', d),
+    document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', d) : d(),
+    (window.renderPdfThumbnail = async function (r, o) {
+      try {
+        typeof pdfjsLib > 'u' &&
+          (await window.loadExternalScript(
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+          ),
+          (pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'));
+        const p = await r.arrayBuffer(),
+          _ = await (await pdfjsLib.getDocument({ data: p }).promise).getPage(1),
+          w = _.getViewport({ scale: 1 }),
+          F = document.createElement('canvas'),
+          P = F.getContext('2d');
+        ((F.width = w.width),
+          (F.height = w.height),
+          await _.render({ canvasContext: P, viewport: w }).promise,
+          (o.src = F.toDataURL()));
+      } catch (p) {
+        (console.error('Error generating PDF thumbnail:', p),
+          (o.src =
+            'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0iZmVhdGhlciBmZWF0aGVyLWZpbGUtdGV4dCI+PHBhdGggZD0iTTE0IDJIMmE2IDYgMCAwIDAtNiA2djEyYTYgNiAwIDAgMCA2IDRoMTJhNiA2IDAgMCAwIDYtNlY4eiI+PC9wYXRoPjxwb2x5bGluZSBwb2ludHM9IjE0IDIgMTQgOCAyMCA4Ij48L3BvbHlsaW5lPjxsaW5lIHgxPSIxNiIgeTE9IjEzIiB4Mj0iOCIgeTI9IjEzIj48L2xpbmU+PGxpbmUgeDE9IjE2IiB5MT0iMTciIHgyPSI4IiB5Mj0iMTciPjwvbGluZT48bGluZSB4MT0iMTAiIHkxPSI5IiB4Mj0iOCIgeTI9IjkiPjwvbGluZT48L3N2Zz4='));
+      }
+    }),
+    (window.validateFile = function (r) {
+      if (!r.type || !r.type.includes('pdf')) {
+        if (r.type !== 'application/pdf' && !r.type.startsWith('image/'))
+          return { valid: !1, reason: 'Invalid file. Please upload a PDF document.' };
+        if (r.type !== 'application/pdf' && window.location.hash !== '#image-to-pdf')
+          return { valid: !1, reason: 'Invalid file. Please upload a PDF document.' };
+      }
+      return r.size > 25 * 1024 * 1024
+        ? { valid: !1, reason: 'File too large. Maximum allowed size is 25MB.' }
+        : { valid: !0 };
+    }),
+    (window.showError = function (r) {
+      y(r, 'var(--danger)');
+    }),
+    (window.showSuccess = function (r) {
+      (y(r, 'var(--success)'),
+        typeof Z == 'function' &&
+          Z({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#6366f1', '#0ea5e9', '#10b981'],
+          }));
+    }));
+  function y(r, o) {
+    let p = document.getElementById('pdfminty-toast');
+    p ||
+      ((p = document.createElement('div')),
+      (p.id = 'pdfminty-toast'),
+      (p.className = 'toast'),
+      document.body.appendChild(p));
+    const u = o.includes('success'),
+      E = u ? '✅' : '⚠️';
+    ((p.innerHTML = `<span>${E}</span> <span>${r}</span>`),
+      (p.className = 'toast'),
+      p.classList.add(u ? 'toast-success' : 'toast-danger'),
+      requestAnimationFrame(() => {
+        p.classList.add('visible');
+      }),
+      window.toastTimeout && clearTimeout(window.toastTimeout),
+      (window.toastTimeout = setTimeout(() => {
+        p.classList.remove('visible');
+      }, 4e3)));
+  }
+  const D = [
+    'Minting your PDF...',
+    'Polishing the pages...',
+    'Adding some minty fresh air...',
+    'Organizing the pixels...',
+    'Almost there, stay cool...',
+    'Making it perfect for you...',
+    'Doing the heavy lifting...',
+  ];
+  ((window.showProgress = function (r) {
+    let o = document.getElementById('modern-progress-overlay');
+    o ||
+      ((o = document.createElement('div')),
+      (o.id = 'modern-progress-overlay'),
+      (o.innerHTML = `
                 <div class="progress-glass-card">
                     <div class="cube-wrapper">
                         <div class="cube-folding">
@@ -146,13 +1205,90 @@ const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/add-blank-page-
                         <div id="modern-progress-bar" class="modern-progress-fill"></div>
                     </div>
                 </div>
-            `,document.body.appendChild(o),requestAnimationFrame(()=>{o.style.opacity="1",o.style.backdropFilter="blur(10px)"}));const p=document.getElementById("modern-progress-bar"),u=document.getElementById("modern-progress-msg");p&&(p.style.width=`${Math.min(100,Math.max(0,r))}%`),r%25===0&&u&&(u.textContent=D[Math.floor(Math.random()*D.length)]),r>=100&&(u&&(u.textContent="Done! 🎉"),setTimeout(()=>{o&&(o.style.opacity="0",o.style.backdropFilter="blur(0px)",setTimeout(()=>o.remove(),400))},800))},window.hideProgress=function(){let r=document.getElementById("modern-progress-overlay");r&&(r.style.opacity="0",r.style.backdropFilter="blur(0px)",setTimeout(()=>r.remove(),400))},window.downloadFile=function(r,o){const p=new Blob([r],{type:"application/pdf"}),u=URL.createObjectURL(p),E=document.createElement("a");E.href=u,E.download=o,document.body.appendChild(E),E.click(),document.body.removeChild(E),setTimeout(()=>URL.revokeObjectURL(u),100)},window.initDropZone=function(r,o,p,u=""){const E=document.getElementById(r),_=document.getElementById(o);if(!E||!_)return;u&&(_.accept=u),E.classList.add("drop-zone-enhanced");const w=document.createElement("div");w.className="drop-overlay",w.innerHTML=`
+            `),
+      document.body.appendChild(o),
+      requestAnimationFrame(() => {
+        ((o.style.opacity = '1'), (o.style.backdropFilter = 'blur(10px)'));
+      }));
+    const p = document.getElementById('modern-progress-bar'),
+      u = document.getElementById('modern-progress-msg');
+    (p && (p.style.width = `${Math.min(100, Math.max(0, r))}%`),
+      r % 25 === 0 && u && (u.textContent = D[Math.floor(Math.random() * D.length)]),
+      r >= 100 &&
+        (u && (u.textContent = 'Done! 🎉'),
+        setTimeout(() => {
+          o &&
+            ((o.style.opacity = '0'),
+            (o.style.backdropFilter = 'blur(0px)'),
+            setTimeout(() => o.remove(), 400));
+        }, 800)));
+  }),
+    (window.hideProgress = function () {
+      let r = document.getElementById('modern-progress-overlay');
+      r &&
+        ((r.style.opacity = '0'),
+        (r.style.backdropFilter = 'blur(0px)'),
+        setTimeout(() => r.remove(), 400));
+    }),
+    (window.downloadFile = function (r, o) {
+      const p = new Blob([r], { type: 'application/pdf' }),
+        u = URL.createObjectURL(p),
+        E = document.createElement('a');
+      ((E.href = u),
+        (E.download = o),
+        document.body.appendChild(E),
+        E.click(),
+        document.body.removeChild(E),
+        setTimeout(() => URL.revokeObjectURL(u), 100));
+    }),
+    (window.initDropZone = function (r, o, p, u = '') {
+      const E = document.getElementById(r),
+        _ = document.getElementById(o);
+      if (!E || !_) return;
+      (u && (_.accept = u), E.classList.add('drop-zone-enhanced'));
+      const w = document.createElement('div');
+      ((w.className = 'drop-overlay'),
+        (w.innerHTML = `
             <div class="drop-icon-large">📥</div>
             <div class="drop-text-large">Release to add files</div>
             <div class="drop-progress-container hidden">
                 <div class="drop-progress-bar"></div>
             </div>
-        `,E.appendChild(w);const F=w.querySelector(".drop-icon-large"),P=w.querySelector(".drop-text-large"),S=w.querySelector(".drop-progress-container"),V=w.querySelector(".drop-progress-bar"),W=(L,z,G=!1)=>{F.textContent=L,P.textContent=z,G?(S.classList.remove("hidden"),F.style.animation="none"):(S.classList.add("hidden"),F.style.animation="")};E.addEventListener("click",L=>{L.target!==_&&_.click()}),E.addEventListener("dragover",L=>{L.preventDefault(),E.classList.add("drag-active"),W("📥","Release to add files")}),E.addEventListener("dragleave",L=>{L.preventDefault(),E.contains(L.relatedTarget)||E.classList.remove("drag-active")}),E.addEventListener("drop",async L=>{L.preventDefault(),E.classList.remove("drag-active"),L.dataTransfer.files.length>0&&await q(L.dataTransfer.files)}),_.addEventListener("change",async L=>{L.target.files.length>0&&await q(L.target.files)});async function q(L){w.classList.add("active"),W("⏳",`Processing ${L.length} file(s)...`,!0);for(let z=0;z<=100;z+=20)V.style.width=`${z}%`,await new Promise(G=>setTimeout(G,30));w.innerHTML=`
+        `),
+        E.appendChild(w));
+      const F = w.querySelector('.drop-icon-large'),
+        P = w.querySelector('.drop-text-large'),
+        S = w.querySelector('.drop-progress-container'),
+        V = w.querySelector('.drop-progress-bar'),
+        W = (L, z, G = !1) => {
+          ((F.textContent = L),
+            (P.textContent = z),
+            G
+              ? (S.classList.remove('hidden'), (F.style.animation = 'none'))
+              : (S.classList.add('hidden'), (F.style.animation = '')));
+        };
+      (E.addEventListener('click', (L) => {
+        L.target !== _ && _.click();
+      }),
+        E.addEventListener('dragover', (L) => {
+          (L.preventDefault(), E.classList.add('drag-active'), W('📥', 'Release to add files'));
+        }),
+        E.addEventListener('dragleave', (L) => {
+          (L.preventDefault(), E.contains(L.relatedTarget) || E.classList.remove('drag-active'));
+        }),
+        E.addEventListener('drop', async (L) => {
+          (L.preventDefault(),
+            E.classList.remove('drag-active'),
+            L.dataTransfer.files.length > 0 && (await q(L.dataTransfer.files)));
+        }),
+        _.addEventListener('change', async (L) => {
+          L.target.files.length > 0 && (await q(L.target.files));
+        }));
+      async function q(L) {
+        (w.classList.add('active'), W('⏳', `Processing ${L.length} file(s)...`, !0));
+        for (let z = 0; z <= 100; z += 20)
+          ((V.style.width = `${z}%`), await new Promise((G) => setTimeout(G, 30)));
+        ((w.innerHTML = `
                 <div class="success-checkmark">
                     <div class="check-icon">
                         <span class="icon-line line-tip"></span>
@@ -162,10 +1298,121 @@ const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/add-blank-page-
                     </div>
                 </div>
                 <div class="drop-text-large" style="margin-top: 1rem;">Files added successfully!</div>
-            `,setTimeout(()=>{w.classList.remove("active"),w.innerHTML=`
+            `),
+          setTimeout(() => {
+            (w.classList.remove('active'),
+              (w.innerHTML = `
                     <div class="drop-icon-large">📥</div>
                     <div class="drop-text-large">Release to add files</div>
                     <div class="drop-progress-container hidden">
                         <div class="drop-progress-bar"></div>
                     </div>
-                `,p(L),_.value=""},1500)}}})();let $=null,Te=0;const O={};window.initPdfWorker=function(){$||($=new Worker(new URL("/assets/pdf-worker-DGzQW5ko.js",import.meta.url),{type:"module"}),$.onmessage=function(b){const{id:s,status:v,result:d,error:i,progress:g}=b.data;if(v==="progress"){O[s]&&O[s].onProgress&&O[s].onProgress(g);return}O[s]&&(v==="success"?O[s].resolve(d):O[s].reject(new Error(i)),delete O[s])},$.onerror=function(b){console.error("Worker error:",b);for(let s in O)O[s].reject(new Error("Worker crashed")),delete O[s]})};window.runPdfWorkerTask=function(b,s,v=[],d=null){return window.initPdfWorker(),new Promise((i,g)=>{const y=++Te;O[y]={resolve:i,reject:g,onProgress:d},s.id=y,$.postMessage({id:y,task:b,payload:s},v)})};window.pdfDB={dbName:"PDFMintyDB",storeName:"files",dbVersion:1,init(){return new Promise((b,s)=>{const v=indexedDB.open(this.dbName,this.dbVersion);v.onerror=d=>s("IndexedDB error: "+d.target.error),v.onsuccess=d=>b(d.target.result),v.onupgradeneeded=d=>{const i=d.target.result;i.objectStoreNames.contains(this.storeName)||i.createObjectStore(this.storeName)}})},async saveFile(b,s){const v=await this.init();return new Promise((d,i)=>{const D=v.transaction(this.storeName,"readwrite").objectStore(this.storeName).put(s,b);D.onsuccess=()=>d(b),D.onerror=()=>i(D.error)})},async getFile(b){const s=await this.init();return new Promise((v,d)=>{const y=s.transaction(this.storeName,"readonly").objectStore(this.storeName).get(b);y.onsuccess=()=>v(y.result),y.onerror=()=>d(y.error)})},async deleteFile(b){const s=await this.init();return new Promise((v,d)=>{const y=s.transaction(this.storeName,"readwrite").objectStore(this.storeName).delete(b);y.onsuccess=()=>v(),y.onerror=()=>d(y.error)})},async clearAll(){const b=await this.init();return new Promise((s,v)=>{const g=b.transaction(this.storeName,"readwrite").objectStore(this.storeName).clear();g.onsuccess=()=>s(),g.onerror=()=>v(g.error)})}};"serviceWorker"in navigator&&navigator.serviceWorker.register("/sw.js").catch(b=>console.error("SW reg failed",b));window.addEventListener("load",()=>{window.pdfDB&&window.pdfDB.clearAll().catch(b=>{})});window.addEventListener("beforeunload",()=>{window.pdfDB&&window.pdfDB.clearAll().catch(b=>{})});window.callGeminiAPI=async function(b,s="",v=[]){try{const d=await fetch("/.netlify/functions/gemini-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:b,context:s,history:v})}),i=await d.json();if(!d.ok)throw new Error(i.error||"Failed to fetch from AI proxy");return i}catch(d){throw console.error("Gemini API Error:",d),window.showError("AI features are currently unavailable."),d}};
+                `),
+              p(L),
+              (_.value = ''));
+          }, 1500));
+      }
+    }));
+})();
+let $ = null,
+  Te = 0;
+const O = {};
+window.initPdfWorker = function () {
+  $ ||
+    (($ = new Worker(new URL('/assets/pdf-worker-DGzQW5ko.js', import.meta.url), {
+      type: 'module',
+    })),
+    ($.onmessage = function (b) {
+      const { id: s, status: v, result: d, error: i, progress: g } = b.data;
+      if (v === 'progress') {
+        O[s] && O[s].onProgress && O[s].onProgress(g);
+        return;
+      }
+      O[s] && (v === 'success' ? O[s].resolve(d) : O[s].reject(new Error(i)), delete O[s]);
+    }),
+    ($.onerror = function (b) {
+      console.error('Worker error:', b);
+      for (let s in O) (O[s].reject(new Error('Worker crashed')), delete O[s]);
+    }));
+};
+window.runPdfWorkerTask = function (b, s, v = [], d = null) {
+  return (
+    window.initPdfWorker(),
+    new Promise((i, g) => {
+      const y = ++Te;
+      ((O[y] = { resolve: i, reject: g, onProgress: d }),
+        (s.id = y),
+        $.postMessage({ id: y, task: b, payload: s }, v));
+    })
+  );
+};
+window.pdfDB = {
+  dbName: 'PDFMintyDB',
+  storeName: 'files',
+  dbVersion: 1,
+  init() {
+    return new Promise((b, s) => {
+      const v = indexedDB.open(this.dbName, this.dbVersion);
+      ((v.onerror = (d) => s('IndexedDB error: ' + d.target.error)),
+        (v.onsuccess = (d) => b(d.target.result)),
+        (v.onupgradeneeded = (d) => {
+          const i = d.target.result;
+          i.objectStoreNames.contains(this.storeName) || i.createObjectStore(this.storeName);
+        }));
+    });
+  },
+  async saveFile(b, s) {
+    const v = await this.init();
+    return new Promise((d, i) => {
+      const D = v.transaction(this.storeName, 'readwrite').objectStore(this.storeName).put(s, b);
+      ((D.onsuccess = () => d(b)), (D.onerror = () => i(D.error)));
+    });
+  },
+  async getFile(b) {
+    const s = await this.init();
+    return new Promise((v, d) => {
+      const y = s.transaction(this.storeName, 'readonly').objectStore(this.storeName).get(b);
+      ((y.onsuccess = () => v(y.result)), (y.onerror = () => d(y.error)));
+    });
+  },
+  async deleteFile(b) {
+    const s = await this.init();
+    return new Promise((v, d) => {
+      const y = s.transaction(this.storeName, 'readwrite').objectStore(this.storeName).delete(b);
+      ((y.onsuccess = () => v()), (y.onerror = () => d(y.error)));
+    });
+  },
+  async clearAll() {
+    const b = await this.init();
+    return new Promise((s, v) => {
+      const g = b.transaction(this.storeName, 'readwrite').objectStore(this.storeName).clear();
+      ((g.onsuccess = () => s()), (g.onerror = () => v(g.error)));
+    });
+  },
+};
+'serviceWorker' in navigator &&
+  navigator.serviceWorker.register('/sw.js').catch((b) => console.error('SW reg failed', b));
+window.addEventListener('load', () => {
+  window.pdfDB && window.pdfDB.clearAll().catch((b) => {});
+});
+window.addEventListener('beforeunload', () => {
+  window.pdfDB && window.pdfDB.clearAll().catch((b) => {});
+});
+window.callGeminiAPI = async function (b, s = '', v = []) {
+  try {
+    const d = await fetch('/.netlify/functions/gemini-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: b, context: s, history: v }),
+      }),
+      i = await d.json();
+    if (!d.ok) throw new Error(i.error || 'Failed to fetch from AI proxy');
+    return i;
+  } catch (d) {
+    throw (
+      console.error('Gemini API Error:', d),
+      window.showError('AI features are currently unavailable.'),
+      d
+    );
+  }
+};

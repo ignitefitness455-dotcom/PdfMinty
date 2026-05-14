@@ -1,4 +1,11 @@
-import{P as u}from"./PDFButton-56eB-KER.js";(function(){const x=document.getElementById("app")||document.querySelector("main")||document.body,w="pdfminty-split-styles";if(!document.getElementById(w)){const r=document.createElement("style");r.id=w,r.textContent=`
+import { P as u } from './PDFButton-56eB-KER.js';
+(function () {
+  const x = document.getElementById('app') || document.querySelector('main') || document.body,
+    w = 'pdfminty-split-styles';
+  if (!document.getElementById(w)) {
+    const r = document.createElement('style');
+    ((r.id = w),
+      (r.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -21,7 +28,10 @@ import{P as u}from"./PDFButton-56eB-KER.js";(function(){const x=document.getElem
             .btn-action:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
-        `,document.head.appendChild(r)}x.innerHTML=`
+        `),
+      document.head.appendChild(r));
+  }
+  x.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -53,4 +63,159 @@ import{P as u}from"./PDFButton-56eB-KER.js";(function(){const x=document.getElem
                 </div>
             </div>
         </div>
-    `;let a=null,c="",f=0;const g=document.getElementById("drop-zone"),m=document.getElementById("file-input"),y=document.getElementById("workspace"),I=document.getElementById("file-name-display"),P=document.getElementById("remove-file-btn"),s=document.getElementById("btn-apply"),E=document.getElementById("split-ranges");typeof initDropZone=="function"?initDropZone("drop-zone","file-input",b,".pdf"):(g.addEventListener("click",()=>m.click()),m.addEventListener("change",r=>b(r.target.files))),P.addEventListener("click",()=>{a=null,c="",f=0,m.value="",y.classList.add("hidden"),g.classList.remove("hidden")});async function b(r){if(!r||r.length===0)return;const n=r[0];if(typeof window.validateFile=="function")for(const e of r){const i=window.validateFile(e);if(!i.valid){typeof window.showError=="function"&&window.showError(i.reason);return}}try{typeof showProgress=="function"&&showProgress(30);const e=await n.arrayBuffer();window.pdfDB?(await window.pdfDB.saveFile("split_target",e),a="split_target"):a=e,c=n.name.replace(/\.[^/.]+$/,"");let i=a instanceof ArrayBuffer?a:await window.pdfDB.getFile(a);const o=await u.load(i,{ignoreEncryption:!0});if(i=null,f=o.getPageCount(),I.textContent=n.name,typeof formatBytes=="function"&&typeof fileSizeDisplay<"u"&&fileSizeDisplay&&(fileSizeDisplay.textContent=formatBytes(n.size)),typeof renderPdfThumbnail=="function"){const t=document.getElementById("file-preview-img");t&&renderPdfThumbnail(n,t)}g.classList.add("hidden"),y.classList.remove("hidden"),typeof hideProgress=="function"&&hideProgress()}catch(e){console.error(e),typeof showError=="function"&&showError("Error loading PDF: "+e.message),typeof hideProgress=="function"&&hideProgress()}}function D(r,n){const e=[],i=r.split(",");for(let o of i)if(o=o.trim(),!!o)if(o.includes("-")){const[t,l]=o.split("-").map(p=>parseInt(p.trim(),10));if(isNaN(t)||isNaN(l)||t<1||l>n||t>l)throw new Error(`Invalid range: ${o}`);e.push({start:t,end:l})}else{const t=parseInt(o,10);if(isNaN(t)||t<1||t>n)throw new Error(`Invalid page number: ${o}`);e.push({start:t,end:t})}return e}s.addEventListener("click",async()=>{s.hasAttribute("data-original-text")||s.setAttribute("data-original-text",s.textContent),s.disabled=!0,s.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(!a)return;const r=E.value.trim();if(!r){typeof showError=="function"&&showError("Please enter page ranges to split.");return}let n;try{if(n=D(r,f),n.length===0)throw new Error("No valid ranges found.")}catch(e){typeof showError=="function"&&showError(e.message);return}try{let e;if(typeof window.runPdfWorkerTask=="function"){const i={fileBytes:new Uint8Array(a.slice(0)),fileName:c,ranges:n};e=await window.runPdfWorkerTask("split",i,[i.fileBytes.buffer],o=>{})}else{let i=a instanceof ArrayBuffer?a:await window.pdfDB.getFile(a);const o=await u.load(i);i=null,e=[];for(let t=0;t<n.length;t++){const l=n[t],p=await u.create(),h=[];for(let d=l.start-1;d<l.end;d++)h.push(d);const v=await p.copyPages(o,h);for(let d=0;d<v.length;d++)p.addPage(v[d]),d%50===0&&await new Promise(k=>setTimeout(k,0));const B=await p.save({useObjectStreams:!0});e.push({name:`${c}_${l.start}-${l.end}.pdf`,bytes:B})}}if(e.length===1)typeof downloadFile=="function"&&(downloadFile(e[0].bytes,e[0].name),a=null);else{if(typeof JSZip>"u")try{await window.loadExternalScript("https://unpkg.com/jszip@3.10.1/dist/jszip.min.js")}catch(t){throw new Error("Failed to load JSZip library. Cannot create ZIP file.",{cause:t})}const i=new JSZip;for(let t=0;t<e.length;t++)i.file(e[t].name,e[t].bytes);const o=await i.generateAsync({type:"uint8array"});typeof downloadFile=="function"&&(downloadFile(o,`${c}_split.zip`),a=null)}typeof showSuccess=="function"&&showSuccess("PDF split successfully!")}catch(e){console.error(e),typeof showError=="function"&&showError("Error splitting PDF: "+e.message)}finally{}typeof window.showProgress=="function"&&window.showProgress(100)}catch(r){console.error("PDF Processing Error:",r),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(r.message||"An error occurred while processing the PDF."):alert("Error: "+(r.message||"An error occurred"))}finally{s.disabled=!1,s.textContent=s.getAttribute("data-original-text")}})})();
+    `;
+  let a = null,
+    c = '',
+    f = 0;
+  const g = document.getElementById('drop-zone'),
+    m = document.getElementById('file-input'),
+    y = document.getElementById('workspace'),
+    I = document.getElementById('file-name-display'),
+    P = document.getElementById('remove-file-btn'),
+    s = document.getElementById('btn-apply'),
+    E = document.getElementById('split-ranges');
+  (typeof initDropZone == 'function'
+    ? initDropZone('drop-zone', 'file-input', b, '.pdf')
+    : (g.addEventListener('click', () => m.click()),
+      m.addEventListener('change', (r) => b(r.target.files))),
+    P.addEventListener('click', () => {
+      ((a = null),
+        (c = ''),
+        (f = 0),
+        (m.value = ''),
+        y.classList.add('hidden'),
+        g.classList.remove('hidden'));
+    }));
+  async function b(r) {
+    if (!r || r.length === 0) return;
+    const n = r[0];
+    if (typeof window.validateFile == 'function')
+      for (const e of r) {
+        const i = window.validateFile(e);
+        if (!i.valid) {
+          typeof window.showError == 'function' && window.showError(i.reason);
+          return;
+        }
+      }
+    try {
+      typeof showProgress == 'function' && showProgress(30);
+      const e = await n.arrayBuffer();
+      (window.pdfDB
+        ? (await window.pdfDB.saveFile('split_target', e), (a = 'split_target'))
+        : (a = e),
+        (c = n.name.replace(/\.[^/.]+$/, '')));
+      let i = a instanceof ArrayBuffer ? a : await window.pdfDB.getFile(a);
+      const o = await u.load(i, { ignoreEncryption: !0 });
+      if (
+        ((i = null),
+        (f = o.getPageCount()),
+        (I.textContent = n.name),
+        typeof formatBytes == 'function' &&
+          typeof fileSizeDisplay < 'u' &&
+          fileSizeDisplay &&
+          (fileSizeDisplay.textContent = formatBytes(n.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const t = document.getElementById('file-preview-img');
+        t && renderPdfThumbnail(n, t);
+      }
+      (g.classList.add('hidden'),
+        y.classList.remove('hidden'),
+        typeof hideProgress == 'function' && hideProgress());
+    } catch (e) {
+      (console.error(e),
+        typeof showError == 'function' && showError('Error loading PDF: ' + e.message),
+        typeof hideProgress == 'function' && hideProgress());
+    }
+  }
+  function D(r, n) {
+    const e = [],
+      i = r.split(',');
+    for (let o of i)
+      if (((o = o.trim()), !!o))
+        if (o.includes('-')) {
+          const [t, l] = o.split('-').map((p) => parseInt(p.trim(), 10));
+          if (isNaN(t) || isNaN(l) || t < 1 || l > n || t > l)
+            throw new Error(`Invalid range: ${o}`);
+          e.push({ start: t, end: l });
+        } else {
+          const t = parseInt(o, 10);
+          if (isNaN(t) || t < 1 || t > n) throw new Error(`Invalid page number: ${o}`);
+          e.push({ start: t, end: t });
+        }
+    return e;
+  }
+  s.addEventListener('click', async () => {
+    (s.hasAttribute('data-original-text') || s.setAttribute('data-original-text', s.textContent),
+      (s.disabled = !0),
+      (s.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (!a) return;
+      const r = E.value.trim();
+      if (!r) {
+        typeof showError == 'function' && showError('Please enter page ranges to split.');
+        return;
+      }
+      let n;
+      try {
+        if (((n = D(r, f)), n.length === 0)) throw new Error('No valid ranges found.');
+      } catch (e) {
+        typeof showError == 'function' && showError(e.message);
+        return;
+      }
+      try {
+        let e;
+        if (typeof window.runPdfWorkerTask == 'function') {
+          const i = { fileBytes: new Uint8Array(a.slice(0)), fileName: c, ranges: n };
+          e = await window.runPdfWorkerTask('split', i, [i.fileBytes.buffer], (o) => {});
+        } else {
+          let i = a instanceof ArrayBuffer ? a : await window.pdfDB.getFile(a);
+          const o = await u.load(i);
+          ((i = null), (e = []));
+          for (let t = 0; t < n.length; t++) {
+            const l = n[t],
+              p = await u.create(),
+              h = [];
+            for (let d = l.start - 1; d < l.end; d++) h.push(d);
+            const v = await p.copyPages(o, h);
+            for (let d = 0; d < v.length; d++)
+              (p.addPage(v[d]), d % 50 === 0 && (await new Promise((k) => setTimeout(k, 0))));
+            const B = await p.save({ useObjectStreams: !0 });
+            e.push({ name: `${c}_${l.start}-${l.end}.pdf`, bytes: B });
+          }
+        }
+        if (e.length === 1)
+          typeof downloadFile == 'function' && (downloadFile(e[0].bytes, e[0].name), (a = null));
+        else {
+          if (typeof JSZip > 'u')
+            try {
+              await window.loadExternalScript('https://unpkg.com/jszip@3.10.1/dist/jszip.min.js');
+            } catch (t) {
+              throw new Error('Failed to load JSZip library. Cannot create ZIP file.', {
+                cause: t,
+              });
+            }
+          const i = new JSZip();
+          for (let t = 0; t < e.length; t++) i.file(e[t].name, e[t].bytes);
+          const o = await i.generateAsync({ type: 'uint8array' });
+          typeof downloadFile == 'function' && (downloadFile(o, `${c}_split.zip`), (a = null));
+        }
+        typeof showSuccess == 'function' && showSuccess('PDF split successfully!');
+      } catch (e) {
+        (console.error(e),
+          typeof showError == 'function' && showError('Error splitting PDF: ' + e.message));
+      } finally {
+      }
+      typeof window.showProgress == 'function' && window.showProgress(100);
+    } catch (r) {
+      (console.error('PDF Processing Error:', r),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(r.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (r.message || 'An error occurred')));
+    } finally {
+      ((s.disabled = !1), (s.textContent = s.getAttribute('data-original-text')));
+    }
+  });
+})();

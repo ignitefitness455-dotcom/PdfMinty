@@ -1,14 +1,18 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-export default function renderTool() {
-    setupToolUI({
-        toolId: 'add-blank-page',
-        title: 'Add Blank Page',
-        description: 'Insert blank pages anywhere in your PDF',
-        icon: '📄',
-        actionText: '➕ Add Blank Page',
-        isMultiFile: false,
-        settingsHtml: `
+/**
+ * Initializes and renders the tool UI and logic.
+ * @returns {void}
+ */
+export function init() {
+  setupToolUI({
+    toolId: 'add-blank-page',
+    title: 'Add Blank Page',
+    description: 'Insert blank pages anywhere in your PDF',
+    icon: window.PdfMinty.ICONS.add_blank_page || '📄',
+    actionText: '➕ Add Blank Page',
+    isMultiFile: false,
+    settingsHtml: `
                 <div class="options-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                     <div class="option-group" style="display: flex; flex-direction: column; gap: 0.75rem; background: var(--bg); padding: 1.25rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                         <span class="option-label" style="font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 0.25rem;">Insert Position</span>
@@ -50,60 +54,79 @@ export default function renderTool() {
                     </div>
                 </div>
         `,
-        onInit: () => {
-            document.getElementById('btn-beginning')?.addEventListener('click', () => {
-                const pos = document.getElementById('pos-type');
-                if (pos) pos.value = 'before';
-                const tp = document.getElementById('target-page');
-                if (tp) tp.value = 1;
-            });
-            document.getElementById('btn-end')?.addEventListener('click', () => {
-                const pos = document.getElementById('pos-type');
-                if (pos) pos.value = 'after';
-                const tp = document.getElementById('target-page');
-                if (tp) tp.value = 999999;
-            });
+    onInit: () => {
+      document.getElementById('btn-beginning')?.addEventListener('click', () => {
+        const pos = document.getElementById('pos-type');
+        if (pos) pos.value = 'before';
+        const tp = document.getElementById('target-page');
+        if (tp) tp.value = 1;
+      });
+      document.getElementById('btn-end')?.addEventListener('click', () => {
+        const pos = document.getElementById('pos-type');
+        if (pos) pos.value = 'after';
+        const tp = document.getElementById('target-page');
+        if (tp) tp.value = 999999;
+      });
+    },
+    onApply: async ({ actualBytes, currentFileName }) => {
+      const count = parseInt(document.getElementById('blank-count').value, 10);
+      const targetPageRaw = parseInt(document.getElementById('target-page').value, 10);
+      const posType = document.getElementById('pos-type').value;
+      const sizeType = document.querySelector('input[name="page-size"]:checked').value;
+
+      if (isNaN(count) || count < 1 || count > 10)
+        throw new Error('Please enter a valid number of pages to insert (1-10).');
+
+      if (typeof window.showProgress === 'function') window.showProgress(5);
+
+      // We must calculate dimensions before sending to worker because it requires totalPages
+      const pdfDoc = await (
+        await import('pdf-lib')
+      ).PDFDocument.load(actualBytes, { ignoreEncryption: true });
+      const totalPages = pdfDoc.getPageCount();
+
+      let targetPage = isNaN(targetPageRaw)
+        ? totalPages
+        : Math.min(Math.max(1, targetPageRaw), totalPages);
+
+      let insertIndex = posType === 'before' ? targetPage - 1 : targetPage;
+      let dims = [595.28, 841.89];
+      if (sizeType === 'same') {
+        const refPageIdx = Math.min(
+          Math.max(0, insertIndex > 0 ? insertIndex - 1 : 0),
+          totalPages - 1,
+        );
+        const refPage = pdfDoc.getPage(refPageIdx);
+        const { width, height } = refPage.getSize();
+        dims = [width, height];
+      } else if (sizeType === 'a4') {
+        dims = [595.28, 841.89];
+      } else if (sizeType === 'letter') {
+        dims = [612.0, 792.0];
+      }
+
+      const modifiedPdfBytes = await window.runPdfWorkerTask(
+        'add-blank-page',
+        {
+          fileBytes: actualBytes,
+          count,
+          insertIndex,
+          dims,
         },
-        onApply: async ({ actualBytes, currentFileName }) => {
-            const count = parseInt(document.getElementById('blank-count').value, 10);
-            const targetPageRaw = parseInt(document.getElementById('target-page').value, 10);
-            const posType = document.getElementById('pos-type').value;
-            const sizeType = document.querySelector('input[name="page-size"]:checked').value;
+        [actualBytes.buffer],
+        (prog) => {
+          if (typeof window.showProgress === 'function') window.showProgress(prog);
+        },
+      );
 
-            if (isNaN(count) || count < 1 || count > 10) throw new Error("Please enter a valid number of pages to insert (1-10).");
+      if (typeof downloadFile === 'function')
+        downloadFile(modifiedPdfBytes, currentFileName + '_blank_added.pdf');
+      if (typeof showSuccess === 'function') showSuccess('Blank pages added successfully!');
+    },
+  });
+}
 
-            if (typeof window.showProgress === 'function') window.showProgress(5);
 
-            // We must calculate dimensions before sending to worker because it requires totalPages
-            const pdfDoc = await (await import('pdf-lib')).PDFDocument.load(actualBytes, { ignoreEncryption: true });
-            const totalPages = pdfDoc.getPageCount();
-            
-            let targetPage = isNaN(targetPageRaw) ? totalPages : Math.min(Math.max(1, targetPageRaw), totalPages);
-
-            let insertIndex = posType === 'before' ? targetPage - 1 : targetPage;
-            let dims = [595.28, 841.89];
-            if (sizeType === 'same') {
-                const refPageIdx = Math.min(Math.max(0, insertIndex > 0 ? insertIndex - 1 : 0), totalPages - 1);
-                const refPage = pdfDoc.getPage(refPageIdx);
-                const { width, height } = refPage.getSize();
-                dims = [width, height];
-            } else if (sizeType === 'a4') {
-                dims = [595.28, 841.89];
-            } else if (sizeType === 'letter') {
-                dims = [612.00, 792.00];
-            }
-
-            const modifiedPdfBytes = await window.runPdfWorkerTask('add-blank-page', {
-                fileBytes: actualBytes,
-                count,
-                insertIndex,
-                dims
-            }, [actualBytes.buffer], (prog) => {
-                if (typeof window.showProgress === 'function') window.showProgress(prog);
-            });
-            
-            if (typeof downloadFile === 'function') downloadFile(modifiedPdfBytes, currentFileName + '_blank_added.pdf');
-            if (typeof showSuccess === 'function') showSuccess('Blank pages added successfully!');
-        }
-    });
+export function destroy() {
+  // Cleanup logic here if necessary
 }

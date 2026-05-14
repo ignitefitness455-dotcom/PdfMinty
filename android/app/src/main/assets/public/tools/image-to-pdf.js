@@ -1,10 +1,11 @@
-(function() {
-    const appContainer = document.getElementById('app') || document.querySelector('main') || document.body;
-    const styleId = 'pdfminty-img2pdf-styles';
-    if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
+(function () {
+  const appContainer =
+    document.getElementById('app') || document.querySelector('main') || document.body;
+  const styleId = 'pdfminty-img2pdf-styles';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -25,10 +26,10 @@
             .btn-secondary:hover { border-color: var(--accent); }
             .hidden { display: none !important; }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    appContainer.innerHTML = `
+  appContainer.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -52,152 +53,142 @@
         </div>
     `;
 
-    let filesArray = [];
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const workspace = document.getElementById('workspace');
-    const fileListEl = document.getElementById('file-list');
-    const btnAddMore = document.getElementById('btn-add-more');
-    const btnApply = document.getElementById('btn-apply');
+  let filesArray = [];
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const workspace = document.getElementById('workspace');
+  const fileListEl = document.getElementById('file-list');
+  const btnAddMore = document.getElementById('btn-add-more');
+  const btnApply = document.getElementById('btn-apply');
 
-    if (typeof initDropZone === 'function') {
-        initDropZone('drop-zone', 'file-input', handleFiles, 'image/jpeg, image/png');
-    } else {
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  if (typeof initDropZone === 'function') {
+    initDropZone('drop-zone', 'file-input', handleFiles, 'image/jpeg, image/png');
+  } else {
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  }
+
+  btnAddMore.addEventListener('click', () => fileInput.click());
+
+  function handleFiles(files) {
+    if (!files || files.length === 0) return;
+    const validFiles = Array.from(files).filter(
+      (f) => f.type === 'image/jpeg' || f.type === 'image/png',
+    );
+    if (validFiles.length === 0) {
+      if (typeof showError === 'function') showError('Please select valid JPG or PNG images.');
+      return;
     }
 
-    btnAddMore.addEventListener('click', () => fileInput.click());
-
-    function handleFiles(files) {
-        if (!files || files.length === 0) return;
-        const validFiles = Array.from(files).filter(f => f.type === 'image/jpeg' || f.type === 'image/png');
-        if (validFiles.length === 0) {
-            if (typeof showError === 'function') showError('Please select valid JPG or PNG images.');
-            return;
+    if (typeof window.validateFile === 'function') {
+      for (const f of files) {
+        const check = window.validateFile(f);
+        if (!check.valid) {
+          if (typeof window.showError === 'function') window.showError(check.reason);
+          return;
         }
-        
-        if (typeof window.validateFile === 'function') {
-            for (const f of files) {
-                const check = window.validateFile(f);
-                if (!check.valid) {
-                    if (typeof window.showError === 'function') window.showError(check.reason);
-                    return;
-                }
-            }
-        }
-        
-
-        filesArray = filesArray.concat(validFiles);
-        renderFileList();
-        
-        dropZone.classList.add('hidden');
-        workspace.classList.remove('hidden');
+      }
     }
 
-    function renderFileList() {
-        fileListEl.innerHTML = '';
-        filesArray.forEach((file, index) => {
-            const item = document.createElement('div');
-            item.className = 'file-item';
-            
-            const img = document.createElement('img');
-            img.src = URL.createObjectURL(file);
-            img.onload = () => URL.revokeObjectURL(img.src);
-            
-            const btn = document.createElement('button');
-            btn.className = 'remove-btn';
-            btn.innerHTML = '✕';
-            btn.dataset.index = index;
-            
-            item.appendChild(img);
-            item.appendChild(btn);
-            fileListEl.appendChild(item);
-        });
+    filesArray = filesArray.concat(validFiles);
+    renderFileList();
 
-        document.querySelectorAll('.remove-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.target.dataset.index);
-                filesArray.splice(idx, 1);
-                renderFileList();
-                if (filesArray.length === 0) {
-                    workspace.classList.add('hidden');
-                    dropZone.classList.remove('hidden');
-                }
-            });
-        });
-    }
+    dropZone.classList.add('hidden');
+    workspace.classList.remove('hidden');
+  }
 
-    btnApply.addEventListener('click', async () => {
-            if (!btnApply.hasAttribute('data-original-text')) {
-                btnApply.setAttribute('data-original-text', btnApply.textContent);
-            }
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof window.showProgress === 'function') window.showProgress(10);
-            
-            try {
-                
-        if (filesArray.length === 0) return;
+  function renderFileList() {
+    fileListEl.innerHTML = '';
+    filesArray.forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'file-item';
 
-        try {
-            
-            
-            
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.onload = () => URL.revokeObjectURL(img.src);
 
-            const pdfDoc = await PDFLib.PDFDocument.create();
-            
-            for (let i = 0; i < filesArray.length; i++) {
-                const file = filesArray[i];
-                const fileBytes = await file.arrayBuffer();
-                let image;
-                
-                if (file.type === 'image/jpeg') {
-                    image = await pdfDoc.embedJpg(fileBytes);
-                } else if (file.type === 'image/png') {
-                    image = await pdfDoc.embedPng(fileBytes);
-                }
-                
-                const { width, height } = image.scale(1);
-                const page = pdfDoc.addPage([width, height]);
-                page.drawImage(image, {
-                    x: 0,
-                    y: 0,
-                    width: width,
-                    height: height,
-                });
-                
-                
-            }
+      const btn = document.createElement('button');
+      btn.className = 'remove-btn';
+      btn.innerHTML = '✕';
+      btn.dataset.index = index;
 
-            const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
-            
-
-            if (typeof downloadFile === 'function') {
-                downloadFile(pdfBytes, 'images-converted.pdf');
-            }
-            if (typeof showSuccess === 'function') showSuccess('Images converted to PDF successfully!');
-        } catch (error) {
-            console.error(error);
-            if (typeof showError === 'function') showError("Error converting images: " + error.message);
-        } finally {
-            
-            
-            
-        }
-    
-                if (typeof window.showProgress === 'function') window.showProgress(100);
-            } catch (err) {
-                console.error("PDF Processing Error:", err);
-                if (typeof window.hideProgress === 'function') window.hideProgress();
-                if (typeof window.showError === 'function') {
-                    window.showError(err.message || "An error occurred while processing the PDF.");
-                } else {
-                    alert("Error: " + (err.message || "An error occurred"));
-                }
-            } finally {
-                btnApply.disabled = false;
-                btnApply.textContent = btnApply.getAttribute('data-original-text');
-            }
+      item.appendChild(img);
+      item.appendChild(btn);
+      fileListEl.appendChild(item);
     });
+
+    document.querySelectorAll('.remove-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.target.dataset.index);
+        filesArray.splice(idx, 1);
+        renderFileList();
+        if (filesArray.length === 0) {
+          workspace.classList.add('hidden');
+          dropZone.classList.remove('hidden');
+        }
+      });
+    });
+  }
+
+  btnApply.addEventListener('click', async () => {
+    if (!btnApply.hasAttribute('data-original-text')) {
+      btnApply.setAttribute('data-original-text', btnApply.textContent);
+    }
+    btnApply.disabled = true;
+    btnApply.textContent = 'Processing...';
+    if (typeof window.showProgress === 'function') window.showProgress(10);
+
+    try {
+      if (filesArray.length === 0) return;
+
+      try {
+        const pdfDoc = await PDFLib.PDFDocument.create();
+
+        for (let i = 0; i < filesArray.length; i++) {
+          const file = filesArray[i];
+          const fileBytes = await file.arrayBuffer();
+          let image;
+
+          if (file.type === 'image/jpeg') {
+            image = await pdfDoc.embedJpg(fileBytes);
+          } else if (file.type === 'image/png') {
+            image = await pdfDoc.embedPng(fileBytes);
+          }
+
+          const { width, height } = image.scale(1);
+          const page = pdfDoc.addPage([width, height]);
+          page.drawImage(image, {
+            x: 0,
+            y: 0,
+            width: width,
+            height: height,
+          });
+        }
+
+        const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
+
+        if (typeof downloadFile === 'function') {
+          downloadFile(pdfBytes, 'images-converted.pdf');
+        }
+        if (typeof showSuccess === 'function') showSuccess('Images converted to PDF successfully!');
+      } catch (error) {
+        console.error(error);
+        if (typeof showError === 'function') showError('Error converting images: ' + error.message);
+      } finally {
+      }
+
+      if (typeof window.showProgress === 'function') window.showProgress(100);
+    } catch (err) {
+      console.error('PDF Processing Error:', err);
+      if (typeof window.hideProgress === 'function') window.hideProgress();
+      if (typeof window.showError === 'function') {
+        window.showError(err.message || 'An error occurred while processing the PDF.');
+      } else {
+        alert('Error: ' + (err.message || 'An error occurred'));
+      }
+    } finally {
+      btnApply.disabled = false;
+      btnApply.textContent = btnApply.getAttribute('data-original-text');
+    }
+  });
 })();

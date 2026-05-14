@@ -1,4 +1,11 @@
-import{P as h,d as v}from"./PDFButton-56eB-KER.js";(function(){const g=document.getElementById("app")||document.querySelector("main")||document.body,l="pdfminty-rotate-styles";if(!document.getElementById(l)){const e=document.createElement("style");e.id=l,e.textContent=`
+import { P as h, d as v } from './PDFButton-56eB-KER.js';
+(function () {
+  const g = document.getElementById('app') || document.querySelector('main') || document.body,
+    l = 'pdfminty-rotate-styles';
+  if (!document.getElementById(l)) {
+    const e = document.createElement('style');
+    ((e.id = l),
+      (e.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -22,7 +29,10 @@ import{P as h,d as v}from"./PDFButton-56eB-KER.js";(function(){const g=document.
             .btn-action:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}g.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  g.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -66,4 +76,100 @@ import{P as h,d as v}from"./PDFButton-56eB-KER.js";(function(){const g=document.
                 </div>
             </div>
         </div>
-    `;let n=null,a="",c=90;const s=document.getElementById("drop-zone"),d=document.getElementById("file-input"),p=document.getElementById("workspace"),u=document.getElementById("file-name-display"),b=document.getElementById("remove-file-btn"),t=document.getElementById("btn-apply"),f=document.querySelectorAll(".rotate-btn");f.forEach(e=>{e.addEventListener("click",()=>{f.forEach(r=>r.classList.remove("active")),e.classList.add("active"),c=parseInt(e.dataset.angle,10)})}),typeof initDropZone=="function"?initDropZone("drop-zone","file-input",m,".pdf"):(s.addEventListener("click",()=>d.click()),d.addEventListener("change",e=>m(e.target.files))),b.addEventListener("click",()=>{n=null,a="",d.value="",p.classList.add("hidden"),s.classList.remove("hidden")});async function m(e){if(!e||e.length===0)return;const r=e[0];if(typeof window.validateFile=="function")for(const o of e){const i=window.validateFile(o);if(!i.valid){typeof window.showError=="function"&&window.showError(i.reason);return}}try{if(typeof showProgress=="function"&&showProgress(50),n=await r.arrayBuffer(),a=r.name.replace(/\.[^/.]+$/,""),u.textContent=r.name,typeof formatBytes=="function"&&typeof fileSizeDisplay<"u"&&fileSizeDisplay&&(fileSizeDisplay.textContent=formatBytes(r.size)),typeof renderPdfThumbnail=="function"){const o=document.getElementById("file-preview-img");o&&renderPdfThumbnail(r,o)}s.classList.add("hidden"),p.classList.remove("hidden"),typeof hideProgress=="function"&&hideProgress()}catch(o){console.error(o),typeof showError=="function"&&showError("Error loading PDF: "+o.message),typeof hideProgress=="function"&&hideProgress()}}t.addEventListener("click",async()=>{t.hasAttribute("data-original-text")||t.setAttribute("data-original-text",t.textContent),t.disabled=!0,t.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(!n)return;try{const e=await h.load(n);e.getPages().forEach(i=>{const y=i.getRotation().angle;i.setRotation(v(y+c))});const o=await e.save({useObjectStreams:!0});typeof downloadFile=="function"&&(downloadFile(o,`${a}_rotated.pdf`),n=null),typeof showSuccess=="function"&&showSuccess("PDF rotated successfully!")}catch(e){console.error("Rotate Error:",e),typeof showError=="function"&&showError(e.message||"Error rotating PDF.")}finally{}typeof window.showProgress=="function"&&window.showProgress(100)}catch(e){console.error("PDF Processing Error:",e),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(e.message||"An error occurred while processing the PDF."):alert("Error: "+(e.message||"An error occurred"))}finally{t.disabled=!1,t.textContent=t.getAttribute("data-original-text")}})})();
+    `;
+  let n = null,
+    a = '',
+    c = 90;
+  const s = document.getElementById('drop-zone'),
+    d = document.getElementById('file-input'),
+    p = document.getElementById('workspace'),
+    u = document.getElementById('file-name-display'),
+    b = document.getElementById('remove-file-btn'),
+    t = document.getElementById('btn-apply'),
+    f = document.querySelectorAll('.rotate-btn');
+  (f.forEach((e) => {
+    e.addEventListener('click', () => {
+      (f.forEach((r) => r.classList.remove('active')),
+        e.classList.add('active'),
+        (c = parseInt(e.dataset.angle, 10)));
+    });
+  }),
+    typeof initDropZone == 'function'
+      ? initDropZone('drop-zone', 'file-input', m, '.pdf')
+      : (s.addEventListener('click', () => d.click()),
+        d.addEventListener('change', (e) => m(e.target.files))),
+    b.addEventListener('click', () => {
+      ((n = null),
+        (a = ''),
+        (d.value = ''),
+        p.classList.add('hidden'),
+        s.classList.remove('hidden'));
+    }));
+  async function m(e) {
+    if (!e || e.length === 0) return;
+    const r = e[0];
+    if (typeof window.validateFile == 'function')
+      for (const o of e) {
+        const i = window.validateFile(o);
+        if (!i.valid) {
+          typeof window.showError == 'function' && window.showError(i.reason);
+          return;
+        }
+      }
+    try {
+      if (
+        (typeof showProgress == 'function' && showProgress(50),
+        (n = await r.arrayBuffer()),
+        (a = r.name.replace(/\.[^/.]+$/, '')),
+        (u.textContent = r.name),
+        typeof formatBytes == 'function' &&
+          typeof fileSizeDisplay < 'u' &&
+          fileSizeDisplay &&
+          (fileSizeDisplay.textContent = formatBytes(r.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const o = document.getElementById('file-preview-img');
+        o && renderPdfThumbnail(r, o);
+      }
+      (s.classList.add('hidden'),
+        p.classList.remove('hidden'),
+        typeof hideProgress == 'function' && hideProgress());
+    } catch (o) {
+      (console.error(o),
+        typeof showError == 'function' && showError('Error loading PDF: ' + o.message),
+        typeof hideProgress == 'function' && hideProgress());
+    }
+  }
+  t.addEventListener('click', async () => {
+    (t.hasAttribute('data-original-text') || t.setAttribute('data-original-text', t.textContent),
+      (t.disabled = !0),
+      (t.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (!n) return;
+      try {
+        const e = await h.load(n);
+        e.getPages().forEach((i) => {
+          const y = i.getRotation().angle;
+          i.setRotation(v(y + c));
+        });
+        const o = await e.save({ useObjectStreams: !0 });
+        (typeof downloadFile == 'function' && (downloadFile(o, `${a}_rotated.pdf`), (n = null)),
+          typeof showSuccess == 'function' && showSuccess('PDF rotated successfully!'));
+      } catch (e) {
+        (console.error('Rotate Error:', e),
+          typeof showError == 'function' && showError(e.message || 'Error rotating PDF.'));
+      } finally {
+      }
+      typeof window.showProgress == 'function' && window.showProgress(100);
+    } catch (e) {
+      (console.error('PDF Processing Error:', e),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(e.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (e.message || 'An error occurred')));
+    } finally {
+      ((t.disabled = !1), (t.textContent = t.getAttribute('data-original-text')));
+    }
+  });
+})();

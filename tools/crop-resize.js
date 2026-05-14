@@ -1,16 +1,20 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
 
-export default function renderTool() {
-    const MM_TO_PT = 2.835;
+/**
+ * Initializes and renders the tool UI and logic.
+ * @returns {void}
+ */
+export function init() {
+  const MM_TO_PT = 2.835;
 
-    setupToolUI({
-        toolId: 'crop-resize',
-        title: 'Crop & Resize PDF',
-        description: 'Adjust margins or change page dimensions',
-        icon: '📐',
-        actionText: '✂️ Crop PDF',
-        isMultiFile: false,
-        settingsHtml: `
+  setupToolUI({
+    toolId: 'crop-resize',
+    title: 'Crop & Resize PDF',
+    description: 'Adjust margins or change page dimensions',
+    icon: window.PdfMinty.ICONS.crop_resize || '📄',
+    actionText: '✂️ Crop PDF',
+    isMultiFile: false,
+    settingsHtml: `
                 <div class="tabs-nav" style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem;">
                     <button class="tab-btn active" data-target="crop-tab" style="background: none; border: none; color: var(--text); padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid var(--primary);">Crop</button>
                     <button class="tab-btn" data-target="resize-tab" style="background: none; border: none; color: var(--muted); padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent;">Resize</button>
@@ -72,101 +76,111 @@ export default function renderTool() {
                     </div>
                 </div>
         `,
-        onInit: () => {
-            const btnApply = document.getElementById('btn-apply');
-            let activeMode = 'crop';
+    onInit: () => {
+      const btnApply = document.getElementById('btn-apply');
+      let activeMode = 'crop';
 
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.tab-btn').forEach(b => {
-                        b.style.color = 'var(--muted)';
-                        b.style.borderBottomColor = 'transparent';
-                    });
-                    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
-                    
-                    btn.style.color = 'var(--text)';
-                    btn.style.borderBottomColor = 'var(--primary)';
-                    document.getElementById(btn.dataset.target).style.display = 'block';
-                    
-                    activeMode = btn.dataset.target === 'crop-tab' ? 'crop' : 'resize';
-                    if (btnApply) btnApply.innerHTML = activeMode === 'crop' ? '✂️ Crop PDF' : '📐 Resize PDF';
-                });
-            });
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach((b) => {
+            b.style.color = 'var(--muted)';
+            b.style.borderBottomColor = 'transparent';
+          });
+          document.querySelectorAll('.tab-pane').forEach((p) => (p.style.display = 'none'));
 
-            document.querySelectorAll('.preset-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.getElementById('resize-w').value = btn.dataset.w;
-                    document.getElementById('resize-h').value = btn.dataset.h;
-                });
-            });
-            window.crActiveMode = () => activeMode;
-        },
-        onApply: async ({ actualBytes, currentFileName }) => {
-            const mode = window.crActiveMode();
-            const { PDFDocument } = await import('pdf-lib');
-            const pdfDoc = await PDFDocument.load(actualBytes);
+          btn.style.color = 'var(--text)';
+          btn.style.borderBottomColor = 'var(--primary)';
+          document.getElementById(btn.dataset.target).style.display = 'block';
 
-            if (mode === 'crop') {
-                const top = parseFloat(document.getElementById('crop-top').value) || 0;
-                const right = parseFloat(document.getElementById('crop-right').value) || 0;
-                const bottom = parseFloat(document.getElementById('crop-bottom').value) || 0;
-                const left = parseFloat(document.getElementById('crop-left').value) || 0;
-                const applyTo = document.querySelector('input[name="crop-pages"]:checked').value;
+          activeMode = btn.dataset.target === 'crop-tab' ? 'crop' : 'resize';
+          if (btnApply)
+            btnApply.innerHTML = activeMode === 'crop' ? '✂️ Crop PDF' : '📐 Resize PDF';
+        });
+      });
 
-                const pages = pdfDoc.getPages();
-                const pagesToProcess = applyTo === 'all' ? pages : [pages[0]];
+      document.querySelectorAll('.preset-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.getElementById('resize-w').value = btn.dataset.w;
+          document.getElementById('resize-h').value = btn.dataset.h;
+        });
+      });
+      window.crActiveMode = () => activeMode;
+    },
+    onApply: async ({ actualBytes, currentFileName }) => {
+      const mode = window.crActiveMode();
+      const { PDFDocument } = await import('pdf-lib');
+      const pdfDoc = await PDFDocument.load(actualBytes);
 
-                for (const page of pagesToProcess) {
-                    const box = page.getCropBox() || page.getMediaBox();
-                    const newX = box.x + (left * MM_TO_PT);
-                    const newY = box.y + (bottom * MM_TO_PT);
-                    const newWidth = box.width - ((left + right) * MM_TO_PT);
-                    const newHeight = box.height - ((top + bottom) * MM_TO_PT);
-                    if (newWidth <= 0 || newHeight <= 0) throw new Error("Crop margins are too large for the page dimensions.");
-                    page.setCropBox(newX, newY, newWidth, newHeight);
-                }
-                const modifiedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
-                if (typeof downloadFile === 'function') downloadFile(modifiedPdfBytes, `${currentFileName}-cropped.pdf`);
-                if (typeof showSuccess === 'function') showSuccess('PDF cropped successfully!');
-            } else {
-                const targetW_mm = parseFloat(document.getElementById('resize-w').value);
-                const targetH_mm = parseFloat(document.getElementById('resize-h').value);
-                const scaleMode = document.querySelector('input[name="resize-scale"]:checked').value;
-                if (!targetW_mm || !targetH_mm || targetW_mm <= 0 || targetH_mm <= 0) throw new Error("Please enter valid width and height.");
+      if (mode === 'crop') {
+        const top = parseFloat(document.getElementById('crop-top').value) || 0;
+        const right = parseFloat(document.getElementById('crop-right').value) || 0;
+        const bottom = parseFloat(document.getElementById('crop-bottom').value) || 0;
+        const left = parseFloat(document.getElementById('crop-left').value) || 0;
+        const applyTo = document.querySelector('input[name="crop-pages"]:checked').value;
 
-                const targetW = targetW_mm * MM_TO_PT;
-                const targetH = targetH_mm * MM_TO_PT;
+        const pages = pdfDoc.getPages();
+        const pagesToProcess = applyTo === 'all' ? pages : [pages[0]];
 
-                const newDoc = await PDFDocument.create();
-                const srcPages = pdfDoc.getPages();
-                const embeddedPages = await newDoc.embedPages(srcPages);
-
-                for (let i = 0; i < srcPages.length; i++) {
-                    const origPage = srcPages[i];
-                    const embeddedPage = embeddedPages[i];
-                    const { width: origW, height: origH } = origPage.getSize();
-                    
-                    const newPage = newDoc.addPage([targetW, targetH]);
-                    
-                    if (scaleMode === 'fit') {
-                        const scale = Math.min(targetW / origW, targetH / origH);
-                        const drawW = origW * scale;
-                        const drawH = origH * scale;
-                        const tx = (targetW - drawW) / 2;
-                        const ty = (targetH - drawH) / 2;
-                        newPage.drawPage(embeddedPage, { x: tx, y: ty, width: drawW, height: drawH });
-                    } else if (scaleMode === 'stretch') {
-                        newPage.drawPage(embeddedPage, { x: 0, y: 0, width: targetW, height: targetH });
-                    } else if (scaleMode === 'keep') {
-                        const tx = (targetW - origW) / 2;
-                        const ty = (targetH - origH) / 2;
-                        newPage.drawPage(embeddedPage, { x: tx, y: ty, width: origW, height: origH });
-                    }
-                }
-                const modifiedPdfBytes = await newDoc.save({ useObjectStreams: true });
-                if (typeof downloadFile === 'function') downloadFile(modifiedPdfBytes, `${currentFileName}-resized.pdf`);
-                if (typeof showSuccess === 'function') showSuccess('PDF resized successfully!');
-            }
+        for (const page of pagesToProcess) {
+          const box = page.getCropBox() || page.getMediaBox();
+          const newX = box.x + left * MM_TO_PT;
+          const newY = box.y + bottom * MM_TO_PT;
+          const newWidth = box.width - (left + right) * MM_TO_PT;
+          const newHeight = box.height - (top + bottom) * MM_TO_PT;
+          if (newWidth <= 0 || newHeight <= 0)
+            throw new Error('Crop margins are too large for the page dimensions.');
+          page.setCropBox(newX, newY, newWidth, newHeight);
         }
-    });
+        const modifiedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
+        if (typeof downloadFile === 'function')
+          downloadFile(modifiedPdfBytes, `${currentFileName}-cropped.pdf`);
+        if (typeof showSuccess === 'function') showSuccess('PDF cropped successfully!');
+      } else {
+        const targetW_mm = parseFloat(document.getElementById('resize-w').value);
+        const targetH_mm = parseFloat(document.getElementById('resize-h').value);
+        const scaleMode = document.querySelector('input[name="resize-scale"]:checked').value;
+        if (!targetW_mm || !targetH_mm || targetW_mm <= 0 || targetH_mm <= 0)
+          throw new Error('Please enter valid width and height.');
+
+        const targetW = targetW_mm * MM_TO_PT;
+        const targetH = targetH_mm * MM_TO_PT;
+
+        const newDoc = await PDFDocument.create();
+        const srcPages = pdfDoc.getPages();
+        const embeddedPages = await newDoc.embedPages(srcPages);
+
+        for (let i = 0; i < srcPages.length; i++) {
+          const origPage = srcPages[i];
+          const embeddedPage = embeddedPages[i];
+          const { width: origW, height: origH } = origPage.getSize();
+
+          const newPage = newDoc.addPage([targetW, targetH]);
+
+          if (scaleMode === 'fit') {
+            const scale = Math.min(targetW / origW, targetH / origH);
+            const drawW = origW * scale;
+            const drawH = origH * scale;
+            const tx = (targetW - drawW) / 2;
+            const ty = (targetH - drawH) / 2;
+            newPage.drawPage(embeddedPage, { x: tx, y: ty, width: drawW, height: drawH });
+          } else if (scaleMode === 'stretch') {
+            newPage.drawPage(embeddedPage, { x: 0, y: 0, width: targetW, height: targetH });
+          } else if (scaleMode === 'keep') {
+            const tx = (targetW - origW) / 2;
+            const ty = (targetH - origH) / 2;
+            newPage.drawPage(embeddedPage, { x: tx, y: ty, width: origW, height: origH });
+          }
+        }
+        const modifiedPdfBytes = await newDoc.save({ useObjectStreams: true });
+        if (typeof downloadFile === 'function')
+          downloadFile(modifiedPdfBytes, `${currentFileName}-resized.pdf`);
+        if (typeof showSuccess === 'function') showSuccess('PDF resized successfully!');
+      }
+    },
+  });
+}
+
+
+export function destroy() {
+  // Cleanup logic here if necessary
 }

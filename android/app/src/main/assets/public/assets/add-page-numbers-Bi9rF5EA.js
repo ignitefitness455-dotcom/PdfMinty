@@ -1,4 +1,11 @@
-import{P as H,S as W,r as _}from"./PDFButton-56eB-KER.js";(function(){const z=document.getElementById("app")||document.querySelector("main")||document.body,y="pdfminty-pagenumbers-styles";if(!document.getElementById(y)){const e=document.createElement("style");e.id=y,e.textContent=`
+import { P as H, S as W, r as _ } from './PDFButton-56eB-KER.js';
+(function () {
+  const z = document.getElementById('app') || document.querySelector('main') || document.body,
+    y = 'pdfminty-pagenumbers-styles';
+  if (!document.getElementById(y)) {
+    const e = document.createElement('style');
+    ((e.id = y),
+      (e.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -27,7 +34,10 @@ import{P as H,S as W,r as _}from"./PDFButton-56eB-KER.js";(function(){const z=do
             .btn-action:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}z.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  z.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -92,4 +102,133 @@ import{P as H,S as W,r as _}from"./PDFButton-56eB-KER.js";(function(){const z=do
                 </div>
             </div>
         </div>
-    `;let r=null,p="";const g=document.getElementById("drop-zone"),u=document.getElementById("file-input"),h=document.getElementById("workspace"),C=document.getElementById("file-name-display"),D=document.getElementById("remove-file-btn"),n=document.getElementById("btn-apply"),j=document.getElementById("position-select"),A=document.getElementById("format-select"),w=document.getElementById("size-input"),T=document.getElementById("size-val"),x=document.getElementById("margin-input"),M=document.getElementById("margin-val"),I=document.getElementById("color-input"),S=document.getElementById("color-hex");w.addEventListener("input",e=>T.textContent=e.target.value+"px"),x.addEventListener("input",e=>M.textContent=e.target.value+"px"),I.addEventListener("input",e=>S.textContent=e.target.value.toUpperCase());function N(e){const t=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(e);return t?{r:parseInt(t[1],16)/255,g:parseInt(t[2],16)/255,b:parseInt(t[3],16)/255}:{r:0,g:0,b:0}}typeof initDropZone=="function"?initDropZone("drop-zone","file-input",P,".pdf"):(g.addEventListener("click",()=>u.click()),u.addEventListener("change",e=>P(e.target.files))),D.addEventListener("click",()=>{r=null,p="",u.value="",h.classList.add("hidden"),g.classList.remove("hidden")});async function P(e){if(!e||e.length===0)return;const t=e[0];if(typeof window.validateFile=="function")for(const o of e){const a=window.validateFile(o);if(!a.valid){typeof window.showError=="function"&&window.showError(a.reason);return}}try{if(typeof showProgress=="function"&&showProgress(50),r=await t.arrayBuffer(),p=t.name.replace(/\.[^/.]+$/,""),C.textContent=t.name,typeof formatBytes=="function"&&typeof fileSizeDisplay<"u"&&fileSizeDisplay&&(fileSizeDisplay.textContent=formatBytes(t.size)),typeof renderPdfThumbnail=="function"){const o=document.getElementById("file-preview-img");o&&renderPdfThumbnail(t,o)}g.classList.add("hidden"),h.classList.remove("hidden"),typeof hideProgress=="function"&&hideProgress()}catch(o){console.error(o),typeof showError=="function"&&showError("Error loading PDF: "+o.message),typeof hideProgress=="function"&&hideProgress()}}n.addEventListener("click",async()=>{n.hasAttribute("data-original-text")||n.setAttribute("data-original-text",n.textContent),n.disabled=!0,n.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(!r)return;try{const e=await H.load(r.slice(0)),t=e.getPages(),o=t.length,a=await e.embedFont(W.Helvetica),m=j.value,l=A.value,f=parseInt(w.value),d=parseInt(x.value),b=N(I.value);t.forEach((E,L)=>{const{width:k,height:Z}=E.getSize(),s=L+1;let i=String(s);l==="page_1"?i=`Page ${s}`:l==="1_of_n"?i=`${s} of ${o}`:l==="page_1_of_n"?i=`Page ${s} of ${o}`:l==="-1-"&&(i=`- ${s} -`);const B=a.widthOfTextAtSize(i,f);let c,v;m.includes("left")?c=d:m.includes("right")?c=k-d-B:c=k/2-B/2,m.includes("top")?v=Z-d-f:v=d,E.drawText(i,{x:c,y:v,size:f,font:a,color:_(b.r,b.g,b.b)})});const F=await e.save({useObjectStreams:!0});typeof downloadFile=="function"&&(downloadFile(F,`${p}_numbered.pdf`),r=null),typeof showSuccess=="function"&&showSuccess("Page numbers added successfully!")}catch(e){console.error("Page Numbers Error:",e),typeof showError=="function"&&showError(e.message||"Error adding page numbers.")}finally{}typeof window.showProgress=="function"&&window.showProgress(100)}catch(e){console.error("PDF Processing Error:",e),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(e.message||"An error occurred while processing the PDF."):alert("Error: "+(e.message||"An error occurred"))}finally{n.disabled=!1,n.textContent=n.getAttribute("data-original-text")}})})();
+    `;
+  let r = null,
+    p = '';
+  const g = document.getElementById('drop-zone'),
+    u = document.getElementById('file-input'),
+    h = document.getElementById('workspace'),
+    C = document.getElementById('file-name-display'),
+    D = document.getElementById('remove-file-btn'),
+    n = document.getElementById('btn-apply'),
+    j = document.getElementById('position-select'),
+    A = document.getElementById('format-select'),
+    w = document.getElementById('size-input'),
+    T = document.getElementById('size-val'),
+    x = document.getElementById('margin-input'),
+    M = document.getElementById('margin-val'),
+    I = document.getElementById('color-input'),
+    S = document.getElementById('color-hex');
+  (w.addEventListener('input', (e) => (T.textContent = e.target.value + 'px')),
+    x.addEventListener('input', (e) => (M.textContent = e.target.value + 'px')),
+    I.addEventListener('input', (e) => (S.textContent = e.target.value.toUpperCase())));
+  function N(e) {
+    const t = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(e);
+    return t
+      ? { r: parseInt(t[1], 16) / 255, g: parseInt(t[2], 16) / 255, b: parseInt(t[3], 16) / 255 }
+      : { r: 0, g: 0, b: 0 };
+  }
+  (typeof initDropZone == 'function'
+    ? initDropZone('drop-zone', 'file-input', P, '.pdf')
+    : (g.addEventListener('click', () => u.click()),
+      u.addEventListener('change', (e) => P(e.target.files))),
+    D.addEventListener('click', () => {
+      ((r = null),
+        (p = ''),
+        (u.value = ''),
+        h.classList.add('hidden'),
+        g.classList.remove('hidden'));
+    }));
+  async function P(e) {
+    if (!e || e.length === 0) return;
+    const t = e[0];
+    if (typeof window.validateFile == 'function')
+      for (const o of e) {
+        const a = window.validateFile(o);
+        if (!a.valid) {
+          typeof window.showError == 'function' && window.showError(a.reason);
+          return;
+        }
+      }
+    try {
+      if (
+        (typeof showProgress == 'function' && showProgress(50),
+        (r = await t.arrayBuffer()),
+        (p = t.name.replace(/\.[^/.]+$/, '')),
+        (C.textContent = t.name),
+        typeof formatBytes == 'function' &&
+          typeof fileSizeDisplay < 'u' &&
+          fileSizeDisplay &&
+          (fileSizeDisplay.textContent = formatBytes(t.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const o = document.getElementById('file-preview-img');
+        o && renderPdfThumbnail(t, o);
+      }
+      (g.classList.add('hidden'),
+        h.classList.remove('hidden'),
+        typeof hideProgress == 'function' && hideProgress());
+    } catch (o) {
+      (console.error(o),
+        typeof showError == 'function' && showError('Error loading PDF: ' + o.message),
+        typeof hideProgress == 'function' && hideProgress());
+    }
+  }
+  n.addEventListener('click', async () => {
+    (n.hasAttribute('data-original-text') || n.setAttribute('data-original-text', n.textContent),
+      (n.disabled = !0),
+      (n.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (!r) return;
+      try {
+        const e = await H.load(r.slice(0)),
+          t = e.getPages(),
+          o = t.length,
+          a = await e.embedFont(W.Helvetica),
+          m = j.value,
+          l = A.value,
+          f = parseInt(w.value),
+          d = parseInt(x.value),
+          b = N(I.value);
+        t.forEach((E, L) => {
+          const { width: k, height: Z } = E.getSize(),
+            s = L + 1;
+          let i = String(s);
+          l === 'page_1'
+            ? (i = `Page ${s}`)
+            : l === '1_of_n'
+              ? (i = `${s} of ${o}`)
+              : l === 'page_1_of_n'
+                ? (i = `Page ${s} of ${o}`)
+                : l === '-1-' && (i = `- ${s} -`);
+          const B = a.widthOfTextAtSize(i, f);
+          let c, v;
+          (m.includes('left')
+            ? (c = d)
+            : m.includes('right')
+              ? (c = k - d - B)
+              : (c = k / 2 - B / 2),
+            m.includes('top') ? (v = Z - d - f) : (v = d),
+            E.drawText(i, { x: c, y: v, size: f, font: a, color: _(b.r, b.g, b.b) }));
+        });
+        const F = await e.save({ useObjectStreams: !0 });
+        (typeof downloadFile == 'function' && (downloadFile(F, `${p}_numbered.pdf`), (r = null)),
+          typeof showSuccess == 'function' && showSuccess('Page numbers added successfully!'));
+      } catch (e) {
+        (console.error('Page Numbers Error:', e),
+          typeof showError == 'function' && showError(e.message || 'Error adding page numbers.'));
+      } finally {
+      }
+      typeof window.showProgress == 'function' && window.showProgress(100);
+    } catch (e) {
+      (console.error('PDF Processing Error:', e),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(e.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (e.message || 'An error occurred')));
+    } finally {
+      ((n.disabled = !1), (n.textContent = n.getAttribute('data-original-text')));
+    }
+  });
+})();

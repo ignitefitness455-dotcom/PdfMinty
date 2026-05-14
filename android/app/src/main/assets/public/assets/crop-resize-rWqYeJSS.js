@@ -1,4 +1,11 @@
-import{P as z}from"./PDFButton-56eB-KER.js";(function(){const F=document.getElementById("app")||document.querySelector("main")||document.body,B="pdfminty-cropresize-styles";if(!document.getElementById(B)){const e=document.createElement("style");e.id=B,e.textContent=`
+import { P as z } from './PDFButton-56eB-KER.js';
+(function () {
+  const F = document.getElementById('app') || document.querySelector('main') || document.body,
+    B = 'pdfminty-cropresize-styles';
+  if (!document.getElementById(B)) {
+    const e = document.createElement('style');
+    ((e.id = B),
+      (e.textContent = `
             .cr-tool { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .cr-header { text-align: center; margin-bottom: 2rem; }
             .cr-header h1 { margin-bottom: 0.5rem; }
@@ -43,7 +50,10 @@ import{P as z}from"./PDFButton-56eB-KER.js";(function(){const F=document.getElem
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}F.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  F.innerHTML = `
         <div class="cr-tool">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             
@@ -138,4 +148,171 @@ import{P as z}from"./PDFButton-56eB-KER.js";(function(){const F=document.getElem
                 </div>
             </div>
         </div>
-    `;let a=null,y="";const c=2.835,w=document.getElementById("cr-drop-zone"),x=document.getElementById("cr-file-input"),k=document.getElementById("cr-workspace"),S=document.getElementById("file-name-display"),j=document.getElementById("remove-file-btn"),C=document.querySelectorAll(".tab-btn"),A=document.querySelectorAll(".tab-pane"),L=document.querySelectorAll(".preset-btn"),u=document.getElementById("btn-do-crop"),g=document.getElementById("btn-do-resize");C.forEach(e=>{e.addEventListener("click",()=>{C.forEach(t=>t.classList.remove("active")),A.forEach(t=>t.classList.remove("active")),e.classList.add("active"),document.getElementById(e.dataset.target).classList.add("active")})}),L.forEach(e=>{e.addEventListener("click",()=>{document.getElementById("resize-w").value=e.dataset.w,document.getElementById("resize-h").value=e.dataset.h})}),typeof initDropZone=="function"?initDropZone("cr-drop-zone","cr-file-input",D,".pdf"):(w.addEventListener("click",()=>x.click()),x.addEventListener("change",e=>D(e.target.files))),j.addEventListener("click",()=>{a=null,y="",x.value="",k.classList.add("hidden"),w.classList.remove("hidden")});async function D(e){if(!e||e.length===0)return;const t=e[0];if(typeof window.validateFile=="function")for(const r of e){const o=window.validateFile(r);if(!o.valid){typeof window.showError=="function"&&window.showError(o.reason);return}}try{if(typeof showProgress=="function"&&showProgress(50),a=await t.arrayBuffer(),y=t.name.replace(/\.[^/.]+$/,""),S.textContent=t.name,typeof formatBytes=="function"&&typeof fileSizeDisplay<"u"&&fileSizeDisplay&&(fileSizeDisplay.textContent=formatBytes(t.size)),typeof renderPdfThumbnail=="function"){const r=document.getElementById("file-preview-img");r&&renderPdfThumbnail(t,r)}w.classList.add("hidden"),k.classList.remove("hidden"),typeof hideProgress=="function"&&hideProgress()}catch(r){console.error(r),typeof showError=="function"&&showError("Error loading PDF: "+r.message),typeof hideProgress=="function"&&hideProgress()}}u.addEventListener("click",async()=>{if(!a)return;const e=parseFloat(document.getElementById("crop-top").value)||0,t=parseFloat(document.getElementById("crop-right").value)||0,r=parseFloat(document.getElementById("crop-bottom").value)||0,o=parseFloat(document.getElementById("crop-left").value)||0,s=document.querySelector('input[name="crop-pages"]:checked').value;try{u.disabled=!0,u.textContent="Cropping...",typeof showProgress=="function"&&showProgress(30);const n=await z.load(a),p=n.getPages(),m=s==="all"?p:[p[0]];for(const b of m){const i=b.getCropBox()||b.getMediaBox(),I=i.x+o*c,f=i.y+r*c,l=i.width-(o+t)*c,d=i.height-(e+r)*c;if(l<=0||d<=0)throw new Error("Crop margins are too large for the page dimensions.");b.setCropBox(I,f,l,d)}typeof showProgress=="function"&&showProgress(80);const P=await n.save({useObjectStreams:!0});typeof showProgress=="function"&&showProgress(100),typeof downloadFile=="function"&&(downloadFile(P,`${y}-cropped.pdf`),a=null),typeof showSuccess=="function"&&showSuccess("PDF cropped successfully!")}catch(n){console.error("Crop Error:",n),typeof showError=="function"&&showError(n.message||"Error cropping PDF.")}finally{typeof hideProgress=="function"&&hideProgress(),u.disabled=!1,u.textContent="✂️ Crop PDF"}}),g.addEventListener("click",async()=>{if(!a)return;const e=parseFloat(document.getElementById("resize-w").value),t=parseFloat(document.getElementById("resize-h").value),r=document.querySelector('input[name="resize-scale"]:checked').value;if(!e||!t||e<=0||t<=0){typeof showError=="function"&&showError("Please enter valid width and height.");return}const o=e*c,s=t*c;try{g.disabled=!0,g.textContent="Resizing...",typeof showProgress=="function"&&showProgress(30);const n=await z.load(a),p=await z.create(),m=n.getPages(),P=await p.embedPages(m);for(let i=0;i<m.length;i++){const I=m[i],f=P[i],{width:l,height:d}=I.getSize(),E=p.addPage([o,s]);if(r==="fit"){const h=Math.min(o/l,s/d),v=l*h,M=d*h,T=(o-v)/2,Z=(s-M)/2;E.drawPage(f,{x:T,y:Z,width:v,height:M})}else if(r==="stretch")E.drawPage(f,{x:0,y:0,width:o,height:s});else if(r==="keep"){const h=(o-l)/2,v=(s-d)/2;E.drawPage(f,{x:h,y:v,width:l,height:d})}typeof showProgress=="function"&&i%5===0&&showProgress(30+i/m.length*50)}typeof showProgress=="function"&&showProgress(85);const b=await p.save({useObjectStreams:!0});typeof showProgress=="function"&&showProgress(100),typeof downloadFile=="function"&&(downloadFile(b,`${y}-resized.pdf`),a=null),typeof showSuccess=="function"&&showSuccess("PDF resized successfully!")}catch(n){console.error("Resize Error:",n),typeof showError=="function"&&showError(n.message||"Error resizing PDF.")}finally{typeof hideProgress=="function"&&hideProgress(),g.disabled=!1,g.textContent="📐 Resize PDF"}})})();
+    `;
+  let a = null,
+    y = '';
+  const c = 2.835,
+    w = document.getElementById('cr-drop-zone'),
+    x = document.getElementById('cr-file-input'),
+    k = document.getElementById('cr-workspace'),
+    S = document.getElementById('file-name-display'),
+    j = document.getElementById('remove-file-btn'),
+    C = document.querySelectorAll('.tab-btn'),
+    A = document.querySelectorAll('.tab-pane'),
+    L = document.querySelectorAll('.preset-btn'),
+    u = document.getElementById('btn-do-crop'),
+    g = document.getElementById('btn-do-resize');
+  (C.forEach((e) => {
+    e.addEventListener('click', () => {
+      (C.forEach((t) => t.classList.remove('active')),
+        A.forEach((t) => t.classList.remove('active')),
+        e.classList.add('active'),
+        document.getElementById(e.dataset.target).classList.add('active'));
+    });
+  }),
+    L.forEach((e) => {
+      e.addEventListener('click', () => {
+        ((document.getElementById('resize-w').value = e.dataset.w),
+          (document.getElementById('resize-h').value = e.dataset.h));
+      });
+    }),
+    typeof initDropZone == 'function'
+      ? initDropZone('cr-drop-zone', 'cr-file-input', D, '.pdf')
+      : (w.addEventListener('click', () => x.click()),
+        x.addEventListener('change', (e) => D(e.target.files))),
+    j.addEventListener('click', () => {
+      ((a = null),
+        (y = ''),
+        (x.value = ''),
+        k.classList.add('hidden'),
+        w.classList.remove('hidden'));
+    }));
+  async function D(e) {
+    if (!e || e.length === 0) return;
+    const t = e[0];
+    if (typeof window.validateFile == 'function')
+      for (const r of e) {
+        const o = window.validateFile(r);
+        if (!o.valid) {
+          typeof window.showError == 'function' && window.showError(o.reason);
+          return;
+        }
+      }
+    try {
+      if (
+        (typeof showProgress == 'function' && showProgress(50),
+        (a = await t.arrayBuffer()),
+        (y = t.name.replace(/\.[^/.]+$/, '')),
+        (S.textContent = t.name),
+        typeof formatBytes == 'function' &&
+          typeof fileSizeDisplay < 'u' &&
+          fileSizeDisplay &&
+          (fileSizeDisplay.textContent = formatBytes(t.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const r = document.getElementById('file-preview-img');
+        r && renderPdfThumbnail(t, r);
+      }
+      (w.classList.add('hidden'),
+        k.classList.remove('hidden'),
+        typeof hideProgress == 'function' && hideProgress());
+    } catch (r) {
+      (console.error(r),
+        typeof showError == 'function' && showError('Error loading PDF: ' + r.message),
+        typeof hideProgress == 'function' && hideProgress());
+    }
+  }
+  (u.addEventListener('click', async () => {
+    if (!a) return;
+    const e = parseFloat(document.getElementById('crop-top').value) || 0,
+      t = parseFloat(document.getElementById('crop-right').value) || 0,
+      r = parseFloat(document.getElementById('crop-bottom').value) || 0,
+      o = parseFloat(document.getElementById('crop-left').value) || 0,
+      s = document.querySelector('input[name="crop-pages"]:checked').value;
+    try {
+      ((u.disabled = !0),
+        (u.textContent = 'Cropping...'),
+        typeof showProgress == 'function' && showProgress(30));
+      const n = await z.load(a),
+        p = n.getPages(),
+        m = s === 'all' ? p : [p[0]];
+      for (const b of m) {
+        const i = b.getCropBox() || b.getMediaBox(),
+          I = i.x + o * c,
+          f = i.y + r * c,
+          l = i.width - (o + t) * c,
+          d = i.height - (e + r) * c;
+        if (l <= 0 || d <= 0)
+          throw new Error('Crop margins are too large for the page dimensions.');
+        b.setCropBox(I, f, l, d);
+      }
+      typeof showProgress == 'function' && showProgress(80);
+      const P = await n.save({ useObjectStreams: !0 });
+      (typeof showProgress == 'function' && showProgress(100),
+        typeof downloadFile == 'function' && (downloadFile(P, `${y}-cropped.pdf`), (a = null)),
+        typeof showSuccess == 'function' && showSuccess('PDF cropped successfully!'));
+    } catch (n) {
+      (console.error('Crop Error:', n),
+        typeof showError == 'function' && showError(n.message || 'Error cropping PDF.'));
+    } finally {
+      (typeof hideProgress == 'function' && hideProgress(),
+        (u.disabled = !1),
+        (u.textContent = '✂️ Crop PDF'));
+    }
+  }),
+    g.addEventListener('click', async () => {
+      if (!a) return;
+      const e = parseFloat(document.getElementById('resize-w').value),
+        t = parseFloat(document.getElementById('resize-h').value),
+        r = document.querySelector('input[name="resize-scale"]:checked').value;
+      if (!e || !t || e <= 0 || t <= 0) {
+        typeof showError == 'function' && showError('Please enter valid width and height.');
+        return;
+      }
+      const o = e * c,
+        s = t * c;
+      try {
+        ((g.disabled = !0),
+          (g.textContent = 'Resizing...'),
+          typeof showProgress == 'function' && showProgress(30));
+        const n = await z.load(a),
+          p = await z.create(),
+          m = n.getPages(),
+          P = await p.embedPages(m);
+        for (let i = 0; i < m.length; i++) {
+          const I = m[i],
+            f = P[i],
+            { width: l, height: d } = I.getSize(),
+            E = p.addPage([o, s]);
+          if (r === 'fit') {
+            const h = Math.min(o / l, s / d),
+              v = l * h,
+              M = d * h,
+              T = (o - v) / 2,
+              Z = (s - M) / 2;
+            E.drawPage(f, { x: T, y: Z, width: v, height: M });
+          } else if (r === 'stretch') E.drawPage(f, { x: 0, y: 0, width: o, height: s });
+          else if (r === 'keep') {
+            const h = (o - l) / 2,
+              v = (s - d) / 2;
+            E.drawPage(f, { x: h, y: v, width: l, height: d });
+          }
+          typeof showProgress == 'function' &&
+            i % 5 === 0 &&
+            showProgress(30 + (i / m.length) * 50);
+        }
+        typeof showProgress == 'function' && showProgress(85);
+        const b = await p.save({ useObjectStreams: !0 });
+        (typeof showProgress == 'function' && showProgress(100),
+          typeof downloadFile == 'function' && (downloadFile(b, `${y}-resized.pdf`), (a = null)),
+          typeof showSuccess == 'function' && showSuccess('PDF resized successfully!'));
+      } catch (n) {
+        (console.error('Resize Error:', n),
+          typeof showError == 'function' && showError(n.message || 'Error resizing PDF.'));
+      } finally {
+        (typeof hideProgress == 'function' && hideProgress(),
+          (g.disabled = !1),
+          (g.textContent = '📐 Resize PDF'));
+      }
+    }));
+})();

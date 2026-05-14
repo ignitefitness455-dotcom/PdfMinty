@@ -1,4 +1,11 @@
-import{P as w}from"./PDFButton-56eB-KER.js";(function(){const h=document.getElementById("app")||document.querySelector("main")||document.body,l="pdfminty-img2pdf-styles";if(!document.getElementById(l)){const e=document.createElement("style");e.id=l,e.textContent=`
+import { P as w } from './PDFButton-56eB-KER.js';
+(function () {
+  const h = document.getElementById('app') || document.querySelector('main') || document.body,
+    l = 'pdfminty-img2pdf-styles';
+  if (!document.getElementById(l)) {
+    const e = document.createElement('style');
+    ((e.id = l),
+      (e.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -18,7 +25,10 @@ import{P as w}from"./PDFButton-56eB-KER.js";(function(){const h=document.getElem
             .btn-secondary { background: var(--bg); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 0.75rem 2rem; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
             .btn-secondary:hover { border-color: var(--accent); }
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}h.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  h.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -40,4 +50,96 @@ import{P as w}from"./PDFButton-56eB-KER.js";(function(){const h=document.getElem
                 </div>
             </div>
         </div>
-    `;let n=[];const s=document.getElementById("drop-zone"),c=document.getElementById("file-input"),m=document.getElementById("workspace"),p=document.getElementById("file-list"),y=document.getElementById("btn-add-more"),r=document.getElementById("btn-apply");typeof initDropZone=="function"?initDropZone("drop-zone","file-input",g,"image/jpeg, image/png"):(s.addEventListener("click",()=>c.click()),c.addEventListener("change",e=>g(e.target.files))),y.addEventListener("click",()=>c.click());function g(e){if(!e||e.length===0)return;const i=Array.from(e).filter(t=>t.type==="image/jpeg"||t.type==="image/png");if(i.length===0){typeof showError=="function"&&showError("Please select valid JPG or PNG images.");return}if(typeof window.validateFile=="function")for(const t of e){const o=window.validateFile(t);if(!o.valid){typeof window.showError=="function"&&window.showError(o.reason);return}}n=n.concat(i),f(),s.classList.add("hidden"),m.classList.remove("hidden")}function f(){p.innerHTML="",n.forEach((e,i)=>{const t=document.createElement("div");t.className="file-item";const o=document.createElement("img");o.src=URL.createObjectURL(e),o.onload=()=>URL.revokeObjectURL(o.src);const a=document.createElement("button");a.className="remove-btn",a.innerHTML="✕",a.dataset.index=i,t.appendChild(o),t.appendChild(a),p.appendChild(t)}),document.querySelectorAll(".remove-btn").forEach(e=>{e.addEventListener("click",i=>{const t=parseInt(i.target.dataset.index);n.splice(t,1),f(),n.length===0&&(m.classList.add("hidden"),s.classList.remove("hidden"))})})}r.addEventListener("click",async()=>{r.hasAttribute("data-original-text")||r.setAttribute("data-original-text",r.textContent),r.disabled=!0,r.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(n.length===0)return;try{const e=await w.create();for(let t=0;t<n.length;t++){const o=n[t],a=await o.arrayBuffer();let d;o.type==="image/jpeg"?d=await e.embedJpg(a):o.type==="image/png"&&(d=await e.embedPng(a));const{width:u,height:b}=d.scale(1);e.addPage([u,b]).drawImage(d,{x:0,y:0,width:u,height:b})}const i=await e.save({useObjectStreams:!0});typeof downloadFile=="function"&&downloadFile(i,"images-converted.pdf"),typeof showSuccess=="function"&&showSuccess("Images converted to PDF successfully!")}catch(e){console.error(e),typeof showError=="function"&&showError("Error converting images: "+e.message)}finally{}typeof window.showProgress=="function"&&window.showProgress(100)}catch(e){console.error("PDF Processing Error:",e),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(e.message||"An error occurred while processing the PDF."):alert("Error: "+(e.message||"An error occurred"))}finally{r.disabled=!1,r.textContent=r.getAttribute("data-original-text")}})})();
+    `;
+  let n = [];
+  const s = document.getElementById('drop-zone'),
+    c = document.getElementById('file-input'),
+    m = document.getElementById('workspace'),
+    p = document.getElementById('file-list'),
+    y = document.getElementById('btn-add-more'),
+    r = document.getElementById('btn-apply');
+  (typeof initDropZone == 'function'
+    ? initDropZone('drop-zone', 'file-input', g, 'image/jpeg, image/png')
+    : (s.addEventListener('click', () => c.click()),
+      c.addEventListener('change', (e) => g(e.target.files))),
+    y.addEventListener('click', () => c.click()));
+  function g(e) {
+    if (!e || e.length === 0) return;
+    const i = Array.from(e).filter((t) => t.type === 'image/jpeg' || t.type === 'image/png');
+    if (i.length === 0) {
+      typeof showError == 'function' && showError('Please select valid JPG or PNG images.');
+      return;
+    }
+    if (typeof window.validateFile == 'function')
+      for (const t of e) {
+        const o = window.validateFile(t);
+        if (!o.valid) {
+          typeof window.showError == 'function' && window.showError(o.reason);
+          return;
+        }
+      }
+    ((n = n.concat(i)), f(), s.classList.add('hidden'), m.classList.remove('hidden'));
+  }
+  function f() {
+    ((p.innerHTML = ''),
+      n.forEach((e, i) => {
+        const t = document.createElement('div');
+        t.className = 'file-item';
+        const o = document.createElement('img');
+        ((o.src = URL.createObjectURL(e)), (o.onload = () => URL.revokeObjectURL(o.src)));
+        const a = document.createElement('button');
+        ((a.className = 'remove-btn'),
+          (a.innerHTML = '✕'),
+          (a.dataset.index = i),
+          t.appendChild(o),
+          t.appendChild(a),
+          p.appendChild(t));
+      }),
+      document.querySelectorAll('.remove-btn').forEach((e) => {
+        e.addEventListener('click', (i) => {
+          const t = parseInt(i.target.dataset.index);
+          (n.splice(t, 1),
+            f(),
+            n.length === 0 && (m.classList.add('hidden'), s.classList.remove('hidden')));
+        });
+      }));
+  }
+  r.addEventListener('click', async () => {
+    (r.hasAttribute('data-original-text') || r.setAttribute('data-original-text', r.textContent),
+      (r.disabled = !0),
+      (r.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (n.length === 0) return;
+      try {
+        const e = await w.create();
+        for (let t = 0; t < n.length; t++) {
+          const o = n[t],
+            a = await o.arrayBuffer();
+          let d;
+          o.type === 'image/jpeg'
+            ? (d = await e.embedJpg(a))
+            : o.type === 'image/png' && (d = await e.embedPng(a));
+          const { width: u, height: b } = d.scale(1);
+          e.addPage([u, b]).drawImage(d, { x: 0, y: 0, width: u, height: b });
+        }
+        const i = await e.save({ useObjectStreams: !0 });
+        (typeof downloadFile == 'function' && downloadFile(i, 'images-converted.pdf'),
+          typeof showSuccess == 'function' && showSuccess('Images converted to PDF successfully!'));
+      } catch (e) {
+        (console.error(e),
+          typeof showError == 'function' && showError('Error converting images: ' + e.message));
+      } finally {
+      }
+      typeof window.showProgress == 'function' && window.showProgress(100);
+    } catch (e) {
+      (console.error('PDF Processing Error:', e),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(e.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (e.message || 'An error occurred')));
+    } finally {
+      ((r.disabled = !1), (r.textContent = r.getAttribute('data-original-text')));
+    }
+  });
+})();

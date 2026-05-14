@@ -1,5 +1,12 @@
-export function renderToolBase({ title, description, icon, dropText, extraWorkspaceHtml, actionText }) {
-    return `
+export function renderToolBase({
+  title,
+  description,
+  icon,
+  dropText,
+  extraWorkspaceHtml,
+  actionText,
+}) {
+  return `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -8,8 +15,8 @@ export function renderToolBase({ title, description, icon, dropText, extraWorksp
             </div>
             <div id="drop-zone" tabindex="0" role="button" aria-label="File upload zone: ${dropText || 'Drag & drop a PDF here, or click to select'}" style="border: 2px dashed var(--primary); padding: 4rem 2rem; text-align: center; border-radius: 0.5rem; cursor: pointer; background: var(--card); transition: border-color 0.2s;">
                 <input type="file" id="file-input" aria-hidden="true" tabindex="-1" accept=".pdf" style="display: none;" ${title.includes('Merge') ? 'multiple' : ''} />
-                <div style="font-size: 3rem; margin-bottom: 1rem;" aria-hidden="true">${icon}</div>
-                <p style="font-size: 1.25rem; margin: 0;">${dropText || 'Drag & drop a PDF here, or click to select'}</p>
+                <div class="tool-hero-icon" style="font-size: 3.5rem; margin-bottom: 1rem; color: var(--primary); filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.3));" aria-hidden="true">${icon}</div>
+                <p style="font-size: 1.25rem; margin: 0; font-weight: 500;">${dropText || 'Drag & drop a PDF here, or click to select'}</p>
             </div>
             <p style="text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 1rem;">🔒 No upload. No servers. 100% private.</p>
             <div id="workspace" class="workspace hidden">
@@ -23,39 +30,39 @@ export function renderToolBase({ title, description, icon, dropText, extraWorksp
 }
 
 export function setupToolLogic({ onFiles, onRemove, onApply }) {
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const workspace = document.getElementById('workspace');
-    const removeBtn = document.getElementById('remove-file-btn');
-    const btnApply = document.getElementById('btn-apply');
-    
-    if (typeof window.initDropZone === 'function') {
-        window.initDropZone('drop-zone', 'file-input', onFiles, '.pdf');
-    } else {
-        dropZone?.addEventListener('click', () => fileInput.click());
-        dropZone?.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                fileInput?.click();
-            }
-        });
-        fileInput?.addEventListener('change', (e) => onFiles(e.target.files));
-    }
-    
-    // Some tools might custom handle back buttons:
-    document.getElementById('btn-back')?.addEventListener('click', (e) => {
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const workspace = document.getElementById('workspace');
+  const removeBtn = document.getElementById('remove-file-btn');
+  const btnApply = document.getElementById('btn-apply');
+
+  if (typeof window.initDropZone === 'function') {
+    window.initDropZone('drop-zone', 'file-input', onFiles, '.pdf');
+  } else {
+    dropZone?.addEventListener('click', () => fileInput.click());
+    dropZone?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        window.location.hash = ''; // handled globally but safe fallback
+        fileInput?.click();
+      }
     });
-    
-    removeBtn?.addEventListener('click', () => {
-        if(fileInput) fileInput.value = '';
-        if(workspace) workspace.classList.add('hidden');
-        if(dropZone) dropZone.classList.remove('hidden');
-        if (typeof onRemove === 'function') onRemove();
-    });
-    
-    btnApply?.addEventListener('click', onApply);
+    fileInput?.addEventListener('change', (e) => onFiles(e.target.files));
+  }
+
+  // Some tools might custom handle back buttons:
+  document.getElementById('btn-back')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.hash = ''; // handled globally but safe fallback
+  });
+
+  removeBtn?.addEventListener('click', () => {
+    if (fileInput) fileInput.value = '';
+    if (workspace) workspace.classList.add('hidden');
+    if (dropZone) dropZone.classList.remove('hidden');
+    if (typeof onRemove === 'function') onRemove();
+  });
+
+  btnApply?.addEventListener('click', onApply);
 }
 
 export const singleFilePreviewHtml = `

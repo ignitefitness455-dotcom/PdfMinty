@@ -1,4 +1,11 @@
-import{P as I}from"./PDFButton-56eB-KER.js";(function(){const P=document.getElementById("app")||document.querySelector("main")||document.body,w="pdfminty-compress-styles";if(!document.getElementById(w)){const e=document.createElement("style");e.id=w,e.textContent=`
+import { P as I } from './PDFButton-56eB-KER.js';
+(function () {
+  const P = document.getElementById('app') || document.querySelector('main') || document.body,
+    w = 'pdfminty-compress-styles';
+  if (!document.getElementById(w)) {
+    const e = document.createElement('style');
+    ((e.id = w),
+      (e.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -16,7 +23,10 @@ import{P as I}from"./PDFButton-56eB-KER.js";(function(){const P=document.getElem
             .btn-action:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
-        `,document.head.appendChild(e)}P.innerHTML=`
+        `),
+      document.head.appendChild(e));
+  }
+  P.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -72,4 +82,147 @@ import{P as I}from"./PDFButton-56eB-KER.js";(function(){const P=document.getElem
                 </div>
             </div>
         </div>
-    `;let o=null,m="";const p=document.getElementById("drop-zone"),f=document.getElementById("file-input"),b=document.getElementById("workspace"),B=document.getElementById("file-name-display"),g=document.getElementById("file-size-display"),k=document.getElementById("remove-file-btn"),n=document.getElementById("btn-apply");typeof initDropZone=="function"?initDropZone("drop-zone","file-input",h,".pdf"):(p.addEventListener("click",()=>f.click()),f.addEventListener("change",e=>h(e.target.files))),k.addEventListener("click",()=>{o=null,m="",f.value="",b.classList.add("hidden"),p.classList.remove("hidden")});function u(e,r=2){if(!+e)return"0 Bytes";const i=1024,t=r<0?0:r,s=["Bytes","KB","MB","GB","TB"],a=Math.floor(Math.log(e)/Math.log(i));return`${parseFloat((e/Math.pow(i,a)).toFixed(t))} ${s[a]}`}async function h(e){if(!e||e.length===0)return;const r=e[0];if(typeof window.validateFile=="function")for(const i of e){const t=window.validateFile(i);if(!t.valid){typeof window.showError=="function"&&window.showError(t.reason);return}}try{typeof showProgress=="function"&&showProgress(30);const i=await r.arrayBuffer();if(window.pdfDB?(await window.pdfDB.saveFile("compress_target",i),o="compress_target"):o=i,m=r.name.replace(/\.[^/.]+$/,""),B.textContent=r.name,typeof u=="function"&&typeof g<"u"&&g&&(g.textContent=u(r.size)),typeof renderPdfThumbnail=="function"){const t=document.getElementById("file-preview-img");t&&renderPdfThumbnail(r,t)}p.classList.add("hidden"),b.classList.remove("hidden"),typeof hideProgress=="function"&&hideProgress()}catch(i){console.error(i),typeof showError=="function"&&showError("Error loading PDF: "+i.message),typeof hideProgress=="function"&&hideProgress()}}async function v(e,r=1.5,i=.6){if(typeof pdfjsLib>"u")try{await window.loadExternalScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"),pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"}catch(l){throw new Error("Failed to load PDF.js library for strong compression.",{cause:l})}const s=await pdfjsLib.getDocument({data:e.slice(0)}).promise,a=s.numPages,y=await I.create();for(let l=1;l<=a;l++){typeof showProgress=="function"&&showProgress(Math.round(l/a*90));const x=await s.getPage(l),d=x.getViewport({scale:r}),c=document.createElement("canvas"),E=c.getContext("2d");c.width=d.width,c.height=d.height;const j={canvasContext:E,viewport:d};await x.render(j).promise;const D=c.toDataURL("image/jpeg",i),z=await fetch(D).then(M=>M.arrayBuffer()),C=await y.embedJpg(z);y.addPage([d.width,d.height]).drawImage(C,{x:0,y:0,width:d.width,height:d.height})}return await y.save({useObjectStreams:!0})}n.addEventListener("click",async()=>{n.hasAttribute("data-original-text")||n.setAttribute("data-original-text",n.textContent),n.disabled=!0,n.textContent="Processing...",typeof window.showProgress=="function"&&window.showProgress(10);try{if(!o)return;try{const e=document.querySelector('input[name="comp-level"]:checked').value;let r;if(e==="strong"||e==="deep"){const t=e==="deep"?1:1.5,s=e==="deep"?.35:.6;let a=o instanceof ArrayBuffer?o:await window.pdfDB.getFile(o);r=await v(a,t,s),a=null}else if(e==="super-strong"){let t=o instanceof ArrayBuffer?o:await window.pdfDB.getFile(o);r=await v(t)}else if(typeof window.runPdfWorkerTask=="function"){const t={fileBytes:new Uint8Array(o.slice(0))};r=await window.runPdfWorkerTask("compress",t,[t.fileBytes.buffer],s=>{})}else{let t=o instanceof ArrayBuffer?o:await window.pdfDB.getFile(o);const s=await I.load(t,{ignoreEncryption:!0});t=null,r=await s.save({useObjectStreams:!0})}typeof downloadFile=="function"&&(downloadFile(r,`${m}_compressed.pdf`),o=null);const i=o.byteLength-r.byteLength;i>0?typeof showSuccess=="function"&&showSuccess(`Compressed successfully! Saved ${u(i)}.`):typeof showSuccess=="function"&&showSuccess("Optimization complete. Note: Some files cannot be compressed further.")}catch(e){console.error("Compress Error:",e),typeof showError=="function"&&showError(e.message||"Error compressing PDF.")}finally{}typeof window.showProgress=="function"&&window.showProgress(100)}catch(e){console.error("PDF Processing Error:",e),typeof window.hideProgress=="function"&&window.hideProgress(),typeof window.showError=="function"?window.showError(e.message||"An error occurred while processing the PDF."):alert("Error: "+(e.message||"An error occurred"))}finally{n.disabled=!1,n.textContent=n.getAttribute("data-original-text")}})})();
+    `;
+  let o = null,
+    m = '';
+  const p = document.getElementById('drop-zone'),
+    f = document.getElementById('file-input'),
+    b = document.getElementById('workspace'),
+    B = document.getElementById('file-name-display'),
+    g = document.getElementById('file-size-display'),
+    k = document.getElementById('remove-file-btn'),
+    n = document.getElementById('btn-apply');
+  (typeof initDropZone == 'function'
+    ? initDropZone('drop-zone', 'file-input', h, '.pdf')
+    : (p.addEventListener('click', () => f.click()),
+      f.addEventListener('change', (e) => h(e.target.files))),
+    k.addEventListener('click', () => {
+      ((o = null),
+        (m = ''),
+        (f.value = ''),
+        b.classList.add('hidden'),
+        p.classList.remove('hidden'));
+    }));
+  function u(e, r = 2) {
+    if (!+e) return '0 Bytes';
+    const i = 1024,
+      t = r < 0 ? 0 : r,
+      s = ['Bytes', 'KB', 'MB', 'GB', 'TB'],
+      a = Math.floor(Math.log(e) / Math.log(i));
+    return `${parseFloat((e / Math.pow(i, a)).toFixed(t))} ${s[a]}`;
+  }
+  async function h(e) {
+    if (!e || e.length === 0) return;
+    const r = e[0];
+    if (typeof window.validateFile == 'function')
+      for (const i of e) {
+        const t = window.validateFile(i);
+        if (!t.valid) {
+          typeof window.showError == 'function' && window.showError(t.reason);
+          return;
+        }
+      }
+    try {
+      typeof showProgress == 'function' && showProgress(30);
+      const i = await r.arrayBuffer();
+      if (
+        (window.pdfDB
+          ? (await window.pdfDB.saveFile('compress_target', i), (o = 'compress_target'))
+          : (o = i),
+        (m = r.name.replace(/\.[^/.]+$/, '')),
+        (B.textContent = r.name),
+        typeof u == 'function' && typeof g < 'u' && g && (g.textContent = u(r.size)),
+        typeof renderPdfThumbnail == 'function')
+      ) {
+        const t = document.getElementById('file-preview-img');
+        t && renderPdfThumbnail(r, t);
+      }
+      (p.classList.add('hidden'),
+        b.classList.remove('hidden'),
+        typeof hideProgress == 'function' && hideProgress());
+    } catch (i) {
+      (console.error(i),
+        typeof showError == 'function' && showError('Error loading PDF: ' + i.message),
+        typeof hideProgress == 'function' && hideProgress());
+    }
+  }
+  async function v(e, r = 1.5, i = 0.6) {
+    if (typeof pdfjsLib > 'u')
+      try {
+        (await window.loadExternalScript(
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+        ),
+          (pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'));
+      } catch (l) {
+        throw new Error('Failed to load PDF.js library for strong compression.', { cause: l });
+      }
+    const s = await pdfjsLib.getDocument({ data: e.slice(0) }).promise,
+      a = s.numPages,
+      y = await I.create();
+    for (let l = 1; l <= a; l++) {
+      typeof showProgress == 'function' && showProgress(Math.round((l / a) * 90));
+      const x = await s.getPage(l),
+        d = x.getViewport({ scale: r }),
+        c = document.createElement('canvas'),
+        E = c.getContext('2d');
+      ((c.width = d.width), (c.height = d.height));
+      const j = { canvasContext: E, viewport: d };
+      await x.render(j).promise;
+      const D = c.toDataURL('image/jpeg', i),
+        z = await fetch(D).then((M) => M.arrayBuffer()),
+        C = await y.embedJpg(z);
+      y.addPage([d.width, d.height]).drawImage(C, { x: 0, y: 0, width: d.width, height: d.height });
+    }
+    return await y.save({ useObjectStreams: !0 });
+  }
+  n.addEventListener('click', async () => {
+    (n.hasAttribute('data-original-text') || n.setAttribute('data-original-text', n.textContent),
+      (n.disabled = !0),
+      (n.textContent = 'Processing...'),
+      typeof window.showProgress == 'function' && window.showProgress(10));
+    try {
+      if (!o) return;
+      try {
+        const e = document.querySelector('input[name="comp-level"]:checked').value;
+        let r;
+        if (e === 'strong' || e === 'deep') {
+          const t = e === 'deep' ? 1 : 1.5,
+            s = e === 'deep' ? 0.35 : 0.6;
+          let a = o instanceof ArrayBuffer ? o : await window.pdfDB.getFile(o);
+          ((r = await v(a, t, s)), (a = null));
+        } else if (e === 'super-strong') {
+          let t = o instanceof ArrayBuffer ? o : await window.pdfDB.getFile(o);
+          r = await v(t);
+        } else if (typeof window.runPdfWorkerTask == 'function') {
+          const t = { fileBytes: new Uint8Array(o.slice(0)) };
+          r = await window.runPdfWorkerTask('compress', t, [t.fileBytes.buffer], (s) => {});
+        } else {
+          let t = o instanceof ArrayBuffer ? o : await window.pdfDB.getFile(o);
+          const s = await I.load(t, { ignoreEncryption: !0 });
+          ((t = null), (r = await s.save({ useObjectStreams: !0 })));
+        }
+        typeof downloadFile == 'function' && (downloadFile(r, `${m}_compressed.pdf`), (o = null));
+        const i = o.byteLength - r.byteLength;
+        i > 0
+          ? typeof showSuccess == 'function' &&
+            showSuccess(`Compressed successfully! Saved ${u(i)}.`)
+          : typeof showSuccess == 'function' &&
+            showSuccess('Optimization complete. Note: Some files cannot be compressed further.');
+      } catch (e) {
+        (console.error('Compress Error:', e),
+          typeof showError == 'function' && showError(e.message || 'Error compressing PDF.'));
+      } finally {
+      }
+      typeof window.showProgress == 'function' && window.showProgress(100);
+    } catch (e) {
+      (console.error('PDF Processing Error:', e),
+        typeof window.hideProgress == 'function' && window.hideProgress(),
+        typeof window.showError == 'function'
+          ? window.showError(e.message || 'An error occurred while processing the PDF.')
+          : alert('Error: ' + (e.message || 'An error occurred')));
+    } finally {
+      ((n.disabled = !1), (n.textContent = n.getAttribute('data-original-text')));
+    }
+  });
+})();

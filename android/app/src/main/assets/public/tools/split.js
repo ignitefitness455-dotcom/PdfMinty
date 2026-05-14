@@ -1,10 +1,11 @@
-(function() {
-    const appContainer = document.getElementById('app') || document.querySelector('main') || document.body;
-    const styleId = 'pdfminty-split-styles';
-    if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
+(function () {
+  const appContainer =
+    document.getElementById('app') || document.querySelector('main') || document.body;
+  const styleId = 'pdfminty-split-styles';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
             .tool-container { color: var(--text); max-width: 800px; margin: 0 auto; padding: 1rem; }
             .tool-header { text-align: center; margin-bottom: 2rem; }
             .tool-header h1 { margin-bottom: 0.5rem; }
@@ -28,10 +29,10 @@
             .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .hidden { display: none !important; }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    appContainer.innerHTML = `
+  appContainer.innerHTML = `
         <div class="tool-container">
             <a id="btn-back" class="back-link" href="#">← Back</a>
             <div class="tool-header">
@@ -65,224 +66,228 @@
         </div>
     `;
 
-    let originalPdfBytes = null;
-    let currentFileName = "";
-    let totalPages = 0;
+  let originalPdfBytes = null;
+  let currentFileName = '';
+  let totalPages = 0;
 
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const workspace = document.getElementById('workspace');
-    const fileNameDisplay = document.getElementById('file-name-display');
-    const removeFileBtn = document.getElementById('remove-file-btn');
-    const btnApply = document.getElementById('btn-apply');
-    const rangesInput = document.getElementById('split-ranges');
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const workspace = document.getElementById('workspace');
+  const fileNameDisplay = document.getElementById('file-name-display');
+  const removeFileBtn = document.getElementById('remove-file-btn');
+  const btnApply = document.getElementById('btn-apply');
+  const rangesInput = document.getElementById('split-ranges');
 
-    if (typeof initDropZone === 'function') {
-        initDropZone('drop-zone', 'file-input', handleFiles, '.pdf');
-    } else {
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  if (typeof initDropZone === 'function') {
+    initDropZone('drop-zone', 'file-input', handleFiles, '.pdf');
+  } else {
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+  }
+
+  removeFileBtn.addEventListener('click', () => {
+    originalPdfBytes = null;
+    currentFileName = '';
+    totalPages = 0;
+    fileInput.value = '';
+    workspace.classList.add('hidden');
+    dropZone.classList.remove('hidden');
+  });
+
+  async function handleFiles(files) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    if (typeof window.validateFile === 'function') {
+      for (const f of files) {
+        const check = window.validateFile(f);
+        if (!check.valid) {
+          if (typeof window.showError === 'function') window.showError(check.reason);
+          return;
+        }
+      }
     }
 
-    removeFileBtn.addEventListener('click', () => {
-        originalPdfBytes = null;
-        currentFileName = "";
-        totalPages = 0;
-        fileInput.value = '';
-        workspace.classList.add('hidden');
-        dropZone.classList.remove('hidden');
-    });
+    try {
+      if (typeof showProgress === 'function') showProgress(30);
+      const ab = await file.arrayBuffer();
+      if (window.pdfDB) {
+        await window.pdfDB.saveFile('split_target', ab);
+        originalPdfBytes = 'split_target';
+      } else {
+        originalPdfBytes = ab;
+      }
+      currentFileName = file.name.replace(/\.[^/.]+$/, '');
 
-    async function handleFiles(files) {
-        if (!files || files.length === 0) return;
-        const file = files[0];
-        
-        
-        if (typeof window.validateFile === 'function') {
-            for (const f of files) {
-                const check = window.validateFile(f);
-                if (!check.valid) {
-                    if (typeof window.showError === 'function') window.showError(check.reason);
-                    return;
-                }
-            }
-        }
-        
+      let actualBytes =
+        originalPdfBytes instanceof ArrayBuffer
+          ? originalPdfBytes
+          : await window.pdfDB.getFile(originalPdfBytes);
+      const tempDoc = await PDFLib.PDFDocument.load(actualBytes, { ignoreEncryption: true });
+      actualBytes = null;
+      totalPages = tempDoc.getPageCount();
 
-        try {
-            if (typeof showProgress === 'function') showProgress(30);
-            const ab = await file.arrayBuffer();
-            if (window.pdfDB) {
-                await window.pdfDB.saveFile('split_target', ab);
-                originalPdfBytes = 'split_target';
-            } else {
-                originalPdfBytes = ab;
-            }
-            currentFileName = file.name.replace(/\.[^/.]+$/, "");
-            
-            let actualBytes = originalPdfBytes instanceof ArrayBuffer ? originalPdfBytes : await window.pdfDB.getFile(originalPdfBytes);
-            const tempDoc = await PDFLib.PDFDocument.load(actualBytes, { ignoreEncryption: true });
-            actualBytes = null;
-            totalPages = tempDoc.getPageCount();
-            
-            fileNameDisplay.textContent = file.name;
-            if (typeof formatBytes === 'function' && typeof fileSizeDisplay !== 'undefined' && fileSizeDisplay) fileSizeDisplay.textContent = formatBytes(file.size);
-            
-            if (typeof renderPdfThumbnail === 'function') {
-                const imgEl = document.getElementById('file-preview-img');
-                if (imgEl) renderPdfThumbnail(file, imgEl);
-            }
-            
-            dropZone.classList.add('hidden');
-            workspace.classList.remove('hidden');
-            
-            if (typeof hideProgress === 'function') hideProgress();
-        } catch (err) {
-            console.error(err);
-            if (typeof showError === 'function') showError('Error loading PDF: ' + err.message);
-            if (typeof hideProgress === 'function') hideProgress();
-        }
+      fileNameDisplay.textContent = file.name;
+      if (
+        typeof formatBytes === 'function' &&
+        typeof fileSizeDisplay !== 'undefined' &&
+        fileSizeDisplay
+      )
+        fileSizeDisplay.textContent = formatBytes(file.size);
+
+      if (typeof renderPdfThumbnail === 'function') {
+        const imgEl = document.getElementById('file-preview-img');
+        if (imgEl) renderPdfThumbnail(file, imgEl);
+      }
+
+      dropZone.classList.add('hidden');
+      workspace.classList.remove('hidden');
+
+      if (typeof hideProgress === 'function') hideProgress();
+    } catch (err) {
+      console.error(err);
+      if (typeof showError === 'function') showError('Error loading PDF: ' + err.message);
+      if (typeof hideProgress === 'function') hideProgress();
     }
+  }
 
-    function parseRanges(inputStr, maxPages) {
-        const ranges = [];
-        const parts = inputStr.split(',');
-        for (let part of parts) {
-            part = part.trim();
-            if (!part) continue;
-            if (part.includes('-')) {
-                const [start, end] = part.split('-').map(n => parseInt(n.trim(), 10));
-                if (isNaN(start) || isNaN(end) || start < 1 || end > maxPages || start > end) {
-                    throw new Error(`Invalid range: ${part}`);
-                }
-                ranges.push({ start, end });
-            } else {
-                const page = parseInt(part, 10);
-                if (isNaN(page) || page < 1 || page > maxPages) {
-                    throw new Error(`Invalid page number: ${part}`);
-                }
-                ranges.push({ start: page, end: page });
-            }
+  function parseRanges(inputStr, maxPages) {
+    const ranges = [];
+    const parts = inputStr.split(',');
+    for (let part of parts) {
+      part = part.trim();
+      if (!part) continue;
+      if (part.includes('-')) {
+        const [start, end] = part.split('-').map((n) => parseInt(n.trim(), 10));
+        if (isNaN(start) || isNaN(end) || start < 1 || end > maxPages || start > end) {
+          throw new Error(`Invalid range: ${part}`);
         }
-        return ranges;
+        ranges.push({ start, end });
+      } else {
+        const page = parseInt(part, 10);
+        if (isNaN(page) || page < 1 || page > maxPages) {
+          throw new Error(`Invalid page number: ${part}`);
+        }
+        ranges.push({ start: page, end: page });
+      }
     }
+    return ranges;
+  }
 
-    btnApply.addEventListener('click', async () => {
-            if (!btnApply.hasAttribute('data-original-text')) {
-                btnApply.setAttribute('data-original-text', btnApply.textContent);
+  btnApply.addEventListener('click', async () => {
+    if (!btnApply.hasAttribute('data-original-text')) {
+      btnApply.setAttribute('data-original-text', btnApply.textContent);
+    }
+    btnApply.disabled = true;
+    btnApply.textContent = 'Processing...';
+    if (typeof window.showProgress === 'function') window.showProgress(10);
+
+    try {
+      if (!originalPdfBytes) return;
+
+      const rangeStr = rangesInput.value.trim();
+      if (!rangeStr) {
+        if (typeof showError === 'function') showError('Please enter page ranges to split.');
+        return;
+      }
+
+      let parsedRanges;
+      try {
+        parsedRanges = parseRanges(rangeStr, totalPages);
+        if (parsedRanges.length === 0) throw new Error('No valid ranges found.');
+      } catch (e) {
+        if (typeof showError === 'function') showError(e.message);
+        return;
+      }
+
+      try {
+        let results;
+        if (typeof window.runPdfWorkerTask === 'function') {
+          const payload = {
+            fileBytes: new Uint8Array(originalPdfBytes.slice(0)),
+            fileName: currentFileName,
+            ranges: parsedRanges,
+          };
+
+          results = await window.runPdfWorkerTask(
+            'split',
+            payload,
+            [payload.fileBytes.buffer],
+            (progress) => {},
+          );
+        } else {
+          let syncActualBytes =
+            originalPdfBytes instanceof ArrayBuffer
+              ? originalPdfBytes
+              : await window.pdfDB.getFile(originalPdfBytes);
+          const srcDoc = await PDFLib.PDFDocument.load(syncActualBytes);
+          syncActualBytes = null;
+          results = [];
+          for (let i = 0; i < parsedRanges.length; i++) {
+            const r = parsedRanges[i];
+            const newDoc = await PDFLib.PDFDocument.create();
+            const indices = [];
+            for (let j = r.start - 1; j < r.end; j++) indices.push(j);
+
+            const copiedPages = await newDoc.copyPages(srcDoc, indices);
+            for (let k = 0; k < copiedPages.length; k++) {
+              newDoc.addPage(copiedPages[k]);
+              if (k % 50 === 0) await new Promise((r) => setTimeout(r, 0));
             }
-            btnApply.disabled = true;
-            btnApply.textContent = "Processing...";
-            if (typeof window.showProgress === 'function') window.showProgress(10);
-            
+
+            const pdfBytes = await newDoc.save({ useObjectStreams: true });
+            results.push({ name: `${currentFileName}_${r.start}-${r.end}.pdf`, bytes: pdfBytes });
+          }
+        }
+
+        if (results.length === 1) {
+          if (typeof downloadFile === 'function') {
+            downloadFile(results[0].bytes, results[0].name);
+            originalPdfBytes = null;
+          }
+        } else {
+          if (typeof JSZip === 'undefined') {
             try {
-                
-        if (!originalPdfBytes) return;
-        
-        const rangeStr = rangesInput.value.trim();
-        if (!rangeStr) {
-            if (typeof showError === 'function') showError("Please enter page ranges to split.");
-            return;
+              await window.loadExternalScript('https://unpkg.com/jszip@3.10.1/dist/jszip.min.js');
+            } catch (e) {
+              throw new Error('Failed to load JSZip library. Cannot create ZIP file.', {
+                cause: e,
+              });
+            }
+          }
+          const zip = new JSZip();
+
+          for (let i = 0; i < results.length; i++) {
+            zip.file(results[i].name, results[i].bytes);
+          }
+
+          const zipContent = await zip.generateAsync({ type: 'uint8array' });
+
+          if (typeof downloadFile === 'function') {
+            downloadFile(zipContent, `${currentFileName}_split.zip`);
+            originalPdfBytes = null;
+          }
         }
 
-        let parsedRanges;
-        try {
-            parsedRanges = parseRanges(rangeStr, totalPages);
-            if (parsedRanges.length === 0) throw new Error("No valid ranges found.");
-        } catch (e) {
-            if (typeof showError === 'function') showError(e.message);
-            return;
-        }
+        if (typeof showSuccess === 'function') showSuccess('PDF split successfully!');
+      } catch (error) {
+        console.error(error);
+        if (typeof showError === 'function') showError('Error splitting PDF: ' + error.message);
+      } finally {
+      }
 
-        try {
-            
-            
-            
-
-let results;
-            if (typeof window.runPdfWorkerTask === 'function') {
-                const payload = {
-                    fileBytes: new Uint8Array(originalPdfBytes.slice(0)),
-                    fileName: currentFileName,
-                    ranges: parsedRanges
-                };
-                
-                results = await window.runPdfWorkerTask('split', payload, [payload.fileBytes.buffer], (progress) => {
-                    
-                });
-            } else {
-                let syncActualBytes = originalPdfBytes instanceof ArrayBuffer ? originalPdfBytes : await window.pdfDB.getFile(originalPdfBytes);
-                const srcDoc = await PDFLib.PDFDocument.load(syncActualBytes);
-                syncActualBytes = null;
-                results = [];
-                for (let i = 0; i < parsedRanges.length; i++) {
-                    const r = parsedRanges[i];
-                    const newDoc = await PDFLib.PDFDocument.create();
-                    const indices = [];
-                    for (let j = r.start - 1; j < r.end; j++) indices.push(j);
-                    
-                    const copiedPages = await newDoc.copyPages(srcDoc, indices);
-                    for (let k = 0; k < copiedPages.length; k++) {
-                        newDoc.addPage(copiedPages[k]);
-                        if (k % 50 === 0) await new Promise(r => setTimeout(r, 0));
-                    }
-                    
-                    const pdfBytes = await newDoc.save({ useObjectStreams: true });
-                    results.push({ name: `${currentFileName}_${r.start}-${r.end}.pdf`, bytes: pdfBytes });
-                    
-                }
-            }
-
-            if (results.length === 1) {
-                
-                if (typeof downloadFile === 'function') {
-                    downloadFile(results[0].bytes, results[0].name);
-                    originalPdfBytes = null;
-                }
-            } else {
-                if (typeof JSZip === 'undefined') {
-                    try {
-                        await window.loadExternalScript('https://unpkg.com/jszip@3.10.1/dist/jszip.min.js');
-                    } catch (e) {
-                        throw new Error("Failed to load JSZip library. Cannot create ZIP file.", { cause: e });
-                    }
-                }
-                const zip = new JSZip();
-                
-                for (let i = 0; i < results.length; i++) {
-                    zip.file(results[i].name, results[i].bytes);
-                }
-                
-                const zipContent = await zip.generateAsync({ type: "uint8array" });
-                
-                if (typeof downloadFile === 'function') {
-                    downloadFile(zipContent, `${currentFileName}_split.zip`);
-                    originalPdfBytes = null;
-                }
-            }
-
-            if (typeof showSuccess === 'function') showSuccess('PDF split successfully!');
-        } catch (error) {
-            console.error(error);
-            if (typeof showError === 'function') showError("Error splitting PDF: " + error.message);
-        } finally {
-            
-            
-            
-        }
-    
-                if (typeof window.showProgress === 'function') window.showProgress(100);
-            } catch (err) {
-                console.error("PDF Processing Error:", err);
-                if (typeof window.hideProgress === 'function') window.hideProgress();
-                if (typeof window.showError === 'function') {
-                    window.showError(err.message || "An error occurred while processing the PDF.");
-                } else {
-                    alert("Error: " + (err.message || "An error occurred"));
-                }
-            } finally {
-                btnApply.disabled = false;
-                btnApply.textContent = btnApply.getAttribute('data-original-text');
-            }
-    });
+      if (typeof window.showProgress === 'function') window.showProgress(100);
+    } catch (err) {
+      console.error('PDF Processing Error:', err);
+      if (typeof window.hideProgress === 'function') window.hideProgress();
+      if (typeof window.showError === 'function') {
+        window.showError(err.message || 'An error occurred while processing the PDF.');
+      } else {
+        alert('Error: ' + (err.message || 'An error occurred'));
+      }
+    } finally {
+      btnApply.disabled = false;
+      btnApply.textContent = btnApply.getAttribute('data-original-text');
+    }
+  });
 })();

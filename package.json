@@ -10,6 +10,8 @@
     "lint": "eslint .",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "build:android": "vite build && npx cap sync android",
     "open:android": "npx cap open android"
   },
@@ -18,6 +20,7 @@
     "@playwright/test": "^1.59.1",
     "eslint": "^10.1.0",
     "jsdom": "^29.1.1",
+    "prettier": "^3.8.3",
     "terser": "^5.47.1",
     "typescript": "^6.0.3",
     "vite": "^5.0.0",
