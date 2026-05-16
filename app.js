@@ -1011,89 +1011,137 @@ window.confetti = confetti;
   window.callGeminiAPI = window.PdfMinty.utils.callGeminiAPI;
 
   // ==========================================
-  // 9. USER FEEDBACK MECHANISM
+  // IN-APP CONTACT & FEEDBACK MODAL
   // ==========================================
-  function initFeedbackWidget() {
-    const btn = document.getElementById('footer-feedback-btn');
-    if (!btn) return;
-
-    const dialog = document.createElement('div');
-    dialog.className = 'feedback-dialog hidden';
-    dialog.setAttribute('role', 'dialog');
-    dialog.setAttribute('aria-label', 'Feedback form');
-    dialog.style.position = 'fixed';
-    dialog.style.bottom = '100px';
-    dialog.style.left = '50%';
-    dialog.style.transform = 'translateX(-50%)';
-    dialog.style.zIndex = '9999';
-    dialog.style.background = 'var(--card)';
-    dialog.style.padding = '20px';
-    dialog.style.borderRadius = '12px';
-    dialog.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
-    dialog.style.width = '300px';
-    dialog.style.maxWidth = '90vw';
-    
-    dialog.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h4 id="feedback-title" style="margin: 0; font-size: 1.1rem;">How can we improve?</h4>
-        <button class="feedback-close" aria-label="Close feedback" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--muted);">&times;</button>
+  function initContactModal() {
+    const overlay = document.createElement('div');
+    overlay.className = 'contact-modal-overlay';
+    overlay.innerHTML = `
+      <div class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+        <div class="contact-modal-header">
+          <h2 id="contact-modal-title" class="contact-modal-title">Contact Us</h2>
+          <button class="contact-modal-close" aria-label="Close Contact Modal">&times;</button>
+        </div>
+        <form id="contact-form">
+          <div class="contact-form-group">
+            <label class="contact-form-label" for="contact-name">Name</label>
+            <input type="text" id="contact-name" class="contact-form-input" placeholder="Your Name" required>
+          </div>
+          <div class="contact-form-group">
+            <label class="contact-form-label" for="contact-email">Email Address</label>
+            <input type="email" id="contact-email" class="contact-form-input" placeholder="you@example.com" required>
+          </div>
+          <div class="contact-form-group">
+            <label class="contact-form-label" for="contact-type">Topic</label>
+            <select id="contact-type" class="contact-form-select" required>
+              <option value="General Inquiry">General Inquiry</option>
+              <option value="Feedback">Feedback & Suggestions</option>
+              <option value="Bug Report">Bug Report</option>
+              <option value="Business">Business Talk</option>
+            </select>
+          </div>
+          <div class="contact-form-group">
+            <label class="contact-form-label" for="contact-message">Message</label>
+            <textarea id="contact-message" class="contact-form-textarea" placeholder="How can we help you?" required></textarea>
+          </div>
+          <button type="submit" id="contact-submit" class="btn-action w-full" style="width: 100%;">
+            <span>Send Message</span>
+          </button>
+        </form>
+        <div id="contact-success" style="display: none; text-align: center; padding: 20px 0;">
+          <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
+          <h3 style="color: var(--text); margin-bottom: 5px;">Message Sent!</h3>
+          <p style="color: var(--muted); font-size: 0.9rem;">Thank you for reaching out. We'll get back to you soon.</p>
+          <button class="btn-secondary contact-modal-close-success" style="margin-top: 15px; padding: 8px 16px;">Close</button>
+        </div>
       </div>
-      <form id="feedback-form" style="display: flex; flex-direction: column; gap: 10px;">
-        <textarea id="feedback-text" required placeholder="Tell us what you think..." aria-labelledby="feedback-title" style="width: 100%; height: 100px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); resize: none; font-family: inherit; box-sizing: border-box;"></textarea>
-        <button type="submit" class="btn-action" style="width: 100%;">Send Feedback</button>
-      </form>
-      <div id="feedback-success" class="hidden" style="color: var(--primary); font-weight: 500; text-align: center; margin-top: 10px;">Thanks for your feedback!</div>
     `;
-    document.body.appendChild(dialog);
+    document.body.appendChild(overlay);
 
-    btn.addEventListener('click', () => {
-      dialog.classList.toggle('hidden');
-      if (!dialog.classList.contains('hidden')) {
-        document.getElementById('feedback-text').focus();
-        // Scroll a bit so dialog is perfectly visible above footer on small screens
-        window.scrollTo({
-          top: document.body.scrollHeight,
-          behavior: 'smooth'
-        });
-      }
+    const form = document.getElementById('contact-form');
+    const successView = document.getElementById('contact-success');
+    let isOpen = false;
+
+    const openModal = (defaultTopic = 'General Inquiry') => {
+      document.getElementById('contact-type').value = defaultTopic;
+      form.style.display = 'block';
+      successView.style.display = 'none';
+      form.reset();
+      
+      overlay.classList.add('active');
+      isOpen = true;
+      setTimeout(() => document.getElementById('contact-name').focus(), 100);
+    };
+
+    const closeModal = () => {
+      overlay.classList.remove('active');
+      isOpen = false;
+    };
+
+    // Event Listeners for opening
+    const feedbackBtn = document.getElementById('footer-feedback-btn');
+    const contactBtn = document.getElementById('footer-contact-btn');
+    
+    if (feedbackBtn) {
+      feedbackBtn.addEventListener('click', (e) => { e.preventDefault(); openModal('Feedback'); });
+    }
+    if (contactBtn) {
+      contactBtn.addEventListener('click', (e) => { e.preventDefault(); openModal('General Inquiry'); });
+    }
+
+    // Event listeners for closing
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
     });
+    overlay.querySelector('.contact-modal-close').addEventListener('click', closeModal);
+    overlay.querySelector('.contact-modal-close-success').addEventListener('click', closeModal);
 
-    dialog.querySelector('.feedback-close').addEventListener('click', () => {
-      dialog.classList.add('hidden');
-      btn.focus();
-    });
-
-    document.getElementById('feedback-form').addEventListener('submit', (e) => {
+    // Form Submission
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const text = document.getElementById('feedback-text').value;
+      const submitBtn = document.getElementById('contact-submit');
+      const originalText = submitBtn.innerHTML;
       
-      const feed = JSON.parse(localStorage.getItem('pdfminty_feedback') || '[]');
-      feed.push({ date: new Date().toISOString(), text });
-      localStorage.setItem('pdfminty_feedback', JSON.stringify(feed));
-      
-      if ('serviceWorker' in navigator && 'SyncManager' in window) {
-        navigator.serviceWorker.ready.then(reg => reg.sync.register('sync-feedback')).catch(() => {});
+      const payload = {
+        name: document.getElementById('contact-name').value,
+        email: document.getElementById('contact-email').value,
+        type: document.getElementById('contact-type').value,
+        message: document.getElementById('contact-message').value
+      };
+
+      try {
+        submitBtn.innerHTML = '<div class="loading-spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>';
+        submitBtn.disabled = true;
+
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error('Submission failed');
+        
+        form.style.display = 'none';
+        successView.style.display = 'block';
+
+      } catch (err) {
+        console.error(err);
+        if (window.PdfMinty && window.PdfMinty.ui && window.PdfMinty.ui.showError) {
+           window.PdfMinty.ui.showError('Could not send message. Please try again later.');
+        } else {
+           alert('Error sending message. Please check your connection.');
+        }
+      } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
       }
-
-      document.getElementById('feedback-form').style.display = 'none';
-      document.getElementById('feedback-success').classList.remove('hidden');
-
-      setTimeout(() => {
-        dialog.classList.add('hidden');
-        setTimeout(() => {
-          document.getElementById('feedback-form').style.display = 'flex';
-          document.getElementById('feedback-success').classList.add('hidden');
-          document.getElementById('feedback-text').value = '';
-        }, 300);
-      }, 2000);
     });
   }
 
-  // Delay widget initialization so it doesn't block main thread metrics
   if (typeof window.requestIdleCallback !== 'undefined') {
-    window.requestIdleCallback(initFeedbackWidget);
+    window.requestIdleCallback(initContactModal);
   } else {
-    setTimeout(initFeedbackWidget, 2000);
+    setTimeout(initContactModal, 2000);
   }
 
 })();
