@@ -196,7 +196,7 @@ window.confetti = confetti;
             `;
       toolsList.forEach((t) => {
         html += `
-                    <a href="#${t.id}" class="tool-card" data-cat="${t.cat}" data-title="${t.title.toLowerCase()}" data-desc="${t.desc.toLowerCase()}" aria-label="Tool: ${t.title}. ${t.desc}">
+                    <a href="/${t.id}-pdf" class="tool-card" data-cat="${t.cat}" data-title="${t.title.toLowerCase()}" data-desc="${t.desc.toLowerCase()}" aria-label="Tool: ${t.title}. ${t.desc}">
                         <div class="tool-icon-wrapper" aria-hidden="true">${t.icon}</div>
                         <div class="tool-info">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
@@ -409,7 +409,7 @@ window.confetti = confetti;
                             <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
                             <h2>Tool Loading Failed</h2>
                             <p style="color: var(--muted); margin-bottom: 2rem;">We couldn't load the "${toolId}" tool. Error: ${err.message}</p>
-                            <a href="#" class="btn-secondary" style="text-decoration: none; display: inline-block;">Go Back Home</a>
+                            <a href="/" class="btn-secondary" style="text-decoration: none; display: inline-block;">Go Back Home</a>
                             <button onclick="location.reload()" class="btn-action" style="margin-left: 1rem; border: none; cursor: pointer;">Retry</button>
                             <p style="font-size: 0.8rem; color: var(--muted); margin-top: 2rem;">Debug Path: ./tools/${toolId}.js</p>
                         </div>
@@ -444,7 +444,13 @@ window.confetti = confetti;
   };
 
   function router() {
-    const hash = window.location.hash.substring(1);
+    let path = window.location.pathname;
+    let viewId = '';
+    
+    if (path !== '/' && path !== '/index.html') {
+      viewId = path.replace(/^\//, '').replace(/\/$/, '').replace(/-pdf$/, '');
+    }
+
     const appContainer = document.getElementById('app');
 
     // Smooth transition effect
@@ -455,7 +461,7 @@ window.confetti = confetti;
     setTimeout(() => {
       appContainer.innerHTML = ''; // Clear current view
 
-      if (!hash) {
+      if (!viewId) {
         renderHomePage(appContainer);
         document.title = 'PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF';
         const heading = appContainer.querySelector('h1');
@@ -465,10 +471,10 @@ window.confetti = confetti;
         }
       } else {
         // Check if valid tool
-        const isValidTool = toolsList.some((t) => t.id === hash);
+        const isValidTool = toolsList.some((t) => t.id === viewId);
         if (isValidTool) {
-          SEO.updateTags(hash);
-          const loadPromise = loadToolScript(hash);
+          SEO.updateTags(viewId);
+          const loadPromise = loadToolScript(viewId);
           if (loadPromise && typeof loadPromise.then === 'function') {
             loadPromise.then(() => {
               const heading = appContainer.querySelector('h1, h2');
@@ -479,7 +485,11 @@ window.confetti = confetti;
             }).catch(() => {});
           }
         } else {
-          window.location.hash = ''; // Redirect to home if invalid
+          history.replaceState(null, '', '/'); // Redirect to home if invalid
+          path = '/';
+          viewId = '';
+          router();
+          return;
         }
       }
 
@@ -579,7 +589,21 @@ window.confetti = confetti;
       .catch(() => {});
   }
 
-  window.addEventListener('hashchange', router);
+  window.addEventListener('popstate', router);
+
+  // Intercept all clicks to handle internal links for SPA
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (link) {
+      const href = link.getAttribute('href');
+      // If it's an internal link (e.g. /merge-pdf or /)
+      if (href && href.startsWith('/')) {
+        e.preventDefault();
+        history.pushState(null, '', href);
+        router();
+      }
+    }
+  });
 
   // Run router immediately if DOM is ready, else wait for DOMContentLoaded
   if (document.readyState === 'loading') {
@@ -982,7 +1006,7 @@ window.confetti = confetti;
   // ==========================================
   window.PdfMinty.utils.callGeminiAPI = async function (prompt, context = '', history = []) {
     try {
-      const response = await fetch('/.netlify/functions/gemini-proxy', {
+      const response = await fetch('/api/gemini-proxy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

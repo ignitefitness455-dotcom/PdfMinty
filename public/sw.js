@@ -38,8 +38,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Exclude API requests to Gemini Proxy or Netlify functions
-  if (url.pathname.startsWith('/.netlify/functions/')) {
+  // Exclude API requests to functions
+  if (url.pathname.startsWith('/api/')) {
     // Network-only for Serverless endpoints
     return;
   }

@@ -13,39 +13,18 @@ export function init() {
     actionText: '🗜️ Compress PDF',
     isMultiFile: false,
     onApply: async ({ actualBytes, currentFileName }) => {
-      if (typeof window.showProgress === 'function') window.showProgress(5);
-
-      try {
-        if (typeof window.runPdfWorkerTask !== 'function') {
-          throw new Error('Worker not found');
-        }
-
+      let resultBytes;
+      if (typeof window.runPdfWorkerTask === 'function') {
         const payload = { fileBytes: new Uint8Array(actualBytes) };
-        const resultBytes = await window.runPdfWorkerTask('compress', payload, [
+        resultBytes = await window.runPdfWorkerTask('compress', payload, [
           payload.fileBytes.buffer,
-        ], (prog) => {
-          if (typeof window.showProgress === 'function') window.showProgress(prog);
-        });
-
-        // Verify result bytes exist and are not empty before downloading
-        if (!resultBytes || resultBytes.length === 0) {
-          throw new Error('PDF compression failed: empty result');
-        }
-
-        if (typeof downloadFile !== 'function') {
-          throw new Error('Download function not available');
-        }
-
-        downloadFile(resultBytes, currentFileName + '_compressed.pdf');
-
-        // Only show success after download is initiated
-        if (typeof showSuccess === 'function') {
-          showSuccess('PDF compressed successfully!');
-        }
-      } catch (error) {
-        // Re-throw to let processPdfTask handle error display
-        throw error;
+        ]);
+      } else {
+        throw new Error('Worker not found');
       }
+      if (typeof downloadFile === 'function')
+        downloadFile(resultBytes, currentFileName + '_compressed.pdf');
+      if (typeof showSuccess === 'function') showSuccess('PDF compressed successfully!');
     },
   });
 }

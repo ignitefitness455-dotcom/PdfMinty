@@ -5,10 +5,7 @@
 const sanitizeString = (str) => {
   if (typeof str !== 'string') return '';
   
-  // 1. Strip HTML tags entirely to prevent XSS
   const noHtml = str.replace(/<\/?[^>]+(>|$)/g, '');
-  
-  // 2. Escape Remaining Special Characters (basic encoder)
   const escaped = noHtml
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -16,7 +13,6 @@ const sanitizeString = (str) => {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
-  // 3. Prompt Injection Defense (Basic Keyword Heuristics)
   const injectionPatterns = [
     /ignore previous/i,
     /bypass rules/i,
@@ -33,17 +29,12 @@ const sanitizeString = (str) => {
   return escaped;
 };
 
-/**
- * Memory-based Rate Limiter using Map with TTL
- */
 const rateLimitMap = new Map();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 60 seconds
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const MAX_REQUESTS = 10;
 
 const checkRateLimit = (ip) => {
   const now = Date.now();
-  
-  // Auto-clean expired entries lazily
   for (const [key, value] of rateLimitMap.entries()) {
     if (now - value.startTime > RATE_LIMIT_WINDOW_MS) {
       rateLimitMap.delete(key);
@@ -59,7 +50,6 @@ const checkRateLimit = (ip) => {
   record.count += 1;
 
   if (record.count > MAX_REQUESTS) {
-    // Calculate seconds remaining in the window
     const retryAfter = Math.ceil((RATE_LIMIT_WINDOW_MS - (now - record.startTime)) / 1000);
     return { allowed: false, retryAfter };
   }
@@ -67,72 +57,53 @@ const checkRateLimit = (ip) => {
   return { allowed: true };
 };
 
-export const handler = async function (event) {
-  // Determine allowed origin (allowing AI Studio preview domains while restricting generally)
-  const origin = event.headers.origin || event.headers.Origin;
-  let allowedOrigin = 'https://pdfminty.netlify.app';
-  if (origin && (origin.includes('run.app') || origin.includes('localhost'))) {
-    allowedOrigin = origin; // Support dev env
-  }
+export async function onRequestOptions({ request }) {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    }
+  });
+}
 
+export async function onRequestPost({ request, env }) {
   const headers = {
-    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
   };
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
-  }
-
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers, body: 'Method Not Allowed' };
-  }
-
-  // Rate Limiting Check
-  // Netlify event provides client IP via headers
-  const clientIp = event.headers['x-forwarded-for'] || event.headers['client-ip'] || 'unknown';
+  const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
   const rlResult = checkRateLimit(clientIp);
   
   if (!rlResult.allowed) {
-    return {
-      statusCode: 429,
-      headers: {
-        ...headers,
-        'Retry-After': rlResult.retryAfter.toString()
-      },
-      body: JSON.stringify({ error: 'Too Many Requests', retryAfter: rlResult.retryAfter })
-    };
+    headers['Retry-After'] = rlResult.retryAfter.toString();
+    return new Response(JSON.stringify({ error: 'Too Many Requests', retryAfter: rlResult.retryAfter }), { status: 429, headers });
   }
 
   try {
-    // Environment Variable Security: Throw explicitly if missing
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = env.GEMINI_API_KEY;
     if (!apiKey) {
-      // Intentionally crashing or returning explicit 500
       throw new Error('Server Configuration Error: GEMINI_API_KEY environment variable is not set.');
     }
 
-    if (!event.body) {
-      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Empty request' }) };
+    const bodyText = await request.text();
+    if (!bodyText) {
+      return new Response(JSON.stringify({ error: 'Empty request' }), { status: 400, headers });
     }
 
-    // Payload Size validation: Reject input over 15,000 characters with 413 error
-    if (event.body.length > 15000) {
-      return {
-        statusCode: 413,
-        headers,
-        body: JSON.stringify({ error: 'Payload Too Large: Exceeds 15,000 characters limit.' })
-      };
+    if (bodyText.length > 15000) {
+      return new Response(JSON.stringify({ error: 'Payload Too Large: Exceeds 15,000 characters limit.' }), { status: 413, headers });
     }
 
-    const payload = JSON.parse(event.body);
+    const payload = JSON.parse(bodyText);
     let { prompt, context, history } = payload;
 
     prompt = prompt ? sanitizeString(prompt).substring(0, 500) : '';
     context = context ? sanitizeString(context).substring(0, 500) : '';
 
-    // Ensure history is sanitized
     if (history && Array.isArray(history)) {
       history = history
         .map((h) => ({
@@ -144,7 +115,6 @@ export const handler = async function (event) {
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-    // Construct the contents array with separated parts to mitigate prompt injection
     const parts = [];
     if (context) parts.push({ text: `Context: ${context}` });
     if (history) parts.push({ text: `History: ${JSON.stringify(history)}` });
@@ -173,23 +143,15 @@ export const handler = async function (event) {
       throw new Error(`AI service unavailable: ${data?.error?.message || 'Unknown API error'}`);
     }
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(data),
-    };
+    return new Response(JSON.stringify(data), { status: 200, headers });
+
   } catch (error) {
     console.error('Gemini proxy error:', error);
     
-    // Distinguish between our validation errors and actual server failures
     if (error.message.includes('Security Violation')) {
-      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid input provided' }) };
+      return new Response(JSON.stringify({ error: 'Invalid input provided' }), { status: 400, headers });
     }
 
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: 'AI service unavailable' }),
-    };
+    return new Response(JSON.stringify({ error: 'AI service unavailable' }), { status: 500, headers });
   }
-};
+}
