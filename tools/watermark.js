@@ -13,7 +13,7 @@ export function init() {
     icon: window.PdfMinty.ICONS.watermark || '📄',
     actionText: '💧 Add Watermark',
     isMultiFile: false,
-    settingsHtml: `<div class="settings-panel">
+    settingsHtml: `<div class="settings-panel" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                     <div class="setting-group full-width">
                         <label class="input-label">Watermark Text</label>
                         <input type="text" id="wm-text" class="text-input" placeholder="e.g., CONFIDENTIAL" value="CONFIDENTIAL">

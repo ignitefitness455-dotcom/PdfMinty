@@ -1166,7 +1166,8 @@ body.light-mode .tool-card:hover {
   border-radius: 12px;
   color: #fff;
   font-weight: 600;
-  z-index: 9999;
+  /* Engineering Directive: Ensure Toast notifications sit at the absolute highest z-index level */
+  z-index: 10001;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   opacity: 0;
   transform: translateX(100%);

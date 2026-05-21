@@ -23,7 +23,7 @@ export function init() {
 
                 <!-- CROP TAB -->
                 <div id="crop-tab" class="tab-pane" style="display: block;">
-                    <div class="input-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                         <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label class="input-label" style="font-weight: 500; font-size: 0.9rem; color: var(--muted);">Top Margin (mm)</label>
                             <input type="number" id="crop-top" class="number-input" value="0" min="0" step="1" style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text);">
@@ -58,7 +58,7 @@ export function init() {
                         <button type="button" class="preset-btn" data-w="215.9" data-h="355.6" style="background: var(--bg); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Legal</button>
                     </div>
 
-                    <div class="input-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                         <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label class="input-label" style="font-weight: 500; font-size: 0.9rem; color: var(--muted);">Width (mm)</label>
                             <input type="number" id="resize-w" class="number-input" value="210" min="10" step="0.1" style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text);">

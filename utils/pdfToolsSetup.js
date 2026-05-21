@@ -27,7 +27,7 @@ export function setupToolUI({
             .tool-header p { color: var(--muted); }
             .back-link { display: inline-block; margin-bottom: 1rem; color: var(--muted); text-decoration: none; font-weight: 500; transition: color 0.2s; cursor: pointer; }
             .back-link:hover { color: var(--accent); }
-            .workspace { background: var(--card); padding: 2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1.5rem; }
+            .workspace { background: var(--card); padding: 2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1.5rem; position: relative; z-index: 30; }
             .file-info { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.05); }
             .file-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 1rem; font-weight: 500; }
             .remove-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.25rem; padding: 0 0.5rem; transition: transform 0.2s; }
@@ -105,6 +105,9 @@ export function setupToolUI({
   }
   async function handleFiles(files, updateProgress) {
     if (!files || files.length === 0) return;
+    
+    // Engineering Directive: Reset previous success/confetti states immediately upon a new file upload
+    if (typeof ToastManager !== 'undefined' && ToastManager.reset) ToastManager.reset();
 
     for (const f of files) {
       const check = await FileHandler.validateFile(f);
@@ -249,6 +252,9 @@ export function setupToolUI({
   const btnApply = document.getElementById('btn-apply');
   if (btnApply && onApply) {
     btnApply.addEventListener('click', () => {
+      // Engineering Directive: Reset state before a new operation starts
+      if (typeof ToastManager !== 'undefined' && ToastManager.reset) ToastManager.reset();
+      
       processPdfTask(btnApply, async () => {
         let actualBytes;
         if (!isMultiFile && originalPdfBytes) {

@@ -14,7 +14,7 @@ export function init() {
     actionText: '➕ Add Blank Page',
     isMultiFile: false,
     settingsHtml: `
-                <div class="options-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="options-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                     <div class="option-group" style="display: flex; flex-direction: column; gap: 0.75rem; background: var(--bg); padding: 1.25rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                         <span class="option-label" style="font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 0.25rem;">Insert Position</span>
                         
