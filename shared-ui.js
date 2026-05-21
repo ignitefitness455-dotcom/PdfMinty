@@ -49,10 +49,15 @@ export function setupToolLogic({ onFiles, onRemove, onApply }) {
     fileInput?.addEventListener('change', (e) => onFiles(e.target.files));
   }
 
-  // Some tools might custom handle back buttons:
+  // Bug 5 fix: use history API instead of hash mutation for back navigation
   document.getElementById('btn-back')?.addEventListener('click', (e) => {
     e.preventDefault();
-    window.location.hash = ''; // handled globally but safe fallback
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.history.pushState(null, '', '/');
+      if (typeof window.router === 'function') window.router();
+    }
   });
 
   removeBtn?.addEventListener('click', () => {
