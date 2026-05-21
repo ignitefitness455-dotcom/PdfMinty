@@ -1,16 +1,17 @@
 {
-  "name": "PDFMinty",
-  "short_name": "PDFMinty",
-  "description": "Free privacy-first PDF tools",
+  "name": "PdfMinty - Free Local PDF Tools",
+  "short_name": "PdfMinty",
+  "description": "100% Privacy-friendly Local PDF Tools. No server uploads.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#10b981",
+  "background_color": "#020617",
+  "theme_color": "#6366f1",
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512.png",

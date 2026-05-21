@@ -146,7 +146,6 @@ export function init() {
         const msg = mode === 'crop' ? 'PDF cropped successfully!' : 'PDF resized successfully!';
         showSuccess(msg);
       }
-    }
     },
   });
 }

@@ -16,7 +16,7 @@
       property="og:description"
       content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required."
     />
-    <meta property="og:url" content="https://pdfminty.netlify.app" />
+    <meta property="og:url" content="https://pdfminty.com" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/og-image.png" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -28,7 +28,7 @@
       name="twitter:description"
       content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required."
     />
-    <link rel="canonical" href="https://pdfminty.netlify.app" />
+    <link rel="canonical" href="https://pdfminty.com" />
     <meta name="robots" content="index, follow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
@@ -41,7 +41,7 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "PDFMinty",
-        "url": "https://pdfminty.netlify.app",
+        "url": "https://pdfminty.com",
         "description": "Free privacy-first PDF tools. Merge, split, compress PDFs in your browser with no uploads and no signup.",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Web",
@@ -56,14 +56,28 @@
     <!-- CSS -->
 
     <!-- Core Library -->
-    <script type="module" crossorigin src="/assets/index-CZ9YBnWS.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DKLs3uVN.css" />
+    <script type="module" crossorigin src="/assets/index-GncVkS-a.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/tool-shared-m-0KQhhI.js">
+    <link rel="modulepreload" crossorigin href="/assets/tool-merge-Dz6ZLwC3.js">
+    <link rel="modulepreload" crossorigin href="/assets/confetti-C-L-uRqM.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-C4skoEF6.css">
   </head>
   <body>
+    <script>
+      (function () {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'dark') {
+          document.body.classList.add('dark-mode');
+        } else if (!theme) {
+          localStorage.setItem('theme', 'light');
+        }
+      })();
+    </script>
+
     <!-- Navigation Bar -->
     <nav class="navbar">
       <div class="nav-content">
-        <a href="#" class="logo">
+        <a href="/" class="logo">
           <span class="logo-icon">🌿</span>
           <span>PDFMinty</span>
         </a>
@@ -89,6 +103,10 @@
             ><strong>100% Secure & Private.</strong> All files are processed locally on your device.
             No data is ever uploaded to our servers.</span
           >
+        </div>
+        <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; margin-bottom: 0.5rem;">
+          <a href="#" id="footer-feedback-btn" style="color: var(--primary); text-decoration: underline; font-size: 0.9rem;" aria-label="Provide Feedback">💬 Provide Feedback</a>
+          <a href="#" id="footer-contact-btn" style="color: var(--primary); text-decoration: underline; font-size: 0.9rem;" aria-label="Contact Us">✉️ Contact Us</a>
         </div>
         <p class="footer-copyright">&copy; 2026 PDFMinty. Free and open-source PDF tools.</p>
       </div>

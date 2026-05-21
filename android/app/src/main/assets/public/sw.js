@@ -1,44 +1,104 @@
-const CACHE_NAME = 'pdfminty-v6';
+const CACHE_NAME = 'pdfminty-v2';
+const DYNAMIC_CACHE = 'pdfminty-dynamic-v2';
+
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
+  '/style.css',
+  '/app.js',
+  '/pdf-worker.js',
+  '/manifest.json',
+  '/favicon.svg',
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
+];
 
 self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      // Use Cache-First for static assets
+      return cache.addAll(STATIC_ASSETS);
+    })
+  );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        }),
+        keys.filter((key) => key !== CACHE_NAME && key !== DYNAMIC_CACHE)
+          .map((key) => caches.delete(key))
       );
-    }),
+    })
   );
   self.clients.claim();
 });
 
+// Routing and Caching Strategies
 self.addEventListener('fetch', (event) => {
-  // Network-first strategy to ensure users always get the latest Vite build.
-  // We fall back to cache only if offline.
-  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
 
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Optionally cache the new response if it's a valid 200
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return response;
+  // Exclude API requests to functions
+  if (url.pathname.startsWith('/api/')) {
+    // Network-only for Serverless endpoints
+    return;
+  }
+
+  // 1. Cache-First for external CDN resources (unpkg, cdnjs, Google Fonts)
+  if (url.origin === 'https://cdnjs.cloudflare.com' || url.origin === 'https://unpkg.com' || url.origin === 'https://fonts.gstatic.com') {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        return cached || fetch(event.request).then((response) => {
+          const resClone = response.clone();
+          caches.open(DYNAMIC_CACHE).then((cache) => cache.put(event.request, resClone));
+          return response;
+        }).catch(() => {
+          // Fallback if needed
+        });
       })
-      .catch(() => {
-        // If network fails, try cache
-        return caches.match(event.request);
-      }),
+    );
+    return;
+  }
+
+  // 2. Stale-While-Revalidate for local JS/CSS chunks (Vite generated)
+  if (url.origin === location.origin && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        const fetchPromise = fetch(event.request).then((networkResponse) => {
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, networkResponse.clone());
+          });
+          return networkResponse;
+        }).catch(() => cachedResponse); // fallback to cache on offline
+
+        return cachedResponse || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // 3. Network-First fallback for HTML / other pages
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        return caches.open(DYNAMIC_CACHE).then((cache) => {
+          cache.put(event.request, response.clone());
+          return response;
+        });
+      }).catch(() => {
+        return caches.match('/index.html');
+      })
+    );
+    return;
+  }
+
+  // Generic fallback
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      return cached || fetch(event.request);
+    })
   );
 });
+
+// Background Sync Hook removed as it was unimplemented dead code.
+// If needed in the future, implement by retrieving queued feedback from Cache Storage/IndexedDB and POSTing to /api/contact
