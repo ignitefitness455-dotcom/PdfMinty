@@ -2,40 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     <title>PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF</title>
-    <meta
-      name="description"
-      content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required."
-    />
-    <meta
-      property="og:title"
-      content="PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF"
-    />
-    <meta
-      property="og:description"
-      content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required."
-    />
+    
+    <meta name="description" content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required." />
+    <meta property="og:title" content="PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF" />
+    <meta property="og:description" content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required." />
     <meta property="og:url" content="https://pdfminty.com" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/og-image.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF"
-    />
-    <meta
-      name="twitter:description"
-      content="PDFMinty is a free, privacy-first PDF toolkit. Merge, split, compress and edit PDFs directly in your browser. No uploads. No signup required."
-    />
-    <link rel="canonical" href="https://pdfminty.com" />
     <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://pdfminty.com" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
+    
     <meta name="theme-color" content="#10b981" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="PDFMinty" />
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -53,62 +40,55 @@
       }
     </script>
 
-    <!-- CSS -->
+    <link rel="preload" href="style.css" as="style">
     <link rel="stylesheet" href="style.css" />
 
-    <!-- Core Library -->
-  </head>
-  <body>
     <script>
-      (function () {
-        var theme = localStorage.getItem('theme');
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else if (!theme) {
-          localStorage.setItem('theme', 'light');
-        }
+      (function() {
+        try {
+          if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark-mode');
+            document.body?.classList.add('dark-mode');
+          }
+        } catch (e) {}
       })();
     </script>
+  </head>
+  <body>
+    <noscript>
+      <div style="background-color: #fef2f2; color: #991b1b; padding: 20px; text-align: center; font-family: sans-serif; font-weight: bold;">
+        ⚠️ PDFMinty requires JavaScript to run. Please enable JavaScript in your browser settings to process your PDF files securely on your device.
+      </div>
+    </noscript>
 
-    <!-- Navigation Bar -->
     <nav class="navbar">
       <div class="nav-content">
-        <a href="/" class="logo">
-          <span class="logo-icon">🌿</span>
+        <a href="/" class="logo" aria-label="PDFMinty Home">
+          <span class="logo-icon" aria-hidden="true">🌿</span>
           <span>PDFMinty</span>
         </a>
         <div class="nav-links">
-          <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Mode">🌙</button>
+          <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Mode" aria-label="Toggle Theme">☀️</button>
         </div>
       </div>
     </nav>
 
-    <div class="privacy-banner">
+    <div class="privacy-banner" role="alert">
       🔒 Your files never leave your device. All processing happens locally in your browser.
     </div>
 
-    <!-- Router will inject Homepage or Tools here -->
     <main id="app" class="container"></main>
 
-    <!-- Footer -->
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-trust">
-          <span class="trust-icon">🔒</span>
-          <span
-            ><strong>100% Secure & Private.</strong> All files are processed locally on your device.
-            No data is ever uploaded to our servers.</span
-          >
+          <span class="trust-icon" aria-hidden="true">🔒</span>
+          <span><strong>100% Secure & Private.</strong> All files are processed locally on your device. No data is ever uploaded to our servers.</span>
         </div>
-        <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; margin-bottom: 0.5rem;">
-          <a href="#" id="footer-feedback-btn" style="color: var(--primary); text-decoration: underline; font-size: 0.9rem;" aria-label="Provide Feedback">💬 Provide Feedback</a>
-          <a href="#" id="footer-contact-btn" style="color: var(--primary); text-decoration: underline; font-size: 0.9rem;" aria-label="Contact Us">✉️ Contact Us</a>
-        </div>
-        <p class="footer-copyright">&copy; 2026 PDFMinty. Free and open-source PDF tools.</p>
+        <p class="footer-copyright">&copy; 2026 PDFMinty. Free and offline-first PDF tools.</p>
       </div>
     </footer>
 
-    <!-- Global App Engine -->
     <script type="module" src="app.js" defer></script>
   </body>
 </html>
