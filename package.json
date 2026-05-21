@@ -1,17 +1,19 @@
 {
   "name": "pdfminty",
   "version": "1.0.0",
-  "description": "PDFMinty - Free Online PDF Tools",
+  "description": "PDFMinty - Offline-first Zero-data-storage PDF Tools",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint .",
-    "test:unit": "vitest run",
-    "test:e2e": "playwright test",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "clean": "rm -rf dist node_modules package-lock.json && npm install",
     "build:android": "vite build && npx cap sync android",
     "open:android": "npx cap open android"
   },
@@ -34,6 +36,6 @@
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^5.7.284"
+    "pdfjs-dist": "^3.11.174"
   }
 }
