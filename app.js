@@ -882,7 +882,13 @@ window.confetti = confetti;
           if (status === 'success') {
             workerCallbacks[id].resolve(result);
           } else {
-            workerCallbacks[id].reject(new Error(error));
+            // Bug 2 fix: worker posts a structured error object { message, operationName, ... }
+            // Using new Error(error) directly would produce "[Object Object]" as the message.
+            // Extract the human-readable message string before wrapping.
+            const errMsg = (typeof error === 'string')
+              ? error
+              : (error && error.message) ? error.message : JSON.stringify(error);
+            workerCallbacks[id].reject(new Error(errMsg));
           }
           delete workerCallbacks[id];
         }
