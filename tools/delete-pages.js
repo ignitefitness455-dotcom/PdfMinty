@@ -1,4 +1,5 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -12,8 +13,13 @@ export function init() {
     icon: window.PdfMinty.ICONS.delete_pages || '📄',
     actionText: '🗑️ Delete Pages',
     isMultiFile: false,
+    onInit: () => {
+      // Bug 5 fix: set up back button with history API
+      setupBackButton();
+    },
     onApply: async ({ actualBytes, currentFileName }) => {
-      const rangesText = document.getElementById('delete-ranges').value.trim();
+      // Bug 1 fix: null-safe .value access
+      const rangesText = (document.getElementById('delete-ranges')?.value ?? '').trim();
       if (!rangesText) throw new Error('Please enter pages to delete.');
 
       if (typeof window.showProgress === 'function') window.showProgress(5);
@@ -29,6 +35,11 @@ export function init() {
           if (typeof window.showProgress === 'function') window.showProgress(prog);
         },
       );
+
+      // Bug 4 fix: validate output before reporting success
+      if (!isValidOutput(resultBytes)) {
+        throw new Error('Failed to delete pages: output file is empty.');
+      }
 
       if (typeof downloadFile === 'function')
         downloadFile(resultBytes, currentFileName + '_deleted.pdf');
