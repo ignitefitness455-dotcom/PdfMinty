@@ -1,4 +1,5 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -12,9 +13,19 @@ export function init() {
     icon: window.PdfMinty.ICONS.protect || '📄',
     actionText: '🔒 Protect PDF',
     isMultiFile: false,
+    onInit: () => {
+      // Bug 5 fix: set up back button with history API
+      setupBackButton();
+    },
     onApply: async ({ actualBytes, currentFileName }) => {
-      const password = document.getElementById('pdf-password').value;
+      // Bug 1 fix: null-safe access on password field
+      const passwordInput = document.getElementById('pdf-password');
+      if (!passwordInput) {
+        throw new Error('Password input field not found. Please reload the tool.');
+      }
+      const password = passwordInput.value ?? '';
       if (!password) throw new Error('Password is required');
+
       if (typeof window.showProgress === 'function') window.showProgress(5);
 
       const resultBytes = await window.runPdfWorkerTask(
@@ -29,6 +40,11 @@ export function init() {
           if (typeof window.showProgress === 'function') window.showProgress(prog);
         },
       );
+
+      // Bug 4 fix: validate output before reporting success
+      if (!isValidOutput(resultBytes)) {
+        throw new Error('Failed to protect PDF: output file is empty.');
+      }
 
       if (typeof downloadFile === 'function')
         downloadFile(resultBytes, currentFileName + '_protected.pdf');
