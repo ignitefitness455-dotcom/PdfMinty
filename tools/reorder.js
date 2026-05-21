@@ -1,4 +1,5 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -12,13 +13,20 @@ export function init() {
     icon: window.PdfMinty.ICONS.reorder || '📄',
     actionText: '🔄 Reorder PDF',
     isMultiFile: false,
+    onInit: () => {
+      // Bug 5 fix: set up back button with history API
+      setupBackButton();
+    },
     onApply: async ({ actualBytes, currentFileName }) => {
+      // Bug 1 fix: null-safe element lookup and .value access
       const realInput =
         document.getElementById('page-order') || document.querySelector('input[type="text"]');
-      if (!realInput || !realInput.value) throw new Error('Enter page order.');
+      if (!realInput) throw new Error('Page order input not found. Please reload the tool.');
+      const inputValue = (realInput.value ?? '').trim();
+      if (!inputValue) throw new Error('Enter page order.');
 
       let newOrder = [];
-      for (let p of realInput.value.trim().split(',')) {
+      for (let p of inputValue.split(',')) {
         let pStr = p.trim();
         if (pStr.includes('-')) {
           const [s, e] = pStr.split('-').map(Number);
@@ -43,6 +51,12 @@ export function init() {
       } else {
         throw new Error('Worker not found');
       }
+
+      // Bug 4 fix: validate output before reporting success
+      if (!isValidOutput(resultBytes)) {
+        throw new Error('Failed to reorder PDF: output file is empty.');
+      }
+
       if (typeof downloadFile === 'function')
         downloadFile(resultBytes, currentFileName + '_reordered.pdf');
       if (typeof showSuccess === 'function') showSuccess('PDF reordered successfully!');
