@@ -1,4 +1,5 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { isValidOutput, getErrorMessage, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -12,8 +13,12 @@ export function init() {
     icon: window.PdfMinty.ICONS.merge || '📄',
     actionText: '🔗 Merge PDFs',
     isMultiFile: true,
+    onInit: () => {
+      // Bug 5 fix: set up back button with history API
+      setupBackButton();
+    },
     onApply: async ({ filesArray }) => {
-      if (filesArray.length < 2) {
+      if (!filesArray || filesArray.length < 2) {
         if (typeof showError === 'function') showError('Please add at least 2 PDFs to merge.');
         throw new Error('Need more files');
       }
@@ -27,9 +32,11 @@ export function init() {
             try {
               ab = await window.pdfDB.getFile(filesArray[i].id);
             } catch (err) {
-              console.error(err);
+              // Bug 2 fix: log the actual error message, not the object
+              console.error('Failed to retrieve file from DB:', getErrorMessage(err));
             }
           }
+          // Bug 3 fix: ensure file reading is properly awaited
           if (!ab) ab = await filesArray[i].fileObj.arrayBuffer();
           payload.files.push(new Uint8Array(ab));
         }
@@ -44,9 +51,11 @@ export function init() {
             try {
               fileBytes = await window.pdfDB.getFile(filesArray[i].id);
             } catch (err) {
-              console.error(err);
+              // Bug 2 fix: log the actual error message, not the object
+              console.error('Failed to retrieve file from DB:', getErrorMessage(err));
             }
           }
+          // Bug 3 fix: ensure file reading is properly awaited
           if (!fileBytes) fileBytes = await filesArray[i].fileObj.arrayBuffer();
           let pdf = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
           const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
@@ -55,6 +64,11 @@ export function init() {
           }
         }
         mergedPdfBytes = await mergedPdf.save({ useObjectStreams: true });
+      }
+
+      // Bug 4 fix: validate output before reporting success
+      if (!isValidOutput(mergedPdfBytes)) {
+        throw new Error('Failed to merge PDFs: output file is empty.');
       }
 
       if (typeof downloadFile === 'function') {
