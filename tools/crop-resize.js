@@ -1,4 +1,5 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -77,6 +78,9 @@ export function init() {
                 </div>
         `,
     onInit: () => {
+      // Bug 5 fix: set up back button with history API
+      setupBackButton();
+
       const btnApply = document.getElementById('btn-apply');
       let activeMode = 'crop';
 
@@ -90,7 +94,8 @@ export function init() {
 
           btn.style.color = 'var(--text)';
           btn.style.borderBottomColor = 'var(--primary)';
-          document.getElementById(btn.dataset.target).style.display = 'block';
+          const targetPane = document.getElementById(btn.dataset.target);
+          if (targetPane) targetPane.style.display = 'block';
 
           activeMode = btn.dataset.target === 'crop-tab' ? 'crop' : 'resize';
           if (btnApply)
@@ -100,14 +105,17 @@ export function init() {
 
       document.querySelectorAll('.preset-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
-          document.getElementById('resize-w').value = btn.dataset.w;
-          document.getElementById('resize-h').value = btn.dataset.h;
+          // Bug 1 fix: null-safe element access before setting value
+          const wEl = document.getElementById('resize-w');
+          const hEl = document.getElementById('resize-h');
+          if (wEl) wEl.value = btn.dataset.w;
+          if (hEl) hEl.value = btn.dataset.h;
         });
       });
       window.crActiveMode = () => activeMode;
     },
     onApply: async ({ actualBytes, currentFileName }) => {
-      const mode = window.crActiveMode();
+      const mode = window.crActiveMode ? window.crActiveMode() : 'crop';
       let resultBytes;
 
       if (typeof window.runPdfWorkerTask === 'function') {
@@ -118,15 +126,16 @@ export function init() {
         };
 
         if (mode === 'crop') {
-          payload.top = parseFloat(document.getElementById('crop-top').value) || 0;
-          payload.right = parseFloat(document.getElementById('crop-right').value) || 0;
-          payload.bottom = parseFloat(document.getElementById('crop-bottom').value) || 0;
-          payload.left = parseFloat(document.getElementById('crop-left').value) || 0;
-          payload.applyTo = document.querySelector('input[name="crop-pages"]:checked').value;
+          // Bug 1 fix: null-safe .value access with fallback to 0
+          payload.top = parseFloat(document.getElementById('crop-top')?.value ?? '0') || 0;
+          payload.right = parseFloat(document.getElementById('crop-right')?.value ?? '0') || 0;
+          payload.bottom = parseFloat(document.getElementById('crop-bottom')?.value ?? '0') || 0;
+          payload.left = parseFloat(document.getElementById('crop-left')?.value ?? '0') || 0;
+          payload.applyTo = document.querySelector('input[name="crop-pages"]:checked')?.value ?? 'all';
         } else {
-          payload.targetW_mm = parseFloat(document.getElementById('resize-w').value);
-          payload.targetH_mm = parseFloat(document.getElementById('resize-h').value);
-          payload.scaleMode = document.querySelector('input[name="resize-scale"]:checked').value;
+          payload.targetW_mm = parseFloat(document.getElementById('resize-w')?.value ?? '210');
+          payload.targetH_mm = parseFloat(document.getElementById('resize-h')?.value ?? '297');
+          payload.scaleMode = document.querySelector('input[name="resize-scale"]:checked')?.value ?? 'fit';
         }
 
         resultBytes = await window.runPdfWorkerTask(
@@ -136,6 +145,12 @@ export function init() {
         );
       } else {
         throw new Error('Worker not found');
+      }
+
+      // Bug 4 fix: validate output before reporting success
+      if (!isValidOutput(resultBytes)) {
+        const opName = mode === 'crop' ? 'crop' : 'resize';
+        throw new Error(`Failed to ${opName} PDF: output file is empty.`);
       }
 
       if (typeof downloadFile === 'function') {
