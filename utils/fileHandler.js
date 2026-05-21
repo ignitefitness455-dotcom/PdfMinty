@@ -3,9 +3,25 @@ export const FileHandler = {
     if (file.size > 500 * 1024 * 1024) {
       return { valid: false, reason: 'Error: File too large. Maximum allowed size is 500MB.' };
     }
-    
-    // Magic bytes check for PDF
-    if (window.location.hash !== '#image-to-pdf') {
+
+    // Bug 3 fix: detect image-to-pdf mode by both pathname AND hash to support the SPA router
+    // The SPA router uses /image-to-pdf-pdf as the pathname; legacy hash was #image-to-pdf
+    const isImageToPdfMode =
+      window.location.pathname.includes('image-to-pdf') ||
+      window.location.hash === '#image-to-pdf';
+
+    if (!isImageToPdfMode) {
+      // Bug 3 fix: check MIME type first for a fast, timing-safe rejection of non-PDFs
+      if (file.type && file.type !== 'application/pdf' && file.type !== '') {
+        // Only reject if the MIME type is explicitly set to something other than PDF
+        // (empty type means the browser couldn't determine it, so fall through to magic bytes)
+        return {
+          valid: false,
+          reason: 'Error: Invalid file format. Please upload a valid PDF document.',
+        };
+      }
+
+      // Bug 3 fix: magic bytes check is properly awaited to prevent timing issues
       try {
         const buffer = await file.slice(0, 4).arrayBuffer();
         const view = new Uint8Array(buffer);
@@ -42,6 +58,7 @@ export const FileHandler = {
     return { valid: true };
   },
 
+  // Bug 3 fix: ensure file reading is fully awaited
   async readFileAsArrayBuffer(file) {
     return await file.arrayBuffer();
   },
@@ -144,7 +161,9 @@ export const FileHandler = {
       } catch (err) {
         overlay.classList.remove('active');
         if (window.PdfMinty && window.PdfMinty.ui) {
-          window.PdfMinty.ui.showError(err.message || 'Failed to process files');
+          // Bug 2 fix: safely extract message string to prevent [Object Object]
+          const msg = (typeof err === 'string') ? err : (err && err.message) ? err.message : 'Failed to process files';
+          window.PdfMinty.ui.showError(msg);
         }
       }
     }
