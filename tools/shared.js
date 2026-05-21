@@ -93,32 +93,21 @@ export function setupBackButton() {
   const btn = document.getElementById('btn-back');
   if (!btn) return;
 
-  // Push the tool URL into history so the back button has somewhere to go
-  if (window.location.pathname !== '/' && window.history.state === null) {
-    window.history.pushState({ tool: window.location.pathname }, '', window.location.pathname);
-  }
-
   btn.addEventListener('click', (e) => {
     e.preventDefault();
-    // Navigate back via history API — falls back to home if no history entry
-    if (window.history.length > 1) {
+    // Bug 5 fix: Use history.back() if possible, otherwise force navigate to home
+    // We check if we have a referrer from the same origin to decide if back() is safe
+    const hasInternalHistory = window.history.length > 1 && document.referrer.startsWith(window.location.origin);
+    
+    if (hasInternalHistory) {
       window.history.back();
     } else {
       window.history.pushState(null, '', '/');
-      if (typeof window.router === 'function') window.router();
-    }
-  });
-
-  // Ensure popstate (browser back/forward) is handled by the SPA router
-  if (!window._popstateRegistered) {
-    window.addEventListener('popstate', () => {
       if (typeof window.router === 'function') {
         window.router();
       } else {
-        // Fallback: reload to let app.js router handle the new URL
-        window.location.reload();
+        window.location.href = '/';
       }
-    });
-    window._popstateRegistered = true;
-  }
+    }
+  });
 }

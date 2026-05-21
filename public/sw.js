@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pdfminty-v2';
-const DYNAMIC_CACHE = 'pdfminty-dynamic-v2';
+const CACHE_NAME = 'pdfminty-v3';
+const DYNAMIC_CACHE = 'pdfminty-dynamic-v3';
 
 const STATIC_ASSETS = [
   '/',

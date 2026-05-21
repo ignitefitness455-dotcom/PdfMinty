@@ -52,11 +52,16 @@ export function setupToolLogic({ onFiles, onRemove, onApply }) {
   // Bug 5 fix: use history API instead of hash mutation for back navigation
   document.getElementById('btn-back')?.addEventListener('click', (e) => {
     e.preventDefault();
-    if (window.history.length > 1) {
+    const hasInternalHistory = window.history.length > 1 && document.referrer.startsWith(window.location.origin);
+    if (hasInternalHistory) {
       window.history.back();
     } else {
       window.history.pushState(null, '', '/');
-      if (typeof window.router === 'function') window.router();
+      if (typeof window.router === 'function') {
+        window.router();
+      } else {
+        window.location.href = '/';
+      }
     }
   });
 

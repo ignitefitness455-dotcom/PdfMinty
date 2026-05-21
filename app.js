@@ -598,6 +598,7 @@ window.confetti = confetti;
       .catch(() => {});
   }
 
+  window.router = router;
   window.addEventListener('popstate', router);
 
   // Intercept all clicks to handle internal links for SPA
