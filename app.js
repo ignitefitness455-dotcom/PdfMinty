@@ -349,7 +349,16 @@ window.confetti = confetti;
       });
     } catch (err) {
       console.error('Home Page Render Error:', err);
-      container.innerHTML = `<div style="padding: 2rem; text-align: center; color: red;"><h2>Failed to load landing page</h2><p>${err.message}</p></div>`;
+      container.innerHTML = '';
+      const errorDiv = document.createElement('div');
+      errorDiv.style.cssText = 'padding: 2rem; text-align: center; color: red;';
+      const errorH2 = document.createElement('h2');
+      errorH2.textContent = 'Failed to load landing page';
+      const errorP = document.createElement('p');
+      errorP.textContent = err.message;
+      errorDiv.appendChild(errorH2);
+      errorDiv.appendChild(errorP);
+      container.appendChild(errorDiv);
     }
   }
 

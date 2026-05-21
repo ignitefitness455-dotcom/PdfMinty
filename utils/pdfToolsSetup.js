@@ -103,11 +103,11 @@ export function setupToolUI({
   if (isMultiFile) {
     document.getElementById('btn-add-more')?.addEventListener('click', () => fileInput.click());
   }
-  async function handleFiles(files) {
+  async function handleFiles(files, updateProgress) {
     if (!files || files.length === 0) return;
 
     for (const f of files) {
-      const check = FileHandler.validateFile(f);
+      const check = await FileHandler.validateFile(f);
       if (!check.valid) {
         if (window.PdfMinty && window.PdfMinty.ui) {
           window.PdfMinty.ui.showError(check.reason);
@@ -119,6 +119,7 @@ export function setupToolUI({
     if (!isMultiFile) {
       const file = files[0];
       try {
+        if (updateProgress) updateProgress(50);
         if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.showProgress(50);
         const ab = await FileHandler.readFileAsArrayBuffer(file);
         if (window.PdfMinty && window.PdfMinty.db) {
@@ -155,16 +156,23 @@ export function setupToolUI({
       // Multi-file logic
       const validFiles = Array.from(files);
       if (window.PdfMinty && window.PdfMinty.db) {
-        Promise.all(
+        let completed = 0;
+        await Promise.all(
           validFiles.map(async (file) => {
             const id = toolId + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             const ab = await FileHandler.readFileAsArrayBuffer(file);
             await window.PdfMinty.db.saveFile(id, ab);
+            completed++;
+            if (updateProgress) updateProgress(Math.round((completed / validFiles.length) * 100));
             return { name: file.name, id, fileObj: file };
           }),
         ).then((mapped) => {
           filesArray = filesArray.concat(mapped);
           renderFileList();
+        }).catch(err => {
+          if (window.PdfMinty && window.PdfMinty.ui) {
+            window.PdfMinty.ui.showError(err.message || 'Failed to process files');
+          }
         });
       } else {
         filesArray = filesArray.concat(validFiles.map((f) => ({ name: f.name, fileObj: f })));

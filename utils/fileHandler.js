@@ -1,21 +1,37 @@
 export const FileHandler = {
-  validateFile(file) {
-    if (!file.type || !file.type.includes('pdf')) {
-      if (file.type !== 'application/pdf' && !file.type.startsWith('image/')) {
-        return {
-          valid: false,
-          reason: 'Error: Invalid file format. Please upload a valid PDF document.',
-        };
-      } else if (file.type !== 'application/pdf' && window.location.hash !== '#image-to-pdf') {
-        return {
-          valid: false,
-          reason: 'Error: Invalid file format. Please upload a valid PDF document.',
-        };
-      }
-    }
+  async validateFile(file) {
     if (file.size > 500 * 1024 * 1024) {
       return { valid: false, reason: 'Error: File too large. Maximum allowed size is 500MB.' };
     }
+    
+    // Magic bytes check for PDF
+    if (window.location.hash !== '#image-to-pdf') {
+      try {
+        const buffer = await file.slice(0, 4).arrayBuffer();
+        const view = new Uint8Array(buffer);
+        // %PDF (0x25 0x50 0x44 0x46)
+        if (view[0] !== 0x25 || view[1] !== 0x50 || view[2] !== 0x44 || view[3] !== 0x46) {
+          return {
+            valid: false,
+            reason: 'Error: Invalid file format. Please upload a valid PDF document.',
+          };
+        }
+      } catch (e) {
+        return {
+          valid: false,
+          reason: 'Error: Could not read file to verify format.',
+        };
+      }
+    } else {
+      // Image to PDF mode: check if it's an image
+      if (file.type && !file.type.startsWith('image/')) {
+        return {
+          valid: false,
+          reason: 'Error: Invalid file format. Please upload a valid image.',
+        };
+      }
+    }
+
     if (file.size > 50 * 1024 * 1024) {
       if (window.PdfMinty && window.PdfMinty.ui) {
         window.PdfMinty.ui.showError(
@@ -91,37 +107,46 @@ export const FileHandler = {
     async function processFiles(files) {
       overlay.classList.add('active');
       setOverlayState('⏳', `Processing ${files.length} file(s)...`, true);
-      for (let i = 0; i <= 100; i += 20) {
-        progBar.style.width = `${i}%`;
-        await new Promise((r) => setTimeout(r, 30));
-      }
-
-      // Success Animation
-      overlay.innerHTML = `
-                <div class="success-checkmark">
-                    <div class="check-icon">
-                        <span class="icon-line line-tip"></span>
-                        <span class="icon-line line-long"></span>
-                        <div class="icon-circle"></div>
-                        <div class="icon-fix"></div>
-                    </div>
-                </div>
-                <div class="drop-text-large" style="margin-top: 1rem;">Files added successfully!</div>
-            `;
-
-      setTimeout(() => {
-        overlay.classList.remove('active');
-        // Restore original overlay content for next time
+      
+      // Real progress callback passed to onFiles if it supports it
+      const updateProgress = (percent) => {
+        progBar.style.width = `${percent}%`;
+      };
+      
+      try {
+        await onFiles(files, updateProgress);
+        
+        // Success Animation
         overlay.innerHTML = `
-                    <div class="drop-icon-large">📥</div>
-                    <div class="drop-text-large">Release to add files</div>
-                    <div class="drop-progress-container hidden">
-                        <div class="drop-progress-bar"></div>
-                    </div>
-                `;
-        onFiles(files);
-        input.value = '';
-      }, 1500);
+                  <div class="success-checkmark">
+                      <div class="check-icon">
+                          <span class="icon-line line-tip"></span>
+                          <span class="icon-line line-long"></span>
+                          <div class="icon-circle"></div>
+                          <div class="icon-fix"></div>
+                      </div>
+                  </div>
+                  <div class="drop-text-large" style="margin-top: 1rem;">Files added successfully!</div>
+              `;
+
+        setTimeout(() => {
+          overlay.classList.remove('active');
+          // Restore original overlay content for next time
+          overlay.innerHTML = `
+                      <div class="drop-icon-large">📥</div>
+                      <div class="drop-text-large">Release to add files</div>
+                      <div class="drop-progress-container hidden">
+                          <div class="drop-progress-bar"></div>
+                      </div>
+                  `;
+          input.value = '';
+        }, 1500);
+      } catch (err) {
+        overlay.classList.remove('active');
+        if (window.PdfMinty && window.PdfMinty.ui) {
+          window.PdfMinty.ui.showError(err.message || 'Failed to process files');
+        }
+      }
     }
   },
 };

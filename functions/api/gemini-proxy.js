@@ -2,6 +2,8 @@
  * Advanced Input Sanitization
  * Replaces basic regex with strict HTML stripping and prompt injection guards.
  */
+import { corsHeaders } from '../_utils.js';
+
 const sanitizeString = (str) => {
   if (typeof str !== 'string') return '';
   
@@ -17,7 +19,21 @@ const sanitizeString = (str) => {
     /ignore previous/i,
     /bypass rules/i,
     /system prompt/i,
-    /you are now/i
+    /you are now/i,
+    /forget everything/i,
+    /disregard previous/i,
+    /new instructions/i,
+    /developer mode/i,
+    /act as/i,
+    /pretend to be/i,
+    /simulate/i,
+    /override/i,
+    /jailbreak/i,
+    /do not follow/i,
+    /ignore all/i,
+    /print your instructions/i,
+    /reveal your instructions/i,
+    /what are your instructions/i
   ];
   
   for (const pattern of injectionPatterns) {
@@ -29,54 +45,59 @@ const sanitizeString = (str) => {
   return escaped;
 };
 
-const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const MAX_REQUESTS = 10;
 
-const checkRateLimit = (ip) => {
+// Requires Cloudflare KV binding named RATE_LIMIT_KV in dashboard
+const checkRateLimit = async (ip, env) => {
+  if (!env.RATE_LIMIT_KV) {
+    console.warn('RATE_LIMIT_KV binding missing, skipping rate limit');
+    return { allowed: true };
+  }
+  
   const now = Date.now();
-  for (const [key, value] of rateLimitMap.entries()) {
-    if (now - value.startTime > RATE_LIMIT_WINDOW_MS) {
-      rateLimitMap.delete(key);
-    }
-  }
-
-  let record = rateLimitMap.get(ip);
-  if (!record) {
+  const key = `rl_${ip}`;
+  
+  let recordStr = await env.RATE_LIMIT_KV.get(key);
+  let record = recordStr ? JSON.parse(recordStr) : { count: 0, startTime: now };
+  
+  if (now - record.startTime > RATE_LIMIT_WINDOW_MS) {
     record = { count: 0, startTime: now };
-    rateLimitMap.set(ip, record);
   }
-
+  
   record.count += 1;
-
+  
   if (record.count > MAX_REQUESTS) {
     const retryAfter = Math.ceil((RATE_LIMIT_WINDOW_MS - (now - record.startTime)) / 1000);
     return { allowed: false, retryAfter };
   }
-
+  
+  await env.RATE_LIMIT_KV.put(key, JSON.stringify(record), { expirationTtl: 60 });
   return { allowed: true };
 };
 
 export async function onRequestOptions({ request }) {
-  return new Response(null, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    }
-  });
+  const headers = corsHeaders(request);
+  const origin = request.headers.get('Origin');
+  const allowedOrigins = ['https://pdfminty.com', 'https://www.pdfminty.com'];
+  if (origin && !allowedOrigins.includes(origin)) {
+    return new Response(null, { status: 403 });
+  }
+  return new Response(null, { headers });
 }
 
 export async function onRequestPost({ request, env }) {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json'
-  };
+  const headers = corsHeaders(request);
+  headers['Content-Type'] = 'application/json';
+  
+  const origin = request.headers.get('Origin');
+  const allowedOrigins = ['https://pdfminty.com', 'https://www.pdfminty.com'];
+  if (origin && !allowedOrigins.includes(origin)) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers });
+  }
 
   const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
-  const rlResult = checkRateLimit(clientIp);
+  const rlResult = await checkRateLimit(clientIp, env);
   
   if (!rlResult.allowed) {
     headers['Retry-After'] = rlResult.retryAfter.toString();
@@ -121,6 +142,9 @@ export async function onRequestPost({ request, env }) {
     if (prompt) parts.push({ text: `Prompt: ${prompt}` });
 
     const fetchBody = {
+      system_instruction: {
+        parts: [{ text: "You are a helpful AI assistant for PdfMinty, a PDF manipulation tool. Answer questions related to PDF processing." }]
+      },
       contents: [
         {
           parts: parts,

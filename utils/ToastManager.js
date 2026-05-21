@@ -13,7 +13,14 @@ export class ToastManager {
     const toast = document.getElementById('pdfminty-toast');
     const icon = isSuccess ? '✅' : '⚠️';
 
-    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    toast.innerHTML = '';
+    const iconSpan = document.createElement('span');
+    iconSpan.textContent = icon;
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = message;
+    toast.appendChild(iconSpan);
+    toast.appendChild(document.createTextNode(' '));
+    toast.appendChild(msgSpan);
     toast.className = 'toast ' + (isSuccess ? 'toast-success' : 'toast-danger');
 
     requestAnimationFrame(() => {
@@ -84,7 +91,14 @@ export class ToastManager {
     const toast = document.getElementById('pdfminty-toast');
     const icon = type === 'warning' ? '⏳' : '⚠️';
 
-    toast.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+    toast.innerHTML = '';
+    const iconSpan = document.createElement('span');
+    iconSpan.textContent = icon;
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = msg;
+    toast.appendChild(iconSpan);
+    toast.appendChild(document.createTextNode(' '));
+    toast.appendChild(msgSpan);
     toast.className = `toast toast-${type}`;
 
     requestAnimationFrame(() => {

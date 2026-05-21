@@ -13,9 +13,11 @@ export function init() {
     actionText: '🔓 Unlock PDF',
     isMultiFile: false,
     onApply: async ({ actualBytes, currentFileName }) => {
-      const password = document.getElementById('pdf-password')
-        ? document.getElementById('pdf-password').value
-        : document.querySelector('input[type="password"]').value;
+      const passwordInput = document.getElementById('pdf-password');
+      if (!passwordInput) {
+        throw new Error('Password input field not found. Please reload the tool.');
+      }
+      const password = passwordInput.value;
 
       if (typeof window.showProgress === 'function') window.showProgress(5);
 

@@ -100,14 +100,5 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Background Sync Hook for future use (e.g., uploading telemetry/feedback when back online)
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-feedback') {
-    event.waitUntil(syncFeedbackData());
-  }
-});
-
-async function syncFeedbackData() {
-  console.log('[SW] Background Sync: Processing feedback queue');
-  // Implementation will retrieve local feedback payloads and POST to /api/feedback
-}
+// Background Sync Hook removed as it was unimplemented dead code.
+// If needed in the future, implement by retrieving queued feedback from Cache Storage/IndexedDB and POSTing to /api/contact
