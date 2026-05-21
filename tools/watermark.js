@@ -1,4 +1,5 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -47,39 +48,52 @@ export function init() {
                 </div>`,
 
     onInit: () => {
+      // Bug 5 fix: set up back button with history API
+      setupBackButton();
+
       const opacityInput = document.getElementById('wm-opacity');
       const opacityVal = document.getElementById('opacity-val');
       const sizeInput = document.getElementById('wm-size');
       const sizeVal = document.getElementById('size-val');
+      const rotationInput = document.getElementById('wm-rotation');
+      const rotationVal = document.getElementById('rotation-val');
+      const colorInput = document.getElementById('wm-color');
+      const colorHex = document.getElementById('color-hex');
+      // These elements do not exist in the current settingsHtml but are guarded safely
       const bgOpacityInput = document.getElementById('wm-bg-opacity');
       const bgOpacityVal = document.getElementById('bg-opacity-val');
 
-      if (opacityInput)
+      if (opacityInput && opacityVal)
         opacityInput.addEventListener(
           'input',
           (e) => (opacityVal.textContent = e.target.value + '%'),
         );
-      if (sizeInput)
+      if (sizeInput && sizeVal)
         sizeInput.addEventListener('input', (e) => (sizeVal.textContent = e.target.value + 'px'));
-      if (bgOpacityInput)
+      if (rotationInput && rotationVal)
+        rotationInput.addEventListener('input', (e) => (rotationVal.textContent = e.target.value + '°'));
+      if (colorInput && colorHex)
+        colorInput.addEventListener('input', (e) => (colorHex.textContent = e.target.value.toUpperCase()));
+      if (bgOpacityInput && bgOpacityVal)
         bgOpacityInput.addEventListener(
           'input',
           (e) => (bgOpacityVal.textContent = e.target.value + '%'),
         );
     },
     onApply: async ({ actualBytes, currentFileName }) => {
-      const text = document.getElementById('wm-text').value;
-      if (!text) throw new Error('Text is required');
+      // Bug 1 fix: null-safe .value access with fallback defaults on all DOM fields
+      const text = document.getElementById('wm-text')?.value ?? '';
+      if (!text) throw new Error('Watermark text is required');
 
-      const rawColor = document.getElementById('wm-color').value;
+      const rawColor = document.getElementById('wm-color')?.value ?? '#ff0000';
       const r = parseInt(rawColor.substr(1, 2), 16) / 255;
       const g = parseInt(rawColor.substr(3, 2), 16) / 255;
       const b = parseInt(rawColor.substr(5, 2), 16) / 255;
 
-      const textSize = parseInt(document.getElementById('wm-size').value, 10);
-      const opacity = parseInt(document.getElementById('wm-opacity').value, 10) / 100;
-      const rotationDeg = parseInt(document.getElementById('wm-rotation').value, 10);
-      const position = document.getElementById('wm-position').value;
+      const textSize = parseInt(document.getElementById('wm-size')?.value ?? '60', 10);
+      const opacity = parseInt(document.getElementById('wm-opacity')?.value ?? '30', 10) / 100;
+      const rotationDeg = parseInt(document.getElementById('wm-rotation')?.value ?? '45', 10);
+      const position = document.getElementById('wm-position')?.value ?? 'center';
 
       let resultBytes;
       if (typeof window.runPdfWorkerTask === 'function') {
@@ -97,6 +111,11 @@ export function init() {
         ]);
       } else {
         throw new Error('Worker not found');
+      }
+
+      // Bug 4 fix: validate output before reporting success
+      if (!isValidOutput(resultBytes)) {
+        throw new Error('Failed to add watermark: output file is empty.');
       }
 
       if (typeof downloadFile === 'function')
