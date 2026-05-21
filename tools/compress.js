@@ -1,4 +1,5 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -20,9 +21,14 @@ export function init() {
           <label class="radio-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text);"><input type="radio" name="compression-level" value="deep" style="accent-color: var(--primary);"> Deep (Basic + Image Re-encoding, Low Quality)</label>
       </div>
     `,
+    onInit: () => {
+      // Bug 5 fix: set up back button with history API
+      setupBackButton();
+    },
     onApply: async ({ actualBytes, currentFileName }) => {
       let resultBytes;
-      const compressionLevel = document.querySelector('input[name="compression-level"]:checked')?.value || 'basic';
+      // Bug 1 fix: null-safe access with fallback default
+      const compressionLevel = document.querySelector('input[name="compression-level"]:checked')?.value ?? 'basic';
 
       if (typeof window.runPdfWorkerTask === 'function') {
         const payload = { fileBytes: new Uint8Array(actualBytes), compressionLevel };
@@ -32,6 +38,12 @@ export function init() {
       } else {
         throw new Error('Worker not found');
       }
+
+      // Bug 4 fix: validate output before reporting success
+      if (!isValidOutput(resultBytes)) {
+        throw new Error('Failed to compress PDF: output file is empty.');
+      }
+
       if (typeof downloadFile === 'function')
         downloadFile(resultBytes, currentFileName + '_compressed.pdf');
       if (typeof showSuccess === 'function') showSuccess('PDF compressed successfully!');
