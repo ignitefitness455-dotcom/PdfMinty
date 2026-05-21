@@ -1,4 +1,5 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -55,6 +56,9 @@ export function init() {
                 </div>
         `,
     onInit: () => {
+      // Bug 5 fix: set up back button with history API
+      setupBackButton();
+
       document.getElementById('btn-beginning')?.addEventListener('click', () => {
         const pos = document.getElementById('pos-type');
         if (pos) pos.value = 'before';
@@ -69,10 +73,11 @@ export function init() {
       });
     },
     onApply: async ({ actualBytes, currentFileName }) => {
-      const count = parseInt(document.getElementById('blank-count').value, 10);
-      const targetPageRaw = parseInt(document.getElementById('target-page').value, 10);
-      const posType = document.getElementById('pos-type').value;
-      const sizeType = document.querySelector('input[name="page-size"]:checked').value;
+      // Bug 1 fix: null-safe .value access
+      const count = parseInt(document.getElementById('blank-count')?.value ?? '1', 10);
+      const targetPageRaw = parseInt(document.getElementById('target-page')?.value ?? '1', 10);
+      const posType = document.getElementById('pos-type')?.value ?? 'after';
+      const sizeType = document.querySelector('input[name="page-size"]:checked')?.value ?? 'same';
 
       if (isNaN(count) || count < 1 || count > 10)
         throw new Error('Please enter a valid number of pages to insert (1-10).');
@@ -118,6 +123,11 @@ export function init() {
           if (typeof window.showProgress === 'function') window.showProgress(prog);
         },
       );
+
+      // Bug 4 fix: validate output before reporting success
+      if (!isValidOutput(modifiedPdfBytes)) {
+        throw new Error('Failed to add blank pages: output file is empty.');
+      }
 
       if (typeof downloadFile === 'function')
         downloadFile(modifiedPdfBytes, currentFileName + '_blank_added.pdf');
