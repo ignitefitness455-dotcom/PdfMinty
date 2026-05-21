@@ -4,6 +4,9 @@
  * and posts the result or structured error back.
  */
 import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib';
+import * as pdfjsLib from 'pdfjs-dist';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; // Use a CDN for pdf.worker.min.js
 
 self.onmessage = async function (e) {
   const { id, task, payload } = e.data;
@@ -37,6 +40,8 @@ self.onmessage = async function (e) {
       result = await executeUnlock(payload);
     } else if (task === 'image-to-pdf') {
       result = await executeImageToPdf(payload);
+    } else if (task === 'crop-resize') {
+      result = await executeCropResize(payload);
     } else {
       throw new Error('Unknown task: ' + task);
     }
@@ -205,18 +210,15 @@ async function executeSplit(payload) {
  * @throws {Error} Throws if PDF loading fails
  */
 async function executeCompress(payload) {
-  const { fileBytes, id } = payload;
+  const { fileBytes, id, compressionLevel = 'basic' } = payload;
   self.postMessage({ id, status: 'progress', progress: 5, type: 'progress', operation: 'compress', percent: 5, label: 'Loading PDF...' });
 
-  // Load with specific optimizations
-  const pdfDoc = await PDFDocument.load(fileBytes, {
-    ignoreEncryption: true,
-    updateMetadata: false,
-  });
+  const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
+  const originalSize = fileBytes.length;
 
-  self.postMessage({ id, status: 'progress', progress: 20, type: 'progress', operation: 'compress', percent: 20, label: 'Optimizing metadata...' });
+  self.postMessage({ id, status: 'progress', progress: 10, type: 'progress', operation: 'compress', percent: 10, label: 'Optimizing metadata...' });
 
-  // 1. Remove unnecessary metadata/tags
+  // Basic optimization: remove unnecessary metadata/tags and rebuild object streams
   pdfDoc.setTitle('');
   pdfDoc.setAuthor('');
   pdfDoc.setSubject('');
@@ -224,39 +226,64 @@ async function executeCompress(payload) {
   pdfDoc.setProducer('');
   pdfDoc.setCreator('');
 
-  // 2. Process pages
-  const pages = pdfDoc.getPages();
-  let imageCount = 0;
-  
-  for (let i = 0; i < pages.length; i++) {
-    const page = pages[i];
-    // Traverse the page to count or interact with image XObjects if needed
-    // Assuming each page processing represents progress.
-    imageCount++; 
-    
-    if (i % 5 === 0) {
-      let percent = Math.round(20 + (i / pages.length) * 60);
+  let compressedBytes;
+
+  if (compressionLevel === 'basic') {
+    self.postMessage({ id, status: 'progress', progress: 80, type: 'progress', operation: 'compress', percent: 80, label: 'Rebuilding object streams...' });
+    compressedBytes = await pdfDoc.save({
+      useObjectStreams: true,
+      addDefaultPage: false,
+      objectsPerTick: 50,
+    });
+  } else { // 'strong' or 'deep' compression involving image re-encoding
+    self.postMessage({ id, status: 'progress', progress: 15, type: 'progress', operation: 'compress', percent: 15, label: 'Initializing image compression engine...' });
+    const newPdfDoc = await PDFDocument.create();
+    const pages = pdfDoc.getPages();
+    const quality = compressionLevel === 'strong' ? 0.8 : 0.6; // JPG quality
+
+    const pdfjsDoc = await pdfjsLib.getDocument({ data: fileBytes }).promise;
+
+    for (let i = 0; i < pages.length; i++) {
+      const page = await pdfjsDoc.getPage(i + 1);
+      const viewport = page.getViewport({ scale: 1.5 }); // Render at 1.5x scale for better quality
+      const canvas = new OffscreenCanvas(viewport.width, viewport.height);
+      const context = canvas.getContext('2d');
+      await page.render({ canvasContext: context, viewport }).promise;
+
+      const imageBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality });
+      const imageBytes = new Uint8Array(await imageBlob.arrayBuffer());
+
+      const embeddedImage = await newPdfDoc.embedJpg(imageBytes);
+      const { width, height } = embeddedImage.scale(1);
+      const newPage = newPdfDoc.addPage([width, height]);
+      newPage.drawImage(embeddedImage, { x: 0, y: 0, width, height });
+
       self.postMessage({
         id,
         status: 'progress',
-        progress: percent,
+        progress: Math.round(15 + (i / pages.length) * 70),
         type: 'progress',
         operation: 'compress',
-        percent: percent,
-        label: `Processing image contents on page ${i + 1}`
+        percent: Math.round(15 + (i / pages.length) * 70),
+        label: `Compressing images on page ${i + 1} (${compressionLevel})`
       });
     }
+    self.postMessage({ id, status: 'progress', progress: 90, type: 'progress', operation: 'compress', percent: 90, label: 'Saving compressed PDF...' });
+    compressedBytes = await newPdfDoc.save({ useObjectStreams: true });
   }
 
-  self.postMessage({ id, status: 'progress', progress: 85, type: 'progress', operation: 'compress', percent: 85, label: 'Rebuilding object streams...' });
-  // 3. Save with high compression settings
-  const compressedBytes = await pdfDoc.save({
-    useObjectStreams: true, // Merges objects into streams for smaller size
-    addDefaultPage: false,
-    objectsPerTick: 50, // Better for memory management during save
-  });
+  const finalSize = compressedBytes.length;
+  const reduction = ((originalSize - finalSize) / originalSize) * 100;
 
-  self.postMessage({ id, status: 'progress', progress: 100, type: 'progress', operation: 'compress', percent: 100, label: 'Compression complete' });
+  self.postMessage({
+    id,
+    status: 'progress',
+    progress: 100,
+    type: 'progress',
+    operation: 'compress',
+    percent: 100,
+    label: `Compression complete. Size reduced by ${reduction.toFixed(2)}%`
+  });
   return compressedBytes;
 }
 
@@ -598,6 +625,108 @@ async function executeUnlock(payload) {
 
   self.postMessage({ id: payload.id, status: 'progress', progress: 50 });
   return await pdfDoc.save({ useObjectStreams: true }); // By default, save doesn't encrypt unless options provided
+}
+
+/**
+ * Converts a list of standard images (PNG/JPG) to a single combined PDF.
+ * @param {Object} payload
+ * @param {Array<{type: string, bytes: Uint8Array}>} payload.files - Associated image types and arrays
+ * @param {string} payload.id - Task ID for progress tracking
+ * @returns {Promise<Uint8Array>} Resulting PDF bytes
+ * @throws {Error} If embedding the format is unsupported
+ */
+/**
+ * Crops or Resizes a PDF document.
+ * @param {Object} payload
+ * @param {Uint8Array} payload.fileBytes - Source PDF bytes
+ * @param {string} payload.mode - 'crop' or 'resize'
+ * @param {number} payload.MM_TO_PT - Conversion factor from millimeters to points
+ * @param {string} payload.id - Task ID for progress tracking
+ * @returns {Promise<Uint8Array>} Modified PDF bytes
+ * @throws {Error} If PDF loading or manipulation fails
+ */
+async function executeCropResize(payload) {
+  const { fileBytes, mode, MM_TO_PT, id } = payload;
+  self.postMessage({ id, status: 'progress', progress: 5, type: 'progress', operation: 'crop-resize', percent: 5, label: 'Loading PDF...' });
+
+  let pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
+  self.postMessage({ id, status: 'progress', progress: 10, type: 'progress', operation: 'crop-resize', percent: 10, label: 'PDF loaded. Processing...' });
+
+  if (mode === 'crop') {
+    const { top, right, bottom, left, applyTo } = payload;
+    const pages = pdfDoc.getPages();
+    const pagesToProcess = applyTo === 'all' ? pages : [pages[0]];
+
+    for (let i = 0; i < pagesToProcess.length; i++) {
+      const page = pagesToProcess[i];
+      const box = page.getCropBox() || page.getMediaBox();
+      const newX = box.x + left * MM_TO_PT;
+      const newY = box.y + bottom * MM_TO_PT;
+      const newWidth = box.width - (left + right) * MM_TO_PT;
+      const newHeight = box.height - (top + bottom) * MM_TO_PT;
+      if (newWidth <= 0 || newHeight <= 0)
+        throw new Error('Crop margins are too large for the page dimensions.');
+      page.setCropBox(newX, newY, newWidth, newHeight);
+
+      self.postMessage({
+        id,
+        status: 'progress',
+        progress: Math.round(10 + (i / pagesToProcess.length) * 80),
+        type: 'progress',
+        operation: 'crop-resize',
+        percent: Math.round(10 + (i / pagesToProcess.length) * 80),
+        label: `Cropping page ${i + 1} of ${pagesToProcess.length}`
+      });
+    }
+  } else { // mode === 'resize'
+    const { targetW_mm, targetH_mm, scaleMode } = payload;
+    if (!targetW_mm || !targetH_mm || targetW_mm <= 0 || targetH_mm <= 0)
+      throw new Error('Please enter valid width and height.');
+
+    const targetW = targetW_mm * MM_TO_PT;
+    const targetH = targetH_mm * MM_TO_PT;
+
+    const newDoc = await PDFDocument.create();
+    const srcPages = pdfDoc.getPages();
+    const embeddedPages = await newDoc.embedPages(srcPages);
+
+    for (let i = 0; i < srcPages.length; i++) {
+      const origPage = srcPages[i];
+      const embeddedPage = embeddedPages[i];
+      const { width: origW, height: origH } = origPage.getSize();
+
+      const newPage = newDoc.addPage([targetW, targetH]);
+
+      if (scaleMode === 'fit') {
+        const scale = Math.min(targetW / origW, targetH / origH);
+        const drawW = origW * scale;
+        const drawH = origH * scale;
+        const tx = (targetW - drawW) / 2;
+        const ty = (targetH - drawH) / 2;
+        newPage.drawPage(embeddedPage, { x: tx, y: ty, width: drawW, height: drawH });
+      } else if (scaleMode === 'stretch') {
+        newPage.drawPage(embeddedPage, { x: 0, y: 0, width: targetW, height: targetH });
+      } else if (scaleMode === 'keep') {
+        const tx = (targetW - origW) / 2;
+        const ty = (targetH - origH) / 2;
+        newPage.drawPage(embeddedPage, { x: tx, y: ty, width: origW, height: origH });
+      }
+
+      self.postMessage({
+        id,
+        status: 'progress',
+        progress: Math.round(10 + (i / srcPages.length) * 80),
+        type: 'progress',
+        operation: 'crop-resize',
+        percent: Math.round(10 + (i / srcPages.length) * 80),
+        label: `Resizing page ${i + 1} of ${srcPages.length}`
+      });
+    }
+    pdfDoc = newDoc; // Replace original doc with new resized doc
+  }
+
+  self.postMessage({ id, status: 'progress', progress: 95, type: 'progress', operation: 'crop-resize', percent: 95, label: 'Saving modified PDF...' });
+  return await pdfDoc.save({ useObjectStreams: true });
 }
 
 /**

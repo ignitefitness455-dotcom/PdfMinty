@@ -108,74 +108,45 @@ export function init() {
     },
     onApply: async ({ actualBytes, currentFileName }) => {
       const mode = window.crActiveMode();
-      const { PDFDocument } = await import('pdf-lib');
-      const pdfDoc = await PDFDocument.load(actualBytes);
+      let resultBytes;
 
-      if (mode === 'crop') {
-        const top = parseFloat(document.getElementById('crop-top').value) || 0;
-        const right = parseFloat(document.getElementById('crop-right').value) || 0;
-        const bottom = parseFloat(document.getElementById('crop-bottom').value) || 0;
-        const left = parseFloat(document.getElementById('crop-left').value) || 0;
-        const applyTo = document.querySelector('input[name="crop-pages"]:checked').value;
+      if (typeof window.runPdfWorkerTask === 'function') {
+        const payload = {
+          fileBytes: new Uint8Array(actualBytes),
+          mode,
+          MM_TO_PT,
+        };
 
-        const pages = pdfDoc.getPages();
-        const pagesToProcess = applyTo === 'all' ? pages : [pages[0]];
-
-        for (const page of pagesToProcess) {
-          const box = page.getCropBox() || page.getMediaBox();
-          const newX = box.x + left * MM_TO_PT;
-          const newY = box.y + bottom * MM_TO_PT;
-          const newWidth = box.width - (left + right) * MM_TO_PT;
-          const newHeight = box.height - (top + bottom) * MM_TO_PT;
-          if (newWidth <= 0 || newHeight <= 0)
-            throw new Error('Crop margins are too large for the page dimensions.');
-          page.setCropBox(newX, newY, newWidth, newHeight);
+        if (mode === 'crop') {
+          payload.top = parseFloat(document.getElementById('crop-top').value) || 0;
+          payload.right = parseFloat(document.getElementById('crop-right').value) || 0;
+          payload.bottom = parseFloat(document.getElementById('crop-bottom').value) || 0;
+          payload.left = parseFloat(document.getElementById('crop-left').value) || 0;
+          payload.applyTo = document.querySelector('input[name="crop-pages"]:checked').value;
+        } else {
+          payload.targetW_mm = parseFloat(document.getElementById('resize-w').value);
+          payload.targetH_mm = parseFloat(document.getElementById('resize-h').value);
+          payload.scaleMode = document.querySelector('input[name="resize-scale"]:checked').value;
         }
-        const modifiedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
-        if (typeof downloadFile === 'function')
-          downloadFile(modifiedPdfBytes, `${currentFileName}-cropped.pdf`);
-        if (typeof showSuccess === 'function') showSuccess('PDF cropped successfully!');
+
+        resultBytes = await window.runPdfWorkerTask(
+          'crop-resize',
+          payload,
+          [payload.fileBytes.buffer]
+        );
       } else {
-        const targetW_mm = parseFloat(document.getElementById('resize-w').value);
-        const targetH_mm = parseFloat(document.getElementById('resize-h').value);
-        const scaleMode = document.querySelector('input[name="resize-scale"]:checked').value;
-        if (!targetW_mm || !targetH_mm || targetW_mm <= 0 || targetH_mm <= 0)
-          throw new Error('Please enter valid width and height.');
-
-        const targetW = targetW_mm * MM_TO_PT;
-        const targetH = targetH_mm * MM_TO_PT;
-
-        const newDoc = await PDFDocument.create();
-        const srcPages = pdfDoc.getPages();
-        const embeddedPages = await newDoc.embedPages(srcPages);
-
-        for (let i = 0; i < srcPages.length; i++) {
-          const origPage = srcPages[i];
-          const embeddedPage = embeddedPages[i];
-          const { width: origW, height: origH } = origPage.getSize();
-
-          const newPage = newDoc.addPage([targetW, targetH]);
-
-          if (scaleMode === 'fit') {
-            const scale = Math.min(targetW / origW, targetH / origH);
-            const drawW = origW * scale;
-            const drawH = origH * scale;
-            const tx = (targetW - drawW) / 2;
-            const ty = (targetH - drawH) / 2;
-            newPage.drawPage(embeddedPage, { x: tx, y: ty, width: drawW, height: drawH });
-          } else if (scaleMode === 'stretch') {
-            newPage.drawPage(embeddedPage, { x: 0, y: 0, width: targetW, height: targetH });
-          } else if (scaleMode === 'keep') {
-            const tx = (targetW - origW) / 2;
-            const ty = (targetH - origH) / 2;
-            newPage.drawPage(embeddedPage, { x: tx, y: ty, width: origW, height: origH });
-          }
-        }
-        const modifiedPdfBytes = await newDoc.save({ useObjectStreams: true });
-        if (typeof downloadFile === 'function')
-          downloadFile(modifiedPdfBytes, `${currentFileName}-resized.pdf`);
-        if (typeof showSuccess === 'function') showSuccess('PDF resized successfully!');
+        throw new Error('Worker not found');
       }
+
+      if (typeof downloadFile === 'function') {
+        const suffix = mode === 'crop' ? '-cropped.pdf' : '-resized.pdf';
+        downloadFile(resultBytes, `${currentFileName}${suffix}`);
+      }
+      if (typeof showSuccess === 'function') {
+        const msg = mode === 'crop' ? 'PDF cropped successfully!' : 'PDF resized successfully!';
+        showSuccess(msg);
+      }
+    }
     },
   });
 }

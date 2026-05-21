@@ -165,7 +165,7 @@ window.confetti = confetti;
       let html = `
                 <header class="hero">
                     <div class="hero-badge">✨ 100% Free & Secure</div>
-                    <h1>The Ultimate <span class="text-gradient">PDF Tools</span> Collection</h1>
+                    <h1 class="hero-title">The Ultimate <span class="text-gradient">PDF Tools</span> Collection</h1>
                     <p>Merge, split, compress, and edit PDFs directly in your browser. <strong>No server uploads. No registration.</strong></p>
                     <div class="trust-indicators">
                         <span>🔒 Local Processing</span>

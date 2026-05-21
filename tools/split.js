@@ -39,9 +39,7 @@ export function init() {
         if (results.length === 1) {
           if (typeof downloadFile === 'function') downloadFile(results[0].bytes, results[0].name);
         } else {
-          const JSZip =
-            (await import('https://unpkg.com/jszip@3.10.1/dist/jszip.min.js')).default ||
-            window.JSZip;
+          const JSZip = (await import("jszip")).default;
           const zip = new JSZip();
           results.forEach((r) => zip.file(r.name, r.bytes));
           const zipBlob = await zip.generateAsync({ type: 'blob' });

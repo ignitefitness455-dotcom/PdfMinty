@@ -17,8 +17,7 @@ export function init() {
 
       const pdf = await window.pdfjsLib.getDocument({ data: actualBytes }).promise;
 
-      const JSZip =
-        (await import('https://unpkg.com/jszip@3.10.1/dist/jszip.min.js')).default || window.JSZip;
+      const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
 
       for (let i = 1; i <= pdf.numPages; i++) {
