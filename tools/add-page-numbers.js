@@ -1,4 +1,5 @@
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -52,6 +53,9 @@ export function init() {
                 </div>`,
 
     onInit: () => {
+      // Bug 5 fix: set up back button with history API
+      setupBackButton();
+
       const sizeInput = document.getElementById('size-input');
       const sizeVal = document.getElementById('size-val');
       const marginInput = document.getElementById('margin-input');
@@ -59,24 +63,33 @@ export function init() {
       const colorInput = document.getElementById('color-input');
       const colorHex = document.getElementById('color-hex');
 
-      if (sizeInput)
+      if (sizeInput && sizeVal)
         sizeInput.addEventListener('input', (e) => (sizeVal.textContent = e.target.value + 'px'));
-      if (marginInput)
+      if (marginInput && marginVal)
         marginInput.addEventListener(
           'input',
           (e) => (marginVal.textContent = e.target.value + 'px'),
         );
-      if (colorInput)
+      if (colorInput && colorHex)
         colorInput.addEventListener(
           'input',
           (e) => (colorHex.textContent = e.target.value.toUpperCase()),
         );
     },
     onApply: async ({ actualBytes, currentFileName }) => {
-      const format = document.getElementById('num-format').value;
-      const position = document.getElementById('num-position').value;
-      const size = parseInt(document.getElementById('num-size').value, 10);
-      const margin = parseInt(document.getElementById('num-margin').value, 10);
+      // Bug 1 fix: the original code referenced non-existent IDs (num-format, num-position,
+      // num-size, num-margin). The actual IDs in settingsHtml are format-select, position-select,
+      // size-input, margin-input. Use null-safe access with fallback defaults.
+      const format = document.getElementById('format-select')?.value ?? '1';
+      const position = document.getElementById('position-select')?.value ?? 'bottom-center';
+      const size = parseInt(document.getElementById('size-input')?.value ?? '12', 10);
+      const margin = parseInt(document.getElementById('margin-input')?.value ?? '30', 10);
+
+      // Read color from color-input and convert to normalised RGB
+      const rawColor = document.getElementById('color-input')?.value ?? '#000000';
+      const r = parseInt(rawColor.substr(1, 2), 16) / 255;
+      const g = parseInt(rawColor.substr(3, 2), 16) / 255;
+      const b = parseInt(rawColor.substr(5, 2), 16) / 255;
 
       let resultBytes;
       if (typeof window.runPdfWorkerTask === 'function') {
@@ -86,7 +99,7 @@ export function init() {
           position,
           size,
           margin,
-          colorRgb: { r: 0, g: 0, b: 0 },
+          colorRgb: { r, g, b },
         };
         resultBytes = await window.runPdfWorkerTask('add-page-numbers', payload, [
           payload.fileBytes.buffer,
@@ -94,6 +107,12 @@ export function init() {
       } else {
         throw new Error('Worker not found');
       }
+
+      // Bug 4 fix: validate output before reporting success
+      if (!isValidOutput(resultBytes)) {
+        throw new Error('Failed to add page numbers: output file is empty.');
+      }
+
       if (typeof downloadFile === 'function')
         downloadFile(resultBytes, currentFileName + '_numbered.pdf');
       if (typeof showSuccess === 'function') showSuccess('Page numbers added successfully!');
