@@ -1,11 +1,11 @@
 {
-	"appId": "com.pdfminty.app",
-	"appName": "PDFMinty",
-	"webDir": "dist",
-	"bundledWebRuntime": false,
-	"android": {
-		"allowMixedContent": false,
-		"appendUserAgent": "PDFMintyApp",
-		"backgroundColor": "#ffffff"
-	}
+  "appId": "com.pdfminty.app",
+  "appName": "PDFMinty",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": false,
+    "appendUserAgent": "PDFMintyApp",
+    "backgroundColor": "#ffffff"
+  }
 }

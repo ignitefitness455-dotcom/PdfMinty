@@ -1,5 +1,7 @@
+import { ICONS } from "../src/ui/icons.js";
+import { downloadFile } from '../src/utils/fileUtils.js';
+import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
-import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -10,9 +12,15 @@ export function init() {
     toolId: 'add-page-numbers',
     title: 'Add Page Numbers',
     description: 'Insert page numbers into your PDF document',
-    icon: window.PdfMinty.ICONS.add_page_numbers || '📄',
+    icon: ICONS.add_page_numbers || '📄',
     actionText: '🔢 Add Page Numbers',
     isMultiFile: false,
+    instructions: [
+      'Upload your PDF file.',
+      'Select the format and position where page numbers should appear.',
+      'Click 🔢 Add Page Numbers to insert them.',
+      'Download the document with numbered pages.'
+    ],
     settingsHtml: `<div class="settings-panel">
                     <div class="setting-group">
                         <label class="input-label">Format</label>
@@ -53,9 +61,6 @@ export function init() {
                 </div>`,
 
     onInit: () => {
-      // Bug 5 fix: set up back button with history API
-      setupBackButton();
-
       const sizeInput = document.getElementById('size-input');
       const sizeVal = document.getElementById('size-val');
       const marginInput = document.getElementById('margin-input');
@@ -63,59 +68,44 @@ export function init() {
       const colorInput = document.getElementById('color-input');
       const colorHex = document.getElementById('color-hex');
 
-      if (sizeInput && sizeVal)
+      if (sizeInput)
         sizeInput.addEventListener('input', (e) => (sizeVal.textContent = e.target.value + 'px'));
-      if (marginInput && marginVal)
+      if (marginInput)
         marginInput.addEventListener(
           'input',
           (e) => (marginVal.textContent = e.target.value + 'px'),
         );
-      if (colorInput && colorHex)
+      if (colorInput)
         colorInput.addEventListener(
           'input',
           (e) => (colorHex.textContent = e.target.value.toUpperCase()),
         );
     },
     onApply: async ({ actualBytes, currentFileName }) => {
-      // Bug 1 fix: the original code referenced non-existent IDs (num-format, num-position,
-      // num-size, num-margin). The actual IDs in settingsHtml are format-select, position-select,
-      // size-input, margin-input. Use null-safe access with fallback defaults.
-      const format = document.getElementById('format-select')?.value ?? '1';
-      const position = document.getElementById('position-select')?.value ?? 'bottom-center';
-      const size = parseInt(document.getElementById('size-input')?.value ?? '12', 10);
-      const margin = parseInt(document.getElementById('margin-input')?.value ?? '30', 10);
-
-      // Read color from color-input and convert to normalised RGB
-      const rawColor = document.getElementById('color-input')?.value ?? '#000000';
-      const r = parseInt(rawColor.substr(1, 2), 16) / 255;
-      const g = parseInt(rawColor.substr(3, 2), 16) / 255;
-      const b = parseInt(rawColor.substr(5, 2), 16) / 255;
+      const format = document.getElementById('num-format').value;
+      const position = document.getElementById('num-position').value;
+      const size = parseInt(document.getElementById('num-size').value, 10);
+      const margin = parseInt(document.getElementById('num-margin').value, 10);
 
       let resultBytes;
-      if (typeof window.runPdfWorkerTask === 'function') {
+      if (typeof runPdfWorkerTask !== 'undefined') {
         const payload = {
           fileBytes: new Uint8Array(actualBytes),
           format,
           position,
           size,
           margin,
-          colorRgb: { r, g, b },
+          colorRgb: { r: 0, g: 0, b: 0 },
         };
-        resultBytes = await window.runPdfWorkerTask('add-page-numbers', payload, [
+        resultBytes = await runPdfWorkerTask('add-page-numbers', payload, [
           payload.fileBytes.buffer,
         ]);
       } else {
         throw new Error('Worker not found');
       }
-
-      // Bug 4 fix: validate output before reporting success
-      if (!isValidOutput(resultBytes)) {
-        throw new Error('Failed to add page numbers: output file is empty.');
-      }
-
-      if (typeof downloadFile === 'function')
+      if (typeof window.downloadFile === 'function')
         downloadFile(resultBytes, currentFileName + '_numbered.pdf');
-      if (typeof showSuccess === 'function') showSuccess('Page numbers added successfully!');
+      if (typeof window.showSuccess === 'function') window.showSuccess('Page numbers added successfully!');
     },
   });
 }

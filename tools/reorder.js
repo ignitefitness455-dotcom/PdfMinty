@@ -1,5 +1,7 @@
+import { ICONS } from "../src/ui/icons.js";
+import { downloadFile } from '../src/utils/fileUtils.js';
+import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
-import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -10,23 +12,29 @@ export function init() {
     toolId: 'reorder',
     title: 'Reorder PDF',
     description: 'Change the order of pages in your PDF',
-    icon: window.PdfMinty.ICONS.reorder || '📄',
+    icon: ICONS.reorder || '📄',
     actionText: '🔄 Reorder PDF',
     isMultiFile: false,
-    onInit: () => {
-      // Bug 5 fix: set up back button with history API
-      setupBackButton();
-    },
+    instructions: [
+      'Select the PDF file you want to organize.',
+      'Provide the new page order using commas and hyphens (e.g., 3, 2, 1).',
+      'Click 🔄 Reorder PDF to rearrange the pages.',
+      'Your newly ordered PDF is ready for download.'
+    ],
+    settingsHtml: `
+      <div class="setting-group full-width" style="margin-bottom: 1.5rem;">
+          <label class="input-label" style="margin-bottom: 0.5rem; color: var(--text);">New Page Order</label>
+          <input type="text" id="page-order" class="text-input" placeholder="e.g. 5, 4, 3, 2, 1 or 1-3, 5, 4">
+          <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem;">Enter the new order using commas and hyphens.</p>
+      </div>
+    `,
     onApply: async ({ actualBytes, currentFileName }) => {
-      // Bug 1 fix: null-safe element lookup and .value access
       const realInput =
         document.getElementById('page-order') || document.querySelector('input[type="text"]');
-      if (!realInput) throw new Error('Page order input not found. Please reload the tool.');
-      const inputValue = (realInput.value ?? '').trim();
-      if (!inputValue) throw new Error('Enter page order.');
+      if (!realInput || !realInput.value) throw new Error('Enter page order.');
 
       let newOrder = [];
-      for (let p of inputValue.split(',')) {
+      for (let p of realInput.value.trim().split(',')) {
         let pStr = p.trim();
         if (pStr.includes('-')) {
           const [s, e] = pStr.split('-').map(Number);
@@ -45,21 +53,15 @@ export function init() {
         throw new Error('You must include all pages exactly once.');
 
       let resultBytes;
-      if (typeof window.runPdfWorkerTask === 'function') {
+      if (typeof runPdfWorkerTask !== 'undefined') {
         const payload = { fileBytes: new Uint8Array(actualBytes), newOrder };
-        resultBytes = await window.runPdfWorkerTask('reorder', payload, [payload.fileBytes.buffer]);
+        resultBytes = await runPdfWorkerTask('reorder', payload, [payload.fileBytes.buffer]);
       } else {
         throw new Error('Worker not found');
       }
-
-      // Bug 4 fix: validate output before reporting success
-      if (!isValidOutput(resultBytes)) {
-        throw new Error('Failed to reorder PDF: output file is empty.');
-      }
-
-      if (typeof downloadFile === 'function')
+      if (typeof window.downloadFile === 'function')
         downloadFile(resultBytes, currentFileName + '_reordered.pdf');
-      if (typeof showSuccess === 'function') showSuccess('PDF reordered successfully!');
+      if (typeof window.showSuccess === 'function') window.showSuccess('PDF reordered successfully!');
     },
   });
 }

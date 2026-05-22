@@ -1,4 +1,7 @@
 export default {
+  worker: {
+    format: 'es',
+  },
   build: {
     rollupOptions: {
       output: {

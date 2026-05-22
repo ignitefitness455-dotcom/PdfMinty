@@ -1,5 +1,7 @@
+import { ICONS } from "../src/ui/icons.js";
+import { downloadFile } from '../src/utils/fileUtils.js';
+import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
-import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -10,34 +12,23 @@ export function init() {
     toolId: 'image-to-pdf',
     title: 'Image to PDF',
     description: 'Convert JPG or PNG images into a PDF document',
-    icon: window.PdfMinty.ICONS.image_to_pdf || '📄',
+    icon: ICONS.image_to_pdf || '📄',
     actionText: '🖼️ Convert to PDF',
     isMultiFile: true,
-    onInit: () => {
-      // Bug 5 fix: set up back button with history API
-      setupBackButton();
-    },
+    instructions: [
+      'Upload one or more image files (JPG, PNG, etc.).',
+      'If uploading multiple, use the ➕ Add More button.',
+      'Click 🖼️ Convert to PDF to wrap the images into a PDF document.',
+      'Download your new PDF file.'
+    ],
     onApply: async ({ filesArray }) => {
-      if (!filesArray || filesArray.length === 0) {
-        throw new Error('Please add at least one image to convert.');
-      }
-
-      // Bug 3 fix: validate each file is actually an image before processing
-      for (const item of filesArray) {
-        const fileType = item.fileObj?.type ?? '';
-        if (!fileType.startsWith('image/')) {
-          throw new Error(
-            `Invalid file format: "${item.name}" is not an image. Please upload JPG or PNG files.`
-          );
-        }
-      }
+      if (filesArray.length === 0) return;
 
       if (typeof window.showProgress === 'function') window.showProgress(5);
 
-      // Bug 3 fix: ensure all file reading is properly awaited before sending to worker
+      // Read all images first
       const fileDatas = await Promise.all(
         filesArray.map(async (item) => {
-          // Await the arrayBuffer call to prevent timing-related format errors
           const buffer = await item.fileObj.arrayBuffer();
           return {
             bytes: new Uint8Array(buffer),
@@ -49,7 +40,7 @@ export function init() {
 
       const transferables = fileDatas.map((f) => f.bytes.buffer);
 
-      const pdfBytes = await window.runPdfWorkerTask(
+      const pdfBytes = await runPdfWorkerTask(
         'image-to-pdf',
         {
           files: fileDatas,
@@ -60,15 +51,10 @@ export function init() {
         },
       );
 
-      // Bug 4 fix: validate output before reporting success
-      if (!isValidOutput(pdfBytes)) {
-        throw new Error('Failed to convert images to PDF: output file is empty.');
-      }
-
-      if (typeof downloadFile === 'function') {
+      if (typeof window.downloadFile === 'function') {
         downloadFile(pdfBytes, 'images-converted.pdf');
       }
-      if (typeof showSuccess === 'function') showSuccess('Images converted to PDF successfully!');
+      if (typeof window.showSuccess === 'function') window.showSuccess('Images converted to PDF successfully!');
     },
   });
 }

@@ -1,5 +1,7 @@
+import { ICONS } from "../src/ui/icons.js";
+import { downloadFile } from '../src/utils/fileUtils.js';
+import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
-import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -10,11 +12,17 @@ export function init() {
     toolId: 'add-blank-page',
     title: 'Add Blank Page',
     description: 'Insert blank pages anywhere in your PDF',
-    icon: window.PdfMinty.ICONS.add_blank_page || '📄',
+    icon: ICONS.add_blank_page || '📄',
     actionText: '➕ Add Blank Page',
     isMultiFile: false,
+    instructions: [
+      'Upload your PDF document.',
+      'Specify the position, placement, and number of blank pages to add.',
+      'Click ➕ Add Blank Page to insert them.',
+      'Download the updated document.'
+    ],
     settingsHtml: `
-                <div class="options-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="options-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                     <div class="option-group" style="display: flex; flex-direction: column; gap: 0.75rem; background: var(--bg); padding: 1.25rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                         <span class="option-label" style="font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 0.25rem;">Insert Position</span>
                         
@@ -56,9 +64,6 @@ export function init() {
                 </div>
         `,
     onInit: () => {
-      // Bug 5 fix: set up back button with history API
-      setupBackButton();
-
       document.getElementById('btn-beginning')?.addEventListener('click', () => {
         const pos = document.getElementById('pos-type');
         if (pos) pos.value = 'before';
@@ -73,11 +78,10 @@ export function init() {
       });
     },
     onApply: async ({ actualBytes, currentFileName }) => {
-      // Bug 1 fix: null-safe .value access
-      const count = parseInt(document.getElementById('blank-count')?.value ?? '1', 10);
-      const targetPageRaw = parseInt(document.getElementById('target-page')?.value ?? '1', 10);
-      const posType = document.getElementById('pos-type')?.value ?? 'after';
-      const sizeType = document.querySelector('input[name="page-size"]:checked')?.value ?? 'same';
+      const count = parseInt(document.getElementById('blank-count').value, 10);
+      const targetPageRaw = parseInt(document.getElementById('target-page').value, 10);
+      const posType = document.getElementById('pos-type').value;
+      const sizeType = document.querySelector('input[name="page-size"]:checked').value;
 
       if (isNaN(count) || count < 1 || count > 10)
         throw new Error('Please enter a valid number of pages to insert (1-10).');
@@ -110,7 +114,7 @@ export function init() {
         dims = [612.0, 792.0];
       }
 
-      const modifiedPdfBytes = await window.runPdfWorkerTask(
+      const modifiedPdfBytes = await runPdfWorkerTask(
         'add-blank-page',
         {
           fileBytes: actualBytes,
@@ -124,14 +128,9 @@ export function init() {
         },
       );
 
-      // Bug 4 fix: validate output before reporting success
-      if (!isValidOutput(modifiedPdfBytes)) {
-        throw new Error('Failed to add blank pages: output file is empty.');
-      }
-
-      if (typeof downloadFile === 'function')
+      if (typeof window.downloadFile === 'function')
         downloadFile(modifiedPdfBytes, currentFileName + '_blank_added.pdf');
-      if (typeof showSuccess === 'function') showSuccess('Blank pages added successfully!');
+      if (typeof window.showSuccess === 'function') window.showSuccess('Blank pages added successfully!');
     },
   });
 }

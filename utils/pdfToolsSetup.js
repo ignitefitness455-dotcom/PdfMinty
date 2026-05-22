@@ -1,8 +1,12 @@
 import { getPdfBytes, processPdfTask } from '../tools/shared.js';
 import { singleFilePreviewHtml, renderToolBase } from '../shared-ui.js';
 import { FileHandler } from './fileHandler.js';
+import { db } from '../src/core/Database.js';
+import { UI } from '../src/ui/UIManager.js';
+import { renderPdfThumbnail, formatBytes } from '../src/utils/fileUtils.js';
 
 export function setupToolUI({
+
   toolId,
   title,
   description,
@@ -10,6 +14,7 @@ export function setupToolUI({
   actionText,
   isMultiFile = false,
   settingsHtml = '',
+  instructions = [],
   onInit = null,
   onApply = null,
 }) {
@@ -27,7 +32,7 @@ export function setupToolUI({
             .tool-header p { color: var(--muted); }
             .back-link { display: inline-block; margin-bottom: 1rem; color: var(--muted); text-decoration: none; font-weight: 500; transition: color 0.2s; cursor: pointer; }
             .back-link:hover { color: var(--accent); }
-            .workspace { background: var(--card); padding: 2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1.5rem; position: relative; z-index: 30; }
+            .workspace { background: var(--card); padding: 2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1.5rem; }
             .file-info { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.05); }
             .file-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 1rem; font-weight: 500; }
             .remove-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.25rem; padding: 0 0.5rem; transition: transform 0.2s; }
@@ -77,6 +82,7 @@ export function setupToolUI({
     icon,
     actionText,
     extraWorkspaceHtml: fileListHtml + (settingsHtml || ''),
+    instructions,
   });
 
   let originalPdfBytes = null;
@@ -93,28 +99,24 @@ export function setupToolUI({
   }
 
   // Default dropzone logic
+  const isImageTool = window.location.pathname.includes('image-to-pdf') || toolId === 'image_to_pdf';
   FileHandler.initDropZone(
     'drop-zone',
     'file-input',
     handleFiles,
-    isMultiFile ? 'image/*,.pdf' : '.pdf',
+    isImageTool ? 'image/*,.pdf' : '.pdf',
   );
 
   if (isMultiFile) {
     document.getElementById('btn-add-more')?.addEventListener('click', () => fileInput.click());
   }
-  async function handleFiles(files, updateProgress) {
+  async function handleFiles(files) {
     if (!files || files.length === 0) return;
-    
-    // Engineering Directive: Reset previous success/confetti states immediately upon a new file upload
-    if (typeof ToastManager !== 'undefined' && ToastManager.reset) ToastManager.reset();
 
     for (const f of files) {
-      const check = await FileHandler.validateFile(f);
+      const check = FileHandler.validateFile(f);
       if (!check.valid) {
-        if (window.PdfMinty && window.PdfMinty.ui) {
-          window.PdfMinty.ui.showError(check.reason);
-        }
+        UI.showError(check.reason);
         return;
       }
     }
@@ -122,67 +124,83 @@ export function setupToolUI({
     if (!isMultiFile) {
       const file = files[0];
       try {
-        if (updateProgress) updateProgress(50);
-        if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.showProgress(50);
+        UI.showProgress(50);
         const ab = await FileHandler.readFileAsArrayBuffer(file);
-        if (window.PdfMinty && window.PdfMinty.db) {
-          await window.PdfMinty.db.saveFile(toolId + '_target', ab);
+        
+        let savedToDb = false;
+        try {
+          await db.saveFile(toolId + '_target', ab);
           originalPdfBytes = toolId + '_target';
-        } else {
+          savedToDb = true;
+        } catch(e) {
+          console.warn('IDB save failed, falling back to memory', e);
+        }
+        if (!savedToDb) {
           originalPdfBytes = ab;
         }
+        
         currentFileName = file.name.replace(/\.[^/.]+$/, '');
 
         const fileNameDisplay = document.getElementById('file-name-display');
         if (fileNameDisplay) fileNameDisplay.textContent = file.name;
 
         const fileSizeDisplay = document.getElementById('file-size-display');
-        if (window.PdfMinty && window.PdfMinty.utils && fileSizeDisplay) {
-          fileSizeDisplay.textContent = window.PdfMinty.utils.formatBytes(file.size);
+        if (fileSizeDisplay) {
+          fileSizeDisplay.textContent = formatBytes(file.size);
         }
 
-        if (window.PdfMinty && window.PdfMinty.utils && window.PdfMinty.utils.renderPdfThumbnail) {
-          const imgEl = document.getElementById('file-preview-img');
-          if (imgEl && file.type === 'application/pdf')
-            window.PdfMinty.utils.renderPdfThumbnail(file, imgEl);
+        const imgEl = document.getElementById('file-preview-img');
+        if (imgEl && file.type === 'application/pdf') {
+          renderPdfThumbnail(file, imgEl);
         }
 
         dropZone.classList.add('hidden');
         workspace.classList.remove('hidden');
       } catch (err) {
-        console.error(err);
-        if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.showError(err.message);
+        console.error('File handler error:', err);
+        UI.showError(err.message || 'Failed to read file');
       } finally {
-        if (window.PdfMinty && window.PdfMinty.ui) window.PdfMinty.ui.hideProgress();
+        UI.hideProgress();
       }
     } else {
       // Multi-file logic
       const validFiles = Array.from(files);
-      if (window.PdfMinty && window.PdfMinty.db) {
-        let completed = 0;
-        await Promise.all(
+      
+      try {
+        const mappedFiles = await Promise.all(
           validFiles.map(async (file) => {
             const id = toolId + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             const ab = await FileHandler.readFileAsArrayBuffer(file);
-            await window.PdfMinty.db.saveFile(id, ab);
-            completed++;
-            if (updateProgress) updateProgress(Math.round((completed / validFiles.length) * 100));
+            
+            let savedToDb = false;
+            try {
+              await db.saveFile(id, ab);
+              savedToDb = true;
+            } catch(e) {
+              console.warn('IDB multi-save failed', e);
+            }
+            
+            // If failed to save to DB, we must keep ab in memory.
+            // Wait, multi-file relies on ID for DB retrieval, so if it fails, we need to pass ab.
+            // But the UI expects file.id or memory array buffer. Wait, let's keep the File object
+            // and read it again at process time if it wasn't saved!
+            if (!savedToDb) {
+              return { name: file.name, id: null, fileObj: file };
+            }
             return { name: file.name, id, fileObj: file };
-          }),
-        ).then((mapped) => {
-          filesArray = filesArray.concat(mapped);
-          renderFileList();
-        }).catch(err => {
-          if (window.PdfMinty && window.PdfMinty.ui) {
-            window.PdfMinty.ui.showError(err.message || 'Failed to process files');
-          }
-        });
-      } else {
-        filesArray = filesArray.concat(validFiles.map((f) => ({ name: f.name, fileObj: f })));
+          })
+        );
+        
+        filesArray = filesArray.concat(mappedFiles);
         renderFileList();
+        
+        dropZone.classList.add('hidden');
+        workspace.classList.remove('hidden');
+      } catch (err) {
+        console.error('Error processing files', err);
+        UI.showError('Failed to process files: ' + err.message);
+        return; // Don't show workspace on global failure
       }
-      dropZone.classList.add('hidden');
-      workspace.classList.remove('hidden');
     }
   }
 
@@ -203,9 +221,7 @@ export function setupToolUI({
         item.appendChild(img);
       } else {
         const img = document.createElement('img');
-        if (window.PdfMinty && window.PdfMinty.utils && window.PdfMinty.utils.renderPdfThumbnail) {
-          window.PdfMinty.utils.renderPdfThumbnail(file.fileObj, img);
-        }
+        renderPdfThumbnail(file.fileObj, img);
         item.appendChild(img);
       }
 
@@ -227,8 +243,9 @@ export function setupToolUI({
       btn.addEventListener('click', (e) => {
         const idx = parseInt(e.target.dataset.index);
         const removed = filesArray.splice(idx, 1)[0];
-        if (window.PdfMinty && window.PdfMinty.db && removed.id)
-          window.PdfMinty.db.deleteFile(removed.id);
+        if (removed.id) {
+          db.deleteFile(removed.id).catch(console.error);
+        }
         renderFileList();
         if (filesArray.length === 0) {
           workspace.classList.add('hidden');
@@ -243,7 +260,7 @@ export function setupToolUI({
     removeFileBtn.addEventListener('click', () => {
       originalPdfBytes = null;
       currentFileName = '';
-      fileInput.value = '';
+      if (fileInput) fileInput.value = '';
       workspace.classList.add('hidden');
       dropZone.classList.remove('hidden');
     });
@@ -252,9 +269,6 @@ export function setupToolUI({
   const btnApply = document.getElementById('btn-apply');
   if (btnApply && onApply) {
     btnApply.addEventListener('click', () => {
-      // Engineering Directive: Reset state before a new operation starts
-      if (typeof ToastManager !== 'undefined' && ToastManager.reset) ToastManager.reset();
-      
       processPdfTask(btnApply, async () => {
         let actualBytes;
         if (!isMultiFile && originalPdfBytes) {

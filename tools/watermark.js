@@ -1,5 +1,7 @@
+import { ICONS } from "../src/ui/icons.js";
+import { downloadFile } from '../src/utils/fileUtils.js';
+import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
-import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -10,10 +12,16 @@ export function init() {
     toolId: 'watermark',
     title: 'Watermark PDF',
     description: 'Stamp text on your PDF pages',
-    icon: window.PdfMinty.ICONS.watermark || '📄',
+    icon: ICONS.watermark || '📄',
     actionText: '💧 Add Watermark',
     isMultiFile: false,
-    settingsHtml: `<div class="settings-panel" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+    instructions: [
+      'Select the PDF you wish to watermark.',
+      'Enter your watermark text and configure its size, rotation, and opacity.',
+      'Click 💧 Add Watermark to apply it to all pages.',
+      'Download your watermarked document.'
+    ],
+    settingsHtml: `<div class="settings-panel">
                     <div class="setting-group full-width">
                         <label class="input-label">Watermark Text</label>
                         <input type="text" id="wm-text" class="text-input" placeholder="e.g., CONFIDENTIAL" value="CONFIDENTIAL">
@@ -48,55 +56,42 @@ export function init() {
                 </div>`,
 
     onInit: () => {
-      // Bug 5 fix: set up back button with history API
-      setupBackButton();
-
       const opacityInput = document.getElementById('wm-opacity');
       const opacityVal = document.getElementById('opacity-val');
       const sizeInput = document.getElementById('wm-size');
       const sizeVal = document.getElementById('size-val');
-      const rotationInput = document.getElementById('wm-rotation');
-      const rotationVal = document.getElementById('rotation-val');
-      const colorInput = document.getElementById('wm-color');
-      const colorHex = document.getElementById('color-hex');
-      // These elements do not exist in the current settingsHtml but are guarded safely
       const bgOpacityInput = document.getElementById('wm-bg-opacity');
       const bgOpacityVal = document.getElementById('bg-opacity-val');
 
-      if (opacityInput && opacityVal)
+      if (opacityInput)
         opacityInput.addEventListener(
           'input',
           (e) => (opacityVal.textContent = e.target.value + '%'),
         );
-      if (sizeInput && sizeVal)
+      if (sizeInput)
         sizeInput.addEventListener('input', (e) => (sizeVal.textContent = e.target.value + 'px'));
-      if (rotationInput && rotationVal)
-        rotationInput.addEventListener('input', (e) => (rotationVal.textContent = e.target.value + '°'));
-      if (colorInput && colorHex)
-        colorInput.addEventListener('input', (e) => (colorHex.textContent = e.target.value.toUpperCase()));
-      if (bgOpacityInput && bgOpacityVal)
+      if (bgOpacityInput)
         bgOpacityInput.addEventListener(
           'input',
           (e) => (bgOpacityVal.textContent = e.target.value + '%'),
         );
     },
     onApply: async ({ actualBytes, currentFileName }) => {
-      // Bug 1 fix: null-safe .value access with fallback defaults on all DOM fields
-      const text = document.getElementById('wm-text')?.value ?? '';
-      if (!text) throw new Error('Watermark text is required');
+      const text = document.getElementById('wm-text').value;
+      if (!text) throw new Error('Text is required');
 
-      const rawColor = document.getElementById('wm-color')?.value ?? '#ff0000';
+      const rawColor = document.getElementById('wm-color').value;
       const r = parseInt(rawColor.substr(1, 2), 16) / 255;
       const g = parseInt(rawColor.substr(3, 2), 16) / 255;
       const b = parseInt(rawColor.substr(5, 2), 16) / 255;
 
-      const textSize = parseInt(document.getElementById('wm-size')?.value ?? '60', 10);
-      const opacity = parseInt(document.getElementById('wm-opacity')?.value ?? '30', 10) / 100;
-      const rotationDeg = parseInt(document.getElementById('wm-rotation')?.value ?? '45', 10);
-      const position = document.getElementById('wm-position')?.value ?? 'center';
+      const textSize = parseInt(document.getElementById('wm-size').value, 10);
+      const opacity = parseInt(document.getElementById('wm-opacity').value, 10) / 100;
+      const rotationDeg = parseInt(document.getElementById('wm-rotation').value, 10);
+      const position = document.getElementById('wm-position').value;
 
       let resultBytes;
-      if (typeof window.runPdfWorkerTask === 'function') {
+      if (typeof runPdfWorkerTask !== 'undefined') {
         const payload = {
           fileBytes: new Uint8Array(actualBytes),
           text,
@@ -106,21 +101,16 @@ export function init() {
           rotationDeg,
           position,
         };
-        resultBytes = await window.runPdfWorkerTask('watermark', payload, [
+        resultBytes = await runPdfWorkerTask('watermark', payload, [
           payload.fileBytes.buffer,
         ]);
       } else {
         throw new Error('Worker not found');
       }
 
-      // Bug 4 fix: validate output before reporting success
-      if (!isValidOutput(resultBytes)) {
-        throw new Error('Failed to add watermark: output file is empty.');
-      }
-
-      if (typeof downloadFile === 'function')
+      if (typeof window.downloadFile === 'function')
         downloadFile(resultBytes, currentFileName + '_watermarked.pdf');
-      if (typeof showSuccess === 'function') showSuccess('Watermark added successfully!');
+      if (typeof window.showSuccess === 'function') window.showSuccess('Watermark added successfully!');
     },
   });
 }

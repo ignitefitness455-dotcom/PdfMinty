@@ -1,5 +1,8 @@
+import { ICONS } from "../src/ui/icons.js";
+import { downloadFile } from '../src/utils/fileUtils.js';
+import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
+import { db } from '../src/core/Database.js';
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
-import { isValidOutput, getErrorMessage, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -10,53 +13,73 @@ export function init() {
     toolId: 'merge',
     title: 'Merge PDF',
     description: 'Combine multiple PDFs into a single document',
-    icon: window.PdfMinty.ICONS.merge || '📄',
+    icon: ICONS.merge || '📄',
     actionText: '🔗 Merge PDFs',
     isMultiFile: true,
-    onInit: () => {
-      // Bug 5 fix: set up back button with history API
-      setupBackButton();
-    },
+    instructions: [
+      'Click or drag and drop to select multiple PDF files.',
+      'Add more files using the ➕ Add More button if needed.',
+      'Click the 🔗 Merge PDFs button to combine all files.',
+      'The merged PDF will begin downloading automatically.'
+    ],
     onApply: async ({ filesArray }) => {
-      if (!filesArray || filesArray.length < 2) {
-        if (typeof showError === 'function') showError('Please add at least 2 PDFs to merge.');
+      if (filesArray.length < 2) {
+        if (typeof window.showError === 'function') window.showError('Please add at least 2 PDFs to merge.');
         throw new Error('Need more files');
       }
 
       let mergedPdfBytes;
-      if (typeof window.runPdfWorkerTask === 'function') {
+      if (typeof runPdfWorkerTask !== 'undefined') {
         const payload = { files: [] };
         for (let i = 0; i < filesArray.length; i++) {
           let ab;
-          if (filesArray[i].id && window.pdfDB) {
+          if (filesArray[i].id && db) {
             try {
-              ab = await window.pdfDB.getFile(filesArray[i].id);
+              ab = await db.getFile(filesArray[i].id);
             } catch (err) {
-              // Bug 2 fix: log the actual error message, not the object
-              console.error('Failed to retrieve file from DB:', getErrorMessage(err));
+              console.error(err);
             }
           }
-          // Bug 3 fix: ensure file reading is properly awaited
-          if (!ab) ab = await filesArray[i].fileObj.arrayBuffer();
+          if (!ab) {
+            ab = await new Promise((resolve, reject) => {
+              if (filesArray[i].fileObj.arrayBuffer) {
+                filesArray[i].fileObj.arrayBuffer().then(resolve).catch(reject);
+              } else {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(filesArray[i].fileObj);
+              }
+            });
+          }
           payload.files.push(new Uint8Array(ab));
         }
         const transferables = payload.files.map((arr) => arr.buffer);
-        mergedPdfBytes = await window.runPdfWorkerTask('merge', payload, transferables);
+        mergedPdfBytes = await runPdfWorkerTask('merge', payload, transferables);
       } else {
         const { PDFDocument } = await import('pdf-lib');
         const mergedPdf = await PDFDocument.create();
         for (let i = 0; i < filesArray.length; i++) {
           let fileBytes;
-          if (filesArray[i].id && window.pdfDB) {
+          if (filesArray[i].id && db) {
             try {
-              fileBytes = await window.pdfDB.getFile(filesArray[i].id);
+              fileBytes = await db.getFile(filesArray[i].id);
             } catch (err) {
-              // Bug 2 fix: log the actual error message, not the object
-              console.error('Failed to retrieve file from DB:', getErrorMessage(err));
+              console.error(err);
             }
           }
-          // Bug 3 fix: ensure file reading is properly awaited
-          if (!fileBytes) fileBytes = await filesArray[i].fileObj.arrayBuffer();
+          if (!fileBytes) {
+            fileBytes = await new Promise((resolve, reject) => {
+              if (filesArray[i].fileObj.arrayBuffer) {
+                filesArray[i].fileObj.arrayBuffer().then(resolve).catch(reject);
+              } else {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(filesArray[i].fileObj);
+              }
+            });
+          }
           let pdf = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
           const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
           for (let j = 0; j < copiedPages.length; j++) {
@@ -66,15 +89,10 @@ export function init() {
         mergedPdfBytes = await mergedPdf.save({ useObjectStreams: true });
       }
 
-      // Bug 4 fix: validate output before reporting success
-      if (!isValidOutput(mergedPdfBytes)) {
-        throw new Error('Failed to merge PDFs: output file is empty.');
-      }
-
-      if (typeof downloadFile === 'function') {
+      if (typeof window.downloadFile === 'function') {
         downloadFile(mergedPdfBytes, 'merged-document.pdf');
       }
-      if (typeof showSuccess === 'function') showSuccess('PDFs merged successfully!');
+      if (typeof window.showSuccess === 'function') window.showSuccess('PDFs merged successfully!');
     },
   });
 }

@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://pdfminty.com/sitemap.xml
+Sitemap: https://pdfminty.netlify.app/sitemap.xml

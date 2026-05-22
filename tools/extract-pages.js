@@ -1,5 +1,7 @@
+import { ICONS } from "../src/ui/icons.js";
+import { downloadFile } from '../src/utils/fileUtils.js';
+import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
-import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -10,21 +12,29 @@ export function init() {
     toolId: 'extract-pages',
     title: 'Extract Pages',
     description: 'Get specific pages from your PDF as a new document',
-    icon: window.PdfMinty.ICONS.extract_pages || '📄',
+    icon: ICONS.extract_pages || '📄',
     actionText: '📑 Extract Pages',
     isMultiFile: false,
-    onInit: () => {
-      // Bug 5 fix: set up back button with history API
-      setupBackButton();
-    },
+    instructions: [
+      'Upload your PDF file.',
+      'Enter the specific page numbers to extract (e.g., 1, 5, 8).',
+      'Click 📑 Extract Pages to create a new PDF with only those pages.',
+      'Download the extracted PDF file.'
+    ],
+    settingsHtml: `
+      <div class="setting-group full-width" style="margin-bottom: 1.5rem;">
+          <label class="input-label" style="margin-bottom: 0.5rem; color: var(--text);">Pages to Extract</label>
+          <input type="text" id="extract-ranges" class="text-input" placeholder="e.g. 1-3, 5, 8">
+          <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem;">Use commas and hyphens (e.g. 1, 3, 5-10)</p>
+      </div>
+    `,
     onApply: async ({ actualBytes, currentFileName }) => {
-      // Bug 1 fix: null-safe .value access
-      const rangesText = (document.getElementById('extract-ranges')?.value ?? '').trim();
+      const rangesText = document.getElementById('extract-ranges').value.trim();
       if (!rangesText) throw new Error('Please enter pages to extract.');
 
       if (typeof window.showProgress === 'function') window.showProgress(5);
 
-      const resultBytes = await window.runPdfWorkerTask(
+      const resultBytes = await runPdfWorkerTask(
         'extract-pages',
         {
           fileBytes: actualBytes,
@@ -36,14 +46,9 @@ export function init() {
         },
       );
 
-      // Bug 4 fix: validate output before reporting success
-      if (!isValidOutput(resultBytes)) {
-        throw new Error('Failed to extract pages: output file is empty.');
-      }
-
-      if (typeof downloadFile === 'function')
+      if (typeof window.downloadFile === 'function')
         downloadFile(resultBytes, currentFileName + '_extracted.pdf');
-      if (typeof showSuccess === 'function') showSuccess('Pages extracted successfully!');
+      if (typeof window.showSuccess === 'function') window.showSuccess('Pages extracted successfully!');
     },
   });
 }

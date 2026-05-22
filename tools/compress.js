@@ -1,5 +1,6 @@
+import { ICONS } from "../src/ui/icons.js";
+import { downloadFile } from '../src/utils/fileUtils.js';
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
-import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -9,44 +10,104 @@ export function init() {
   setupToolUI({
     toolId: 'compress',
     title: 'Compress PDF',
-    description: 'Reduce file size by optimizing PDF structure or compressing images',
-    icon: window.PdfMinty.ICONS.compress || '📄',
+    description: 'Reduce file size by converting pages to optimized JPEG images',
+    icon: ICONS.compress || '📄',
     actionText: '🗜️ Compress PDF',
     isMultiFile: false,
+    instructions: [
+      'Upload the PDF file you wish to compress.',
+      'Wait for the file to load and be read.',
+      'Click 🗜️ Compress PDF to reduce the file size.',
+      'The optimized PDF will be downloaded automatically.'
+    ],
     settingsHtml: `
-      <div class="radio-group" style="display: flex; flex-direction: column; gap: 0.75rem; background: var(--bg); padding: 1.25rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-          <div class="radio-title" style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem;">Compression Level</div>
-          <label class="radio-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text);"><input type="radio" name="compression-level" value="basic" checked style="accent-color: var(--primary);"> Basic (Metadata & Object Stream Optimization)</label>
-          <label class="radio-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text);"><input type="radio" name="compression-level" value="strong" style="accent-color: var(--primary);"> Strong (Basic + Image Re-encoding, Medium Quality)</label>
-          <label class="radio-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text);"><input type="radio" name="compression-level" value="deep" style="accent-color: var(--primary);"> Deep (Basic + Image Re-encoding, Low Quality)</label>
+       <div class="setting-group full-width" style="margin-bottom: 1.5rem;">
+          <label class="input-label" style="margin-bottom: 0.5rem; color: var(--text);">Compression Level</label>
+          <select id="compressionLevel" class="input-field" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--surface); color: var(--text);">
+              <option value="high">High (Smaller size, lower quality)</option>
+              <option value="medium" selected>Medium (Good balance)</option>
+              <option value="low">Low (Larger size, higher quality)</option>
+          </select>
       </div>
     `,
-    onInit: () => {
-      // Bug 5 fix: set up back button with history API
-      setupBackButton();
-    },
     onApply: async ({ actualBytes, currentFileName }) => {
-      let resultBytes;
-      // Bug 1 fix: null-safe access with fallback default
-      const compressionLevel = document.querySelector('input[name="compression-level"]:checked')?.value ?? 'basic';
+      
+      if (typeof window.pdfjsLib === 'undefined') {
+         const { loadExternalScript } = await import('../src/utils/fileUtils.js');
+         await loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+         window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+      
+      const compLevel = document.getElementById('compressionLevel').value;
+      
+      let scale = 1.5;
+      let quality = 0.7;
+      
+      if (compLevel === 'high') {
+         scale = 1.0;
+         quality = 0.5;
+      } else if (compLevel === 'low') {
+         scale = 2.0;
+         quality = 0.85;
+      }
 
-      if (typeof window.runPdfWorkerTask === 'function') {
-        const payload = { fileBytes: new Uint8Array(actualBytes), compressionLevel };
-        resultBytes = await window.runPdfWorkerTask('compress', payload, [
-          payload.fileBytes.buffer,
-        ]);
+      if (typeof window.UI !== 'undefined' && window.UI.showProgress) {
+        window.UI.showProgress(10);
+      } else if(window.showProgress) {
+        window.showProgress(10);
+      }
+
+      const { PDFDocument } = await import('pdf-lib');
+      const pdf = await window.pdfjsLib.getDocument({ data: actualBytes }).promise;
+      const newPdfDoc = await PDFDocument.create();
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: scale });
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+        const blob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', quality));
+        const arrayBuffer = await blob.arrayBuffer();
+        
+        const image = await newPdfDoc.embedJpg(arrayBuffer);
+        
+        // original page dimensions
+        const origViewport = page.getViewport({ scale: 1.0 });
+        const newPage = newPdfDoc.addPage([origViewport.width, origViewport.height]);
+        
+        newPage.drawImage(image, {
+           x: 0,
+           y: 0,
+           width: origViewport.width,
+           height: origViewport.height,
+        });
+
+        if (typeof window.UI !== 'undefined' && window.UI.showProgress) {
+           window.UI.showProgress(10 + (i / pdf.numPages) * 70);
+        } else if(window.showProgress) {
+           window.showProgress(10 + (i / pdf.numPages) * 70);
+        }
+      }
+
+      const resultBytes = await newPdfDoc.save();
+
+      downloadFile(resultBytes, currentFileName + '_compressed.pdf');
+      
+      if (typeof window.UI !== 'undefined' && window.UI.showProgress) {
+        window.UI.showProgress(100);
+      } else if(window.showProgress) {
+        window.showProgress(100);
+      }
+      
+      if (typeof window.UI !== 'undefined' && window.UI.showSuccess) {
+          window.UI.showSuccess('PDF compressed successfully!');
       } else {
-        throw new Error('Worker not found');
+          alert('PDF compressed successfully!');
       }
-
-      // Bug 4 fix: validate output before reporting success
-      if (!isValidOutput(resultBytes)) {
-        throw new Error('Failed to compress PDF: output file is empty.');
-      }
-
-      if (typeof downloadFile === 'function')
-        downloadFile(resultBytes, currentFileName + '_compressed.pdf');
-      if (typeof showSuccess === 'function') showSuccess('PDF compressed successfully!');
     },
   });
 }

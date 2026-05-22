@@ -1,5 +1,5 @@
+import { ICONS } from "../src/ui/icons.js";
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
-import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -12,9 +12,15 @@ export function init() {
     toolId: 'crop-resize',
     title: 'Crop & Resize PDF',
     description: 'Adjust margins or change page dimensions',
-    icon: window.PdfMinty.ICONS.crop_resize || '📄',
+    icon: ICONS.crop_resize || '📄',
     actionText: '✂️ Crop PDF',
     isMultiFile: false,
+    instructions: [
+      'Upload your PDF file.',
+      'Use the Crop tab to change the margins, or the Resize tab to change the page size format (e.g., A4, Letter).',
+      'Click the action button to apply the adjustments.',
+      'Download the cropped or resized PDF file.'
+    ],
     settingsHtml: `
                 <div class="tabs-nav" style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem;">
                     <button class="tab-btn active" data-target="crop-tab" style="background: none; border: none; color: var(--text); padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid var(--primary);">Crop</button>
@@ -23,7 +29,7 @@ export function init() {
 
                 <!-- CROP TAB -->
                 <div id="crop-tab" class="tab-pane" style="display: block;">
-                    <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="input-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                         <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label class="input-label" style="font-weight: 500; font-size: 0.9rem; color: var(--muted);">Top Margin (mm)</label>
                             <input type="number" id="crop-top" class="number-input" value="0" min="0" step="1" style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text);">
@@ -58,7 +64,7 @@ export function init() {
                         <button type="button" class="preset-btn" data-w="215.9" data-h="355.6" style="background: var(--bg); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Legal</button>
                     </div>
 
-                    <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="input-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                         <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label class="input-label" style="font-weight: 500; font-size: 0.9rem; color: var(--muted);">Width (mm)</label>
                             <input type="number" id="resize-w" class="number-input" value="210" min="10" step="0.1" style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg); color: var(--text);">
@@ -78,9 +84,6 @@ export function init() {
                 </div>
         `,
     onInit: () => {
-      // Bug 5 fix: set up back button with history API
-      setupBackButton();
-
       const btnApply = document.getElementById('btn-apply');
       let activeMode = 'crop';
 
@@ -94,8 +97,7 @@ export function init() {
 
           btn.style.color = 'var(--text)';
           btn.style.borderBottomColor = 'var(--primary)';
-          const targetPane = document.getElementById(btn.dataset.target);
-          if (targetPane) targetPane.style.display = 'block';
+          document.getElementById(btn.dataset.target).style.display = 'block';
 
           activeMode = btn.dataset.target === 'crop-tab' ? 'crop' : 'resize';
           if (btnApply)
@@ -105,61 +107,81 @@ export function init() {
 
       document.querySelectorAll('.preset-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
-          // Bug 1 fix: null-safe element access before setting value
-          const wEl = document.getElementById('resize-w');
-          const hEl = document.getElementById('resize-h');
-          if (wEl) wEl.value = btn.dataset.w;
-          if (hEl) hEl.value = btn.dataset.h;
+          document.getElementById('resize-w').value = btn.dataset.w;
+          document.getElementById('resize-h').value = btn.dataset.h;
         });
       });
       window.crActiveMode = () => activeMode;
     },
     onApply: async ({ actualBytes, currentFileName }) => {
-      const mode = window.crActiveMode ? window.crActiveMode() : 'crop';
-      let resultBytes;
+      const mode = window.crActiveMode();
+      const { PDFDocument } = await import('pdf-lib');
+      const pdfDoc = await PDFDocument.load(actualBytes);
 
-      if (typeof window.runPdfWorkerTask === 'function') {
-        const payload = {
-          fileBytes: new Uint8Array(actualBytes),
-          mode,
-          MM_TO_PT,
-        };
+      if (mode === 'crop') {
+        const top = parseFloat(document.getElementById('crop-top').value) || 0;
+        const right = parseFloat(document.getElementById('crop-right').value) || 0;
+        const bottom = parseFloat(document.getElementById('crop-bottom').value) || 0;
+        const left = parseFloat(document.getElementById('crop-left').value) || 0;
+        const applyTo = document.querySelector('input[name="crop-pages"]:checked').value;
 
-        if (mode === 'crop') {
-          // Bug 1 fix: null-safe .value access with fallback to 0
-          payload.top = parseFloat(document.getElementById('crop-top')?.value ?? '0') || 0;
-          payload.right = parseFloat(document.getElementById('crop-right')?.value ?? '0') || 0;
-          payload.bottom = parseFloat(document.getElementById('crop-bottom')?.value ?? '0') || 0;
-          payload.left = parseFloat(document.getElementById('crop-left')?.value ?? '0') || 0;
-          payload.applyTo = document.querySelector('input[name="crop-pages"]:checked')?.value ?? 'all';
-        } else {
-          payload.targetW_mm = parseFloat(document.getElementById('resize-w')?.value ?? '210');
-          payload.targetH_mm = parseFloat(document.getElementById('resize-h')?.value ?? '297');
-          payload.scaleMode = document.querySelector('input[name="resize-scale"]:checked')?.value ?? 'fit';
+        const pages = pdfDoc.getPages();
+        const pagesToProcess = applyTo === 'all' ? pages : [pages[0]];
+
+        for (const page of pagesToProcess) {
+          const box = page.getCropBox() || page.getMediaBox();
+          const newX = box.x + left * MM_TO_PT;
+          const newY = box.y + bottom * MM_TO_PT;
+          const newWidth = box.width - (left + right) * MM_TO_PT;
+          const newHeight = box.height - (top + bottom) * MM_TO_PT;
+          if (newWidth <= 0 || newHeight <= 0)
+            throw new Error('Crop margins are too large for the page dimensions.');
+          page.setCropBox(newX, newY, newWidth, newHeight);
         }
-
-        resultBytes = await window.runPdfWorkerTask(
-          'crop-resize',
-          payload,
-          [payload.fileBytes.buffer]
-        );
+        const modifiedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
+        if (typeof window.downloadFile === 'function')
+          window.downloadFile(modifiedPdfBytes, `${currentFileName}-cropped.pdf`);
+        if (typeof window.showSuccess === 'function') window.showSuccess('PDF cropped successfully!');
       } else {
-        throw new Error('Worker not found');
-      }
+        const targetW_mm = parseFloat(document.getElementById('resize-w').value);
+        const targetH_mm = parseFloat(document.getElementById('resize-h').value);
+        const scaleMode = document.querySelector('input[name="resize-scale"]:checked').value;
+        if (!targetW_mm || !targetH_mm || targetW_mm <= 0 || targetH_mm <= 0)
+          throw new Error('Please enter valid width and height.');
 
-      // Bug 4 fix: validate output before reporting success
-      if (!isValidOutput(resultBytes)) {
-        const opName = mode === 'crop' ? 'crop' : 'resize';
-        throw new Error(`Failed to ${opName} PDF: output file is empty.`);
-      }
+        const targetW = targetW_mm * MM_TO_PT;
+        const targetH = targetH_mm * MM_TO_PT;
 
-      if (typeof downloadFile === 'function') {
-        const suffix = mode === 'crop' ? '-cropped.pdf' : '-resized.pdf';
-        downloadFile(resultBytes, `${currentFileName}${suffix}`);
-      }
-      if (typeof showSuccess === 'function') {
-        const msg = mode === 'crop' ? 'PDF cropped successfully!' : 'PDF resized successfully!';
-        showSuccess(msg);
+        const newDoc = await PDFDocument.create();
+        const srcPages = pdfDoc.getPages();
+        const embeddedPages = await newDoc.embedPages(srcPages);
+
+        for (let i = 0; i < srcPages.length; i++) {
+          const origPage = srcPages[i];
+          const embeddedPage = embeddedPages[i];
+          const { width: origW, height: origH } = origPage.getSize();
+
+          const newPage = newDoc.addPage([targetW, targetH]);
+
+          if (scaleMode === 'fit') {
+            const scale = Math.min(targetW / origW, targetH / origH);
+            const drawW = origW * scale;
+            const drawH = origH * scale;
+            const tx = (targetW - drawW) / 2;
+            const ty = (targetH - drawH) / 2;
+            newPage.drawPage(embeddedPage, { x: tx, y: ty, width: drawW, height: drawH });
+          } else if (scaleMode === 'stretch') {
+            newPage.drawPage(embeddedPage, { x: 0, y: 0, width: targetW, height: targetH });
+          } else if (scaleMode === 'keep') {
+            const tx = (targetW - origW) / 2;
+            const ty = (targetH - origH) / 2;
+            newPage.drawPage(embeddedPage, { x: tx, y: ty, width: origW, height: origH });
+          }
+        }
+        const modifiedPdfBytes = await newDoc.save({ useObjectStreams: true });
+        if (typeof window.downloadFile === 'function')
+          window.downloadFile(modifiedPdfBytes, `${currentFileName}-resized.pdf`);
+        if (typeof window.showSuccess === 'function') window.showSuccess('PDF resized successfully!');
       }
     },
   });

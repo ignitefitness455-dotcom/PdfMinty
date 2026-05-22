@@ -26,8 +26,8 @@ describe('ToastManager Unit Test', () => {
 
     const toast = document.getElementById('pdfminty-toast');
     expect(toast.className).toContain('toast-success');
-    expect(toast.textContent).toContain('Test successful');
-    expect(toast.textContent).toContain('✅');
+    expect(toast.innerHTML).toContain('Test successful');
+    expect(toast.innerHTML).toContain('✅');
     expect(window.confetti).toHaveBeenCalled();
   });
 
@@ -35,6 +35,6 @@ describe('ToastManager Unit Test', () => {
     ToastManager.error('Warning: File size is large');
     const toast = document.getElementById('pdfminty-toast');
     expect(toast.className).toContain('toast-warning');
-    expect(toast.textContent).toContain('⏳');
+    expect(toast.innerHTML).toContain('⏳');
   });
 });

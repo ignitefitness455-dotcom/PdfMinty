@@ -1,5 +1,7 @@
+import { ICONS } from "../src/ui/icons.js";
+import { downloadFile } from '../src/utils/fileUtils.js';
+import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
 import { setupToolUI } from '../utils/pdfToolsSetup.js';
-import { isValidOutput, setupBackButton } from './shared.js';
 
 /**
  * Initializes and renders the tool UI and logic.
@@ -10,25 +12,27 @@ export function init() {
     toolId: 'protect',
     title: 'Protect PDF',
     description: 'Add password protection to your PDF document',
-    icon: window.PdfMinty.ICONS.protect || '📄',
+    icon: ICONS.protect || '📄',
     actionText: '🔒 Protect PDF',
     isMultiFile: false,
-    onInit: () => {
-      // Bug 5 fix: set up back button with history API
-      setupBackButton();
-    },
+    instructions: [
+      'Upload the PDF document you want to secure.',
+      'Enter a strong password for the document.',
+      'Click 🔒 Protect PDF to encrypt your file.',
+      'The password-protected PDF will be downloaded.'
+    ],
+    settingsHtml: `
+      <div class="setting-group full-width" style="margin-bottom: 1.5rem;">
+          <label class="input-label" style="margin-bottom: 0.5rem; color: var(--text);">Password</label>
+          <input type="password" id="pdf-password" class="text-input" placeholder="Enter password to encrypt PDF">
+      </div>
+    `,
     onApply: async ({ actualBytes, currentFileName }) => {
-      // Bug 1 fix: null-safe access on password field
-      const passwordInput = document.getElementById('pdf-password');
-      if (!passwordInput) {
-        throw new Error('Password input field not found. Please reload the tool.');
-      }
-      const password = passwordInput.value ?? '';
+      const password = document.getElementById('pdf-password').value;
       if (!password) throw new Error('Password is required');
-
       if (typeof window.showProgress === 'function') window.showProgress(5);
 
-      const resultBytes = await window.runPdfWorkerTask(
+      const resultBytes = await runPdfWorkerTask(
         'protect',
         {
           fileBytes: actualBytes,
@@ -41,14 +45,9 @@ export function init() {
         },
       );
 
-      // Bug 4 fix: validate output before reporting success
-      if (!isValidOutput(resultBytes)) {
-        throw new Error('Failed to protect PDF: output file is empty.');
-      }
-
-      if (typeof downloadFile === 'function')
+      if (typeof window.downloadFile === 'function')
         downloadFile(resultBytes, currentFileName + '_protected.pdf');
-      if (typeof showSuccess === 'function') showSuccess('PDF protected successfully!');
+      if (typeof window.showSuccess === 'function') window.showSuccess('PDF protected successfully!');
     },
   });
 }
