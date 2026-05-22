@@ -6,9 +6,43 @@ const taskQueue = [];
 let taskCounter = 0;
 const activeTasks = new Map(); // Global registry for active tasks: taskId -> { resolve, reject, onProgress, timeoutId, worker }
 
+function createDedicatedWorker(taskName) {
+  switch (taskName) {
+    case 'merge':
+      return new Worker(new URL('../../workers/merge.js', import.meta.url), { type: 'module' });
+    case 'split':
+      return new Worker(new URL('../../workers/split.js', import.meta.url), { type: 'module' });
+    case 'compress':
+      return new Worker(new URL('../../workers/compress.js', import.meta.url), { type: 'module' });
+    case 'watermark':
+      return new Worker(new URL('../../workers/watermark.js', import.meta.url), { type: 'module' });
+    case 'add-page-numbers':
+      return new Worker(new URL('../../workers/add-page-numbers.js', import.meta.url), { type: 'module' });
+    case 'reorder':
+      return new Worker(new URL('../../workers/reorder.js', import.meta.url), { type: 'module' });
+    case 'protect':
+      return new Worker(new URL('../../workers/protect.js', import.meta.url), { type: 'module' });
+    case 'add-blank-page':
+      return new Worker(new URL('../../workers/add-blank-page.js', import.meta.url), { type: 'module' });
+    case 'delete-pages':
+      return new Worker(new URL('../../workers/delete-pages.js', import.meta.url), { type: 'module' });
+    case 'extract-pages':
+      return new Worker(new URL('../../workers/extract-pages.js', import.meta.url), { type: 'module' });
+    case 'rotate':
+      return new Worker(new URL('../../workers/rotate.js', import.meta.url), { type: 'module' });
+    case 'unlock':
+      return new Worker(new URL('../../workers/unlock.js', import.meta.url), { type: 'module' });
+    case 'image-to-pdf':
+      return new Worker(new URL('../../workers/image-to-pdf.js', import.meta.url), { type: 'module' });
+    default:
+      throw new Error(`Core Web Worker does not support task: ${taskName}`);
+  }
+}
+
 class WorkerInstance {
-  constructor() {
-    this.worker = new Worker(new URL('../../pdf-worker.js', import.meta.url), { type: 'module' });
+  constructor(taskName) {
+    this.taskName = taskName;
+    this.worker = createDedicatedWorker(taskName);
     this.currentTaskId = null;
     this.isTerminated = false;
 
@@ -44,13 +78,13 @@ class WorkerInstance {
 
     this.worker.onerror = (err) => {
       if (this.isTerminated) return;
-      console.error('Core Web Worker unexpected error:', err);
+      console.error(`Core Web Worker [${this.taskName}] unexpected error:`, err);
 
       if (this.currentTaskId !== null) {
         const activeTask = activeTasks.get(this.currentTaskId);
         if (activeTask) {
           clearTimeout(activeTask.timeoutId);
-          activeTask.reject(new Error('Web Worker crashed unexpectedly during processing'));
+          activeTask.reject(new Error(`Web Worker for ${this.taskName} crashed unexpectedly during processing`));
           activeTasks.delete(this.currentTaskId);
         }
       }
@@ -66,7 +100,7 @@ class WorkerInstance {
     try {
       this.worker.terminate();
     } catch (e) {
-      console.error('Failed to terminate worker:', e);
+      console.error(`Failed to terminate worker [${this.taskName}]:`, e);
     }
   }
 }
@@ -89,18 +123,40 @@ function processQueue() {
   // 2. If nothing is in queue, return
   if (taskQueue.length === 0) return;
 
-  // 3. Find an idle worker
-  let idleWorker = workerPool.find(w => w.currentTaskId === null && !w.isTerminated);
+  // 3. For the first task in queue, run it
+  const task = taskQueue[0];
 
-  // 4. Create a new worker if under MAX limit and none are idle
-  if (!idleWorker && workerPool.length < MAX_WORKERS) {
-    idleWorker = new WorkerInstance();
-    workerPool.push(idleWorker);
+  // See if we have an idle worker for this specific taskName
+  let idleWorker = workerPool.find(w => w.taskName === task.taskName && w.currentTaskId === null && !w.isTerminated);
+
+  // If no worker is idle for this task, and we have reached MAX_WORKERS,
+  // we can terminate one of the idle workers of *another* task type!
+  if (!idleWorker && workerPool.length >= MAX_WORKERS) {
+    const idleOtherWorker = workerPool.find(w => w.currentTaskId === null && w.taskName !== task.taskName && !w.isTerminated);
+    if (idleOtherWorker) {
+      idleOtherWorker.terminate();
+      removeWorkerFromPool(idleOtherWorker);
+    }
   }
 
-  // 5. If we have an idle worker, dispatch the next task
+  // Now check again: if no idle worker, and we are under MAX_WORKERS, spawn a new task-specific worker
+  if (!idleWorker && workerPool.length < MAX_WORKERS) {
+    try {
+      idleWorker = new WorkerInstance(task.taskName);
+      workerPool.push(idleWorker);
+    } catch (err) {
+      console.error(`Failed to initiate worker for task ${task.taskName}:`, err);
+      // Fallback: reject the task
+      taskQueue.shift();
+      task.reject(err);
+      processQueue();
+      return;
+    }
+  }
+
+  // If we have an idle worker, dispatch the next task
   if (idleWorker) {
-    const task = taskQueue.shift();
+    taskQueue.shift(); // remove from queue
     idleWorker.currentTaskId = task.id;
 
     // Start safety timeout
@@ -140,17 +196,20 @@ function processQueue() {
   }
 }
 
-export function initPdfWorker() {
-  // Ensure that at least one worker is alive and initialized
-  const initializedWorker = workerPool.find(w => !w.isTerminated);
+export function initPdfWorker(taskName = 'merge') {
+  // Ensure that at least one worker for this task is alive and initialized
+  const initializedWorker = workerPool.find(w => w.taskName === taskName && !w.isTerminated);
   if (!initializedWorker) {
-    const newWorker = new WorkerInstance();
-    workerPool.push(newWorker);
+    try {
+      const newWorker = new WorkerInstance(taskName);
+      workerPool.push(newWorker);
+    } catch (e) {
+      console.error('Failed to pre-init worker:', e);
+    }
   }
 }
 
 export function runPdfWorkerTask(taskName, payload, transferables = [], onProgress = null) {
-  initPdfWorker();
   return new Promise((resolve, reject) => {
     const id = ++taskCounter;
     taskQueue.push({

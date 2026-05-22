@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: edge_cases.spec.js >> Edge Cases >> Large file (50MB+) handling warns user
-- Location: e2e/edge_cases.spec.js:98:3
+- Name: edge_cases.spec.js >> Edge Cases >> Split with invalid page range
+- Location: e2e/edge_cases.spec.js:69:3
 
 # Error details
 

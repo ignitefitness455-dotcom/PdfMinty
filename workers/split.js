@@ -57,3 +57,31 @@ export async function executeSplit(payload, postMessage) {
   postMessage({ id: payload.id, status: 'progress', progress: 95, type: 'progress', operation: 'split', percent: 95, label: `Finalizing output...` });
   return results;
 }
+
+if (typeof self !== 'undefined' && typeof self.postMessage === 'function') {
+  self.onmessage = async function (e) {
+    const { id, payload } = e.data;
+    try {
+      const postMessage = (msg) => self.postMessage(msg);
+      const result = await executeSplit(payload, postMessage);
+      if (result instanceof Uint8Array) {
+        self.postMessage({ id, status: 'success', result }, [result.buffer]);
+      } else if (Array.isArray(result) && result[0] && result[0].bytes instanceof Uint8Array) {
+        const buffers = result.map((r) => r.bytes.buffer);
+        self.postMessage({ id, status: 'success', result }, buffers);
+      } else {
+        self.postMessage({ id, status: 'success', result });
+      }
+    } catch (err) {
+      self.postMessage({
+        id,
+        status: 'error',
+        error: {
+          errorType: err.name || 'Error',
+          message: err.message,
+          stack: err.stack,
+        },
+      });
+    }
+  };
+}

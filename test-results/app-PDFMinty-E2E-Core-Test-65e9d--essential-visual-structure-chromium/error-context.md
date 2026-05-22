@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: edge_cases.spec.js >> Edge Cases >> Large file (50MB+) handling warns user
-- Location: e2e/edge_cases.spec.js:98:3
+- Name: app.spec.js >> PDFMinty E2E Core Tests >> HomePage loads correctly with all essential visual structure
+- Location: e2e/app.spec.js:5:3
 
 # Error details
 

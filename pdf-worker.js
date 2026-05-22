@@ -4,6 +4,20 @@
  * for the requested task, executes the operations using pdf-lib,
  * and posts the result or structured error back.
  */
+import { executeMerge } from './workers/merge.js';
+import { executeSplit } from './workers/split.js';
+import { executeCompress } from './workers/compress.js';
+import { executeWatermark } from './workers/watermark.js';
+import { executeAddPageNumbers } from './workers/add-page-numbers.js';
+import { executeReorder } from './workers/reorder.js';
+import { executeProtect } from './workers/protect.js';
+import { executeAddBlankPage } from './workers/add-blank-page.js';
+import { executeDeletePages } from './workers/delete-pages.js';
+import { executeExtractPages } from './workers/extract-pages.js';
+import { executeRotate } from './workers/rotate.js';
+import { executeUnlock } from './workers/unlock.js';
+import { executeImageToPdf } from './workers/image-to-pdf.js';
+
 self.onmessage = async function (e) {
   const { id, task, payload } = e.data;
   const fileName = payload?.fileName || 'unknown_file.pdf';
@@ -13,60 +27,49 @@ self.onmessage = async function (e) {
     let result;
     
     // Convert camelCase task names if needed, though they map directly to our filenames
-    let workerModule;
     switch(task) {
       case 'merge':
-        workerModule = await import('./workers/merge.js');
+        result = await executeMerge(payload, postMessage);
         break;
       case 'split':
-        workerModule = await import('./workers/split.js');
+        result = await executeSplit(payload, postMessage);
         break;
       case 'compress':
-        workerModule = await import('./workers/compress.js');
+        result = await executeCompress(payload, postMessage);
         break;
       case 'watermark':
-        workerModule = await import('./workers/watermark.js');
+        result = await executeWatermark(payload, postMessage);
         break;
       case 'add-page-numbers':
-        workerModule = await import('./workers/add-page-numbers.js');
+        result = await executeAddPageNumbers(payload, postMessage);
         break;
       case 'reorder':
-        workerModule = await import('./workers/reorder.js');
+        result = await executeReorder(payload, postMessage);
         break;
       case 'protect':
-        workerModule = await import('./workers/protect.js');
+        result = await executeProtect(payload, postMessage);
         break;
       case 'add-blank-page':
-        workerModule = await import('./workers/add-blank-page.js');
+        result = await executeAddBlankPage(payload, postMessage);
         break;
       case 'delete-pages':
-        workerModule = await import('./workers/delete-pages.js');
+        result = await executeDeletePages(payload, postMessage);
         break;
       case 'extract-pages':
-        workerModule = await import('./workers/extract-pages.js');
+        result = await executeExtractPages(payload, postMessage);
         break;
       case 'rotate':
-        workerModule = await import('./workers/rotate.js');
+        result = await executeRotate(payload, postMessage);
         break;
       case 'unlock':
-        workerModule = await import('./workers/unlock.js');
+        result = await executeUnlock(payload, postMessage);
         break;
       case 'image-to-pdf':
-        workerModule = await import('./workers/image-to-pdf.js');
+        result = await executeImageToPdf(payload, postMessage);
         break;
       default:
          throw new Error('Failed to load decentralized worker module for ' + task);
     }
-    
-    // Find the exported execute function (e.g., executeMerge, executeSplit)
-    const exportNames = Object.keys(workerModule);
-    const executeFuncKey = exportNames.find(key => key.startsWith('execute'));
-    
-    if (!executeFuncKey) {
-      throw new Error('Worker module ' + task + ' does not export an execute function');
-    }
-    
-    result = await workerModule[executeFuncKey](payload, postMessage);
 
     // Return transferables
     if (result instanceof Uint8Array) {

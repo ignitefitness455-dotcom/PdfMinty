@@ -4,9 +4,11 @@ export const db = {
   dbVersion: 1,
   memoryFallback: new Map(),
   useMemory: false,
+  dbInstance: null,
 
   init() {
     if (this.useMemory) return Promise.resolve(null);
+    if (this.dbInstance) return Promise.resolve(this.dbInstance);
     if (!window.indexedDB) {
       this.useMemory = true;
       return Promise.resolve(null);
@@ -19,7 +21,10 @@ export const db = {
           this.useMemory = true;
           resolve(null);
         };
-        request.onsuccess = (event) => resolve(event.target.result);
+        request.onsuccess = (event) => {
+          this.dbInstance = event.target.result;
+          resolve(this.dbInstance);
+        };
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
           if (!db.objectStoreNames.contains(this.storeName)) {
