@@ -1,4 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -7,6 +9,7 @@ import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
  */
 export function init() {
   const MM_TO_PT = 2.835;
+  let activeMode = 'crop';
 
   setupToolUI({
     toolId: 'crop-resize',
@@ -85,7 +88,6 @@ export function init() {
         `,
     onInit: () => {
       const btnApply = document.getElementById('btn-apply');
-      let activeMode = 'crop';
 
       document.querySelectorAll('.tab-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -111,10 +113,9 @@ export function init() {
           document.getElementById('resize-h').value = btn.dataset.h;
         });
       });
-      window.crActiveMode = () => activeMode;
     },
     onApply: async ({ actualBytes, currentFileName }) => {
-      const mode = window.crActiveMode();
+      const mode = activeMode;
       const { PDFDocument } = await import('pdf-lib');
       const pdfDoc = await PDFDocument.load(actualBytes);
 
@@ -139,9 +140,8 @@ export function init() {
           page.setCropBox(newX, newY, newWidth, newHeight);
         }
         const modifiedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
-        if (typeof window.downloadFile === 'function')
-          window.downloadFile(modifiedPdfBytes, `${currentFileName}-cropped.pdf`);
-        if (typeof window.showSuccess === 'function') window.showSuccess('PDF cropped successfully!');
+        downloadFile(modifiedPdfBytes, `${currentFileName}-cropped.pdf`);
+        showSuccess('PDF cropped successfully!');
       } else {
         const targetW_mm = parseFloat(document.getElementById('resize-w').value);
         const targetH_mm = parseFloat(document.getElementById('resize-h').value);
@@ -179,9 +179,8 @@ export function init() {
           }
         }
         const modifiedPdfBytes = await newDoc.save({ useObjectStreams: true });
-        if (typeof window.downloadFile === 'function')
-          window.downloadFile(modifiedPdfBytes, `${currentFileName}-resized.pdf`);
-        if (typeof window.showSuccess === 'function') window.showSuccess('PDF resized successfully!');
+        downloadFile(modifiedPdfBytes, `${currentFileName}-resized.pdf`);
+        showSuccess('PDF resized successfully!');
       }
     },
   });

@@ -1,6 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
-import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { db } from '../src/core/Database.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
@@ -24,8 +24,8 @@ export function init() {
     ],
     onApply: async ({ filesArray }) => {
       if (filesArray.length < 2) {
-        if (typeof window.showError === 'function') window.showError('Please add at least 2 PDFs to merge.');
-        throw new Error('Need more files');
+        showError('Please add at least 2 PDFs to merge.');
+        throw new Error('Please add at least 2 PDFs to merge.');
       }
 
       let mergedPdfBytes;
@@ -89,10 +89,8 @@ export function init() {
         mergedPdfBytes = await mergedPdf.save({ useObjectStreams: true });
       }
 
-      if (typeof window.downloadFile === 'function') {
-        downloadFile(mergedPdfBytes, 'merged-document.pdf');
-      }
-      if (typeof window.showSuccess === 'function') window.showSuccess('PDFs merged successfully!');
+      downloadFile(mergedPdfBytes, 'merged-document.pdf');
+      showSuccess('PDFs merged successfully!');
     },
   });
 }

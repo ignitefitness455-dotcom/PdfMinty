@@ -1,6 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
-import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -90,27 +90,22 @@ export function init() {
       const rotationDeg = parseInt(document.getElementById('wm-rotation').value, 10);
       const position = document.getElementById('wm-position').value;
 
-      let resultBytes;
-      if (typeof runPdfWorkerTask !== 'undefined') {
-        const payload = {
-          fileBytes: new Uint8Array(actualBytes),
-          text,
-          colorRgb: { r, g, b },
-          opacity,
-          textSize,
-          rotationDeg,
-          position,
-        };
-        resultBytes = await runPdfWorkerTask('watermark', payload, [
-          payload.fileBytes.buffer,
-        ]);
-      } else {
-        throw new Error('Worker not found');
-      }
+      showProgress(10);
+      const payload = {
+        fileBytes: new Uint8Array(actualBytes),
+        text,
+        colorRgb: { r, g, b },
+        opacity,
+        textSize,
+        rotationDeg,
+        position,
+      };
+      const resultBytes = await runPdfWorkerTask('watermark', payload, [
+        payload.fileBytes.buffer,
+      ]);
 
-      if (typeof window.downloadFile === 'function')
-        downloadFile(resultBytes, currentFileName + '_watermarked.pdf');
-      if (typeof window.showSuccess === 'function') window.showSuccess('Watermark added successfully!');
+      downloadFile(resultBytes, currentFileName + '_watermarked.pdf');
+      showSuccess('Watermark added successfully!');
     },
   });
 }

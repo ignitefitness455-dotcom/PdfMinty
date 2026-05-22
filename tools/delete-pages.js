@@ -1,6 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
-import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -32,7 +32,7 @@ export function init() {
       const rangesText = document.getElementById('delete-ranges').value.trim();
       if (!rangesText) throw new Error('Please enter pages to delete.');
 
-      if (typeof window.showProgress === 'function') window.showProgress(5);
+      showProgress(5);
 
       const resultBytes = await runPdfWorkerTask(
         'delete-pages',
@@ -42,13 +42,12 @@ export function init() {
         },
         [actualBytes.buffer],
         (prog) => {
-          if (typeof window.showProgress === 'function') window.showProgress(prog);
+          showProgress(prog);
         },
       );
 
-      if (typeof window.downloadFile === 'function')
-        downloadFile(resultBytes, currentFileName + '_deleted.pdf');
-      if (typeof window.showSuccess === 'function') window.showSuccess('Pages deleted successfully!');
+      downloadFile(resultBytes, currentFileName + '_deleted.pdf');
+      showSuccess('Pages deleted successfully!');
     },
   });
 }

@@ -1,6 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
-import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -32,7 +32,7 @@ export function init() {
         ? document.getElementById('pdf-password').value
         : document.querySelector('input[type="password"]').value;
 
-      if (typeof window.showProgress === 'function') window.showProgress(5);
+      showProgress(5);
 
       try {
         const resultBytes = await runPdfWorkerTask(
@@ -43,13 +43,12 @@ export function init() {
           },
           [actualBytes.buffer],
           (prog) => {
-            if (typeof window.showProgress === 'function') window.showProgress(prog);
+            showProgress(prog);
           },
         );
 
-        if (typeof window.downloadFile === 'function')
-          downloadFile(resultBytes, currentFileName + '_unlocked.pdf');
-        if (typeof window.showSuccess === 'function') window.showSuccess('PDF unlocked successfully!');
+        downloadFile(resultBytes, currentFileName + '_unlocked.pdf');
+        showSuccess('PDF unlocked successfully!');
       } catch (e) {
         if (e.message && e.message.includes('Incorrect password')) throw e;
         throw new Error('Incorrect password or unable to unlock.', { cause: e });

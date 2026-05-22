@@ -1,5 +1,5 @@
 import { db } from '../src/core/Database.js';
-import { UI } from '../src/ui/UIManager.js';
+import { showProgress, showError, hideProgress } from '../utils/globals.js';
 
 /**
  * Shared Utilities for PDF Tools
@@ -28,15 +28,15 @@ export async function processPdfTask(btnElem, processFn) {
     btnElem.disabled = true;
     btnElem.textContent = 'Processing...';
   }
-  UI.showProgress(10);
+  showProgress(10);
 
   try {
     await processFn();
   } catch (error) {
     console.error('PDF Processing Error:', error);
-    UI.showError(error.message || 'An error occurred while processing the PDF.');
+    showError(error.message || 'An error occurred while processing the PDF.');
   } finally {
-    UI.hideProgress();
+    hideProgress();
     if (btnElem) {
       btnElem.disabled = false;
       btnElem.textContent = btnElem.getAttribute('data-original-text');

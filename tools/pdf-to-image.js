@@ -1,4 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -19,7 +21,11 @@ export function init() {
       'A ZIP file containing all the individual JPG images will be downloaded automatically.'
     ],
     onApply: async ({ actualBytes, currentFileName }) => {
-      if (typeof window.pdfjsLib === 'undefined') throw new Error('PDF.js not loaded');
+      if (typeof window.pdfjsLib === 'undefined') {
+         const { loadExternalScript } = await import('../src/utils/fileUtils.js');
+         await loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+         window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
 
       const pdf = await window.pdfjsLib.getDocument({ data: actualBytes }).promise;
 
@@ -37,7 +43,7 @@ export function init() {
 
         const blob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.9));
         zip.file(`page_${i}.jpg`, blob);
-        if (typeof window.showProgress === 'function') window.showProgress((i / pdf.numPages) * 90);
+        showProgress((i / pdf.numPages) * 90);
       }
 
       const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -46,7 +52,7 @@ export function init() {
       a.href = url;
       a.download = currentFileName + '_images.zip';
       a.click();
-      if (typeof window.showSuccess === 'function') window.showSuccess('PDF converted to images!');
+      showSuccess('PDF converted to images!');
     },
   });
 }

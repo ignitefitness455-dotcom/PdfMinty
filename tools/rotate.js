@@ -1,5 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -44,11 +45,7 @@ export function init() {
         degree = parseFloat(mode) || 90;
       }
 
-      if (typeof window.UI !== 'undefined' && window.UI.showProgress) {
-        window.UI.showProgress(10);
-      } else if (typeof window.showProgress === 'function') {
-        window.showProgress(10);
-      }
+      showProgress(10);
 
       try {
         const { PDFDocument, degrees } = await import('pdf-lib');
@@ -67,11 +64,7 @@ export function init() {
             
             if (i % 5 === 0) {
               const prog = Math.min(95, Math.round(10 + (i / pages.length) * 80));
-              if (typeof window.UI !== 'undefined' && window.UI.showProgress) {
-                window.UI.showProgress(prog);
-              } else if (typeof window.showProgress === 'function') {
-                window.showProgress(prog);
-              }
+              showProgress(prog);
             }
           }
           resultBytes = await pdfDoc.save({ useObjectStreams: true });
@@ -113,36 +106,18 @@ export function init() {
             
             if (i % 5 === 0) {
               const prog = Math.min(95, Math.round(10 + (i / srcPages.length) * 80));
-              if (typeof window.UI !== 'undefined' && window.UI.showProgress) {
-                window.UI.showProgress(prog);
-              } else if (typeof window.showProgress === 'function') {
-                window.showProgress(prog);
-              }
+              showProgress(prog);
             }
           }
           resultBytes = await newPdfDoc.save({ useObjectStreams: true });
         }
 
-        if (typeof window.UI !== 'undefined' && window.UI.showProgress) {
-          window.UI.showProgress(100);
-        } else if (typeof window.showProgress === 'function') {
-          window.showProgress(100);
-        }
-
+        showProgress(100);
         downloadFile(resultBytes, currentFileName + '_rotated.pdf');
-
-        if (typeof window.UI !== 'undefined' && window.UI.showSuccess) {
-            window.UI.showSuccess('PDF rotated successfully!');
-        } else if (typeof window.showSuccess === 'function') {
-            window.showSuccess('PDF rotated successfully!');
-        }
+        showSuccess('PDF rotated successfully!');
       } catch (error) {
         console.error(error);
-        if (typeof window.UI !== 'undefined' && window.UI.showError) {
-          window.UI.showError('Failed to rotate PDF. ' + error.message);
-        } else if (typeof window.showError === 'function') {
-          window.showError('Failed to rotate PDF. ' + error.message);
-        }
+        showError('Failed to rotate PDF. ' + error.message);
       }
     },
   });

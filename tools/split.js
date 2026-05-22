@@ -1,6 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
-import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -44,31 +44,28 @@ export function init() {
       }
       if (ranges.length === 0) throw new Error('Invalid ranges.');
 
-      if (typeof runPdfWorkerTask !== 'undefined') {
-        const payload = {
-          fileBytes: new Uint8Array(actualBytes),
-          ranges,
-          fileName: currentFileName,
-        };
-        const results = await runPdfWorkerTask('split', payload, [payload.fileBytes.buffer]);
+      showProgress(10);
+      const payload = {
+        fileBytes: new Uint8Array(actualBytes),
+        ranges,
+        fileName: currentFileName,
+      };
+      const results = await runPdfWorkerTask('split', payload, [payload.fileBytes.buffer]);
 
-        if (results.length === 1) {
-          if (typeof window.downloadFile === 'function') downloadFile(results[0].bytes, results[0].name);
-        } else {
-          const JSZipModule = await import('jszip');
-          const JSZip = JSZipModule.default || JSZipModule;
-          const zip = new JSZip();
-          results.forEach((r) => zip.file(r.name, r.bytes));
-          const zipBlob = await zip.generateAsync({ type: 'blob' });
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(zipBlob);
-          a.download = currentFileName + '_split.zip';
-          a.click();
-        }
+      if (results.length === 1) {
+        downloadFile(results[0].bytes, results[0].name);
       } else {
-        throw new Error('Worker not found');
+        const JSZipModule = await import('jszip');
+        const JSZip = JSZipModule.default || JSZipModule;
+        const zip = new JSZip();
+        results.forEach((r) => zip.file(r.name, r.bytes));
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(zipBlob);
+        a.download = currentFileName + '_split.zip';
+        a.click();
       }
-      if (typeof window.showSuccess === 'function') window.showSuccess('PDF split successfully!');
+      showSuccess('PDF split successfully!');
     },
   });
 }

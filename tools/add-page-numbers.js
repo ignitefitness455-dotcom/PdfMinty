@@ -1,6 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
-import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -82,30 +82,34 @@ export function init() {
         );
     },
     onApply: async ({ actualBytes, currentFileName }) => {
-      const format = document.getElementById('num-format').value;
-      const position = document.getElementById('num-position').value;
-      const size = parseInt(document.getElementById('num-size').value, 10);
-      const margin = parseInt(document.getElementById('num-margin').value, 10);
+      const format = document.getElementById('num-format')?.value || document.getElementById('format-select')?.value;
+      const position = document.getElementById('num-position')?.value || document.getElementById('position-select')?.value;
+      const sizeInput = document.getElementById('num-size') || document.getElementById('size-input');
+      const marginInput = document.getElementById('num-margin') || document.getElementById('margin-input');
+      const size = sizeInput ? parseInt(sizeInput.value, 10) : 12;
+      const margin = marginInput ? parseInt(marginInput.value, 10) : 30;
 
-      let resultBytes;
-      if (typeof runPdfWorkerTask !== 'undefined') {
-        const payload = {
-          fileBytes: new Uint8Array(actualBytes),
-          format,
-          position,
-          size,
-          margin,
-          colorRgb: { r: 0, g: 0, b: 0 },
-        };
-        resultBytes = await runPdfWorkerTask('add-page-numbers', payload, [
-          payload.fileBytes.buffer,
-        ]);
-      } else {
-        throw new Error('Worker not found');
-      }
-      if (typeof window.downloadFile === 'function')
-        downloadFile(resultBytes, currentFileName + '_numbered.pdf');
-      if (typeof window.showSuccess === 'function') window.showSuccess('Page numbers added successfully!');
+      const colorInput = document.getElementById('color-input');
+      const hex = colorInput ? colorInput.value : '#000000';
+      const r = parseInt(hex.slice(1, 3), 16) / 255;
+      const g = parseInt(hex.slice(3, 5), 16) / 255;
+      const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+      showProgress(10);
+      const payload = {
+        fileBytes: new Uint8Array(actualBytes),
+        format,
+        position,
+        size,
+        margin,
+        colorRgb: { r, g, b },
+      };
+      const resultBytes = await runPdfWorkerTask('add-page-numbers', payload, [
+        payload.fileBytes.buffer,
+      ]);
+
+      downloadFile(resultBytes, currentFileName + '_numbered.pdf');
+      showSuccess('Page numbers added successfully!');
     },
   });
 }

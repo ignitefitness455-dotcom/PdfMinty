@@ -1,5 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -51,11 +52,7 @@ export function init() {
          quality = 0.85;
       }
 
-      if (typeof window.UI !== 'undefined' && window.UI.showProgress) {
-        window.UI.showProgress(10);
-      } else if(window.showProgress) {
-        window.showProgress(10);
-      }
+      showProgress(10);
 
       const { PDFDocument } = await import('pdf-lib');
       const pdf = await window.pdfjsLib.getDocument({ data: actualBytes }).promise;
@@ -86,28 +83,15 @@ export function init() {
            height: origViewport.height,
         });
 
-        if (typeof window.UI !== 'undefined' && window.UI.showProgress) {
-           window.UI.showProgress(10 + (i / pdf.numPages) * 70);
-        } else if(window.showProgress) {
-           window.showProgress(10 + (i / pdf.numPages) * 70);
-        }
+        showProgress(10 + (i / pdf.numPages) * 70);
       }
 
       const resultBytes = await newPdfDoc.save();
 
       downloadFile(resultBytes, currentFileName + '_compressed.pdf');
       
-      if (typeof window.UI !== 'undefined' && window.UI.showProgress) {
-        window.UI.showProgress(100);
-      } else if(window.showProgress) {
-        window.showProgress(100);
-      }
-      
-      if (typeof window.UI !== 'undefined' && window.UI.showSuccess) {
-          window.UI.showSuccess('PDF compressed successfully!');
-      } else {
-          alert('PDF compressed successfully!');
-      }
+      showProgress(100);
+      showSuccess('PDF compressed successfully!');
     },
   });
 }

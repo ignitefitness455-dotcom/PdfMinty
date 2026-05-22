@@ -1,6 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
-import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -24,7 +24,7 @@ export function init() {
     onApply: async ({ filesArray }) => {
       if (filesArray.length === 0) return;
 
-      if (typeof window.showProgress === 'function') window.showProgress(5);
+      showProgress(5);
 
       // Read all images first
       const fileDatas = await Promise.all(
@@ -47,14 +47,12 @@ export function init() {
         },
         transferables,
         (prog) => {
-          if (typeof window.showProgress === 'function') window.showProgress(prog);
+          showProgress(prog);
         },
       );
 
-      if (typeof window.downloadFile === 'function') {
-        downloadFile(pdfBytes, 'images-converted.pdf');
-      }
-      if (typeof window.showSuccess === 'function') window.showSuccess('Images converted to PDF successfully!');
+      downloadFile(pdfBytes, 'images-converted.pdf');
+      showSuccess('Images converted to PDF successfully!');
     },
   });
 }

@@ -1,6 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
-import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -86,7 +86,7 @@ export function init() {
       if (isNaN(count) || count < 1 || count > 10)
         throw new Error('Please enter a valid number of pages to insert (1-10).');
 
-      if (typeof window.showProgress === 'function') window.showProgress(5);
+      showProgress(5);
 
       // We must calculate dimensions before sending to worker because it requires totalPages
       const pdfDoc = await (
@@ -124,13 +124,12 @@ export function init() {
         },
         [actualBytes.buffer],
         (prog) => {
-          if (typeof window.showProgress === 'function') window.showProgress(prog);
+          showProgress(prog);
         },
       );
 
-      if (typeof window.downloadFile === 'function')
-        downloadFile(modifiedPdfBytes, currentFileName + '_blank_added.pdf');
-      if (typeof window.showSuccess === 'function') window.showSuccess('Blank pages added successfully!');
+      downloadFile(modifiedPdfBytes, currentFileName + '_blank_added.pdf');
+      showSuccess('Blank pages added successfully!');
     },
   });
 }

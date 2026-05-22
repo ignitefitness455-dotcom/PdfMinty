@@ -1,6 +1,6 @@
 import { ICONS } from "../src/ui/icons.js";
-import { downloadFile } from '../src/utils/fileUtils.js';
-import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
+import { downloadFile, showSuccess, showError, showProgress, hideProgress } from '../utils/globals.js';
+import { runPdfWorkerTask } from '../utils/pdfWorker.js';
 import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
@@ -52,16 +52,12 @@ export function init() {
       if (newOrder.length !== totalPages)
         throw new Error('You must include all pages exactly once.');
 
-      let resultBytes;
-      if (typeof runPdfWorkerTask !== 'undefined') {
-        const payload = { fileBytes: new Uint8Array(actualBytes), newOrder };
-        resultBytes = await runPdfWorkerTask('reorder', payload, [payload.fileBytes.buffer]);
-      } else {
-        throw new Error('Worker not found');
-      }
-      if (typeof window.downloadFile === 'function')
-        downloadFile(resultBytes, currentFileName + '_reordered.pdf');
-      if (typeof window.showSuccess === 'function') window.showSuccess('PDF reordered successfully!');
+      showProgress(10);
+      const payload = { fileBytes: new Uint8Array(actualBytes), newOrder };
+      const resultBytes = await runPdfWorkerTask('reorder', payload, [payload.fileBytes.buffer]);
+
+      downloadFile(resultBytes, currentFileName + '_reordered.pdf');
+      showSuccess('PDF reordered successfully!');
     },
   });
 }
