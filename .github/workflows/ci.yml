@@ -1,0 +1,40 @@
+name: PDFMinty Security & Testing CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  audit-and-test:
+    name: Lint, Build, and Run Unit/E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install All Dependencies
+        run: npm ci
+
+      - name: static Code Lint & Security Scan
+        run: npm run lint
+
+      - name: Execute Vitest Unit Tests
+        run: npm run test:unit
+
+      - name: Compile and Build Application
+        run: npm run build
+
+      - name: Install Playwright Browsers & Dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E Integration Tests
+        run: npm run test:e2e

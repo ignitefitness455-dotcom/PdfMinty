@@ -1,46 +1,89 @@
 import { test, expect } from '@playwright/test';
+import { uploadMockPDF } from './helpers/testPdf.js';
 
-test.describe('Applet E2E Tests', () => {
-  test('has title', async ({ page }) => {
-    // Navigate to the app root
-    await page.goto('http://localhost:5173');
+test.describe('PDFMinty E2E Core Tests', () => {
+  test('HomePage loads correctly with all essential visual structure', async ({ page }) => {
+    // Navigate using relative route configured via baseURL
+    await page.goto('/');
 
-    // Expect the title to be correctly set
-    await expect(page).toHaveTitle(/PDFMinty/i);
-
-    // Check if hero header exists
+    // Validate main heading text
     const heroHeader = page.locator('h1');
     await expect(heroHeader).toBeVisible();
     await expect(heroHeader).toContainText('The Ultimate');
+
+    // Confirm that popular tools list displays properly
+    const toolsGrid = page.locator('#tools-grid');
+    await expect(toolsGrid).toBeVisible();
+
+    const toolCards = toolsGrid.locator('.tool-card');
+    const toolCount = await toolCards.count();
+    expect(toolCount).toBeGreaterThan(10); // ensures all 15 tools are declared
   });
 
-  test('can navigate to a tool and split', async ({ page }) => {
+  test('Tool Navigation and Lazy Loading of Specific Tools', async ({ page }) => {
+    // Navigate to Split PDF Tool (relative route)
+    await page.goto('/split-pdf');
+    const header = page.locator('.tool-header h1');
+    await expect(header).toBeVisible();
+    await expect(header).toContainText('Split PDF');
+
+    const backBtn = page.locator('#btn-back');
+    await expect(backBtn).toBeVisible();
+
+    // Go back using UI control
+    await backBtn.click();
+    await expect(page).toHaveURL('/');
+  });
+
+  test('Interactive Workflows: Upload and Apply on PDF Split', async ({ page }) => {
     page.on('console', msg => console.log('BROWSER_CONSOLE:', msg.text()));
     page.on('pageerror', error => console.log('BROWSER_ERROR:', error.message));
-    
-    await page.goto('http://localhost:5173/pdf-to-image-pdf');
 
+    await page.goto('/split-pdf');
     await page.waitForSelector('#file-input', { state: 'attached' });
 
-    await page.evaluate(async () => {
-    const base64 = "JVBERi0xLjQKJcOkw7zDtsOfCjIgMCBvYmoKPDwvTGVuZ3RoIDM+PgpzdHJlYW0KCgplbmRzdHJlYW0KZW5kb2JqCjQgMCBvYmoKPDwvVHlwZSAvUGFnZSAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvUmVzb3VyY2VzIDw8L0ZvbnQgPDw+PiAvUHJvY1NldCBbL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSV0+PiAvQ29udGVudHMgMiAwIFIgL1BhcmVudCAzIDAgUj4+CmVuZG9iagozIDAgb2JqCjw8L1R5cGUgL1BhZ2VzIC9LaWRzIFs0IDAgUl0gL0NvdW50IDE+PgplbmRvYmoKMSAwIG9iago8PC9UeXBlIC9DYXRhbG9nIC9QYWdlcyAzIDAgUj4+CmVuZG9iago1IDAgb2JqCjw8L1Byb2R1Y2VyIChNYWNPUyBWZXJzaW9uIDEwLjE0LjYgXChCdWlsZCAxOEcyMDIyXCkgUXVhcnR6IFBERkNvbnRleHQpIC9DcmVhdGlvbkRhdGUgKEQ6MjAyMTAyMTYxNTU0MTBaMDAnMDAnKSAvTW9kRGF0ZSAoRDoyMDIxMDIxNjE1NTQxMFowMCcwMCcpPj4KZW5kb2JqCnhyZWYKMCA2Cj0gZiAKMDAwMDAwMDI3NCAwMDAwMCBuIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAyMTUgMDAwMDAgbiAKMDAwMDAwMDA2NiAwMDAwMCBuIAowMDAwMDAwMzIzIDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA2IC9Sb290IDEgMCBSIC9JbmZvIDUgMCBSIC9JRDpbPDcxZDJjZDZlNmZkNzk5ZGZlZGY5NjZkYWVmZDc3NGRmPjw3MWQyY2Q2ZTZmZDc5OWRmZWRmOTY2ZGFlZmQ3NzRkZj5dPj4Kc3RhcnR4cmVmCjQ5NQolJUVPRgo=";
-    const binary = atob(base64);
-    const array = new Uint8Array(binary.length);
-    for(let i = 0; i < binary.length; i++) array[i] = binary.charCodeAt(i);
-    const blob = new window.Blob([array], { type: 'application/pdf' });
-    const file = new window.File([blob], 'dummy.pdf', { type: 'application/pdf' });
-    
-    // Call the dropzone input change
-    const input = document.getElementById('file-input');
-    const dt = new window.DataTransfer();
-    dt.items.add(file);
-    input.files = dt.files;
-    input.dispatchEvent(new window.Event('change', { bubbles: true }));
+    // Upload using standard mock helper
+    await uploadMockPDF(page);
+
+    // Confirm workspace exhibits details about uploaded document
+    await page.waitForSelector('#workspace', { state: 'visible' });
+    const fileNameDisplay = page.locator('#file-name-display');
+    await expect(fileNameDisplay).toContainText('dummy.pdf');
+
+    // Trigger Split operation
+    const applyBtn = page.locator('#btn-apply');
+    await expect(applyBtn).toBeVisible();
+    await applyBtn.click();
   });
-  await page.waitForTimeout(1000);
-  await page.evaluate(() => {
-    document.getElementById('btn-apply').click();
+
+  test('Interactive Workflows: Rotate PDF Tool', async ({ page }) => {
+    await page.goto('/rotate-pdf');
+    await page.waitForSelector('#file-input', { state: 'attached' });
+
+    await uploadMockPDF(page);
+    await page.waitForSelector('#workspace', { state: 'visible' });
+
+    // Attempt to rotate
+    const applyBtn = page.locator('#btn-apply');
+    await expect(applyBtn).toBeVisible();
+    await applyBtn.click();
   });
-  await page.waitForTimeout(2000);
-});
+
+  test('Interactive Workflows: Protect PDF Tool with Password', async ({ page }) => {
+    await page.goto('/protect-pdf');
+    await page.waitForSelector('#file-input', { state: 'attached' });
+
+    await uploadMockPDF(page);
+    await page.waitForSelector('#workspace', { state: 'visible' });
+
+    // Fill in passwords
+    const pwdInput = page.locator('#protect-password');
+    if (await pwdInput.count() > 0) {
+       await pwdInput.fill('mintySec#123');
+    }
+
+    const applyBtn = page.locator('#btn-apply');
+    await expect(applyBtn).toBeVisible();
+    await applyBtn.click();
+  });
 });

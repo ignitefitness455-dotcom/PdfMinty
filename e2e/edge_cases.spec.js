@@ -15,14 +15,14 @@ test.describe('Edge Cases', () => {
   };
 
   test('Merge with 0 files selected', async ({ page }) => {
-    await page.goto('http://localhost:5173/merge-pdf');
+    await page.goto('/merge-pdf');
     // We expect the apply button to be hidden or disabled
     const applyBtn = page.locator('#btn-apply');
     await expect(applyBtn).toBeHidden();
   });
 
   test('Merge with 1 file selected should warn', async ({ page }) => {
-    await page.goto('http://localhost:5173/merge-pdf');
+    await page.goto('/merge-pdf');
     await page.waitForSelector('#file-input', { state: 'attached', timeout: 5000 });
     
     // Listen for dialog if browser natively alerts, or ui.showError
@@ -67,7 +67,7 @@ test.describe('Edge Cases', () => {
   });
 
   test('Split with invalid page range', async ({ page }) => {
-    await page.goto('http://localhost:5173/split-pdf');
+    await page.goto('/split-pdf');
     await page.waitForSelector('#file-input', { state: 'attached', timeout: 5000 });
     
     await page.evaluate(() => {
@@ -96,7 +96,7 @@ test.describe('Edge Cases', () => {
   });
 
   test('Large file (50MB+) handling warns user', async ({ page }) => {
-     await page.goto('http://localhost:5173/compress-pdf');
+     await page.goto('/compress-pdf');
      await page.waitForSelector('#file-input', { state: 'attached', timeout: 5000 });
      
      await page.evaluate(() => {

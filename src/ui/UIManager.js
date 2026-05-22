@@ -1,4 +1,4 @@
-import { ToastManager } from '../../utils/ToastManager.js';
+import { ToastManager } from '../utils/ToastManager.js';
 
 export const UI = {
   showError(message) {

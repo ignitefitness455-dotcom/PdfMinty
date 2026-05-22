@@ -1,5 +1,5 @@
 import { ICONS } from "../src/ui/icons.js";
-import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
  * Initializes and renders the tool UI and logic.

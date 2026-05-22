@@ -12,8 +12,6 @@ export const FileHandler = {
           reason: 'Error: Invalid file format. Please upload a valid PDF document.',
         };
       } else if (!window.location.pathname.includes('image-to-pdf')) {
-        // Multi-file sometimes passes accept="image/*,.pdf" so we also rely on tool title if needed,
-        // but checking 'image-to-pdf' route is safe
         const titleEl = document.querySelector('.tool-header h1');
         const titleText = titleEl ? titleEl.textContent.toLowerCase() : '';
         if (!titleText.includes('image')) {
@@ -86,8 +84,6 @@ export const FileHandler = {
     };
 
     zone.addEventListener('click', (e) => {
-      // If zone is strongly a label, native handles it.
-      // But if it's a div (legacy), we need to manually click.
       if (zone.tagName !== 'LABEL' && e.target !== input) {
         input.click();
       }

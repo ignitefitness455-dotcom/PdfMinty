@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { ToastManager } from '../utils/ToastManager.js';
+import { ToastManager } from '../src/utils/ToastManager.js';
 
 describe('ToastManager Unit Test', () => {
   beforeEach(() => {

@@ -1,7 +1,7 @@
 import { ICONS } from "../src/ui/icons.js";
 import { downloadFile } from '../src/utils/fileUtils.js';
 import { runPdfWorkerTask } from '../src/core/WorkerManager.js';
-import { setupToolUI } from '../utils/pdfToolsSetup.js';
+import { setupToolUI } from '../src/utils/pdfToolsSetup.js';
 
 /**
  * Initializes and renders the tool UI and logic.
