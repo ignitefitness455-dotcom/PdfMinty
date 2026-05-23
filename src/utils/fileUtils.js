@@ -19,8 +19,6 @@ export function downloadFile(uint8Array, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
-window.downloadFile = downloadFile;
-
 export function loadExternalScript(src) {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[src="${src}"]`)) {

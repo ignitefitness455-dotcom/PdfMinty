@@ -224,6 +224,3 @@ export function runPdfWorkerTask(taskName, payload, transferables = [], onProgre
     processQueue();
   });
 }
-
-window.runPdfWorkerTask = runPdfWorkerTask;
-

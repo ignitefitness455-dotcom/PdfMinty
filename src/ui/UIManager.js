@@ -123,5 +123,3 @@ export const UI = {
     }
   }
 };
-
-window.UI = UI;
