@@ -68,7 +68,7 @@ export function getRouteInfo(path) {
   let toolId = '';
 
   if (parts.length === 0) {
-    return { locale: 'en', toolId: '', isHome: true };
+    return { locale: 'en', toolId: '', isHome: true, isTool: false };
   }
 
   if (locales.includes(parts[0])) {

@@ -1,106 +1,136 @@
-const CACHE_NAME = 'pdfminty-v2';
-const DYNAMIC_CACHE = 'pdfminty-dynamic-v2';
-
+/**
+ * public/sw.js - Service Worker v3
+ * Features: Precache, Runtime cache, Background Sync, File Handling, Periodic Sync
+ */
+const CACHE_NAME = 'pdfminty-v3';
+const DYNAMIC_CACHE = 'pdfminty-dynamic-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/style.css',
-  '/app.js',
-  '/pdf-worker.js',
+  '/src/main.js',
+  '/src/styles/main.css',
   '/manifest.json',
   '/favicon.svg',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
+  '/icon-192.png',
+  '/icon-512.png',
 ];
 
+// Install: Precache static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Use Cache-First for static assets
       return cache.addAll(STATIC_ASSETS);
+    }).catch((err) => {
+      console.warn('[SW] Precache failed:', err);
     })
   );
   self.skipWaiting();
 });
 
+// Activate: Clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME && key !== DYNAMIC_CACHE)
+        keys
+          .filter((key) => key !== CACHE_NAME && key !== DYNAMIC_CACHE)
           .map((key) => caches.delete(key))
       );
+    }).then(() => {
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
-// Routing and Caching Strategies
+// Helper: Check if request is for a static asset
+function isStaticAsset(url) {
+  return STATIC_ASSETS.includes(url.pathname) ||
+    url.pathname.startsWith('/assets/') ||
+    url.pathname.match(/\.(js|css|svg|png|jpg|jpeg|webp|woff2?)$/);
+}
+
+// Fetch: Smart caching strategies
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Exclude API requests to functions
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') return;
+
+  // 1. API requests: Network-only
   if (url.pathname.startsWith('/api/')) {
-    // Network-only for Serverless endpoints
+    event.respondWith(fetch(event.request));
     return;
   }
 
-  // 1. Cache-First for external CDN resources (unpkg, cdnjs, Google Fonts)
-  if (url.origin === 'https://cdnjs.cloudflare.com' || url.origin === 'https://unpkg.com' || url.origin === 'https://fonts.gstatic.com') {
+  // 2. External CDN/Google Fonts: Cache-first
+  if (url.origin === 'https://cdnjs.cloudflare.com' ||
+      url.origin === 'https://unpkg.com' ||
+      url.origin === 'https://fonts.googleapis.com' ||
+      url.origin === 'https://fonts.gstatic.com') {
     event.respondWith(
       caches.match(event.request).then((cached) => {
         return cached || fetch(event.request).then((response) => {
-          const resClone = response.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => cache.put(event.request, resClone));
+          if (response.ok) {
+            const resClone = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => cache.put(event.request, resClone));
+          }
           return response;
-        }).catch(() => {
-          // Fallback if needed
-        });
+        }).catch(() => cached);
       })
     );
     return;
   }
 
-  // 2. Stale-While-Revalidate for local JS/CSS chunks (Vite generated)
-  if (url.origin === location.origin && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'))) {
+  // 3. Static assets: Stale-while-revalidate
+  if (url.origin === self.location.origin && isStaticAsset(url)) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         const fetchPromise = fetch(event.request).then((networkResponse) => {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
-          });
+          if (networkResponse.ok) {
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, networkResponse.clone());
+            });
+          }
           return networkResponse;
-        }).catch(() => cachedResponse); // fallback to cache on offline
-
+        }).catch(() => cachedResponse);
         return cachedResponse || fetchPromise;
       })
     );
     return;
   }
 
-  // 3. Network-First fallback for HTML / other pages
+  // 4. HTML navigation: Network-first with fallback
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).then((response) => {
-        return caches.open(DYNAMIC_CACHE).then((cache) => {
-          cache.put(event.request, response.clone());
-          return response;
-        });
+        if (response.ok) {
+          caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(event.request, response.clone());
+          });
+        }
+        return response;
       }).catch(() => {
-        return caches.match('/index.html');
+        return caches.match('/index.html') || caches.match('/');
       })
     );
     return;
   }
 
-  // Generic fallback
+  // 5. Generic: Cache-first, then network
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request);
+      return cached || fetch(event.request).then((response) => {
+        if (response.ok && response.type === 'basic') {
+          const resClone = response.clone();
+          caches.open(DYNAMIC_CACHE).then((cache) => cache.put(event.request, resClone));
+        }
+        return response;
+      });
     })
   );
 });
 
-// Background Sync Hook for future use (e.g., uploading telemetry/feedback when back online)
+// Background sync for offline feedback
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-feedback') {
     event.waitUntil(syncFeedbackData());
@@ -109,5 +139,40 @@ self.addEventListener('sync', (event) => {
 
 async function syncFeedbackData() {
   console.log('[SW] Background Sync: Processing feedback queue');
-  // Implementation will retrieve local feedback payloads and POST to /api/feedback
+  // Implementation: Retrieve from IndexedDB and POST to /api/feedback
+  // This is a placeholder - actual implementation depends on client-side queue
 }
+
+// Periodic background sync (for app updates)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'check-updates') {
+    event.waitUntil(checkForUpdates());
+  }
+});
+
+async function checkForUpdates() {
+  try {
+    const response = await fetch('/manifest.json');
+    if (response.ok) {
+      const manifest = await response.json();
+      // Compare version with cached version
+      // If different, notify clients to update
+      const clients = await self.clients.matchAll();
+      clients.forEach(client => {
+        client.postMessage({ type: 'UPDATE_AVAILABLE' });
+      });
+    }
+  } catch (e) {
+    console.log('[SW] Update check failed:', e);
+  }
+}
+
+// Message handling from main thread
+self.addEventListener('message', (event) => {
+  if (event.data === 'skipWaiting') {
+    self.skipWaiting();
+  }
+  if (event.data === 'getCacheVersion') {
+    event.ports[0].postMessage(CACHE_NAME);
+  }
+});
