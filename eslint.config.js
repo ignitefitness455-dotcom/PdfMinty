@@ -2,12 +2,13 @@ import js from '@eslint/js';
 
 export default [
   {
-    ignores: ['dist/**/*', 'node_modules/**/*', 'android/**/*'],
+    ignores: ['dist/**/*', 'node_modules/**/*', 'android/**/*', 'capacitor.config.ts'],
   },
   js.configs.recommended,
   {
     languageOptions: {
       globals: {
+        __dirname: 'readonly',
         window: 'readonly',
         document: 'readonly',
         localStorage: 'readonly',
@@ -43,6 +44,9 @@ export default [
         Image: 'readonly',
         Worker: 'readonly',
         indexedDB: 'readonly',
+        IDBKeyRange: 'readonly',
+        crypto: 'readonly',
+        PerformanceObserver: 'readonly',
         location: 'readonly',
         process: 'readonly',
         module: 'readonly',

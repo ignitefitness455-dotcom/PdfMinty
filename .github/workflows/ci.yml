@@ -1,40 +1,43 @@
-name: PDFMinty Security & Testing CI
+name: CI + Deploy
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   pull_request:
-    branches: [ main, master ]
+    branches: [main]
 
 jobs:
-  audit-and-test:
-    name: Lint, Build, and Run Unit/E2E Tests
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
           cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:unit
+      - run: npm run build
+      # E2E tests run only on main branch pushes
+      - run: npm run test:e2e
+        if: github.ref == 'refs/heads/main'
 
-      - name: Install All Dependencies
-        run: npm ci
-
-      - name: static Code Lint & Security Scan
-        run: npm run lint
-
-      - name: Execute Vitest Unit Tests
-        run: npm run test:unit
-
-      - name: Compile and Build Application
-        run: npm run build
-
-      - name: Install Playwright Browsers & Dependencies
-        run: npx playwright install --with-deps chromium
-
-      - name: Run Playwright E2E Integration Tests
-        run: npm run test:e2e
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=pdfminty

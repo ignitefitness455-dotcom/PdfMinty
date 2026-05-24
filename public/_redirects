@@ -1,1 +1,4 @@
+/api/* /functions/api/:splat 200
+/bn/* /index.html 200
+/en/* /index.html 200
 /* /index.html 200

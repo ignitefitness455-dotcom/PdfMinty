@@ -1,21 +1,24 @@
 {
   "name": "pdfminty",
-  "version": "1.0.0",
-  "description": "PDFMinty - Free Online PDF Tools",
+  "version": "2.0.0",
+  "description": "PDFMinty - Professional-grade, privacy-first PDF toolkit. 100% client-side processing.",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint .",
+    "lint": "eslint . --ext .js,.ts",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "build:android": "vite build && npx cap sync android",
-    "open:android": "npx cap open android"
+    "open:android": "npx cap open android",
+    "deploy": "wrangler pages deploy dist"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240512.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.59.1",
     "eslint": "^10.1.0",
@@ -24,7 +27,8 @@
     "terser": "^5.47.1",
     "typescript": "^6.0.3",
     "vite": "^5.0.0",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.6",
+    "wrangler": "^3.57.0"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.2",
