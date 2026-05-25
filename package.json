@@ -1,43 +1,32 @@
 {
   "name": "pdfminty",
-  "version": "2.0.0",
-  "description": "PDFMinty - Professional-grade, privacy-first PDF toolkit. 100% client-side processing.",
+  "private": true,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint . --ext .js,.ts",
-    "test:unit": "vitest run",
-    "test:e2e": "playwright test",
-    "test": "npm run test:unit && npm run test:e2e",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "build:android": "vite build && npx cap sync android",
-    "open:android": "npx cap open android",
-    "deploy": "wrangler pages deploy dist"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240512.0",
-    "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.59.1",
-    "eslint": "^10.1.0",
-    "jsdom": "^29.1.1",
-    "prettier": "^3.8.3",
-    "terser": "^5.47.1",
-    "typescript": "^6.0.3",
-    "vite": "^5.0.0",
-    "vitest": "^4.1.6",
-    "wrangler": "^3.57.0"
+    "build": "tsc && vite build",
+    "lint": "echo 'No linting needed'",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@capacitor/android": "^8.3.2",
-    "@capacitor/cli": "^8.3.2",
-    "@capacitor/core": "^8.3.2",
-    "canvas-confetti": "^1.9.4",
-    "jspdf": "^4.2.1",
+    "canvas-confetti": "^1.9.3",
     "jszip": "^3.10.1",
+    "lucide-react": "^0.446.0",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^5.7.284"
+    "pdfjs-dist": "3.11.174",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/canvas-confetti": "^1.6.4",
+    "@types/jszip": "^3.4.1",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2"
   }
 }

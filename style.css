@@ -1,9 +1,0 @@
-/* ============================================
-   PDFMinty Modular Stylesheets Import
-   ============================================ */
-
-@import "./src/styles/main.css";
-@import "./src/styles/utilities.css";
-@import "./src/styles/themes/light.css";
-@import "./src/styles/themes/dark.css";
-@import "./src/styles/components.css";
