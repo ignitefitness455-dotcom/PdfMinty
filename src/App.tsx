@@ -1283,7 +1283,7 @@ export default function App() {
             </div>
 
             {/* Frequently Asked Questions / Privacy & Security */}
-            <div className="mt-20 max-w-4xl mx-auto">
+            <div id="faq-section" className="mt-20 max-w-4xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-black text-slate-900 text-center tracking-tight mb-8">
                 Frequently Asked Questions / Privacy & Security
               </h2>
@@ -1448,24 +1448,44 @@ export default function App() {
 
                   {/* Settings module rendering dynamically */}
                   {activeTool === 'merge' && (
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-xs text-slate-500 leading-relaxed">
-                      💡 Dropped PDFs are concatenated in the sequence they are shown in the list box above. Clear and load them in custom orders to sequence.
+                    <div className="space-y-4">
+                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-xs text-slate-500 leading-relaxed">
+                        💡 Dropped PDFs are concatenated in the sequence they are shown in the list box above. Clear and load them in custom orders to sequence.
+                      </div>
+                      <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 text-xs space-y-2 text-left">
+                        <strong className="text-emerald-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>একের অধিক PDF ফাইল সিলেক্ট বা ড্র্যাগ-ড্রপ করুন।</li>
+                          <li>তালিকার সিকোয়েন্স অনুযায়ী পেজগুলো সাজানো হবে।</li>
+                          <li>নিচে থাকা <span className="font-bold text-slate-800">Merge PDFs</span> এ ক্লিক করে ডাউনলোড করুন।</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
 
                   {activeTool === 'split' && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-700 block">Extract Range Definition</label>
-                      <input
-                        type="text"
-                        value={splitRange}
-                        onChange={(e) => setSplitRange(e.target.value)}
-                        placeholder="e.g. 1-3, 5, 8-10"
-                        className="w-full text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-emerald-500"
-                      />
-                      <span className="text-[10px] text-slate-400 leading-relaxed block">
-                        Specify exact indexes with hyphens for ranges and commas for distinct indexes. (e.g., "1-2, 5" gets pages 1, 2 and 5)
-                      </span>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-700 block">Extract Range Definition</label>
+                        <input
+                          type="text"
+                          value={splitRange}
+                          onChange={(e) => setSplitRange(e.target.value)}
+                          placeholder="e.g. 1-3, 5, 8-10"
+                          className="w-full text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-emerald-500"
+                        />
+                        <span className="text-[10px] text-slate-400 leading-relaxed block font-sans">
+                          Specify exact indexes with hyphens for ranges and commas for distinct indexes. (e.g., "1-2, 5" gets pages 1, 2 and 5)
+                        </span>
+                      </div>
+                      <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-xs space-y-2 text-left">
+                        <strong className="text-blue-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>আপনার প্রয়োজনীয় PDF ফাইলটি সিলেক্ট করুন।</li>
+                          <li>উপরের ইনপুট বক্সে পেজ নম্বর বা রেঞ্জ লিখুন (যেমন: <code className="bg-white px-1 py-0.5 rounded border">1-3, 5</code>)।</li>
+                          <li>নিচে থাকা <span className="font-bold text-slate-800">Extract Pages</span> বাটনে ক্লিক করে নতুন PDF ডাউনলোড করুন।</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
 
@@ -1520,120 +1540,216 @@ export default function App() {
                           />
                         </div>
                       </div>
+                      <div className="bg-teal-50/50 p-4 rounded-xl border border-teal-100 text-xs space-y-2 text-left">
+                        <strong className="text-teal-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>পিডিএফ ডকুমেন্টটি আপলোড করুন।</li>
+                          <li>ওয়াটারমার্ক বক্সে আপনার টেক্সট (যেমন: <code className="bg-white px-1 py-0.5 rounded border font-sans">APPROVED</code>) লিখুন।</li>
+                          <li>স্লাইডার ও সাইজ ইনপুট ব্যবহার করে অপাসিটি এবং অ্যাঙ্গেল সেট করুন।</li>
+                          <li>নিচে <span className="font-bold text-slate-800">Apply Watermark</span> এ ক্লিক করে ক্রিয়েট করুন।</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
 
                   {activeTool === 'protect' && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-700 block">Set Protection Password</label>
-                      <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Type standard security password"
-                        className="w-full text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-emerald-500"
-                      />
-                      <span className="text-[10px] text-slate-400 leading-none">The output document requires this password to unlock.</span>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-700 block">Set Protection Password</label>
+                        <input
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Type security password"
+                          className="w-full text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-emerald-500"
+                        />
+                        <span className="text-[10px] text-slate-400 leading-none">The output document requires this password to unlock.</span>
+                      </div>
+                      <div className="bg-cyan-50/50 p-4 rounded-xl border border-cyan-100 text-xs space-y-2 text-left">
+                        <strong className="text-cyan-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>আপনার গোপনীয় বা ব্যক্তিগত PDF ফাইলটি সিলেক্ট করুন।</li>
+                          <li>উপরের বক্সে একটি অফলাইন পাসওয়ার্ড টাইপ করুন।</li>
+                          <li>নিচে <span className="font-bold text-slate-800">Protect Vault</span> এ ক্লিক করে সিকিউরড PDF ডাউনলোড করুন।</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
 
                   {activeTool === 'unlock' && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-700 block">Enter Safety Password</label>
-                      <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Passphrase to decrypt"
-                        className="w-full text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-emerald-500"
-                      />
-                      <span className="text-[10px] text-slate-400 leading-none">Must submit active document password keys. All locks will be permanently removed.</span>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-700 block">Enter Safety Password</label>
+                        <input
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Passphrase to decrypt"
+                          className="w-full text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-emerald-500"
+                        />
+                        <span className="text-[10px] text-slate-400 leading-none">Must submit active document password keys. All locks will be permanently removed.</span>
+                      </div>
+                      <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100 text-xs space-y-2 text-left">
+                        <strong className="text-orange-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>লক বা এনক্রিপ্ট করা PDF ফাইলটি সিলেক্ট করুন।</li>
+                          <li>বক্সে ওই ফাইলের বর্তমান সঠিক পাসওয়ার্ডটি সাবমিট করুন।</li>
+                          <li>নিচে থাকা <span className="font-bold text-slate-800">Unlock Vault</span> বাটনে ক্লিক করে আনলকড কপিটি সেভ করুন।</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
 
                   {activeTool === 'page-numbers' && (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block">Display Format</label>
-                        <select
-                          value={pageNumberFormat}
-                          onChange={(e) => setPageNumberFormat(e.target.value)}
-                          className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
-                        >
-                          <option value="simple">Simple digit ("1", "2")</option>
-                          <option value="page-of">Format sequence ("Page 1 of 10")</option>
-                        </select>
+                    <div className="space-y-4">
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-xs font-bold text-slate-700 block">Display Format</label>
+                          <select
+                            value={pageNumberFormat}
+                            onChange={(e) => setPageNumberFormat(e.target.value)}
+                            className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
+                          >
+                            <option value="simple">Simple digit ("1", "2")</option>
+                            <option value="page-of">Format sequence ("Page 1 of 10")</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-slate-700 block">Placement Position</label>
+                          <select
+                            value={pageNumberPosition}
+                            onChange={(e) => setPageNumberPosition(e.target.value)}
+                            className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
+                          >
+                            <option value="bottom-center">Bottom Center</option>
+                            <option value="top-center">Top Center</option>
+                            <option value="bottom-right">Bottom Right</option>
+                          </select>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block">Placement Position</label>
-                        <select
-                          value={pageNumberPosition}
-                          onChange={(e) => setPageNumberPosition(e.target.value)}
-                          className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
-                        >
-                          <option value="bottom-center">Bottom Center</option>
-                          <option value="top-center">Top Center</option>
-                          <option value="bottom-right">Bottom Right</option>
-                        </select>
+                      <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 text-xs space-y-2 text-left">
+                        <strong className="text-indigo-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>আপনার কাঙ্ক্ষিত PDF ফাইলটি সিলেক্ট বা আপলোড করুন।</li>
+                          <li>পেজ নাম্বার ফরম্যাট ও পজিশন (উপরে বা নিচে) ড্রপডাউন থেকে সিলেক্ট করুন।</li>
+                          <li>নিচে থাকা <span className="font-bold text-slate-800">Stamp Numbers</span> এ ক্লিক করে ডাউনলোড করুন।</li>
+                        </ul>
                       </div>
                     </div>
                   )}
 
                   {activeTool === 'add-blank' && (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block">Page Dimensions</label>
-                        <select
-                          value={blankPageSize}
-                          onChange={(e) => setBlankPageSize(e.target.value as 'A4' | 'Letter')}
-                          className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
-                        >
-                          <option value="A4">A4 Standard Format</option>
-                          <option value="Letter">US Letter Format</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block">Specific Position</label>
-                        <select
-                          value={blankPagePos}
-                          onChange={(e) => setBlankPagePos(e.target.value as 'start' | 'end' | 'custom')}
-                          className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
-                        >
-                          <option value="start">At the very start</option>
-                          <option value="end">At the absolute end</option>
-                          <option value="custom">Custom page reference index</option>
-                        </select>
-                      </div>
-                      {blankPagePos === 'custom' && (
+                    <div className="space-y-4">
+                      <div className="space-y-3">
                         <div>
-                          <label className="text-xs font-bold text-slate-700 block">Insert Page At Position Number</label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={blankPageAt}
-                            onChange={(e) => setBlankPageAt(e.target.value)}
-                            className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 mt-1"
-                          />
+                          <label className="text-xs font-bold text-slate-700 block">Page Dimensions</label>
+                          <select
+                            value={blankPageSize}
+                            onChange={(e) => setBlankPageSize(e.target.value as 'A4' | 'Letter')}
+                            className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
+                          >
+                            <option value="A4">A4 Standard Format</option>
+                            <option value="Letter">US Letter Format</option>
+                          </select>
                         </div>
-                      )}
+                        <div>
+                          <label className="text-xs font-bold text-slate-700 block">Specific Position</label>
+                          <select
+                            value={blankPagePos}
+                            onChange={(e) => setBlankPagePos(e.target.value as 'start' | 'end' | 'custom')}
+                            className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
+                          >
+                            <option value="start">At the very start</option>
+                            <option value="end">At the absolute end</option>
+                            <option value="custom">Custom page reference index</option>
+                          </select>
+                        </div>
+                        {blankPagePos === 'custom' && (
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block">Insert Page At Position Number</label>
+                            <input
+                              type="number"
+                              min="1"
+                              value={blankPageAt}
+                              onChange={(e) => setBlankPageAt(e.target.value)}
+                              className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 mt-1"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="bg-violet-50/50 p-4 rounded-xl border border-violet-100 text-xs space-y-2 text-left">
+                        <strong className="text-violet-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>মূল PDF ফাইলটি সিলেক্ট করে আপলোড সম্পন্ন করুন।</li>
+                          <li>ফাঁকা পেইজটির সাইজ নির্ধারণ করুন (A4 নাকি US Letter)।</li>
+                          <li>পজিশন সিলেক্ট করুন (যেমন: শুরুতে, শেষে বা কাস্টম পজিশন)।</li>
+                          <li>নিচে <span className="font-bold text-slate-800">Insert Blank Page</span> এ ক্লিক করুন।</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
 
                   {activeTool === 'delete-pages' && (
-                    <div className="bg-indigo-50 p-3.5 rounded-xl border border-indigo-100 text-[11px] text-slate-600 leading-relaxed">
-                      💡 Click directly on the page checkboxes in the preview area to select. Page indexes marked in red or with checks will be omitted entirely upon compilation. ({pagesToDelete.length} selected).
+                    <div className="space-y-4">
+                      <div className="bg-indigo-50 p-3.5 rounded-xl border border-indigo-100 text-[11px] text-slate-600 leading-relaxed">
+                        💡 Click directly on the page checkboxes in the preview area to select. Page indexes marked in red or with checks will be omitted entirely upon compilation. ({pagesToDelete.length} selected).
+                      </div>
+                      <div className="bg-rose-50/50 p-4 rounded-xl border border-rose-100 text-xs space-y-2 text-left">
+                        <strong className="text-rose-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>পিডিএফ ফাইলটি ড্রপ বা সিলেক্ট করে আপলোড করুন।</li>
+                          <li>ডানপাশের প্রিভিউ পেজগুলো থেকে যে পেজগুলো বাদ দিতে চান তাদের উপর ক্লিক করে টিকচিহ্ন দিন।</li>
+                          <li>নিচের <span className="font-bold text-slate-800">Keep Remaining</span> এ ক্লিক করে নতুন PDF ডাউনলোড করুন।</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
 
                   {activeTool === 'pdf-to-img' && (
-                    <div className="bg-sky-50 p-4 rounded-xl border border-sky-100 text-xs text-sky-800 leading-relaxed">
-                      💡 Outputs high fidelity JPG assets compiled locally using JSZip inside an archive.
+                    <div className="space-y-4">
+                      <div className="bg-sky-50 p-4 rounded-xl border border-sky-100 text-xs text-sky-850 leading-relaxed">
+                        💡 Outputs high fidelity JPG assets compiled locally using JSZip inside an archive.
+                      </div>
+                      <div className="bg-sky-50/50 p-4 rounded-xl border border-sky-100 text-xs space-y-2 text-left">
+                        <strong className="text-sky-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>পেজগুলো ইমেজে কনভার্ট করার উদ্দেশ্যে PDF ফাইলটি আপলোড করুন।</li>
+                          <li>নিচের <span className="font-bold text-slate-800">Convert to JPEGs</span> এ ক্লিক করুন।</li>
+                          <li>প্রতিটি পেজ হাই-রেজোলিউশন ছবিতে কনভার্ট হবে এবং সাথে সাথে একটি .zip ফাইল ডাউনলোড হয়ে যাবে।</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
 
                   {activeTool === 'rotate' && (
-                    <div className="bg-amber-50 p-3.5 rounded-xl border border-amber-100 text-[11px] text-slate-600 leading-relaxed">
-                      💡 Use the rotation turn icons on the individual page thumbnail cards inside the preview area. Angles resolve and overwrite on target file creation.
+                    <div className="space-y-4">
+                      <div className="bg-amber-50 p-3.5 rounded-xl border border-amber-100 text-[11px] text-slate-600 leading-relaxed">
+                        💡 Use the rotation turn icons on the individual page thumbnail cards inside the preview area. Angles resolve and overwrite on target file creation.
+                      </div>
+                      <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-100 text-xs space-y-2 text-left">
+                        <strong className="text-amber-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>আপনার রোটেট করতে চাওয়া PDF ফাইলটি আপলোড করুন।</li>
+                          <li>ডানের পেজ প্রিভিউ থেকে নির্দিষ্ট পেজের ওপর রোটেট আইকনে ক্লিক করে ঘুরিয়ে নিন।</li>
+                          <li>কম্পাইল করতে নিচে থাকা <span className="font-bold text-slate-800">Apply changes</span> এ ক্লিক করে ডাউনলোড করুন।</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTool === 'img-to-pdf' && (
+                    <div className="space-y-4">
+                      <div className="bg-fuchsia-50 p-4 rounded-xl border border-fuchsia-100 text-xs text-fuchsia-800 leading-relaxed">
+                        💡 Our memory-managed object cache engine automatically clears loaded files completely asynchronously in background threads. Up to hundreds of gigabytes of heavy image rendering safe.
+                      </div>
+                      <div className="bg-fuchsia-50/50 p-4 rounded-xl border border-fuchsia-100 text-xs space-y-2 text-left">
+                        <strong className="text-fuchsia-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>পিডিএফ করার প্রয়োজনীয় ছবিগুলো (JPG/PNG) একসাথে সিলেক্ট বা ড্রপ করুন।</li>
+                          <li>প্রয়োজন হলে সিকোয়েন্সগুলো উপরে দেখে নিন।</li>
+                          <li>নিচে <span className="font-bold text-slate-800">Convert to PDF</span> এ ক্লিক করে জেনারেট সম্পন্ন করুন।</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1836,29 +1952,63 @@ export default function App() {
       </div>
       </main>
 
-      <footer id="footer-menu" className="border-t border-slate-200/60 bg-white py-10 transition-colors font-sans">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center gap-6">
+      <footer id="footer-menu" className="border-t border-slate-200/60 bg-white py-12 transition-colors font-sans">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center gap-8">
           
-          {/* Centered Feedback & Contact links */}
-          <div className="flex items-center gap-6 text-sm font-semibold text-slate-500">
+          {/* Quick Info badging */}
+          <div className="flex flex-wrap justify-center items-center gap-4 text-xs font-semibold">
+            <span className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 flex items-center gap-1.5 shadow-sm">
+              🛡️ Privacy Secure
+            </span>
+            <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100 flex items-center gap-1.5 shadow-sm">
+              📂 100% Offline Core
+            </span>
+            <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full border border-amber-100 flex items-center gap-1.5 shadow-sm">
+              ✨ Free Forever
+            </span>
+          </div>
+
+          {/* Centered Feedback & Contact & FAQ links */}
+          <div className="flex flex-wrap items-center justify-center gap-8 text-sm font-bold text-slate-600">
             <button
               id="open-feedback-modal"
               onClick={() => setShowFeedbackModal(true)}
-              className="inline-flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 hover:text-emerald-600 transition-colors cursor-pointer"
             >
-              <MessageSquare className="w-4 h-4" /> Provide Feedback
+              <MessageSquare className="w-4.5 h-4.5 text-emerald-500" /> Provide Feedback / ফিডব্যাক
             </button>
             <button
               id="open-contact-modal"
               onClick={() => setShowContactModal(true)}
-              className="inline-flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 hover:text-emerald-600 transition-colors cursor-pointer"
             >
-              <Mail className="w-4 h-4" /> Contact Us
+              <Mail className="w-4.5 h-4.5 text-blue-500" /> Contact Us / যোগাযোগ করুন
+            </button>
+            <button
+              onClick={() => {
+                setActiveTool(null);
+                setTimeout(() => {
+                  const faqSection = document.getElementById('faq-section');
+                  faqSection?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}
+              className="inline-flex items-center gap-2 hover:text-emerald-600 transition-colors cursor-pointer"
+            >
+              <HelpCircle className="w-4.5 h-4.5 text-indigo-500" /> Privacy & FAQ / সাহায্য
             </button>
           </div>
 
-          <div className="text-xs text-slate-400 font-medium">
-            <span>© 2026 PDFMinty. Free and open-source PDF tools.</span>
+          {/* PDFMinty Ownership Details */}
+          <div className="max-w-2xl text-xs text-slate-500 space-y-3 leading-relaxed border-t border-slate-100 pt-6">
+            <p className="font-extrabold text-slate-800">
+              PDFMinty এর স্বত্বাধিকার (Proprietorship & Copyright Information)
+            </p>
+            <p className="font-medium">
+              © 2026 PDFMinty. সর্বস্বত্ব সংরক্ষিত। PDFMinty একটি শতভাগ নিরাপদ, স্বতন্ত্র ও উন্মুক্ত ক্লায়েন্ট-সাইড অফলাইন ডিস্ট্রিবিউটেড স্টুডিও। এখানে প্রক্রিয়াকৃত কোনো ফাইল বা ব্যবহারকারীর ফাইল ডেটা আমাদের কোনো রিমোট সার্ভারে আপলোড হয় না। সমস্ত গাণিতিক হিসাব বা ফাইল জেনারেশন সরাসরি ব্যবহারকারীর ব্রাউজারে সুরক্ষিত Web Worker প্রযুক্তির মাধ্যমে সম্পন্ন হয়।
+            </p>
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">
+              Developed by & under Proprietorship of PDFMinty. Strictly safe & distributed.
+            </p>
           </div>
         </div>
       </footer>
