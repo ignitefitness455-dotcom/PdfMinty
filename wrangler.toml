@@ -1,0 +1,11 @@
+name = "pdfminty"
+compatibility_date = "2026-05-26"
+pages_build_output_dir = "dist"
+
+[vars]
+ENVIRONMENT = "production"
+# SECRET_KEY (e.g. GEMINI_API_KEY) should be configured securely via wrangler secret put
+
+[[kv_namespaces]]
+binding = "RATELIMIT_KV"
+id = "pdfminty_ratelimit_kv"

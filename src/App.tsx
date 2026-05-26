@@ -44,6 +44,85 @@ interface PDFPageInfo {
   height: number;
 }
 
+interface LazyPDFPageProps {
+  pdfDoc: any;
+  pageIndex: number;
+  rotation: number;
+}
+
+const LazyPDFPage: React.FC<LazyPDFPageProps> = ({ pdfDoc, pageIndex, rotation }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [imgUrl, setImgUrl] = useState<string>('');
+  const [rendering, setRendering] = useState<boolean>(false);
+
+  useEffect(() => {
+    let active = true;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !imgUrl && !rendering && pdfDoc) {
+        setRendering(true);
+        pdfDoc.getPage(pageIndex + 1).then(async (page: any) => {
+          if (!active) return;
+          const viewport = page.getViewport({ scale: 0.4 });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          
+          if (context) {
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            try {
+              await page.render({
+                canvasContext: context,
+                viewport: viewport
+              }).promise;
+
+              if (!active) return;
+              const localUrl = canvas.toDataURL('image/jpeg', 0.85);
+              setImgUrl(localUrl);
+            } catch (err) {
+              console.error('Lazy render page failed:', err);
+            } finally {
+              if (active) setRendering(false);
+            }
+          }
+        });
+      }
+    }, {
+      rootMargin: '120px'
+    });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      active = false;
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
+      }
+    };
+  }, [pdfDoc, pageIndex, imgUrl, rendering]);
+
+  return (
+    <div ref={containerRef} className="w-full h-full flex items-center justify-center relative bg-slate-50 overflow-hidden rounded">
+      {imgUrl ? (
+        <img
+          src={imgUrl}
+          className="max-h-full max-w-full object-contain shadow-sm rounded transition-all duration-300"
+          style={{ transform: `rotate(${rotation}deg)` }}
+          alt={`page ${pageIndex}`}
+          referrerPolicy="no-referrer"
+        />
+      ) : (
+        <div className="flex flex-col items-center justify-center gap-1.5 p-2 text-slate-400">
+          <RefreshCw className="w-4 h-4 animate-spin text-emerald-500/80" />
+          <span className="text-[10px] font-bold text-slate-400">Loading page...</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function App() {
   // Navigation & Tool State
   const [activeTool, setActiveTool] = useState<ToolType | null>(null);
@@ -52,6 +131,7 @@ export default function App() {
   // File variables
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [pdfPages, setPdfPages] = useState<PDFPageInfo[]>([]);
+  const [pdfDocument, setPdfDocument] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
 
@@ -68,6 +148,17 @@ export default function App() {
   const [blankPagePos, setBlankPagePos] = useState<'start' | 'end' | 'custom'>('end');
   const [blankPageAt, setBlankPageAt] = useState('1');
   const [pagesToDelete, setPagesToDelete] = useState<number[]>([]); // page indices of the active PDF to delete
+
+  // Completed result state
+  const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (completedResult) {
+        URL.revokeObjectURL(completedResult.url);
+      }
+    };
+  }, [completedResult]);
 
   // Safe first-party client assets mapping hook to prevent browser memory leaks
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
@@ -293,9 +384,11 @@ export default function App() {
   const clearWorkspace = () => {
     setSelectedFiles([]);
     setPdfPages([]);
+    setPdfDocument(null);
     setPagesToDelete([]);
     setPassword('');
     setProcessingProgress(null);
+    setCompletedResult(null);
   };
 
   // Convert File object to Uint8Array
@@ -307,15 +400,28 @@ export default function App() {
   // Trigger download helper
   const triggerDownload = (bytes: Uint8Array, filename: string) => {
     // Cast bytes to standard BlobPart to fix TS Uint8Array typing compatibility issues
-    const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });
+    const mimeType = filename.endsWith('.zip') ? 'application/zip' : 'application/pdf';
+    const blob = new Blob([bytes as BlobPart], { type: mimeType });
+    
+    // Clean up old completedResult URL if any
+    setCompletedResult(prev => {
+      if (prev) {
+        URL.revokeObjectURL(prev.url);
+      }
+      return null;
+    });
+
     const url = URL.createObjectURL(blob);
+    setCompletedResult({ url, filename, type: mimeType });
+
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    
+    // Play celebratory confetti
     confetti({
       particleCount: 120,
       spread: 70,
@@ -331,6 +437,7 @@ export default function App() {
     const renderPDFThumbnails = async () => {
       if (selectedFiles.length === 0 || activeTool === 'img-to-pdf') {
         setPdfPages([]);
+        setPdfDocument(null);
         return;
       }
 
@@ -357,30 +464,16 @@ export default function App() {
           const page = await pdf.getPage(i);
           const viewport = page.getViewport({ scale: 0.4 });
           
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          
-          if (context) {
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            
-            await page.render({
-              canvasContext: context,
-              viewport: viewport
-            }).promise;
-
-            if (!active) return;
-
-            previews.push({
-              index: i - 1, // 0-indexed representation
-              rotation: 0,
-              thumbnailUrl: canvas.toDataURL('image/png'),
-              width: viewport.width,
-              height: viewport.height
-            });
-          }
+          previews.push({
+            index: i - 1, // 0-indexed representation
+            rotation: 0,
+            thumbnailUrl: '', // Will render dynamically/lazily inside LazyPDFPage component
+            width: viewport.width,
+            height: viewport.height
+          });
         }
         if (active) {
+          setPdfDocument(pdf);
           setPdfPages(previews);
         }
       } catch (err: any) {
@@ -1112,7 +1205,7 @@ export default function App() {
     <div id="pdfminty-root" className="min-h-screen flex flex-col bg-slate-50 transition-colors duration-200">
       
       {/* Dynamic Toast Notifications */}
-      <div id="toast-deck" className="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none">
+      <div id="toast-deck" className="fixed top-4 right-4 left-4 sm:left-auto sm:right-5 z-50 flex flex-col gap-2 sm:max-w-sm pointer-events-none">
         {toasts.map(toast => (
           <div
             key={toast.id}
@@ -1390,46 +1483,77 @@ export default function App() {
                 {/* File Dropzone Section */}
                 <div className="space-y-2">
                   <span className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Upload Target File(s)</span>
+                  
+                  {/* Unified File Input placed outside to prevent recursive bubbling blocks on mobile */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    multiple={activeTool === 'merge' || activeTool === 'img-to-pdf'}
+                    accept={activeTool === 'img-to-pdf' ? 'image/jpeg,image/png' : 'application/pdf'}
+                    className="hidden"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+
                   <div
                     id="dropzone-area"
                     onDragOver={onDragOver}
                     onDragLeave={onDragLeave}
                     onDrop={onDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+                    className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all active:scale-[0.99] select-none flex flex-col items-center justify-center min-h-[180px] ${
                       isDragOver
                         ? 'border-emerald-500 bg-emerald-50/50 scale-[0.98]'
                         : 'border-slate-200 hover:border-emerald-500 hover:bg-slate-50/30'
                     }`}
                   >
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                      multiple={activeTool === 'merge' || activeTool === 'img-to-pdf'}
-                      accept={activeTool === 'img-to-pdf' ? 'image/jpeg,image/png' : 'application/pdf'}
-                      className="hidden"
-                    />
-                    <FileUp className="w-8 h-8 text-slate-400 mx-auto mb-3" />
-                    <p className="text-xs font-bold text-slate-700">
-                      {activeTool === 'img-to-pdf' ? 'Drag and drop clear JPG, PNG images' : 'Drag and drop standard PDF file here'}
+                    <FileUp className="w-8 h-8 text-emerald-500 mb-3 animate-pulse" />
+                    <p className="text-xs font-extrabold text-slate-700 max-w-[240px] leading-tight">
+                      {activeTool === 'img-to-pdf' ? 'Drag & drop clear JPG, PNG images' : 'Drag & drop standard PDF file here'}
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-1">or click to search system folders</p>
+                    <p className="text-[10px] text-slate-400 mt-1 font-semibold">Or use the tap upload below</p>
+                    
+                    {/* Highly tactile touch-target button conforming to Mobile guidelines */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                      className="mt-4 w-full max-w-[220px] inline-flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/10 cursor-pointer min-h-[48px] transition-transform duration-75 active:scale-[0.97]"
+                    >
+                      <FileUp className="w-4 h-4" />
+                      <span>Choose File(s) / ফাইল খুঁজুন</span>
+                    </button>
                   </div>
                 </div>
 
                 {/* Showing Selected Files Stack */}
                 {selectedFiles.length > 0 && (
                   <div className="space-y-2 text-left">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <span className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Selected Elements ({selectedFiles.length})</span>
-                      <button 
-                        id="clear-files-btn"
-                        onClick={clearWorkspace} 
-                        className="text-[10px] font-bold text-rose-500 hover:text-rose-700 cursor-pointer"
-                      >
-                        Clear All
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const previewEl = document.getElementById('visual-verification-canvas');
+                            previewEl?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className="lg:hidden inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-100 transition-colors cursor-pointer"
+                          title="Scroll to previews below"
+                        >
+                          👁️ Previews / প্রিভিউ দেখুন
+                        </button>
+                        <button 
+                          id="clear-files-btn"
+                          type="button"
+                          onClick={clearWorkspace} 
+                          className="text-[10px] font-bold text-rose-500 hover:text-rose-700 cursor-pointer bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-100 transition-colors"
+                        >
+                          Clear All
+                        </button>
+                      </div>
                     </div>
                     <div className="max-h-40 overflow-y-auto border border-slate-100 rounded-xl divide-y divide-slate-50 p-1 bg-slate-50">
                       {selectedFiles.map((file, idx) => (
@@ -1799,11 +1923,55 @@ export default function App() {
                       </div>
                     </div>
                   )}
+
+                  {completedResult && (
+                    <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/55 border border-emerald-200/80 shadow-md animate-fade-in space-y-3.5 text-left">
+                      <div className="flex items-start gap-2.5">
+                        <div className="p-1 px-2 text-[10px] font-black bg-emerald-500 text-white rounded-md tracking-wider uppercase mt-0.5">
+                          ✓ Ready
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs font-extrabold text-slate-800">রিসোর্স ফাইলটি তৈরি হয়েছে!</h4>
+                          <p className="text-[10px] text-emerald-800 font-bold leading-tight truncate">
+                            {completedResult.filename}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        {/* Download anchor conforming to strict iOS / standalone touch target (>= 48px) */}
+                        <a
+                          href={completedResult.url}
+                          download={completedResult.filename}
+                          className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-extrabold text-[11px] py-3 px-3 rounded-xl shadow-lg shadow-emerald-600/10 transition-transform active:scale-95 text-center cursor-pointer min-h-[48px]"
+                        >
+                          <Download className="w-4 h-4 shrink-0" />
+                          <span>Download</span>
+                        </a>
+
+                        {/* Inline Open Preview fallback for Apple / iOS Safari limitations */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            window.open(completedResult.url, '_blank');
+                          }}
+                          className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200/80 text-slate-700 font-extrabold text-[11px] py-3 px-3 rounded-xl transition-colors active:scale-95 text-center cursor-pointer min-h-[48px]"
+                        >
+                          <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                          <span>Open Inline</span>
+                        </button>
+                      </div>
+
+                      <p className="text-[9px] text-slate-400 leading-tight font-medium">
+                        💡 iOS Safari Users: If download does not start automatically, please tap "Open Inline" to save or print the PDF directly from the browser viewer.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Right Column: Previews Sandbox / Drag items list */}
-              <div className="lg:col-span-8 p-6 bg-slate-50/30 flex flex-col min-h-[400px]">
+              <div id="visual-verification-canvas" className="lg:col-span-8 p-6 bg-slate-50/30 flex flex-col scroll-mt-20 min-h-[400px]">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Visual Verification Canvas</span>
                   {pdfPages.length > 0 && (
@@ -1838,9 +2006,10 @@ export default function App() {
                             <button
                               id={`remove-img-${idx}`}
                               onClick={() => setSelectedFiles(prev => prev.filter((_, fIdx) => fIdx !== idx))}
-                              className="text-slate-400 hover:text-rose-500 focus:outline-none cursor-pointer"
+                              className="p-1.5 bg-rose-50 hover:bg-rose-150 rounded-lg text-rose-500 hover:text-rose-700 focus:outline-none cursor-pointer transition-colors"
+                              title="Remove image"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                           
@@ -1878,7 +2047,18 @@ export default function App() {
                             <div 
                               key={page.index} 
                               id={`page-card-${page.index}`}
+                              onClick={() => {
+                                if (activeTool === 'delete-pages') {
+                                  togglePageDeletion(page.index);
+                                } else if (activeTool === 'rotate') {
+                                  handleThumbnailRotate(page.index);
+                                }
+                              }}
                               className={`group relative border rounded-xl bg-slate-50/50 p-3 flex flex-col justify-between transition-all duration-200 hover:shadow-md ${
+                                (activeTool === 'delete-pages' || activeTool === 'rotate')
+                                  ? 'cursor-pointer active:scale-[0.98]'
+                                  : ''
+                              } ${
                                 isPageDeleted
                                   ? 'border-rose-300 bg-rose-50/30'
                                   : 'border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
@@ -1892,31 +2072,34 @@ export default function App() {
                                   <input
                                     type="checkbox"
                                     checked={isPageDeleted}
-                                    onChange={() => togglePageDeletion(page.index)}
-                                    className="w-4 h-4 rounded text-rose-500 focus:ring-rose-400 cursor-pointer border-slate-300 focus:outline-none"
+                                    readOnly
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={() => {}}
+                                    className="w-5 h-5 rounded text-rose-500 focus:ring-rose-400 cursor-pointer border-slate-300 focus:outline-none"
                                   />
                                 )}
 
                                 {activeTool === 'rotate' && (
                                   <button
                                     id={`rotate-${page.index}`}
-                                    onClick={() => handleThumbnailRotate(page.index)}
-                                    className="text-slate-400 hover:text-emerald-500 focus:outline-none transform hover:rotate-90 transition-transform cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleThumbnailRotate(page.index);
+                                    }}
+                                    className="p-1 px-2 text-emerald-600 bg-emerald-50 rounded border border-emerald-100 hover:text-emerald-700 hover:bg-emerald-100 focus:outline-none transition-all cursor-pointer flex items-center gap-1 font-sans text-[10px] font-bold"
                                     title="Rotate 90 degrees clockwise"
                                   >
-                                    <RotateCw className="w-3.5 h-3.5" />
+                                    <RotateCw className="w-3 h-3 transition-transform hover:rotate-90" />
+                                    <span>Rotate / ঘোড়ান</span>
                                   </button>
                                 )}
                               </div>
 
                               <div className="my-2 flex-grow h-32 flex items-center justify-center overflow-hidden rounded-md bg-white border border-slate-100 shadow-sm relative">
-                                <img
-                                  src={page.thumbnailUrl}
-                                  alt={`page preview ${page.index}`}
-                                  className="max-h-full max-w-full object-contain transition-all duration-300"
-                                  style={{
-                                    transform: `rotate(${page.rotation}deg)`,
-                                  }}
+                                <LazyPDFPage
+                                  pdfDoc={pdfDocument}
+                                  pageIndex={page.index}
+                                  rotation={page.rotation}
                                 />
                                 {isPageDeleted && (
                                   <div className="absolute inset-0 bg-rose-100/40 backdrop-blur-[1px] flex items-center justify-center">
@@ -1925,10 +2108,16 @@ export default function App() {
                                 )}
                               </div>
 
-                              {activeTool === 'rotate' && page.rotation > 0 && (
+                              {activeTool === 'rotate' && page.rotation > 0 ? (
                                 <div className="text-[9px] font-bold text-center text-amber-600 mt-2 leading-none uppercase">
                                   Rotation +{page.rotation}°
                                 </div>
+                              ) : (
+                                (activeTool === 'delete-pages' || activeTool === 'rotate') && (
+                                  <div className="text-[8px] font-semibold text-center text-slate-400 mt-1 leading-none uppercase">
+                                    {activeTool === 'delete-pages' ? 'Tap to toggle omit' : 'Tap card to rotate'}
+                                  </div>
+                                )
                               )}
                             </div>
                           );
