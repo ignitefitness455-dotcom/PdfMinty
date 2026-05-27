@@ -9,7 +9,7 @@ import {
 import { PDFDocument } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
 // @ts-ignore
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import confetti from 'canvas-confetti';
 import JSZip from 'jszip';
 
@@ -75,7 +75,8 @@ const LazyPDFPage: React.FC<LazyPDFPageProps> = ({ pdfDoc, pageIndex, rotation }
             try {
               await page.render({
                 canvasContext: context,
-                viewport: viewport
+                viewport: viewport,
+                canvas: canvas
               }).promise;
 
               if (!active) return;
@@ -1302,6 +1303,7 @@ export default function App() {
           await page.render({
             canvasContext: context,
             viewport: viewport,
+            canvas: canvas,
           }).promise;
 
           // Strip data header to acquire base64 binary values for ZIP writer
