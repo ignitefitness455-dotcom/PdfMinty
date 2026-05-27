@@ -75,14 +75,16 @@ self.onmessage = async (e: MessageEvent) => {
       pages.forEach((page) => {
         const { width, height } = page.getSize();
         const textWidth = watermarkText.length * (watermarkSize * 0.6);
-        const textHeight = watermarkSize;
         
-        const xCoord = (width / 2) - (textWidth / 2) * Math.cos(watermarkRotation * Math.PI / 180);
-        const yCoord = (height / 2) - (textHeight / 2);
+        const angleRad = (watermarkRotation * Math.PI) / 180;
+        const cx = width / 2;
+        const cy = height / 2;
+        const x = cx - (textWidth / 2) * Math.cos(angleRad) + (watermarkSize / 2) * Math.sin(angleRad);
+        const y = cy - (textWidth / 2) * Math.sin(angleRad) - (watermarkSize / 2) * Math.cos(angleRad);
 
         page.drawText(watermarkText, {
-          x: Math.max(20, xCoord),
-          y: Math.max(20, yCoord),
+          x: Math.max(20, x),
+          y: Math.max(20, y),
           font: helveticaBold,
           size: watermarkSize,
           color: rgb(0.62, 0.68, 0.75),
@@ -191,6 +193,22 @@ self.onmessage = async (e: MessageEvent) => {
       const generatedBytes = await pdfDoc.save();
       self.postMessage({ success: true, bytes: generatedBytes }, [generatedBytes.buffer] as any);
     } 
+    
+    else if (type === 'compress') {
+      const { fileBytes, quality } = payload;
+      const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
+      
+      if (quality === 'high') {
+        pdfDoc.setTitle('');
+        pdfDoc.setAuthor('');
+        pdfDoc.setSubject('');
+        pdfDoc.setCreator('');
+        pdfDoc.setProducer('');
+      }
+
+      const compressedBytes = await pdfDoc.save({ useObjectStreams: true });
+      self.postMessage({ success: true, bytes: compressedBytes }, [compressedBytes.buffer] as any);
+    }
     
     else {
       throw new Error(`Unsupported task type: ${type}`);

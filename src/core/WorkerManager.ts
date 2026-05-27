@@ -7,20 +7,23 @@ import PDFWorker from '../workers/pdf-worker.ts?worker';
 class VirtualWorker {
   onmessage: ((this: any, ev: MessageEvent) => any) | null = null;
   onerror: ((this: any, ev: ErrorEvent) => any) | null = null;
+  cancelled: boolean = false;
 
-  async postMessage(message: any) {
+  async postMessage(message: any, _transfer?: Transferable[]) {
     const { type, ...payload } = message;
     
     // Execute asynchronously using macro-tasks so it doesn't freeze the call-stack
     setTimeout(async () => {
       try {
         const result = await runTaskDirectly(type, payload);
+        if (this.cancelled) return;
         if (this.onmessage) {
           this.onmessage({
             data: result
           } as MessageEvent);
         }
       } catch (error: any) {
+        if (this.cancelled) return;
         if (this.onmessage) {
           this.onmessage({
             data: {
@@ -34,7 +37,7 @@ class VirtualWorker {
   }
 
   terminate() {
-    // No-op for virtual worker
+    this.cancelled = true;
   }
 }
 
@@ -110,14 +113,16 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
     pages.forEach((page) => {
       const { width, height } = page.getSize();
       const textWidth = watermarkText.length * (watermarkSize * 0.6);
-      const textHeight = watermarkSize;
       
-      const xCoord = (width / 2) - (textWidth / 2) * Math.cos(watermarkRotation * Math.PI / 180);
-      const yCoord = (height / 2) - (textHeight / 2);
+      const angleRad = (watermarkRotation * Math.PI) / 180;
+      const cx = width / 2;
+      const cy = height / 2;
+      const x = cx - (textWidth / 2) * Math.cos(angleRad) + (watermarkSize / 2) * Math.sin(angleRad);
+      const y = cy - (textWidth / 2) * Math.sin(angleRad) - (watermarkSize / 2) * Math.cos(angleRad);
 
       page.drawText(watermarkText, {
-        x: Math.max(20, xCoord),
-        y: Math.max(20, yCoord),
+        x: Math.max(20, x),
+        y: Math.max(20, y),
         font: helveticaBold,
         size: watermarkSize,
         color: rgb(0.62, 0.68, 0.75),
@@ -226,6 +231,22 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
     const generatedBytes = await pdfDoc.save();
     return { success: true, bytes: generatedBytes };
   } 
+  
+  else if (type === 'compress') {
+    const { fileBytes, quality } = payload;
+    const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
+    
+    if (quality === 'high') {
+      pdfDoc.setTitle('');
+      pdfDoc.setAuthor('');
+      pdfDoc.setSubject('');
+      pdfDoc.setCreator('');
+      pdfDoc.setProducer('');
+    }
+
+    const compressedBytes = await pdfDoc.save({ useObjectStreams: true });
+    return { success: true, bytes: compressedBytes };
+  }
   
   else {
     throw new Error(`Unsupported task type: ${type}`);

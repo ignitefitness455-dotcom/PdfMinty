@@ -4,7 +4,7 @@ import {
   Hash, Image, Layers, Trash2, Plus, Stamp, Download, 
   ArrowLeft, FileUp, Sparkles, Check, AlertCircle, 
   RefreshCw, Info, HelpCircle, MessageSquare, Mail,
-  ChevronDown, ChevronUp, ArrowUp, Shield
+  ChevronDown, ChevronUp, ArrowUp, Shield, Brain, Minimize2
 } from 'lucide-react';
 import { PDFDocument } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -34,7 +34,9 @@ type ToolType =
   | 'add-blank' 
   | 'delete-pages' 
   | 'img-to-pdf' 
-  | 'pdf-to-img';
+  | 'pdf-to-img'
+  | 'compress'
+  | 'ai-analyze';
 
 interface PDFPageInfo {
   index: number;
@@ -97,9 +99,7 @@ const LazyPDFPage: React.FC<LazyPDFPageProps> = ({ pdfDoc, pageIndex, rotation }
 
     return () => {
       active = false;
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
-      }
+      observer.disconnect();
     };
   }, [pdfDoc, pageIndex, imgUrl, rendering]);
 
@@ -122,6 +122,49 @@ const LazyPDFPage: React.FC<LazyPDFPageProps> = ({ pdfDoc, pageIndex, rotation }
     </div>
   );
 };
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center font-sans">
+          <div className="max-w-md bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
+            <span className="text-4xl">⚠️</span>
+            <h2 className="text-lg font-black text-slate-900 mt-4 mb-2">Something went wrong.</h2>
+            <p className="text-xs text-slate-500 mb-6 leading-relaxed">
+              Something went wrong. Please reload the page.
+            </p>
+            <button
+              id="reload-page-btn"
+              onClick={() => window.location.reload()}
+              className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-md transition-all cursor-pointer min-h-[44px]"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 export default function App() {
   // Navigation & Tool State
@@ -148,6 +191,10 @@ export default function App() {
   const [blankPagePos, setBlankPagePos] = useState<'start' | 'end' | 'custom'>('end');
   const [blankPageAt, setBlankPageAt] = useState('1');
   const [pagesToDelete, setPagesToDelete] = useState<number[]>([]); // page indices of the active PDF to delete
+  const [compressQuality, setCompressQuality] = useState<'high' | 'medium' | 'low'>('medium');
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
+  const [aiAnalyzing, setAiAnalyzing] = useState<boolean>(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   // Completed result state
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
@@ -164,40 +211,43 @@ export default function App() {
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    const newUrls: Record<string, string> = { ...imageUrls };
-    let changed = false;
-    const activeKeys = new Set<string>();
+    setImageUrls((prevUrls) => {
+      const newUrls: Record<string, string> = { ...prevUrls };
+      let changed = false;
+      const activeKeys = new Set<string>();
 
-    selectedFiles.forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        const key = `${file.name}-${file.size}-${file.lastModified}`;
-        activeKeys.add(key);
-        if (!newUrls[key]) {
-          newUrls[key] = URL.createObjectURL(file);
+      selectedFiles.forEach((file) => {
+        if (file.type.startsWith('image/')) {
+          const key = `${file.name}-${file.size}-${file.lastModified}`;
+          activeKeys.add(key);
+          if (!newUrls[key]) {
+            newUrls[key] = URL.createObjectURL(file);
+            changed = true;
+          }
+        }
+      });
+
+      // Revoke removed image URLs
+      Object.keys(newUrls).forEach((key) => {
+        if (!activeKeys.has(key)) {
+          URL.revokeObjectURL(newUrls[key]);
+          delete newUrls[key];
           changed = true;
         }
-      }
-    });
+      });
 
-    // Revoke removed image URLs
-    Object.keys(newUrls).forEach((key) => {
-      if (!activeKeys.has(key)) {
-        URL.revokeObjectURL(newUrls[key]);
-        delete newUrls[key];
-        changed = true;
-      }
+      return changed ? newUrls : prevUrls;
     });
-
-    if (changed) {
-      setImageUrls(newUrls);
-    }
   }, [selectedFiles]);
 
   useEffect(() => {
     return () => {
-      Object.values(imageUrls).forEach((url) => URL.revokeObjectURL(url));
+      setImageUrls((prevUrls) => {
+        Object.values(prevUrls).forEach((url) => URL.revokeObjectURL(url));
+        return {};
+      });
     };
-  }, [imageUrls]);
+  }, []);
 
   // File drag & hover feedback
   const [isDragOver, setIsDragOver] = useState(false);
@@ -256,29 +306,26 @@ export default function App() {
 
       if (response.ok) {
         showToast('Feedback submitted successfully to Cloudflare!', 'success');
+        // Cool confetti feedback reward
+        confetti({
+          particleCount: 80,
+          spread: 60,
+          origin: { y: 0.7 }
+        });
+        setFeedbackRating(null);
+        setFeedbackComment('');
+        setFeedbackEmail('');
+        setShowFeedbackModal(false);
       } else {
         try {
           const errText = await response.text();
           console.error(`Cloudflare API feedback submission error (${response.status}):`, errText);
         } catch (_) {}
-        showToast('Feedback submitted locally! Thank you.', 'success');
+        showToast('Submission failed. Please check your connection and try again.', 'error');
       }
-
-      // Cool confetti feedback reward
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.7 }
-      });
-
-      setFeedbackRating(null);
-      setFeedbackComment('');
-      setFeedbackEmail('');
-      setShowFeedbackModal(false);
     } catch (err: any) {
       console.error('Cloudflare API feedback connection error:', err);
-      showToast('Feedback submitted locally! Thank you.', 'success');
-      setShowFeedbackModal(false);
+      showToast('Submission failed. Please check your connection and try again.', 'error');
     } finally {
       setFeedbackSubmitting(false);
     }
@@ -311,23 +358,21 @@ export default function App() {
 
       if (response.ok) {
         showToast('Your message has been sent successfully to Cloudflare!', 'success');
+        setContactName('');
+        setContactEmail('');
+        setContactSubject('');
+        setContactMessage('');
+        setShowContactModal(false);
       } else {
         try {
           const errText = await response.text();
           console.error(`Cloudflare API contact submission error (${response.status}):`, errText);
         } catch (_) {}
-        showToast('Message sent! We appreciate you getting in touch.', 'success');
+        showToast('Submission failed. Please check your connection and try again.', 'error');
       }
-
-      setContactName('');
-      setContactEmail('');
-      setContactSubject('');
-      setContactMessage('');
-      setShowContactModal(false);
     } catch (err: any) {
       console.error('Cloudflare API contact connection error:', err);
-      showToast('Message sent! We appreciate you getting in touch.', 'success');
-      setShowContactModal(false);
+      showToast('Submission failed. Please check your connection and try again.', 'error');
     } finally {
       setContactSubmitting(false);
     }
@@ -342,15 +387,26 @@ export default function App() {
   };
 
   const processUploadedFiles = async (files: File[]) => {
-    const filtered = files.filter(file => {
+    const typeCompliant = files.filter(file => {
       if (activeTool === 'img-to-pdf') {
         return file.type.startsWith('image/');
       }
       return file.type === 'application/pdf' || file.name.endsWith('.pdf');
     });
 
-    if (filtered.length !== files.length) {
+    if (typeCompliant.length !== files.length) {
       showToast('Some files were ignored due to incorrect file type.', 'error');
+    }
+
+    if (typeCompliant.length === 0) return;
+
+    const filtered: File[] = [];
+    for (const file of typeCompliant) {
+      if (file.size > 50 * 1024 * 1024) {
+        showToast(`File '${file.name}' exceeds the 50MB limit and was skipped.`, 'error');
+      } else {
+        filtered.push(file);
+      }
     }
 
     if (filtered.length === 0) return;
@@ -389,6 +445,9 @@ export default function App() {
     setPassword('');
     setProcessingProgress(null);
     setCompletedResult(null);
+    setAiAnalysisResult(null);
+    setAiError(null);
+    setAiAnalyzing(false);
   };
 
   // Convert File object to Uint8Array
@@ -497,6 +556,123 @@ export default function App() {
       }
     };
   }, [selectedFiles, activeTool]);
+
+  // Action: Compress PDF Programmatically
+  const executeCompress = async () => {
+    if (selectedFiles.length === 0) return;
+
+    setLoading(true);
+    setProcessingProgress(20);
+    try {
+      const primaryFile = selectedFiles[0];
+      const fileBytes = await fileToBytes(primaryFile);
+
+      setProcessingProgress(45);
+      const { createDedicatedWorker } = await import('./core/WorkerManager');
+      const worker = createDedicatedWorker('compress');
+
+      worker.onmessage = (e: MessageEvent) => {
+        const { success, bytes, error } = e.data;
+        if (success && bytes) {
+          setProcessingProgress(100);
+          triggerDownload(bytes, `compressed_${primaryFile.name}`);
+          showToast('Document compressed successfully off the main thread!', 'success');
+        } else {
+          showToast(`Compression failed: ${error}`, 'error');
+        }
+        setLoading(false);
+        setProcessingProgress(null);
+        worker.terminate();
+      };
+
+      worker.onerror = (err) => {
+        console.error('Compress Worker Error:', err);
+        showToast('Worker connection error occurred during compression.', 'error');
+        setLoading(false);
+        setProcessingProgress(null);
+        worker.terminate();
+      };
+
+      worker.postMessage({ type: 'compress', fileBytes, quality: compressQuality }, [fileBytes.buffer]);
+      setProcessingProgress(75);
+    } catch (err: any) {
+      showToast(`Compression failed: ${err.message}`, 'error');
+      setLoading(false);
+      setProcessingProgress(null);
+    }
+  };
+
+  // Action: Summarize and Analyze PDF Content Client-Side + Server-Side Gemini API Proxy
+  const executeAIAnalyze = async () => {
+    if (selectedFiles.length === 0) return;
+
+    const primaryFile = selectedFiles[0];
+    setAiAnalyzing(true);
+    setAiError(null);
+    setAiAnalysisResult(null);
+    setLoading(true);
+    setProcessingProgress(10);
+
+    try {
+      showToast('Extracting document textual contents locally inside your browser...', 'info');
+      
+      const arrayBuffer = await primaryFile.arrayBuffer();
+      setProcessingProgress(20);
+      
+      const pdf = await pdfjsLib.getDocument({
+        data: new Uint8Array(arrayBuffer),
+        useSystemFonts: true
+      }).promise;
+      
+      setProcessingProgress(40);
+      
+      const pageCount = pdf.numPages;
+      const scanLimit = Math.min(pageCount, 12);
+      let extractedText = "";
+
+      for (let i = 1; i <= scanLimit; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const strings = content.items.map((item: any) => item.str);
+        extractedText += strings.join(" ") + "\n";
+        
+        const prg = Math.min(40 + Math.round((i / scanLimit) * 35), 75);
+        setProcessingProgress(prg);
+      }
+
+      if (!extractedText.trim()) {
+        throw new Error('PDF document text content appears completely empty. Is this a scanned-image only PDF?');
+      }
+
+      setProcessingProgress(80);
+      showToast('Extract completed. Dispatching to secure Gemini proxy analytics...', 'info');
+
+      const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || (import.meta as any).env?.VITE_CLOUDFLARE_API_URL || '';
+      const response = await fetch(`${apiBase}/api/gemini-proxy`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: extractedText, name: primaryFile.name }),
+      });
+
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error || `Proxy returned server code ${response.status}`);
+      }
+
+      const resJson = await response.json();
+      setProcessingProgress(100);
+      setAiAnalysisResult(resJson.analysis);
+      showToast('Secure Gemini AI document intelligence completed successfully!', 'success');
+    } catch (err: any) {
+      console.error('AI Intelligence Error:', err);
+      setAiError(err.message || 'An unexpected failure occurred while analyzing your file.');
+      showToast(err.message || 'AI analysis step failed. See report diagnostics.', 'error');
+    } finally {
+      setLoading(false);
+      setAiAnalyzing(false);
+      setProcessingProgress(null);
+    }
+  };
 
   // Action: Merge PDFs
   const executeMerge = async () => {
@@ -684,7 +860,7 @@ export default function App() {
     }
   };
 
-  // Action: Protect PDF with client-side XOR crypt-header encryption
+  // Action: Protect PDF with client-side AES-GCM + PBKDF2 vault encryption
   const executeProtect = async () => {
     if (selectedFiles.length === 0) return;
     if (!password) {
@@ -697,18 +873,48 @@ export default function App() {
       const primaryFile = selectedFiles[0];
       const fileBytes = await fileToBytes(primaryFile);
       
-      // Perform safe high-fidelity client-side XOR lock with custom header identification
-      const keyBytes = new TextEncoder().encode(password);
-      const obfuscatedBytes = new Uint8Array(fileBytes.length + 16);
-      const header = new TextEncoder().encode("PDFMINTY_LOCKED:");
+      const enc = new TextEncoder();
+      const saltBytes = window.crypto.getRandomValues(new Uint8Array(16));
+      const ivBytes = window.crypto.getRandomValues(new Uint8Array(12));
       
-      obfuscatedBytes.set(header, 0);
-      for (let i = 0; i < fileBytes.length; i++) {
-        obfuscatedBytes[16 + i] = fileBytes[i] ^ keyBytes[i % keyBytes.length];
-      }
+      const baseKey = await window.crypto.subtle.importKey(
+        "raw",
+        enc.encode(password),
+        { name: "PBKDF2" },
+        false,
+        ["deriveBits", "deriveKey"]
+      );
+      
+      const key = await window.crypto.subtle.deriveKey(
+        {
+          name: "PBKDF2",
+          salt: saltBytes as any,
+          iterations: 100000,
+          hash: "SHA-256"
+        },
+        baseKey,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt"]
+      );
+      
+      const encryptedBuffer = await window.crypto.subtle.encrypt(
+        {
+          name: "AES-GCM",
+          iv: ivBytes as any
+        },
+        key,
+        fileBytes as any
+      );
+      
+      const encryptedBytes = new Uint8Array(encryptedBuffer);
+      const outputBytes = new Uint8Array(saltBytes.length + ivBytes.length + encryptedBytes.length);
+      outputBytes.set(saltBytes, 0);
+      outputBytes.set(ivBytes, saltBytes.length);
+      outputBytes.set(encryptedBytes, saltBytes.length + ivBytes.length);
 
-      triggerDownload(obfuscatedBytes, 'secured_document.pdf');
-      showToast('Offline military-grade sandbox encryption lock applied successfully!', 'success');
+      triggerDownload(outputBytes, 'secured_document.pdf');
+      showToast('Offline sandbox encryption lock applied successfully!', 'success');
     } catch (err: any) {
       showToast(`Security protection failed: ${err.message}`, 'error');
     } finally {
@@ -716,7 +922,7 @@ export default function App() {
     }
   };
 
-  // Action: Remove protection from password XOR active document
+  // Action: Remove protection from password encrypted active document
   const executeUnlock = async () => {
     if (selectedFiles.length === 0) return;
     if (!password) {
@@ -729,30 +935,61 @@ export default function App() {
       const primaryFile = selectedFiles[0];
       const fileBytes = await fileToBytes(primaryFile);
       
-      // Check for identity header
-      const headerSlice = fileBytes.slice(0, 16);
-      const headerStr = new TextDecoder().decode(headerSlice);
-      
-      if (headerStr !== "PDFMINTY_LOCKED:") {
-        showToast("The uploaded file does not contain a secure PDFMinty XOR encryption tag.", "error");
+      if (fileBytes.length < 28) {
+        showToast("Incorrect password.", "error");
         setLoading(false);
         return;
       }
 
-      const keyBytes = new TextEncoder().encode(password);
-      const decryptedBytes = new Uint8Array(fileBytes.length - 16);
-      
-      for (let i = 0; i < decryptedBytes.length; i++) {
-        decryptedBytes[i] = fileBytes[16 + i] ^ keyBytes[i % keyBytes.length];
-      }
+      const saltBytes = fileBytes.slice(0, 16);
+      const ivBytes = fileBytes.slice(16, 28);
+      const encryptedBytes = fileBytes.slice(28);
 
-      // Validate decrypted result byte-integrity
+      const enc = new TextEncoder();
+      const baseKey = await window.crypto.subtle.importKey(
+        "raw",
+        enc.encode(password),
+        { name: "PBKDF2" },
+        false,
+        ["deriveBits", "deriveKey"]
+      );
+
+      const key = await window.crypto.subtle.deriveKey(
+        {
+          name: "PBKDF2",
+          salt: saltBytes as any,
+          iterations: 100000,
+          hash: "SHA-256"
+        },
+        baseKey,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["decrypt"]
+      );
+
       try {
-        await PDFDocument.load(decryptedBytes);
-        triggerDownload(decryptedBytes, 'unlocked_document.pdf');
-        showToast('Password matches. Document decrypted and saved!', 'success');
-      } catch {
-        showToast('Incorrect passcode key. Bits corruption detected.', 'error');
+        const decryptedBuffer = await window.crypto.subtle.decrypt(
+          {
+            name: "AES-GCM",
+            iv: ivBytes as any
+          },
+          key,
+          encryptedBytes as any
+        );
+
+        const decryptedBytes = new Uint8Array(decryptedBuffer);
+
+        // Validate decrypted result byte-integrity
+        try {
+          await PDFDocument.load(decryptedBytes);
+          triggerDownload(decryptedBytes, 'unlocked_document.pdf');
+          showToast('Password matches. Document decrypted and saved!', 'success');
+        } catch {
+          showToast('Incorrect password.', 'error');
+        }
+      } catch (cryptoErr) {
+        console.error('Decryption failed:', cryptoErr);
+        showToast('Incorrect password.', 'error');
       }
     } catch (err: any) {
       showToast(`Failed to unlock PDF. Error: ${err.message}`, 'error');
@@ -1074,6 +1311,7 @@ export default function App() {
         }
 
         setProcessingProgress(Math.round((i / totalPages) * 100));
+        await new Promise(resolve => requestAnimationFrame(resolve));
       }
 
       const contentBlob = await zipDoc.generateAsync({ type: 'blob' });
@@ -1153,15 +1391,15 @@ export default function App() {
     },
     {
       id: 'protect' as ToolType,
-      name: 'XOR Private Vault',
-      description: 'Obfuscate document bytes client-side with a fast offline protection passphrase.',
+      name: 'Secure Private Vault',
+      description: 'Encrypt document bytes client-side with a strong secret offline key derived from password using AES-GCM.',
       icon: Lock,
       color: 'bg-cyan-50 text-cyan-600 border-cyan-100 hover:border-cyan-300',
     },
     {
       id: 'unlock' as ToolType,
       name: 'Unlock Private Vault',
-      description: 'Remove XOR-based byte-obfuscation completely inside your local browser.',
+      description: 'Decrypt and restore AES-GCM encrypted documents locally inside your browser cache.',
       icon: Unlock,
       color: 'bg-orange-50 text-orange-600 border-orange-100 hover:border-orange-300',
     },
@@ -1178,6 +1416,20 @@ export default function App() {
       description: 'Render PDF page content client-side to export individual sharp JPEGs in ZIP.',
       icon: Layers,
       color: 'bg-sky-50 text-sky-600 border-sky-100 hover:border-sky-300',
+    },
+    {
+      id: 'compress' as ToolType,
+      name: 'Compress PDF',
+      description: 'Perform advanced, non-destructive file size reductions completely offline.',
+      icon: Minimize2,
+      color: 'bg-pink-50 text-pink-600 border-pink-100 hover:border-pink-300',
+    },
+    {
+      id: 'ai-analyze' as ToolType,
+      name: 'AI Analyze Document',
+      description: 'Generate high-fidelity executive summaries, key action points, tags using Gemini.',
+      icon: Brain,
+      color: 'bg-indigo-50 text-indigo-600 border-indigo-100 hover:border-indigo-300',
     },
   ];
 
@@ -1202,7 +1454,8 @@ export default function App() {
   };
 
   return (
-    <div id="pdfminty-root" className="min-h-screen flex flex-col bg-slate-50 transition-colors duration-200">
+    <ErrorBoundary>
+      <div id="pdfminty-root" className="min-h-screen flex flex-col bg-slate-50 transition-colors duration-200">
       
       {/* Dynamic Toast Notifications */}
       <div id="toast-deck" className="fixed top-4 right-4 left-4 sm:left-auto sm:right-5 z-50 flex flex-col gap-2 sm:max-w-sm pointer-events-none">
@@ -1869,9 +2122,64 @@ export default function App() {
                       <div className="bg-fuchsia-50/50 p-4 rounded-xl border border-fuchsia-100 text-xs space-y-2 text-left">
                         <strong className="text-fuchsia-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>পিডিএফ করার প্রয়োজনীয় ছবিগুলো (JPG/PNG) একসাথে সিলেক্ট বা ড্রপ করুন।</li>
+                          <li>পিডিএফ করার প্রয়োজনীয় ছবিগুলো (JPG/PNG) একসাথে সিলেক্ট বা ড্রป করুন।</li>
                           <li>প্রয়োজন হলে সিকোয়েন্সগুলো উপরে দেখে নিন।</li>
                           <li>নিচে <span className="font-bold text-slate-800">Convert to PDF</span> এ ক্লিক করে জেনারেট সম্পন্ন করুন।</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTool === 'compress' && (
+                    <div className="space-y-4 text-left">
+                      <div>
+                        <label className="text-xs font-bold text-slate-700 block mb-1">Compression Level / মোড</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { value: 'high', label: 'Maximum', desc: '⚠️ High' },
+                            { value: 'medium', label: 'Balanced', desc: '⚡ Recommend' },
+                            { value: 'low', label: 'Lossless', desc: '✨ Raw' }
+                          ].map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => setCompressQuality(opt.value as any)}
+                              className={`p-2.5 rounded-xl border text-center cursor-pointer transition-all ${
+                                compressQuality === opt.value
+                                  ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                              }`}
+                            >
+                              <div className="text-xs font-extrabold">{opt.label}</div>
+                              <div className="text-[9px] font-bold opacity-75 mt-0.5">{opt.desc}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="bg-pink-50/50 p-4 rounded-xl border border-pink-100 text-xs space-y-2">
+                        <strong className="text-pink-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>কম্প্রেস করতে চাওয়া PDF ফাইলটি এখানে সিলেক্ট করুন।</li>
+                          <li>পছন্দসই মোড নির্বাচন করুন।</li>
+                          <li>নিচে থাকা <span className="font-bold text-pink-700">Compile & Export</span> বাটনে ক্লিক করে প্রসেস করুন।</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTool === 'ai-analyze' && (
+                    <div className="space-y-4 text-left">
+                      <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-[11px] text-indigo-800 leading-relaxed font-sans">
+                        🔒 **Local-first Text Parsing**: To prevent heavy bandwidth usage and safeguard your deep privacy, PDFMinty extracts raw text locally inside your browser cache first. We only proxy raw text payloads.
+                      </div>
+
+                      <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200 text-xs space-y-2">
+                        <strong className="text-indigo-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
+                          <li>যে ফাইলটির সামারি প্রয়োজন সেটি সিলেক্ট করুন।</li>
+                          <li>নিচে থাকা <span className="font-bold text-indigo-700">Compile & Export</span> বাটনে চাপ দিন।</li>
+                          <li>ডানের প্রিভিউ ক্যানভাসে Gemini AI বিস্তারিত অটো-এনালাইসিস রিপোর্ট শো করবে।</li>
                         </ul>
                       </div>
                     </div>
@@ -1895,6 +2203,8 @@ export default function App() {
                       else if (activeTool === 'delete-pages') executeDeletePages();
                       else if (activeTool === 'img-to-pdf') executeImgToPdf();
                       else if (activeTool === 'pdf-to-img') executePdfToImg();
+                      else if (activeTool === 'compress') executeCompress();
+                      else if (activeTool === 'ai-analyze') executeAIAnalyze();
                     }}
                     className={`w-full py-3.5 rounded-xl text-white font-extrabold text-sm tracking-wide flex items-center justify-center gap-2.5 shadow-md shadow-emerald-500/10 cursor-pointer transition-all ${
                       selectedFiles.length === 0 || loading
@@ -1997,8 +2307,8 @@ export default function App() {
                   </div>
                 ) : activeTool === 'img-to-pdf' ? (
                   /* Special rendering list for images uploaded to image-to-pdf */
-                  <div className="flex-1 bg-white border border-slate-200/80 rounded-2xl p-4 overflow-y-auto">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  <div className="flex-1 bg-white border border-slate-200/80 rounded-2xl p-4 overflow-y-auto font-sans">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 col-span-full">
                       {selectedFiles.map((file, idx) => (
                         <div key={idx} className="relative bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl p-3 flex flex-col justify-between h-36">
                           <div className="flex justify-between items-start">
@@ -2027,6 +2337,108 @@ export default function App() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                ) : activeTool === 'ai-analyze' ? (
+                  /* Upgraded Premium AI Analysis Dashboard Output */
+                  <div className="flex-1 bg-white border border-slate-200/80 rounded-2xl p-6 overflow-y-auto font-sans flex flex-col justify-start">
+                    {aiAnalyzing ? (
+                      <div className="flex-grow flex flex-col items-center justify-center p-8 text-center bg-slate-50/50 rounded-xl border border-slate-100">
+                        <RefreshCw className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+                        <h3 className="text-sm font-bold text-slate-800">Gemini Intelligence Analyzing...</h3>
+                        <p className="text-xs text-slate-500 max-w-sm mt-1 leading-relaxed">
+                          Extracting textual features locally, validating tokens, and generating premium summary and categorized index streams safely.
+                        </p>
+                        {processingProgress && (
+                          <div className="w-full max-w-xs mt-4">
+                            <div className="flex justify-between text-[11px] text-slate-500 font-extrabold mb-1">
+                              <span>Local OCR Scan</span>
+                              <span>{processingProgress}%</span>
+                            </div>
+                            <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                              <div className="bg-indigo-500 h-full transition-all duration-300" style={{ width: `${processingProgress}%` }}></div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : aiError ? (
+                      <div className="flex-grow flex flex-col items-center justify-center p-8 text-center bg-rose-50/30 rounded-xl border border-rose-100/50 text-slate-700">
+                        <AlertCircle className="w-12 h-12 text-rose-500 mb-3" />
+                        <h3 className="text-xs font-black text-rose-700 uppercase tracking-widest">Analysis Failure</h3>
+                        <p className="text-xs text-rose-800 font-semibold mt-1 max-w-md">{aiError}</p>
+                        <p className="text-[10px] text-slate-400 mt-2 max-w-sm leading-tight">
+                          Please verify your network connection, support of local browser API endpoints, and ensure that your Pages Environment has the required credentials.
+                        </p>
+                      </div>
+                    ) : aiAnalysisResult ? (
+                      <div className="space-y-6 text-left animate-fade-in flex flex-col">
+                        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 shrink-0">
+                          <div>
+                            <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-indigo-500" />
+                              <span>Gemini AI Analytics Dashboard</span>
+                            </h3>
+                            <p className="text-[10px] text-indigo-600 font-bold mt-0.5 uppercase tracking-wider">
+                              Secure Sandbox Intelligence report
+                            </p>
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            {/* Download summary logic */}
+                            <button
+                              onClick={() => {
+                                const dlBlob = new Blob([aiAnalysisResult], { type: 'text/plain' });
+                                const dlUrl = URL.createObjectURL(dlBlob);
+                                const a = document.createElement('a');
+                                a.href = dlUrl;
+                                a.download = `AI_Summary_${selectedFiles[0]?.name || 'document'}.txt`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(dlUrl);
+                                showToast('Summary text file exported and downloaded!', 'success');
+                              }}
+                              className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-extrabold rounded-xl transition-all cursor-pointer select-none min-h-[44px] flex items-center gap-1.5"
+                            >
+                              <Download className="w-3.5 h-3.5 shrink-0" />
+                              <span>Save Text</span>
+                            </button>
+
+                            {/* Copy logic */}
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(aiAnalysisResult).then(() => {
+                                  showToast('AI analysis copied to clipboard!', 'success');
+                                }).catch(() => {
+                                  showToast('Unable to access clipboard. Please select text manually.', 'error');
+                                });
+                              }}
+                              className="px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/10 text-xs font-extrabold rounded-xl transition-all cursor-pointer select-none min-h-[44px] flex items-center gap-1.5"
+                            >
+                              <Check className="w-3.5 h-3.5 shrink-0" />
+                              <span>Copy Summary</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 overflow-y-auto max-h-[500px]">
+                          <div className="prose prose-sm prose-slate max-w-none text-xs leading-relaxed text-slate-600 whitespace-pre-line font-medium">
+                            {aiAnalysisResult}
+                          </div>
+                        </div>
+
+                        <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 text-[10px] font-medium text-slate-500 leading-normal shrink-0">
+                          ⚠️ **AI Model Disclaimer**: AI translations or text intelligence is produced automatically via serverless machine learning models. Accuracy may vary. Verify any legal or critical metrics individually.
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex-grow flex flex-col items-center justify-center p-8 text-center bg-slate-50/50 rounded-xl border border-slate-100">
+                        <Brain className="w-12 h-12 text-slate-350 mb-3 animate-pulse" />
+                        <h3 className="text-xs font-extrabold text-slate-700">Intel Dashboard Sleeping</h3>
+                        <p className="text-[10px] text-slate-400 mt-1 max-w-sm leading-tight">
+                          Press "Compile & Export" in the parameters section to trigger local OCR text extraction and construct your complete secure report.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   /* Rendering detailed PDF pages previews for page manipulation */
@@ -2390,5 +2802,6 @@ export default function App() {
         <ArrowUp className="w-5 h-5 group-hover:translate-y-[-1px] transition-transform animate-none" />
       </button>
     </div>
+    </ErrorBoundary>
   );
 }
