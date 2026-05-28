@@ -8,4 +8,4 @@ ENVIRONMENT = "production"
 
 [[kv_namespaces]]
 binding = "RATELIMIT_KV"
-id = "pdfminty_ratelimit_kv"
+id = "a43016cede9e4e92bc4ee8776b952cfb"
