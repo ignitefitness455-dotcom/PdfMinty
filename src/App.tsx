@@ -1778,7 +1778,7 @@ export default function App() {
                       className="mt-4 w-full max-w-[220px] inline-flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/10 cursor-pointer min-h-[48px] transition-transform duration-75 active:scale-[0.97]"
                     >
                       <FileUp className="w-4 h-4" />
-                      <span>Choose File(s) / ফাইল খুঁজুন</span>
+                      <span>Choose File(s)</span>
                     </button>
                   </div>
                 </div>
@@ -1798,7 +1798,7 @@ export default function App() {
                           className="lg:hidden inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-100 transition-colors cursor-pointer"
                           title="Scroll to previews below"
                         >
-                          👁️ Previews / প্রিভিউ দেখুন
+                          👁️ Previews
                         </button>
                         <button 
                           id="clear-files-btn"
@@ -1832,11 +1832,11 @@ export default function App() {
                         💡 Dropped PDFs are concatenated in the sequence they are shown in the list box above. Clear and load them in custom orders to sequence.
                       </div>
                       <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 text-xs space-y-2 text-left">
-                        <strong className="text-emerald-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-emerald-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>একের অধিক PDF ফাইল সিলেক্ট বা ড্র্যাগ-ড্রপ করুন।</li>
-                          <li>তালিকার সিকোয়েন্স অনুযায়ী পেজগুলো সাজানো হবে।</li>
-                          <li>নিচে থাকা <span className="font-bold text-slate-800">Merge PDFs</span> এ ক্লিক করে ডাউনলোড করুন।</li>
+                          <li>Select or drag-and-drop multiple PDF files.</li>
+                          <li>Pages will be ordered according to the sequence in the list.</li>
+                          <li>Click <span className="font-bold text-slate-800">Merge PDFs</span> below to compile and download.</li>
                         </ul>
                       </div>
                     </div>
@@ -1858,11 +1858,11 @@ export default function App() {
                         </span>
                       </div>
                       <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-xs space-y-2 text-left">
-                        <strong className="text-blue-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-blue-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>আপনার প্রয়োজনীয় PDF ফাইলটি সিলেক্ট করুন।</li>
-                          <li>উপরের ইনপুট বক্সে পেজ নম্বর বা রেঞ্জ লিখুন (যেমন: <code className="bg-white px-1 py-0.5 rounded border">1-3, 5</code>)।</li>
-                          <li>নিচে থাকা <span className="font-bold text-slate-800">Extract Pages</span> বাটনে ক্লিক করে নতুন PDF ডাউনলোড করুন।</li>
+                          <li>Select the PDF file you want to split.</li>
+                          <li>Type page numbers or ranges in the input field above (e.g., <code className="bg-white px-1 py-0.5 rounded border">1-3, 5</code>).</li>
+                          <li>Click <span className="font-bold text-slate-800">Extract Pages</span> below to download the split PDF.</li>
                         </ul>
                       </div>
                     </div>
@@ -1920,12 +1920,12 @@ export default function App() {
                         </div>
                       </div>
                       <div className="bg-teal-50/50 p-4 rounded-xl border border-teal-100 text-xs space-y-2 text-left">
-                        <strong className="text-teal-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-teal-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>পিডিএফ ডকুমেন্টটি আপলোড করুন।</li>
-                          <li>ওয়াটারমার্ক বক্সে আপনার টেক্সট (যেমন: <code className="bg-white px-1 py-0.5 rounded border font-sans">APPROVED</code>) লিখুন।</li>
-                          <li>স্লাইডার ও সাইজ ইনপুট ব্যবহার করে অপাসিটি এবং অ্যাঙ্গেল সেট করুন।</li>
-                          <li>নিচে <span className="font-bold text-slate-800">Apply Watermark</span> এ ক্লিক করে ক্রিয়েট করুন।</li>
+                          <li>Upload your PDF document.</li>
+                          <li>Type your watermark text in the box (e.g., <code className="bg-white px-1 py-0.5 rounded border font-sans">APPROVED</code>).</li>
+                          <li>Set opacity and angle using the slider and rotation input.</li>
+                          <li>Click <span className="font-bold text-slate-800">Apply Watermark</span> below to compile and download.</li>
                         </ul>
                       </div>
                     </div>
@@ -1945,11 +1945,11 @@ export default function App() {
                         <span className="text-[10px] text-slate-400 leading-none">The output document requires this password to unlock.</span>
                       </div>
                       <div className="bg-cyan-50/50 p-4 rounded-xl border border-cyan-100 text-xs space-y-2 text-left">
-                        <strong className="text-cyan-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-cyan-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>আপনার গোপনীয় বা ব্যক্তিগত PDF ফাইলটি সিলেক্ট করুন।</li>
-                          <li>উপরের বক্সে একটি অফলাইন পাসওয়ার্ড টাইপ করুন।</li>
-                          <li>নিচে <span className="font-bold text-slate-800">Protect Vault</span> এ ক্লিক করে সিকিউরড PDF ডাউনলোড করুন।</li>
+                          <li>Select your confidential or personal PDF file.</li>
+                          <li>Type a strong offline password in the field above.</li>
+                          <li>Click <span className="font-bold text-slate-800">Protect Vault</span> below to download the encrypted PDF.</li>
                         </ul>
                       </div>
                     </div>
@@ -1969,11 +1969,11 @@ export default function App() {
                         <span className="text-[10px] text-slate-400 leading-none">Must submit active document password keys. All locks will be permanently removed.</span>
                       </div>
                       <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100 text-xs space-y-2 text-left">
-                        <strong className="text-orange-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-orange-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>লক বা এনক্রিপ্ট করা PDF ফাইলটি সিলেক্ট করুন।</li>
-                          <li>বক্সে ওই ফাইলের বর্তমান সঠিক পাসওয়ার্ডটি সাবমিট করুন।</li>
-                          <li>নিচে থাকা <span className="font-bold text-slate-800">Unlock Vault</span> বাটনে ক্লিক করে আনলকড কপিটি সেভ করুন।</li>
+                          <li>Select the locked or encrypted PDF file.</li>
+                          <li>Enter the correct password of the file in the field above.</li>
+                          <li>Click <span className="font-bold text-slate-800">Unlock Vault</span> below to decrypt and save the unlocked copy.</li>
                         </ul>
                       </div>
                     </div>
@@ -2007,11 +2007,11 @@ export default function App() {
                         </div>
                       </div>
                       <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 text-xs space-y-2 text-left">
-                        <strong className="text-indigo-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-indigo-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>আপনার কাঙ্ক্ষিত PDF ফাইলটি সিলেক্ট বা আপলোড করুন।</li>
-                          <li>পেজ নাম্বার ফরম্যাট ও পজিশন (উপরে বা নিচে) ড্রপডাউন থেকে সিলেক্ট করুন।</li>
-                          <li>নিচে থাকা <span className="font-bold text-slate-800">Stamp Numbers</span> এ ক্লিক করে ডাউনলোড করুন।</li>
+                          <li>Select or upload the PDF file you want to number.</li>
+                          <li>Select the page number format and position (header or footer) from the dropdowns.</li>
+                          <li>Click <span className="font-bold text-slate-800">Stamp Numbers</span> below to compile and download.</li>
                         </ul>
                       </div>
                     </div>
@@ -2057,12 +2057,12 @@ export default function App() {
                         )}
                       </div>
                       <div className="bg-violet-50/50 p-4 rounded-xl border border-violet-100 text-xs space-y-2 text-left">
-                        <strong className="text-violet-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-violet-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>মূল PDF ফাইলটি সিলেক্ট করে আপলোড সম্পন্ন করুন।</li>
-                          <li>ফাঁকা পেইজটির সাইজ নির্ধারণ করুন (A4 নাকি US Letter)।</li>
-                          <li>পজিশন সিলেক্ট করুন (যেমন: শুরুতে, শেষে বা কাস্টম পজিশন)।</li>
-                          <li>নিচে <span className="font-bold text-slate-800">Insert Blank Page</span> এ ক্লিক করুন।</li>
+                          <li>Upload your main PDF document.</li>
+                          <li>Select the blank page size (A4 or US Letter).</li>
+                          <li>Choose the page position (e.g., at the beginning, at the end, or a custom page index).</li>
+                          <li>Click <span className="font-bold text-slate-800">Insert Blank Page</span> below to compile and download.</li>
                         </ul>
                       </div>
                     </div>
@@ -2074,11 +2074,11 @@ export default function App() {
                         💡 Click directly on the page checkboxes in the preview area to select. Page indexes marked in red or with checks will be omitted entirely upon compilation. ({pagesToDelete.length} selected).
                       </div>
                       <div className="bg-rose-50/50 p-4 rounded-xl border border-rose-100 text-xs space-y-2 text-left">
-                        <strong className="text-rose-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-rose-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>পিডিএফ ফাইলটি ড্রপ বা সিলেক্ট করে আপলোড করুন।</li>
-                          <li>ডানপাশের প্রিভিউ পেজগুলো থেকে যে পেজগুলো বাদ দিতে চান তাদের উপর ক্লিক করে টিকচিহ্ন দিন।</li>
-                          <li>নিচের <span className="font-bold text-slate-800">Keep Remaining</span> এ ক্লিক করে নতুন PDF ডাউনলোড করুন।</li>
+                          <li>Select or drop the PDF file to upload.</li>
+                          <li>Click the checkboxes on the right-side preview pages that you want to delete.</li>
+                          <li>Click <span className="font-bold text-slate-800">Keep Remaining</span> below to compile and download the new PDF.</li>
                         </ul>
                       </div>
                     </div>
@@ -2090,11 +2090,11 @@ export default function App() {
                         💡 Outputs high fidelity JPG assets compiled locally using JSZip inside an archive.
                       </div>
                       <div className="bg-sky-50/50 p-4 rounded-xl border border-sky-100 text-xs space-y-2 text-left">
-                        <strong className="text-sky-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-sky-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>পেজগুলো ইমেজে কনভার্ট করার উদ্দেশ্যে PDF ফাইলটি আপলোড করুন।</li>
-                          <li>নিচের <span className="font-bold text-slate-800">Convert to JPEGs</span> এ ক্লিক করুন।</li>
-                          <li>প্রতিটি পেজ হাই-রেজোলিউশন ছবিতে কনভার্ট হবে এবং সাথে সাথে একটি .zip ফাইল ডাউনলোড হয়ে যাবে।</li>
+                          <li>Upload the PDF file you wish to convert to images.</li>
+                          <li>Click <span className="font-bold text-slate-800">Convert to JPEGs</span> below.</li>
+                          <li>Every page will be converted to a high-resolution JPEG, and a compiled `.zip` file will download automatically.</li>
                         </ul>
                       </div>
                     </div>
@@ -2106,11 +2106,11 @@ export default function App() {
                         💡 Use the rotation turn icons on the individual page thumbnail cards inside the preview area. Angles resolve and overwrite on target file creation.
                       </div>
                       <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-100 text-xs space-y-2 text-left">
-                        <strong className="text-amber-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-amber-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>আপনার রোটেট করতে চাওয়া PDF ফাইলটি আপলোড করুন।</li>
-                          <li>ডানের পেজ প্রিভিউ থেকে নির্দিষ্ট পেজের ওপর রোটেট আইকনে ক্লিক করে ঘুরিয়ে নিন।</li>
-                          <li>কম্পাইল করতে নিচে থাকা <span className="font-bold text-slate-800">Apply changes</span> এ ক্লিক করে ডাউনলোড করুন।</li>
+                          <li>Upload the PDF file you wish to rotate.</li>
+                          <li>Click the rotate icon on individual page previews on the right to rotate them.</li>
+                          <li>Click <span className="font-bold text-slate-800">Apply changes</span> below to compile your rotated PDF.</li>
                         </ul>
                       </div>
                     </div>
@@ -2118,15 +2118,12 @@ export default function App() {
 
                   {activeTool === 'img-to-pdf' && (
                     <div className="space-y-4">
-                      <div className="bg-fuchsia-50 p-4 rounded-xl border border-fuchsia-100 text-xs text-fuchsia-800 leading-relaxed">
-                        💡 Our memory-managed object cache engine automatically clears loaded files completely asynchronously in background threads. Up to hundreds of gigabytes of heavy image rendering safe.
-                      </div>
                       <div className="bg-fuchsia-50/50 p-4 rounded-xl border border-fuchsia-100 text-xs space-y-2 text-left">
-                        <strong className="text-fuchsia-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-fuchsia-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>পিডিএফ করার প্রয়োজনীয় ছবিগুলো (JPG/PNG) একসাথে সিলেক্ট বা ড্রป করুন।</li>
-                          <li>প্রয়োজন হলে সিকোয়েন্সগুলো উপরে দেখে নিন।</li>
-                          <li>নিচে <span className="font-bold text-slate-800">Convert to PDF</span> এ ক্লিক করে জেনারেট সম্পন্ন করুন।</li>
+                          <li>Select or drag-and-drop the images (JPG/PNG) you want to compile into a PDF.</li>
+                          <li>Verify or re-order page sequence in the preview deck above if needed.</li>
+                          <li>Click <span className="font-bold text-slate-800">Convert to PDF</span> below to generate and download.</li>
                         </ul>
                       </div>
                     </div>
@@ -2135,7 +2132,7 @@ export default function App() {
                   {activeTool === 'compress' && (
                     <div className="space-y-4 text-left">
                       <div>
-                        <label className="text-xs font-bold text-slate-700 block mb-1">Compression Level / মোড</label>
+                        <label className="text-xs font-bold text-slate-700 block mb-1">Compression Level</label>
                         <div className="grid grid-cols-3 gap-2">
                           {[
                             { value: 'high', label: 'Maximum', desc: '⚠️ High' },
@@ -2160,11 +2157,11 @@ export default function App() {
                       </div>
 
                       <div className="bg-pink-50/50 p-4 rounded-xl border border-pink-100 text-xs space-y-2">
-                        <strong className="text-pink-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-pink-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>কম্প্রেস করতে চাওয়া PDF ফাইলটি এখানে সিলেক্ট করুন।</li>
-                          <li>পছন্দসই মোড নির্বাচন করুন।</li>
-                          <li>নিচে থাকা <span className="font-bold text-pink-700">Compile & Export</span> বাটনে ক্লিক করে প্রসেস করুন।</li>
+                          <li>Select the PDF file you wish to compress.</li>
+                          <li>Choose your desired compression quality mode.</li>
+                          <li>Click the <span className="font-bold text-pink-700">Compile & Export</span> button below to process and save.</li>
                         </ul>
                       </div>
                     </div>
@@ -2177,11 +2174,11 @@ export default function App() {
                       </div>
 
                       <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200 text-xs space-y-2">
-                        <strong className="text-indigo-800 font-bold block">💡 কিভাবে ব্যবহার করবেন (How to Use):</strong>
+                        <strong className="text-indigo-800 font-bold block">💡 How to Use:</strong>
                         <ul className="list-decimal list-inside space-y-1 text-slate-600 font-medium">
-                          <li>যে ফাইলটির সামারি প্রয়োজন সেটি সিলেক্ট করুন।</li>
-                          <li>নিচে থাকা <span className="font-bold text-indigo-700">Compile & Export</span> বাটনে চাপ দিন।</li>
-                          <li>ডানের প্রিভিউ ক্যানভাসে Gemini AI বিস্তারিত অটো-এনালাইসিস রিপোর্ট শো করবে।</li>
+                          <li>Select the document that you wish to summarize.</li>
+                          <li>Click the <span className="font-bold text-indigo-700">Compile & Export</span> button below.</li>
+                          <li>The AI analysis report produced by Gemini AI will render in the right preview panel.</li>
                         </ul>
                       </div>
                     </div>
@@ -2243,7 +2240,7 @@ export default function App() {
                           ✓ Ready
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-xs font-extrabold text-slate-800">রিসোর্স ফাইলটি তৈরি হয়েছে!</h4>
+                          <h4 className="text-xs font-extrabold text-slate-800">Resource file compiled successfully!</h4>
                           <p className="text-[10px] text-emerald-800 font-bold leading-tight truncate">
                             {completedResult.filename}
                           </p>
@@ -2504,7 +2501,7 @@ export default function App() {
                                     title="Rotate 90 degrees clockwise"
                                   >
                                     <RotateCw className="w-3 h-3 transition-transform hover:rotate-90" />
-                                    <span>Rotate / ঘোড়ান</span>
+                                    <span>Rotate</span>
                                   </button>
                                 )}
                               </div>
@@ -2578,14 +2575,14 @@ export default function App() {
               onClick={() => setShowFeedbackModal(true)}
               className="inline-flex items-center gap-2 hover:text-emerald-600 transition-colors cursor-pointer"
             >
-              <MessageSquare className="w-4.5 h-4.5 text-emerald-500" /> Provide Feedback / ফিডব্যাক
+              <MessageSquare className="w-4.5 h-4.5 text-emerald-500" /> Provide Feedback
             </button>
             <button
               id="open-contact-modal"
               onClick={() => setShowContactModal(true)}
               className="inline-flex items-center gap-2 hover:text-emerald-600 transition-colors cursor-pointer"
             >
-              <Mail className="w-4.5 h-4.5 text-blue-500" /> Contact Us / যোগাযোগ করুন
+              <Mail className="w-4.5 h-4.5 text-blue-500" /> Contact Us
             </button>
             <button
               onClick={() => {
@@ -2597,17 +2594,17 @@ export default function App() {
               }}
               className="inline-flex items-center gap-2 hover:text-emerald-600 transition-colors cursor-pointer"
             >
-              <HelpCircle className="w-4.5 h-4.5 text-indigo-500" /> Privacy & FAQ / সাহায্য
+              <HelpCircle className="w-4.5 h-4.5 text-indigo-500" /> Privacy & FAQ
             </button>
           </div>
 
           {/* PDFMinty Ownership Details */}
           <div className="max-w-2xl text-xs text-slate-500 space-y-3 leading-relaxed border-t border-slate-100 pt-6">
             <p className="font-extrabold text-slate-800">
-              PDFMinty এর স্বত্বাধিকার (Proprietorship & Copyright Information)
+              PDFMinty Proprietorship & Copyright Information
             </p>
             <p className="font-medium">
-              © 2026 PDFMinty. সর্বস্বত্ব সংরক্ষিত। PDFMinty একটি শতভাগ নিরাপদ, স্বতন্ত্র ও উন্মুক্ত ক্লায়েন্ট-সাইড অফলাইন ডিস্ট্রিবিউটেড স্টুডিও। এখানে প্রক্রিয়াকৃত কোনো ফাইল বা ব্যবহারকারীর ফাইল ডেটা আমাদের কোনো রিমোট সার্ভারে আপলোড হয় না। সমস্ত গাণিতিক হিসাব বা ফাইল জেনারেশন সরাসরি ব্যবহারকারীর ব্রাউজারে সুরক্ষিত Web Worker প্রযুক্তির মাধ্যমে সম্পন্ন হয়।
+              © 2026 PDFMinty. All rights reserved. PDFMinty is a 100% secure, independent, and open-source client-side offline distributed studio. No files or user data processed here are ever uploaded to remote servers. All calculations and file generations are performed securely inside the user's browser using local Web Worker technology.
             </p>
             <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">
               Developed by & under Proprietorship of PDFMinty. Strictly safe & distributed.
