@@ -201,6 +201,10 @@ export default function App() {
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [activeTool]);
+
+  useEffect(() => {
     return () => {
       if (completedResult) {
         URL.revokeObjectURL(completedResult.url);
@@ -1486,7 +1490,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div 
             className="flex items-center gap-2.5 cursor-pointer group" 
-            onClick={() => { setActiveTool(null); clearWorkspace(); }}
+            onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveTool(null); clearWorkspace(); }}
           >
             <div className="p-2 bg-emerald-500 rounded-xl text-white group-hover:scale-105 transition-transform shadow-md shadow-emerald-500/10">
               <FileText className="w-5.5 h-5.5" />
@@ -1532,6 +1536,7 @@ export default function App() {
                     key={tool.id}
                     id={`tool-card-${tool.id}`}
                     onClick={() => {
+                      window.scrollTo(0, 0);
                       setActiveTool(tool.id);
                       clearWorkspace();
                     }}
@@ -1697,7 +1702,7 @@ export default function App() {
             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <button
                 id="back-to-dashboard"
-                onClick={() => { setActiveTool(null); clearWorkspace(); }}
+                onClick={() => { window.scrollTo(0, 0); setActiveTool(null); clearWorkspace(); }}
                 className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors w-fit group cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Back to Dashboard
@@ -2573,6 +2578,7 @@ export default function App() {
             </button>
             <button
               onClick={() => {
+                window.scrollTo(0, 0);
                 setActiveTool(null);
                 setTimeout(() => {
                   const faqSection = document.getElementById('faq-section');

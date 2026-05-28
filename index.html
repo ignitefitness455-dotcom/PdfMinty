@@ -5,6 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cpath d='M12 18v-6'/%3E%3Cpath d='M9 15h6'/%3E%3C/svg%3E" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PDFMinty - Clean client-side PDF utility</title>
+    <script>
+      function showInitError(type, msg) {
+        if (msg && typeof msg === 'string' && (msg.indexOf('failed to connect to websocket') > -1 || msg.indexOf('ResizeObserver') > -1)) return;
+        var div = document.createElement('div');
+        div.style.cssText = 'position: fixed; top: 20px; right: 20px; left: 20px; background: #fff5f5; border: 1px solid #feb2b2; border-radius: 8px; padding: 16px; z-index: 999999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-family: system-ui;';
+        div.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;"><h3 style="margin:0; color:#c53030; font-size: 16px;">' + type + '</h3><button onclick="this.parentElement.parentElement.remove()" style="background:white; border:1px solid #ddd; border-radius:4px; cursor:pointer;">Dismiss</button></div><pre style="margin:0; font-size:12px; color:#742a2a; white-space:pre-wrap; word-break:break-all;">' + msg + '</pre>';
+        document.addEventListener('DOMContentLoaded', function() { document.body.appendChild(div); });
+      }
+      window.addEventListener('error', function(event) {
+        showInitError('Initialization Error', event.message || event.error || 'Unknown error');
+      });
+      window.addEventListener('unhandledrejection', function(event) {
+        var msg = event.reason ? (event.reason.stack || event.reason.message || event.reason) : 'Unknown Promise Rejection';
+        showInitError('Promise Rejection', msg);
+      });
+    </script>
   </head>
   <body class="bg-slate-50 text-slate-900 min-h-screen">
     <div id="root"></div>
