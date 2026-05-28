@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
     "@google/genai": "^2.6.0",
     "canvas-confetti": "^1.9.3",
     "jszip": "^3.10.1",
@@ -29,7 +31,9 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "tailwindcss": "^4.0.0",
+    "terser": "^5.48.0",
     "typescript": "6.0.3",
-    "vite": "^5.4.2"
+    "vite": "^5.4.2",
+    "vite-plugin-compression": "^0.5.1"
   }
 }

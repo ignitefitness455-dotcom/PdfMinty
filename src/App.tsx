@@ -6,15 +6,18 @@ import {
   RefreshCw, Info, HelpCircle, MessageSquare, Mail,
   ChevronDown, ChevronUp, ArrowUp, Shield, Brain, Minimize2
 } from 'lucide-react';
-import { PDFDocument } from 'pdf-lib';
-import * as pdfjsLib from 'pdfjs-dist';
-// @ts-ignore
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import confetti from 'canvas-confetti';
 import JSZip from 'jszip';
 
-// Configure local worker to solve CORS and CSP issues permanently
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+let cachedPdfJs: any = null;
+const getPdfJs = async () => {
+  if (cachedPdfJs) return cachedPdfJs;
+  const pdfjs = await import('pdfjs-dist');
+  const workerObj = await import('pdfjs-dist/build/pdf.worker.min.mjs?url');
+  pdfjs.GlobalWorkerOptions.workerSrc = workerObj.default;
+  cachedPdfJs = pdfjs;
+  return pdfjs;
+};
 
 // Custom Toast notification simple state
 interface Toast {
@@ -109,15 +112,17 @@ const LazyPDFPage: React.FC<LazyPDFPageProps> = ({ pdfDoc, pageIndex, rotation }
       {imgUrl ? (
         <img
           src={imgUrl}
-          className="max-h-full max-w-full object-contain shadow-sm rounded transition-all duration-300"
-          style={{ transform: `rotate(${rotation}deg)` }}
+          className={`max-h-full max-w-full object-contain shadow-sm rounded transition-all duration-300 ${rotation === 90 ? 'rotate-90' : rotation === 180 ? 'rotate-180' : rotation === 270 ? '-rotate-90' : ''}`}
           alt={`page ${pageIndex}`}
           referrerPolicy="no-referrer"
+          loading={pageIndex < 2 ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={pageIndex === 0 ? "high" : "auto"}
         />
       ) : (
-        <div className="flex flex-col items-center justify-center gap-1.5 p-2 text-slate-400">
+        <div className="flex flex-col items-center justify-center gap-1.5 p-2 text-slate-500">
           <RefreshCw className="w-4 h-4 animate-spin text-emerald-500/80" />
-          <span className="text-[10px] font-bold text-slate-400">Loading page...</span>
+          <span className="text-xs font-bold text-slate-500">Loading page...</span>
         </div>
       )}
     </div>
@@ -145,7 +150,7 @@ class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center font-sans">
-          <div className="max-w-md bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
+          <div role="alert" className="max-w-md bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
             <span className="text-4xl">⚠️</span>
             <h2 className="text-lg font-black text-slate-900 mt-4 mb-2">Something went wrong.</h2>
             <p className="text-xs text-slate-500 mb-6 leading-relaxed">
@@ -169,7 +174,15 @@ class ErrorBoundary extends React.Component<
 
 export default function App() {
   // Navigation & Tool State
-  const [activeTool, setActiveTool] = useState<ToolType | null>(null);
+    const [activeTool, setActiveTool] = useState<ToolType | null>(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      // Validate hash is a tool
+      const validTools = ['merge', 'split', 'rotate', 'organize', 'watermark', 'page-numbers', 'blank-pages', 'encrypt', 'decrypt', 'img-to-pdf', 'pdf-to-img', 'compress', 'intelligence'];
+      if (validTools.includes(hash)) return hash as ToolType;
+    }
+    return null;
+  });
   const [toasts, setToasts] = useState<Toast[]>([]);
   
   // File variables
@@ -196,6 +209,77 @@ export default function App() {
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
   const [aiAnalyzing, setAiAnalyzing] = useState<boolean>(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  // SEO Meta Tag & Canonical URL Updater
+  useEffect(() => {
+    let title = 'PDFMinty - Free Secure Client-Side PDF Tools';
+    let description = 'Process, merge, split, rotate, watermark, encrypt, compress, and edit PDF files securely in your browser. 100% free and private offline PDF toolkit.';
+    let canonical = 'https://pdfminty.com/';
+
+    if (activeTool) {
+      const currentToolObj = toolsList.find(t => t.id === activeTool);
+      if (currentToolObj) {
+        title = `${currentToolObj.name} - Free Secure PDF Tool | PDFMinty`;
+        if (title.length > 60) title = title.substring(0, 60);
+
+        description = `Use PDFMinty's ${currentToolObj.name} tool to securely process your PDF documents in your browser. ${currentToolObj.description}`;
+        if (description.length > 160) description = description.substring(0, 157) + '...';
+        
+        canonical = `https://pdfminty.com/#${activeTool}`;
+      }
+    }
+
+    document.title = title;
+
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name', 'description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute('content', description);
+
+    let ogTitle = document.querySelector('meta[property="og:title"]');
+    if (!ogTitle) {
+      ogTitle = document.createElement('meta');
+      ogTitle.setAttribute('property', 'og:title');
+      document.head.appendChild(ogTitle);
+    }
+    ogTitle.setAttribute('content', title);
+
+    let ogDesc = document.querySelector('meta[property="og:description"]');
+    if (!ogDesc) {
+      ogDesc = document.createElement('meta');
+      ogDesc.setAttribute('property', 'og:description');
+      document.head.appendChild(ogDesc);
+    }
+    ogDesc.setAttribute('content', description);
+
+    let ogUrl = document.querySelector('meta[property="og:url"]');
+    if (!ogUrl) {
+      ogUrl = document.createElement('meta');
+      ogUrl.setAttribute('property', 'og:url');
+      document.head.appendChild(ogUrl);
+    }
+    ogUrl.setAttribute('content', canonical);
+
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute('href', canonical);
+    
+    // Update hash so Google bot can see different URLs (using history to not scroll)
+    if (activeTool) {
+      window.history.replaceState(null, '', `#${activeTool}`);
+    } else {
+      window.history.replaceState(null, '', `/`);
+    }
+
+  }, [activeTool]);
+
 
   // Completed result state
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
@@ -455,6 +539,9 @@ export default function App() {
     setAiAnalyzing(false);
   };
 
+  // Yield to main thread for TBT improvement
+  const yieldToMain = () => new Promise(resolve => setTimeout(resolve, 0));
+
   // Convert File object to Uint8Array
   const fileToBytes = async (file: File): Promise<Uint8Array> => {
     const buffer = await file.arrayBuffer();
@@ -512,7 +599,8 @@ export default function App() {
         
         if (!active) return;
 
-        loadingTask = pdfjsLib.getDocument({
+        const pdfjs = await getPdfJs();
+        loadingTask = pdfjs.getDocument({
           data: new Uint8Array(arrayBuffer),
           useSystemFonts: true
         });
@@ -535,6 +623,7 @@ export default function App() {
             width: viewport.width,
             height: viewport.height
           });
+          if (i % 5 === 0) await yieldToMain();
         }
         if (active) {
           setPdfDocument(pdf);
@@ -624,7 +713,8 @@ export default function App() {
       const arrayBuffer = await primaryFile.arrayBuffer();
       setProcessingProgress(20);
       
-      const pdf = await pdfjsLib.getDocument({
+      const pdfjs = await getPdfJs();
+      const pdf = await pdfjs.getDocument({
         data: new Uint8Array(arrayBuffer),
         useSystemFonts: true
       }).promise;
@@ -690,9 +780,11 @@ export default function App() {
     setProcessingProgress(15);
     try {
       const filesBytes: Uint8Array[] = [];
-      for (const file of selectedFiles) {
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
         const fileBytes = await fileToBytes(file);
         filesBytes.push(fileBytes);
+        if (i % 2 === 0) await yieldToMain();
       }
 
       setProcessingProgress(45);
@@ -771,6 +863,7 @@ export default function App() {
     try {
       const primaryFile = selectedFiles[0];
       const fileBytes = await fileToBytes(primaryFile);
+      const { PDFDocument } = await import('pdf-lib');
       const srcDoc = await PDFDocument.load(fileBytes);
       const totalPages = srcDoc.getPageCount();
 
@@ -986,6 +1079,7 @@ export default function App() {
 
         // Validate decrypted result byte-integrity
         try {
+          const { PDFDocument } = await import('pdf-lib');
           await PDFDocument.load(decryptedBytes);
           triggerDownload(decryptedBytes, 'unlocked_document.pdf');
           showToast('Password matches. Document decrypted and saved!', 'success');
@@ -1227,11 +1321,13 @@ export default function App() {
       const imageFilesData: { bytes: Uint8Array; type: string; name: string }[] = [];
       
       let progress = 15;
-      for (const imgFile of selectedFiles) {
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const imgFile = selectedFiles[i];
         const bytes = await fileToBytes(imgFile);
         imageFilesData.push({ bytes, type: imgFile.type, name: imgFile.name });
         progress = Math.min(60, progress + 10);
         setProcessingProgress(progress);
+        if (i % 2 === 0) await yieldToMain();
       }
 
       setProcessingProgress(60);
@@ -1283,7 +1379,8 @@ export default function App() {
       const primaryFile = selectedFiles[0];
       const arrayBuffer = await primaryFile.arrayBuffer();
       
-      const loadingTask = pdfjsLib.getDocument({
+      const pdfjs = await getPdfJs();
+      const loadingTask = pdfjs.getDocument({
         data: new Uint8Array(arrayBuffer),
         useSystemFonts: true,
       });
@@ -1464,7 +1561,7 @@ export default function App() {
       <div id="pdfminty-root" className="min-h-screen flex flex-col bg-slate-50 transition-colors duration-200">
       
       {/* Dynamic Toast Notifications */}
-      <div id="toast-deck" className="fixed top-4 right-4 left-4 sm:left-auto sm:right-5 z-50 flex flex-col gap-2 sm:max-w-sm pointer-events-none">
+      <div id="toast-deck" className="fixed top-4 right-4 left-4 sm:left-auto sm:right-5 z-50 flex flex-col gap-2 sm:max-w-sm pointer-events-none"> aria-live="polite" aria-atomic="true"
         {toasts.map(toast => (
           <div
             key={toast.id}
@@ -1497,12 +1594,12 @@ export default function App() {
             </div>
             <div>
               <span className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">PDFMinty</span>
-              <p className="text-[9px] text-slate-400 font-semibold uppercase tracking-widest leading-none mt-0.5">Offline Document Studio</p>
+              <p className="text-xs text-slate-500 font-semibold uppercase tracking-widest leading-none mt-0.5">Offline Document Studio</p>
             </div>
           </div>
 
           <div className="flex items-center gap-4 font-sans">
-            <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold text-slate-600 tracking-wider uppercase border border-slate-200/50">
+            <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-600 tracking-wider uppercase border border-slate-200/50">
               🔒 100% Client-Side Encryption
             </span>
           </div>
@@ -1532,7 +1629,7 @@ export default function App() {
               {toolsList.map(tool => {
                 const Icon = tool.icon;
                 return (
-                  <div
+                  <button type="button"
                     key={tool.id}
                     id={`tool-card-${tool.id}`}
                     onClick={() => {
@@ -1546,8 +1643,8 @@ export default function App() {
                       <Icon className="w-6 h-6" />
                     </div>
                     <h3 className="text-base font-bold text-slate-800 leading-snug mb-1.5 group-hover:text-emerald-600 transition-colors">{tool.name}</h3>
-                    <p className="text-slate-400 text-xs leading-relaxed">{tool.description}</p>
-                  </div>
+                    <p className="text-slate-500 text-xs leading-relaxed">{tool.description}</p>
+                  </button>
                 );
               })}
             </div>
@@ -1555,13 +1652,13 @@ export default function App() {
             {/* How PDFMinty Works */}
             <div className="mt-20">
               <h2 className="text-2xl md:text-3xl font-black text-slate-900 text-center tracking-tight mb-2">How PDFMinty Works</h2>
-              <p className="text-slate-400 text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">Three simple steps to manage your documents</p>
+              <p className="text-slate-500 text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">Three simple steps to manage your documents</p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                 <div id="step-1-card" className="flex flex-col items-center p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
                   <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-lg mb-4 shadow-md shadow-indigo-600/10">1</div>
                   <h3 className="text-base font-bold text-slate-800 mb-2">Select Files</h3>
-                  <p className="text-slate-400 text-xs leading-relaxed max-w-xs">
+                  <p className="text-slate-500 text-xs leading-relaxed max-w-xs">
                     Choose your PDF files from your computer or mobile device. Files are stored entirely temporarily in your browser's IndexedDB storage.
                   </p>
                 </div>
@@ -1569,7 +1666,7 @@ export default function App() {
                 <div id="step-2-card" className="flex flex-col items-center p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
                   <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-lg mb-4 shadow-md shadow-indigo-600/10">2</div>
                   <h3 className="text-base font-bold text-slate-800 mb-2">Process Locally</h3>
-                  <p className="text-slate-400 text-xs leading-relaxed max-w-xs">
+                  <p className="text-slate-500 text-xs leading-relaxed max-w-xs">
                     Our browser-based engine handles the work. They are never sent to any external server or third-party service.
                   </p>
                 </div>
@@ -1577,7 +1674,7 @@ export default function App() {
                 <div id="step-3-card" className="flex flex-col items-center p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
                   <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-lg mb-4 shadow-md shadow-indigo-600/10">3</div>
                   <h3 className="text-base font-bold text-slate-800 mb-2">Download & Clean</h3>
-                  <p className="text-slate-400 text-xs leading-relaxed max-w-xs">
+                  <p className="text-slate-500 text-xs leading-relaxed max-w-xs">
                     Get your processed PDF instantly. All temporary data is cleared automatically when you close the browser tab.
                   </p>
                 </div>
@@ -1587,7 +1684,7 @@ export default function App() {
             {/* Why Choose PDFMinty? */}
             <div className="mt-20">
               <h2 className="text-2xl md:text-3xl font-black text-slate-900 text-center tracking-tight mb-2">Why Choose PDFMinty?</h2>
-              <p className="text-slate-400 text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">Professional grade tools without the premium price tag.</p>
+              <p className="text-slate-500 text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">Professional grade tools without the premium price tag.</p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div id="why-card-1" className="bg-white border border-slate-100 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md transition-shadow duration-300">
@@ -1595,7 +1692,7 @@ export default function App() {
                     <Shield className="w-6 h-6 text-sky-500 fill-sky-500/10" />
                   </div>
                   <h3 className="text-base font-bold text-slate-800 mb-2">100% Private</h3>
-                  <p className="text-slate-400 text-xs leading-relaxed max-w-xs">
+                  <p className="text-slate-500 text-xs leading-relaxed max-w-xs">
                     Your files never leave your device. All processing happens locally in your browser.
                   </p>
                 </div>
@@ -1605,17 +1702,17 @@ export default function App() {
                     <span className="text-amber-500 font-bold text-xl leading-none">⚡</span>
                   </div>
                   <h3 className="text-base font-bold text-slate-800 mb-2">Lightning Fast</h3>
-                  <p className="text-slate-400 text-xs leading-relaxed max-w-xs">
+                  <p className="text-slate-500 text-xs leading-relaxed max-w-xs">
                     No waiting for uploads or downloads. Get your results instantly.
                   </p>
                 </div>
 
                 <div id="why-card-3" className="bg-white border border-slate-100 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md transition-shadow duration-300">
                   <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-5 shadow-sm">
-                    <span className="bg-indigo-600 text-white text-[10px] font-black tracking-widest px-2.5 py-1 rounded shadow-sm">FREE</span>
+                    <span className="bg-indigo-600 text-white text-xs font-black tracking-widest px-2.5 py-1 rounded shadow-sm">FREE</span>
                   </div>
                   <h3 className="text-base font-bold text-slate-800 mb-2">Completely Free</h3>
-                  <p className="text-slate-400 text-xs leading-relaxed max-w-xs">
+                  <p className="text-slate-500 text-xs leading-relaxed max-w-xs">
                     No hidden fees, no subscriptions, and no watermarks on your documents.
                   </p>
                 </div>
@@ -1716,7 +1813,7 @@ export default function App() {
                   <h2 className="text-sm font-extrabold text-slate-800 leading-none">
                     {toolsList.find(t => t.id === activeTool)?.name}
                   </h2>
-                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">WORKSPACE ACTIVE</p>
+                  <p className="text-xs text-slate-500 font-semibold mt-0.5">WORKSPACE ACTIVE</p>
                 </div>
               </div>
             </div>
@@ -1732,13 +1829,13 @@ export default function App() {
                   <span className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Upload Target File(s)</span>
                   
                   {/* Unified File Input placed outside to prevent recursive bubbling blocks on mobile */}
-                  <input
+                  <input aria-label="File upload"
                     type="file"
                     ref={fileInputRef}
                     onChange={handleFileChange}
                     multiple={activeTool === 'merge' || activeTool === 'img-to-pdf'}
                     accept={activeTool === 'img-to-pdf' ? 'image/jpeg,image/png' : 'application/pdf'}
-                    className="hidden"
+                    className="hidden min-h-[48px] p-2"
                     onClick={(e) => e.stopPropagation()}
                   />
 
@@ -1758,7 +1855,7 @@ export default function App() {
                     <p className="text-xs font-extrabold text-slate-700 max-w-[240px] leading-tight">
                       {activeTool === 'img-to-pdf' ? 'Drag & drop clear JPG, PNG images' : 'Drag & drop standard PDF file here'}
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-1 font-semibold">Or use the tap upload below</p>
+                    <p className="text-xs text-slate-500 mt-1 font-semibold">Or use the tap upload below</p>
                     
                     {/* Highly tactile touch-target button conforming to Mobile guidelines */}
                     <button
@@ -1787,7 +1884,7 @@ export default function App() {
                             const previewEl = document.getElementById('visual-verification-canvas');
                             previewEl?.scrollIntoView({ behavior: 'smooth' });
                           }}
-                          className="lg:hidden inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-100 transition-colors cursor-pointer"
+                          className="lg:hidden inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-100 transition-colors cursor-pointer"
                           title="Scroll to previews below"
                         >
                           👁️ Previews
@@ -1796,7 +1893,7 @@ export default function App() {
                           id="clear-files-btn"
                           type="button"
                           onClick={clearWorkspace} 
-                          className="text-[10px] font-bold text-rose-500 hover:text-rose-700 cursor-pointer bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-100 transition-colors"
+                          className="text-xs font-bold text-rose-500 hover:text-rose-700 cursor-pointer bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-100 transition-colors min-h-[48px] min-w-[48px] p-2"
                         >
                           Clear All
                         </button>
@@ -1806,7 +1903,7 @@ export default function App() {
                       {selectedFiles.map((file, idx) => (
                         <div key={idx} className="p-2 flex items-center justify-between text-xs text-slate-600 font-medium">
                           <span className="truncate pr-4 max-w-[200px]">{file.name}</span>
-                          <span className="text-[10px] text-slate-400 shrink-0">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+                          <span className="text-xs text-slate-500 shrink-0">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
                         </div>
                       ))}
                     </div>
@@ -1838,14 +1935,14 @@ export default function App() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-700 block">Extract Range Definition</label>
-                        <input
+                        <input aria-label="Input field"
                           type="text"
                           value={splitRange}
                           onChange={(e) => setSplitRange(e.target.value)}
                           placeholder="e.g. 1-3, 5, 8-10"
                           className="w-full text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-emerald-500"
                         />
-                        <span className="text-[10px] text-slate-400 leading-relaxed block font-sans">
+                        <span className="text-xs text-slate-500 leading-relaxed block font-sans">
                           Specify exact indexes with hyphens for ranges and commas for distinct indexes. (e.g., "1-2, 5" gets pages 1, 2 and 5)
                         </span>
                       </div>
@@ -1864,7 +1961,7 @@ export default function App() {
                     <div className="space-y-4">
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-slate-700 block">Overlay Text Msg</label>
-                        <input
+                        <input aria-label="Input field"
                           type="text"
                           value={watermarkText}
                           onChange={(e) => setWatermarkText(e.target.value)}
@@ -1873,11 +1970,11 @@ export default function App() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <div className="flex justify-between text-[11px] font-bold text-slate-700">
+                        <div className="flex justify-between text-xs font-bold text-slate-700">
                           <span>Opacity</span>
                           <span>{Math.round(watermarkOpacity * 100)}%</span>
                         </div>
-                        <input
+                        <input aria-label="Input field"
                           type="range"
                           min="0.1"
                           max="1.0"
@@ -1889,8 +1986,8 @@ export default function App() {
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-slate-700 block">Font Size ({watermarkSize}px)</label>
-                          <input
+                          <label className="text-xs font-bold text-slate-700 block">Font Size ({watermarkSize}px)</label>
+                          <input aria-label="Input field"
                             type="number"
                             min="12"
                             max="120"
@@ -1900,8 +1997,8 @@ export default function App() {
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-slate-700 block">Rotation ({watermarkRotation}°)</label>
-                          <input
+                          <label className="text-xs font-bold text-slate-700 block">Rotation ({watermarkRotation}°)</label>
+                          <input aria-label="Input field"
                             type="number"
                             min="-180"
                             max="180"
@@ -1927,14 +2024,14 @@ export default function App() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-700 block">Set Protection Password</label>
-                        <input
+                        <input aria-label="Input field"
                           type="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="Type security password"
                           className="w-full text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-emerald-500"
                         />
-                        <span className="text-[10px] text-slate-400 leading-none">The output document requires this password to unlock.</span>
+                        <span className="text-xs text-slate-500 leading-none">The output document requires this password to unlock.</span>
                       </div>
                       <div className="bg-cyan-50/50 p-4 rounded-xl border border-cyan-100 text-xs space-y-2 text-left">
                         <strong className="text-cyan-800 font-bold block">💡 How to Use:</strong>
@@ -1951,14 +2048,14 @@ export default function App() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-700 block">Enter Safety Password</label>
-                        <input
+                        <input aria-label="Input field"
                           type="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="Passphrase to decrypt"
                           className="w-full text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-emerald-500"
                         />
-                        <span className="text-[10px] text-slate-400 leading-none">Must submit active document password keys. All locks will be permanently removed.</span>
+                        <span className="text-xs text-slate-500 leading-none">Must submit active document password keys. All locks will be permanently removed.</span>
                       </div>
                       <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100 text-xs space-y-2 text-left">
                         <strong className="text-orange-800 font-bold block">💡 How to Use:</strong>
@@ -1976,7 +2073,7 @@ export default function App() {
                       <div className="space-y-3">
                         <div>
                           <label className="text-xs font-bold text-slate-700 block">Display Format</label>
-                          <select
+                          <select aria-label="Select option"
                             value={pageNumberFormat}
                             onChange={(e) => setPageNumberFormat(e.target.value)}
                             className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
@@ -1987,7 +2084,7 @@ export default function App() {
                         </div>
                         <div>
                           <label className="text-xs font-bold text-slate-700 block">Placement Position</label>
-                          <select
+                          <select aria-label="Select option"
                             value={pageNumberPosition}
                             onChange={(e) => setPageNumberPosition(e.target.value)}
                             className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
@@ -2014,7 +2111,7 @@ export default function App() {
                       <div className="space-y-3">
                         <div>
                           <label className="text-xs font-bold text-slate-700 block">Page Dimensions</label>
-                          <select
+                          <select aria-label="Select option"
                             value={blankPageSize}
                             onChange={(e) => setBlankPageSize(e.target.value as 'A4' | 'Letter')}
                             className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
@@ -2025,7 +2122,7 @@ export default function App() {
                         </div>
                         <div>
                           <label className="text-xs font-bold text-slate-700 block">Specific Position</label>
-                          <select
+                          <select aria-label="Select option"
                             value={blankPagePos}
                             onChange={(e) => setBlankPagePos(e.target.value as 'start' | 'end' | 'custom')}
                             className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 mt-1"
@@ -2038,7 +2135,7 @@ export default function App() {
                         {blankPagePos === 'custom' && (
                           <div>
                             <label className="text-xs font-bold text-slate-700 block">Insert Page At Position Number</label>
-                            <input
+                            <input aria-label="Input field"
                               type="number"
                               min="1"
                               value={blankPageAt}
@@ -2062,7 +2159,7 @@ export default function App() {
 
                   {activeTool === 'delete-pages' && (
                     <div className="space-y-4">
-                      <div className="bg-indigo-50 p-3.5 rounded-xl border border-indigo-100 text-[11px] text-slate-600 leading-relaxed">
+                      <div className="bg-indigo-50 p-3.5 rounded-xl border border-indigo-100 text-xs text-slate-600 leading-relaxed">
                         💡 Click directly on the page checkboxes in the preview area to select. Page indexes marked in red or with checks will be omitted entirely upon compilation. ({pagesToDelete.length} selected).
                       </div>
                       <div className="bg-rose-50/50 p-4 rounded-xl border border-rose-100 text-xs space-y-2 text-left">
@@ -2094,7 +2191,7 @@ export default function App() {
 
                   {activeTool === 'rotate' && (
                     <div className="space-y-4">
-                      <div className="bg-amber-50 p-3.5 rounded-xl border border-amber-100 text-[11px] text-slate-600 leading-relaxed">
+                      <div className="bg-amber-50 p-3.5 rounded-xl border border-amber-100 text-xs text-slate-600 leading-relaxed">
                         💡 Use the rotation turn icons on the individual page thumbnail cards inside the preview area. Angles resolve and overwrite on target file creation.
                       </div>
                       <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-100 text-xs space-y-2 text-left">
@@ -2142,7 +2239,7 @@ export default function App() {
                               }`}
                             >
                               <div className="text-xs font-extrabold">{opt.label}</div>
-                              <div className="text-[9px] font-bold opacity-75 mt-0.5">{opt.desc}</div>
+                              <div className="text-xs font-bold opacity-75 mt-0.5">{opt.desc}</div>
                             </button>
                           ))}
                         </div>
@@ -2161,7 +2258,7 @@ export default function App() {
 
                   {activeTool === 'ai-analyze' && (
                     <div className="space-y-4 text-left">
-                      <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-[11px] text-indigo-800 leading-relaxed font-sans">
+                      <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-xs text-indigo-800 leading-relaxed font-sans">
                         🔒 **Local-first Text Parsing**: To prevent heavy bandwidth usage and safeguard your deep privacy, PDFMinty extracts raw text locally inside your browser cache first. We only proxy raw text payloads.
                       </div>
 
@@ -2214,26 +2311,24 @@ export default function App() {
                     }
                   </button>
                   {processingProgress !== null && (
-                    <div className="mt-3 space-y-1.5">
-                      <div className="flex justify-between text-[11px] font-bold text-emerald-600">
+                    <div className="mt-3 space-y-1.5" role="status" aria-live="polite">
+                      <div className="flex justify-between text-xs font-bold text-emerald-600">
                         <span>Rendering Page Sequences</span>
                         <span>{processingProgress}%</span>
                       </div>
-                      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                        <div className="bg-emerald-500 h-full transition-all duration-150" style={{ width: `${processingProgress}%` }}></div>
-                      </div>
+                      <progress value={processingProgress} max="100" className="w-full h-2 rounded-full overflow-hidden appearance-none [&::-webkit-progress-bar]:bg-slate-100 [&::-webkit-progress-value]:bg-emerald-500 [&::-moz-progress-bar]:bg-emerald-500 transition-all"></progress>
                     </div>
                   )}
 
                   {completedResult && (
                     <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/55 border border-emerald-200/80 shadow-md animate-fade-in space-y-3.5 text-left">
                       <div className="flex items-start gap-2.5">
-                        <div className="p-1 px-2 text-[10px] font-black bg-emerald-500 text-white rounded-md tracking-wider uppercase mt-0.5">
+                        <div className="p-1 px-2 text-xs font-black bg-emerald-500 text-white rounded-md tracking-wider uppercase mt-0.5">
                           ✓ Ready
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-xs font-extrabold text-slate-800">Resource file compiled successfully!</h4>
-                          <p className="text-[10px] text-emerald-800 font-bold leading-tight truncate">
+                          <h3 className="text-xs font-extrabold text-slate-800">Resource file compiled successfully!</h3>
+                          <p className="text-xs text-emerald-800 font-bold leading-tight truncate">
                             {completedResult.filename}
                           </p>
                         </div>
@@ -2244,7 +2339,7 @@ export default function App() {
                         <a
                           href={completedResult.url}
                           download={completedResult.filename}
-                          className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-extrabold text-[11px] py-3 px-3 rounded-xl shadow-lg shadow-emerald-600/10 transition-transform active:scale-95 text-center cursor-pointer min-h-[48px]"
+                          className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-extrabold text-xs py-3 px-3 rounded-xl shadow-lg shadow-emerald-600/10 transition-transform active:scale-95 text-center cursor-pointer min-h-[48px]"
                         >
                           <Download className="w-4 h-4 shrink-0" />
                           <span>Download</span>
@@ -2256,14 +2351,14 @@ export default function App() {
                           onClick={() => {
                             window.open(completedResult.url, '_blank');
                           }}
-                          className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200/80 text-slate-700 font-extrabold text-[11px] py-3 px-3 rounded-xl transition-colors active:scale-95 text-center cursor-pointer min-h-[48px]"
+                          className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200/80 text-slate-700 font-extrabold text-xs py-3 px-3 rounded-xl transition-colors active:scale-95 text-center cursor-pointer min-h-[48px]"
                         >
                           <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                           <span>Open Inline</span>
                         </button>
                       </div>
 
-                      <p className="text-[9px] text-slate-400 leading-tight font-medium">
+                      <p className="text-xs text-slate-500 leading-tight font-medium">
                         💡 iOS Safari Users: If download does not start automatically, please tap "Open Inline" to save or print the PDF directly from the browser viewer.
                       </p>
                     </div>
@@ -2276,7 +2371,7 @@ export default function App() {
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Visual Verification Canvas</span>
                   {pdfPages.length > 0 && (
-                    <span className="text-[10px] text-slate-500 font-bold px-2 py-0.5 bg-slate-100 rounded-full border border-slate-200/50">
+                    <span className="text-xs text-slate-500 font-bold px-2 py-0.5 bg-slate-100 rounded-full border border-slate-200/50">
                       Loaded total {pdfPages.length} rendered pages
                     </span>
                   )}
@@ -2286,13 +2381,13 @@ export default function App() {
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
                     <RefreshCw className="w-10 h-10 text-emerald-500 animate-spin mb-3" />
                     <p className="text-slate-600 text-xs font-semibold">Generating document thumbnail configurations locally...</p>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">100% Client-Side Render Layer</p>
+                    <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-bold">100% Client-Side Render Layer</p>
                   </div>
                 ) : selectedFiles.length === 0 ? (
                   <div className="flex-1 border border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 bg-white/50 text-center">
                     <FileText className="w-12 h-12 text-slate-300 mb-2" />
                     <p className="text-xs font-bold text-slate-500">No active documents uploaded</p>
-                    <p className="text-[10px] text-slate-400 mt-1 max-w-sm">
+                    <p className="text-xs text-slate-500 mt-1 max-w-sm">
                       Upload target PDF document or compatible imagery elements in the configuration section to populate sandbox.
                     </p>
                   </div>
@@ -2303,11 +2398,10 @@ export default function App() {
                       {selectedFiles.map((file, idx) => (
                         <div key={idx} className="relative bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl p-3 flex flex-col justify-between h-36">
                           <div className="flex justify-between items-start">
-                            <span className="text-[9px] font-extrabold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded leading-none uppercase">Item {idx + 1}</span>
-                            <button
-                              id={`remove-img-${idx}`}
+                            <span className="text-xs font-extrabold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded leading-none uppercase">Item {idx + 1}</span>
+                            <button aria-label="Remove image" id={`remove-img-${idx}`}
                               onClick={() => setSelectedFiles(prev => prev.filter((_, fIdx) => fIdx !== idx))}
-                              className="p-1.5 bg-rose-50 hover:bg-rose-150 rounded-lg text-rose-500 hover:text-rose-700 focus:outline-none cursor-pointer transition-colors"
+                              className="p-1.5 bg-rose-50 hover:bg-rose-150 rounded-lg text-rose-500 hover:text-rose-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 cursor-pointer transition-colors"
                               title="Remove image"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -2316,13 +2410,13 @@ export default function App() {
                           
                           <div className="my-2 h-12 flex items-center justify-center overflow-hidden rounded bg-slate-100">
                             {file.type.startsWith('image/') && imageUrls[`${file.name}-${file.size}-${file.lastModified}`] ? (
-                              <img src={imageUrls[`${file.name}-${file.size}-${file.lastModified}`]} className="object-cover h-full" alt="thumbnail" referrerPolicy="no-referrer" />
+                              <img src={imageUrls[`${file.name}-${file.size}-${file.lastModified}`]} className="object-cover h-full w-full" alt="thumbnail" referrerPolicy="no-referrer" loading="lazy" decoding="async" width="48" height="48" />
                             ) : (
                               <Image className="w-5 h-5 text-slate-300" />
                             )}
                           </div>
 
-                          <div className="text-[10px] font-bold text-slate-600 truncate max-w-full">
+                          <div className="text-xs font-bold text-slate-600 truncate max-w-full">
                             {file.name}
                           </div>
                         </div>
@@ -2341,7 +2435,7 @@ export default function App() {
                         </p>
                         {processingProgress && (
                           <div className="w-full max-w-xs mt-4">
-                            <div className="flex justify-between text-[11px] text-slate-500 font-extrabold mb-1">
+                            <div className="flex justify-between text-xs text-slate-500 font-extrabold mb-1">
                               <span>Local OCR Scan</span>
                               <span>{processingProgress}%</span>
                             </div>
@@ -2352,11 +2446,11 @@ export default function App() {
                         )}
                       </div>
                     ) : aiError ? (
-                      <div className="flex-grow flex flex-col items-center justify-center p-8 text-center bg-rose-50/30 rounded-xl border border-rose-100/50 text-slate-700">
+                      <div role="alert" className="flex-grow flex flex-col items-center justify-center p-8 text-center bg-rose-50/30 rounded-xl border border-rose-100/50 text-slate-700">
                         <AlertCircle className="w-12 h-12 text-rose-500 mb-3" />
                         <h3 className="text-xs font-black text-rose-700 uppercase tracking-widest">Analysis Failure</h3>
                         <p className="text-xs text-rose-800 font-semibold mt-1 max-w-md">{aiError}</p>
-                        <p className="text-[10px] text-slate-400 mt-2 max-w-sm leading-tight">
+                        <p className="text-xs text-slate-500 mt-2 max-w-sm leading-tight">
                           Please verify your network connection, support of local browser API endpoints, and ensure that your Pages Environment has the required credentials.
                         </p>
                       </div>
@@ -2368,7 +2462,7 @@ export default function App() {
                               <Sparkles className="w-4 h-4 text-indigo-500" />
                               <span>Gemini AI Analytics Dashboard</span>
                             </h3>
-                            <p className="text-[10px] text-indigo-600 font-bold mt-0.5 uppercase tracking-wider">
+                            <p className="text-xs text-indigo-600 font-bold mt-0.5 uppercase tracking-wider">
                               Secure Sandbox Intelligence report
                             </p>
                           </div>
@@ -2417,7 +2511,7 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 text-[10px] font-medium text-slate-500 leading-normal shrink-0">
+                        <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 text-xs font-medium text-slate-500 leading-normal shrink-0">
                           ⚠️ **AI Model Disclaimer**: AI translations or text intelligence is produced automatically via serverless machine learning models. Accuracy may vary. Verify any legal or critical metrics individually.
                         </div>
                       </div>
@@ -2425,7 +2519,7 @@ export default function App() {
                       <div className="flex-grow flex flex-col items-center justify-center p-8 text-center bg-slate-50/50 rounded-xl border border-slate-100">
                         <Brain className="w-12 h-12 text-slate-350 mb-3 animate-pulse" />
                         <h3 className="text-xs font-extrabold text-slate-700">Intel Dashboard Sleeping</h3>
-                        <p className="text-[10px] text-slate-400 mt-1 max-w-sm leading-tight">
+                        <p className="text-xs text-slate-500 mt-1 max-w-sm leading-tight">
                           Press "Compile & Export" in the parameters section to trigger local OCR text extraction and construct your complete secure report.
                         </p>
                       </div>
@@ -2438,7 +2532,7 @@ export default function App() {
                       <div className="h-full flex flex-col items-center justify-center p-8 bg-white text-center">
                         <Check className="w-12 h-12 text-emerald-500 bg-emerald-50 p-2.5 rounded-full mb-3" />
                         <p className="text-xs font-extrabold text-slate-700">Document ready for export</p>
-                        <p className="text-[10px] text-slate-400 max-w-sm mt-1">
+                        <p className="text-xs text-slate-500 max-w-sm mt-1">
                           Previews aren't available for this safe-encrypt target, proceed with parameters in the configuration panel.
                         </p>
                       </div>
@@ -2468,28 +2562,27 @@ export default function App() {
                               }`}
                             >
                               <div className="flex items-center justify-between mb-2 shrink-0">
-                                <span className="text-[10px] font-extrabold text-slate-400">PAGE {page.index + 1}</span>
+                                <span className="text-xs font-extrabold text-slate-500">PAGE {page.index + 1}</span>
                                 
                                 {/* Dynamic context controls inside thumbnail cards */}
                                 {activeTool === 'delete-pages' && (
-                                  <input
+                                  <input aria-label="Input field"
                                     type="checkbox"
                                     checked={isPageDeleted}
                                     readOnly
                                     onClick={(e) => e.stopPropagation()}
                                     onChange={() => {}}
-                                    className="w-5 h-5 rounded text-rose-500 focus:ring-rose-400 cursor-pointer border-slate-300 focus:outline-none"
+                                    className="w-5 h-5 rounded text-rose-500 focus:ring-rose-400 cursor-pointer border-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                                   />
                                 )}
 
                                 {activeTool === 'rotate' && (
-                                  <button
-                                    id={`rotate-${page.index}`}
+                                  <button aria-label="Rotate page" id={`rotate-${page.index}`}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleThumbnailRotate(page.index);
                                     }}
-                                    className="p-1 px-2 text-emerald-600 bg-emerald-50 rounded border border-emerald-100 hover:text-emerald-700 hover:bg-emerald-100 focus:outline-none transition-all cursor-pointer flex items-center gap-1 font-sans text-[10px] font-bold"
+                                    className="p-1 px-2 text-emerald-600 bg-emerald-50 rounded border border-emerald-100 hover:text-emerald-700 hover:bg-emerald-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-all cursor-pointer flex items-center gap-1 font-sans text-xs font-bold"
                                     title="Rotate 90 degrees clockwise"
                                   >
                                     <RotateCw className="w-3 h-3 transition-transform hover:rotate-90" />
@@ -2506,18 +2599,18 @@ export default function App() {
                                 />
                                 {isPageDeleted && (
                                   <div className="absolute inset-0 bg-rose-100/40 backdrop-blur-[1px] flex items-center justify-center">
-                                    <span className="text-[10px] font-black text-rose-600 bg-white border border-rose-200 py-1 px-2.5 rounded-full shadow-sm tracking-wide uppercase">Omit Page</span>
+                                    <span className="text-xs font-black text-rose-600 bg-white border border-rose-200 py-1 px-2.5 rounded-full shadow-sm tracking-wide uppercase">Omit Page</span>
                                   </div>
                                 )}
                               </div>
 
                               {activeTool === 'rotate' && page.rotation > 0 ? (
-                                <div className="text-[9px] font-bold text-center text-amber-600 mt-2 leading-none uppercase">
+                                <div className="text-xs font-bold text-center text-amber-600 mt-2 leading-none uppercase">
                                   Rotation +{page.rotation}°
                                 </div>
                               ) : (
                                 (activeTool === 'delete-pages' || activeTool === 'rotate') && (
-                                  <div className="text-[8px] font-semibold text-center text-slate-400 mt-1 leading-none uppercase">
+                                  <div className="text-xs font-semibold text-center text-slate-500 mt-1 leading-none uppercase">
                                     {activeTool === 'delete-pages' ? 'Tap to toggle omit' : 'Tap card to rotate'}
                                   </div>
                                 )
@@ -2599,7 +2692,7 @@ export default function App() {
             <p className="font-medium">
               © 2026 PDFMinty. All rights reserved. PDFMinty is a 100% secure, independent, and open-source client-side offline distributed studio. No files or user data processed here are ever uploaded to remote servers. All calculations and file generations are performed securely inside the user's browser using local Web Worker technology.
             </p>
-            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">
+            <p className="text-xs text-slate-500 font-semibold uppercase tracking-widest">
               Developed by & under Proprietorship of PDFMinty. Strictly safe & distributed.
             </p>
           </div>
@@ -2611,16 +2704,15 @@ export default function App() {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadein">
           <div 
             className="bg-white rounded-3xl w-full max-w-lg shadow-2xl p-6 md:p-8 border border-slate-100 animate-slideup relative text-left"
-            id="feedback-modal-content"
+            id="feedback-modal-content" role="dialog" aria-modal="true" aria-labelledby="feedback-title"
           >
-            <button 
-              onClick={() => setShowFeedbackModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors text-xl font-bold cursor-pointer"
+            <button aria-label="Close dialog" onClick={() => setShowFeedbackModal(false)}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-600 transition-colors text-xl font-bold cursor-pointer"
             >
               ✕
             </button>
             
-            <h2 className="text-xl md:text-2xl font-black text-slate-900 mb-2">Provide Feedback</h2>
+            <h2 id="feedback-title" className="text-xl md:text-2xl font-black text-slate-900 mb-2">Provide Feedback</h2>
             <p className="text-xs text-slate-500 mb-6 font-medium">Let us know your thoughts or any issues you have faced with our browser tools.</p>
             
             <form onSubmit={submitFeedback} className="space-y-5 text-left">
@@ -2645,7 +2737,7 @@ export default function App() {
                       }`}
                     >
                       <span className="text-2xl mb-1">{r.label}</span>
-                      <span className="text-[9px] font-bold text-slate-500">{r.name}</span>
+                      <span className="text-xs font-bold text-slate-500">{r.name}</span>
                     </button>
                   ))}
                 </div>
@@ -2653,7 +2745,7 @@ export default function App() {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1.5">Feedback Message *</label>
-                <textarea
+                <textarea aria-label="Text area"
                   required
                   rows={4}
                   value={feedbackComment}
@@ -2665,7 +2757,7 @@ export default function App() {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1.5">Email Address (Optional)</label>
-                <input
+                <input aria-label="Input field"
                   type="email"
                   value={feedbackEmail}
                   onChange={(e) => setFeedbackEmail(e.target.value)}
@@ -2685,7 +2777,7 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={feedbackSubmitting}
-                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 min-h-[48px] min-w-[48px] p-2"
                 >
                   {feedbackSubmitting && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                   Submit Feedback
@@ -2701,11 +2793,10 @@ export default function App() {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadein">
           <div 
             className="bg-white rounded-3xl w-full max-w-lg shadow-2xl p-6 md:p-8 border border-slate-100 animate-slideup relative text-left"
-            id="contact-modal-content"
+            id="contact-modal-content" role="dialog" aria-modal="true" aria-labelledby="contact-title"
           >
-            <button 
-              onClick={() => setShowContactModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors text-xl font-bold cursor-pointer"
+            <button aria-label="Close dialog" onClick={() => setShowContactModal(false)}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-600 transition-colors text-xl font-bold cursor-pointer"
             >
               ✕
             </button>
@@ -2717,8 +2808,9 @@ export default function App() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">Your Name *</label>
-                  <input
+                  <input aria-label="Input field"
                     required
+                    autoFocus
                     type="text"
                     value={contactName}
                     onChange={(e) => setContactName(e.target.value)}
@@ -2728,7 +2820,7 @@ export default function App() {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">Your Email *</label>
-                  <input
+                  <input aria-label="Input field"
                     required
                     type="email"
                     value={contactEmail}
@@ -2741,7 +2833,7 @@ export default function App() {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">Subject *</label>
-                <input
+                <input aria-label="Input field"
                   required
                   type="text"
                   value={contactSubject}
@@ -2753,7 +2845,7 @@ export default function App() {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">Message *</label>
-                <textarea
+                <textarea aria-label="Text area"
                   required
                   rows={4}
                   value={contactMessage}
@@ -2774,7 +2866,7 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={contactSubmitting}
-                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 min-h-[48px] min-w-[48px] p-2"
                 >
                   {contactSubmitting && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                   Send Message
@@ -2790,6 +2882,7 @@ export default function App() {
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         className="fixed bottom-6 right-6 p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl hover:translate-y-[-2px] hover:scale-105 active:scale-95 transition-all cursor-pointer z-40 group"
         title="Scroll to Top"
+        aria-label="Scroll to top"
       >
         <ArrowUp className="w-5 h-5 group-hover:translate-y-[-1px] transition-transform animate-none" />
       </button>

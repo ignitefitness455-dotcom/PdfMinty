@@ -253,21 +253,19 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
   }
 }
 
-export function createDedicatedWorker(taskName: string): Worker {
+export function createDedicatedWorker(_taskName?: string): Worker {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   const isIframe = window.self !== window.top;
 
   // On Mobile devices or inside cross-origin sandboxed iframes, we ALWAYS bypass module-worker limitations
   // by utilizing a lightweight VirtualWorker working instantly on standard synchronous microtasks context.
   if (isMobile || isIframe) {
-    console.log(`[PDFMinty SDK] Utilizing Virtual Worker for tool [${taskName}] on mobile/iframe device structure for seamless rendering safety.`);
     return new VirtualWorker() as any;
   }
 
   try {
     return new PDFWorker();
   } catch (err) {
-    console.warn(`[PDFMinty SDK] Standard Web Worker failed initialization. Falling back to the main-thread Virtual Worker:`, err);
     return new VirtualWorker() as any;
   }
 }
