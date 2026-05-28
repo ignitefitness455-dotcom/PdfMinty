@@ -1547,19 +1547,6 @@ export default function App() {
               })}
             </div>
 
-            {/* Offline-First Safety Blueprint Info Banner */}
-            <div className="mt-12 bg-white border border-slate-200/80 p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 shadow-sm">
-              <div className="p-2.5 bg-emerald-50 rounded-xl text-emerald-600 shrink-0">
-                <HelpCircle className="w-5 h-5" />
-              </div>
-              <div className="text-left">
-                <h4 className="text-sm font-bold text-slate-800">CORS, CSP, and PWA Safety Implementation Detail</h4>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                  Unlike traditional solutions requiring runtime script loader functions to download <code className="bg-slate-100 px-1 py-0.5 rounded text-rose-500">pdf.js</code> and web workers from foreign servers (e.g. cdnjs), PDFMinty resolves files using first-party bundler asset imports. These compile matching worker structures inside standard local domains. Strict Content Security Policies and intermittent offline network conditions will never block operations.
-                </p>
-              </div>
-            </div>
-
             {/* How PDFMinty Works */}
             <div className="mt-20">
               <h2 className="text-2xl md:text-3xl font-black text-slate-900 text-center tracking-tight mb-2">How PDFMinty Works</h2>
