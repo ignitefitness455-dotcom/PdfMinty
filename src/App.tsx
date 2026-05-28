@@ -212,9 +212,9 @@ export default function App() {
 
   // SEO Meta Tag & Canonical URL Updater
   useEffect(() => {
-    let title = 'PDFMinty - Free Secure Client-Side PDF Tools';
+    let title = 'PDFMinty - Free Secure Client-Side PDF Tools Toolkit';
     let description = 'Process, merge, split, rotate, watermark, encrypt, compress, and edit PDF files securely in your browser. 100% free and private offline PDF toolkit.';
-    let canonical = 'https://pdfminty.com/';
+    let canonical = 'https://www.pdfminty.com/';
 
     if (activeTool) {
       const currentToolObj = toolsList.find(t => t.id === activeTool);
@@ -225,7 +225,7 @@ export default function App() {
         description = `Use PDFMinty's ${currentToolObj.name} tool to securely process your PDF documents in your browser. ${currentToolObj.description}`;
         if (description.length > 160) description = description.substring(0, 157) + '...';
         
-        canonical = `https://pdfminty.com/#${activeTool}`;
+        canonical = `https://www.pdfminty.com/#${activeTool}`;
       }
     }
 
@@ -263,6 +263,46 @@ export default function App() {
     }
     ogUrl.setAttribute('content', canonical);
 
+    let ogImage = document.querySelector('meta[property="og:image"]');
+    if (!ogImage) {
+      ogImage = document.createElement('meta');
+      ogImage.setAttribute('property', 'og:image');
+      document.head.appendChild(ogImage);
+    }
+    ogImage.setAttribute('content', 'https://www.pdfminty.com/og-image.png');
+
+    let twitterCard = document.querySelector('meta[name="twitter:card"]');
+    if (!twitterCard) {
+      twitterCard = document.createElement('meta');
+      twitterCard.setAttribute('name', 'twitter:card');
+      document.head.appendChild(twitterCard);
+    }
+    twitterCard.setAttribute('content', 'summary_large_image');
+
+    let twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (!twitterTitle) {
+      twitterTitle = document.createElement('meta');
+      twitterTitle.setAttribute('name', 'twitter:title');
+      document.head.appendChild(twitterTitle);
+    }
+    twitterTitle.setAttribute('content', title);
+
+    let twitterDesc = document.querySelector('meta[name="twitter:description"]');
+    if (!twitterDesc) {
+      twitterDesc = document.createElement('meta');
+      twitterDesc.setAttribute('name', 'twitter:description');
+      document.head.appendChild(twitterDesc);
+    }
+    twitterDesc.setAttribute('content', description);
+
+    let twitterImg = document.querySelector('meta[name="twitter:image"]');
+    if (!twitterImg) {
+      twitterImg = document.createElement('meta');
+      twitterImg.setAttribute('name', 'twitter:image');
+      document.head.appendChild(twitterImg);
+    }
+    twitterImg.setAttribute('content', 'https://www.pdfminty.com/og-image.png');
+
     let canonicalLink = document.querySelector('link[rel="canonical"]');
     if (!canonicalLink) {
       canonicalLink = document.createElement('link');
@@ -270,6 +310,26 @@ export default function App() {
       document.head.appendChild(canonicalLink);
     }
     canonicalLink.setAttribute('href', canonical);
+
+    // Update or create hreflang="en"
+    let hreflangEn = document.querySelector('link[hreflang="en"]');
+    if (!hreflangEn) {
+      hreflangEn = document.createElement('link');
+      hreflangEn.setAttribute('rel', 'alternate');
+      hreflangEn.setAttribute('hreflang', 'en');
+      document.head.appendChild(hreflangEn);
+    }
+    hreflangEn.setAttribute('href', canonical);
+
+    // Update or create hreflang="x-default"
+    let hreflangDefault = document.querySelector('link[hreflang="x-default"]');
+    if (!hreflangDefault) {
+      hreflangDefault = document.createElement('link');
+      hreflangDefault.setAttribute('rel', 'alternate');
+      hreflangDefault.setAttribute('hreflang', 'x-default');
+      document.head.appendChild(hreflangDefault);
+    }
+    hreflangDefault.setAttribute('href', canonical);
     
     // Update hash so Google bot can see different URLs (using history to not scroll)
     if (activeTool) {

@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://pdfminty.com/</loc>
+    <loc>https://www.pdfminty.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#merge</loc>
+    <loc>https://www.pdfminty.com/#merge</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#split</loc>
+    <loc>https://www.pdfminty.com/#split</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#rotate</loc>
+    <loc>https://www.pdfminty.com/#rotate</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#organize</loc>
+    <loc>https://www.pdfminty.com/#delete-pages</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#watermark</loc>
+    <loc>https://www.pdfminty.com/#watermark</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#page-numbers</loc>
+    <loc>https://www.pdfminty.com/#page-numbers</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#blank-pages</loc>
+    <loc>https://www.pdfminty.com/#add-blank</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#encrypt</loc>
+    <loc>https://www.pdfminty.com/#protect</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#decrypt</loc>
+    <loc>https://www.pdfminty.com/#unlock</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#img-to-pdf</loc>
+    <loc>https://www.pdfminty.com/#img-to-pdf</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#pdf-to-img</loc>
+    <loc>https://www.pdfminty.com/#pdf-to-img</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#compress</loc>
+    <loc>https://www.pdfminty.com/#compress</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pdfminty.com/#intelligence</loc>
+    <loc>https://www.pdfminty.com/#ai-analyze</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
