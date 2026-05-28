@@ -22,7 +22,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // 1. Strict Origin / Domain Safety Checks
   const origin = request.headers.get("Origin") || "";
-  const host = request.headers.get("Host") || "";
   
   if (origin) {
     // Support local development plus matching subdomain wildcard for pages.dev

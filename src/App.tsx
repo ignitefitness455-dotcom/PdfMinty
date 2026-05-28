@@ -660,13 +660,13 @@ export default function App() {
       });
 
       if (!response.ok) {
-        const errJson = await response.json().catch(() => ({}));
-        throw new Error(errJson.error || `Proxy returned server code ${response.status}`);
+        const errJson: any = await response.json().catch(() => ({}));
+        throw new Error((errJson && errJson.error) || `Proxy returned server code ${response.status}`);
       }
 
-      const resJson = await response.json();
+      const resJson: any = await response.json();
       setProcessingProgress(100);
-      setAiAnalysisResult(resJson.analysis);
+      setAiAnalysisResult(resJson && resJson.analysis);
       showToast('Secure Gemini AI document intelligence completed successfully!', 'success');
     } catch (err: any) {
       console.error('AI Intelligence Error:', err);
