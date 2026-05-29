@@ -54,3 +54,22 @@
 .animate-fadein {
   animation: fadeIn 0.25s ease-out forwards;
 }
+
+/* Ensure full screen stretch and prevent horizontal overflows on mobile viewports */
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Align native fallback background during iOS/mobile overscroll elasticity */
+html.dark,
+body.dark,
+html.dark #root {
+  background-color: #020617; /* Slate-950 */
+}
+

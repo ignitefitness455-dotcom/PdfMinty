@@ -1,4 +1,11 @@
 import { PDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib';
+import { PDFSanitizer } from './PDFSanitizer';
+
+// Wrapper handling low-level byte verification and ISO recovery
+async function loadPDF(bytes: Uint8Array, options?: any) {
+  const sanitized = PDFSanitizer.sanitize(bytes);
+  return await PDFDocument.load(sanitized.bytes, options);
+}
 
 // @ts-ignore
 import PDFWorker from '../workers/pdf-worker.ts?worker';
@@ -48,7 +55,7 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
     const mergedPdf = await PDFDocument.create();
     
     for (const fileBytes of files) {
-      const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
+      const pdfDoc = await loadPDF(fileBytes, { ignoreEncryption: true });
       const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
       copiedPages.forEach((page) => mergedPdf.addPage(page));
     }
@@ -59,7 +66,7 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
   
   else if (type === 'split') {
     const { fileBytes, targetPageIndices } = payload;
-    const srcDoc = await PDFDocument.load(fileBytes);
+    const srcDoc = await loadPDF(fileBytes);
     const splitPdf = await PDFDocument.create();
     
     const copiedPages = await splitPdf.copyPages(srcDoc, targetPageIndices);
@@ -71,7 +78,7 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
   
   else if (type === 'rotate') {
     const { fileBytes, pageRotations } = payload;
-    const pdfDoc = await PDFDocument.load(fileBytes);
+    const pdfDoc = await loadPDF(fileBytes);
     const pages = pdfDoc.getPages();
 
     pageRotations.forEach((item: { index: number; rotation: number }) => {
@@ -88,7 +95,7 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
   
   else if (type === 'delete-pages') {
     const { fileBytes, pagesToDelete } = payload;
-    const pdfDoc = await PDFDocument.load(fileBytes);
+    const pdfDoc = await loadPDF(fileBytes);
     const currentPages = pdfDoc.getPageCount();
 
     if (pagesToDelete.length >= currentPages) {
@@ -106,7 +113,7 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
   
   else if (type === 'watermark') {
     const { fileBytes, watermarkText, watermarkOpacity, watermarkSize, watermarkRotation } = payload;
-    const pdfDoc = await PDFDocument.load(fileBytes);
+    const pdfDoc = await loadPDF(fileBytes);
     const pages = pdfDoc.getPages();
     const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
@@ -137,7 +144,7 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
   
   else if (type === 'page-numbers') {
     const { fileBytes, pageNumberFormat, pageNumberPosition } = payload;
-    const pdfDoc = await PDFDocument.load(fileBytes);
+    const pdfDoc = await loadPDF(fileBytes);
     const pages = pdfDoc.getPages();
     const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
@@ -185,7 +192,7 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
   
   else if (type === 'add-blank') {
     const { fileBytes, blankPageSize, blankPagePos, blankPageAt } = payload;
-    const pdfDoc = await PDFDocument.load(fileBytes);
+    const pdfDoc = await loadPDF(fileBytes);
     const pageCount = pdfDoc.getPageCount();
 
     const width = blankPageSize === 'A4' ? 595.27 : 612;
@@ -234,7 +241,7 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
   
   else if (type === 'compress') {
     const { fileBytes, quality } = payload;
-    const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
+    const pdfDoc = await loadPDF(fileBytes, { ignoreEncryption: true });
     
     if (quality === 'high') {
       pdfDoc.setTitle('');

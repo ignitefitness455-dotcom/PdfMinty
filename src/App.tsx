@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import JSZip from "jszip";
+import { PDFSanitizer } from "./core/PDFSanitizer";
 
 let cachedPdfJs: any = null;
 const getPdfJs = async () => {
@@ -1323,8 +1324,9 @@ export default function App() {
     try {
       const primaryFile = selectedFiles[0];
       const fileBytes = await fileToBytes(primaryFile);
+      const sanitized = PDFSanitizer.sanitize(fileBytes);
       const { PDFDocument } = await import("pdf-lib");
-      const srcDoc = await PDFDocument.load(fileBytes);
+      const srcDoc = await PDFDocument.load(sanitized.bytes);
       const totalPages = srcDoc.getPageCount();
 
       const targetPageIndices = parsePageRanges(splitRange, totalPages);
@@ -1560,9 +1562,10 @@ export default function App() {
 
         // Validate decrypted result byte-integrity
         try {
+          const sanitized = PDFSanitizer.sanitize(decryptedBytes);
           const { PDFDocument } = await import("pdf-lib");
-          await PDFDocument.load(decryptedBytes);
-          triggerDownload(decryptedBytes, "unlocked_document.pdf");
+          await PDFDocument.load(sanitized.bytes);
+          triggerDownload(sanitized.bytes, "unlocked_document.pdf");
           showToast(
             "Password matches. Document decrypted and saved!",
             "success",
