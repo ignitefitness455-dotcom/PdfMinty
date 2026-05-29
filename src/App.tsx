@@ -217,9 +217,11 @@ class ErrorBoundary extends React.Component<
 
 export default function App() {
   // Navigation & Tool State
-  const [activeTool, setActiveTool] = useState<ToolType | null>(() => {
-    const path = window.location.pathname.replace(/^\/|\/$/g, "");
-    const hash = window.location.hash.replace("#", "");
+  const parseToolFromURL = () => {
+    let path = window.location.pathname.replace(/^\/+|\/+$/g, "").toLowerCase();
+    // remove trailing dots or .html extensions which can happen with standard crawling or typos
+    path = path.replace(/\.html$/, "").replace(/\.+$/, "");
+    const hash = window.location.hash.replace("#", "").toLowerCase();
 
     // Tools list reference mapping
     const validTools = [
@@ -269,7 +271,17 @@ export default function App() {
       return matched as ToolType;
     }
     return null;
-  });
+  };
+
+  const [activeTool, setActiveTool] = useState<ToolType | null>(parseToolFromURL);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setActiveTool(parseToolFromURL());
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   // Theme State (Dark mode toggle support)
@@ -390,10 +402,46 @@ export default function App() {
     };
 
     if (activeTool) {
+      let seoPath: string = activeTool;
+      const r_aliasMap: Record<string, string> = {
+        organize: "delete-pages",
+        "blank-pages": "add-blank",
+        encrypt: "protect",
+        decrypt: "unlock",
+        intelligence: "ai-analyze",
+        "merge-pdf": "merge",
+        "split-pdf": "split",
+        "compress-pdf": "compress",
+        "rotate-pdf": "rotate",
+        "watermark-pdf": "watermark",
+        "add-page-numbers": "page-numbers",
+        "add-blank-page": "add-blank",
+        "protect-pdf": "protect",
+        "unlock-pdf": "unlock",
+        "image-to-pdf": "img-to-pdf",
+        "pdf-to-image": "pdf-to-img",
+      };
+      
+      for (const [key, val] of Object.entries(r_aliasMap)) {
+        if (val === activeTool && key.includes("-pdf")) {
+          seoPath = key;
+          break;
+        }
+      }
+
+      const newUrlPath = `/${seoPath}`;
+      if (
+        window.location.pathname !== newUrlPath &&
+        window.location.pathname !== newUrlPath + "/" &&
+        window.location.pathname !== newUrlPath + ".html"
+      ) {
+        window.history.pushState(null, "", newUrlPath);
+      }
+
       if (seoMap[activeTool]) {
         title = seoMap[activeTool].title;
         description = seoMap[activeTool].desc;
-        canonical = `https://www.pdfminty.com/${activeTool}`;
+        canonical = `https://www.pdfminty.com/${seoPath}`;
       } else {
         const currentToolObj = toolsList.find((t) => t.id === activeTool);
         if (currentToolObj) {
@@ -404,8 +452,12 @@ export default function App() {
           if (description.length > 160)
             description = description.substring(0, 157) + "...";
 
-          canonical = `https://www.pdfminty.com/${activeTool}`;
+          canonical = `https://www.pdfminty.com/${seoPath}`;
         }
+      }
+    } else {
+      if (window.location.pathname !== "/" && window.location.pathname !== "/index.html") {
+        window.history.pushState(null, "", "/");
       }
     }
 
