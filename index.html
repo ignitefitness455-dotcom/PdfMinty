@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <script>
-      if (window.location.hostname.toLowerCase() === 'pdfminty.com') {
+      const hn = window.location.hostname.toLowerCase();
+      if (hn === 'pdfminty.com' || hn === 'pdfmity.com' || hn === 'www.pdfmity.com') {
         window.location.replace('https://www.pdfminty.com' + window.location.pathname + window.location.search + window.location.hash);
       }
     </script>

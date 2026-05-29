@@ -275,6 +275,36 @@ export default function App() {
 
   const [activeTool, setActiveTool] = useState<ToolType | null>(parseToolFromURL);
 
+  const getToolSlug = (toolId: ToolType | null): string => {
+    if (!toolId) return "";
+    const slugMap: Record<string, string> = {
+      "merge": "merge-pdf",
+      "split": "split-pdf",
+      "compress": "compress-pdf",
+      "rotate": "rotate-pdf",
+      "watermark": "watermark-pdf",
+      "page-numbers": "add-page-numbers",
+      "add-blank": "add-blank-page",
+      "protect": "protect-pdf",
+      "unlock": "unlock-pdf",
+      "img-to-pdf": "image-to-pdf",
+      "pdf-to-img": "pdf-to-image",
+      "delete-pages": "organize",
+      "ai-analyze": "intelligence",
+    };
+    return slugMap[toolId] || toolId;
+  };
+
+  const changeActiveTool = (toolId: ToolType | null) => {
+    setActiveTool(toolId);
+    if (toolId) {
+      const slug = getToolSlug(toolId);
+      window.history.pushState(null, "", "/" + slug);
+    } else {
+      window.history.pushState(null, "", "/");
+    }
+  };
+
   useEffect(() => {
     const handlePopState = () => {
       setActiveTool(parseToolFromURL());
@@ -668,6 +698,31 @@ export default function App() {
     }, 4500);
   };
 
+  // Helper to translate and format error messages to be user friendly
+  const getFriendlyErrorMessage = (prefix: string, rawError: any): string => {
+    const errorStr = String(rawError?.message || rawError || "").toLowerCase();
+    
+    if (
+      errorStr.includes("no pdf header found") ||
+      errorStr.includes("failed to parse pdf document") ||
+      errorStr.includes("invalid pdf") ||
+      errorStr.includes("formaterror") ||
+      errorStr.includes("pdfdocument")
+    ) {
+      return `${prefix}: ফাইলটি পাসওয়ার্ড-লকড বা এনক্রিপ্ট করা রয়েছে। অনুগ্রহ করে প্রথমে "Unlock PDF" টুল ব্যবহার করে লকটি খুলুন! (The file is encrypted or locked. Please use the "Unlock PDF" tool first to decrypt it.)`;
+    }
+    
+    if (
+      errorStr.includes("incorrect password") || 
+      errorStr.includes("decrypt") || 
+      errorStr.includes("bad decrypt")
+    ) {
+      return `${prefix}: ভুল পাসওয়ার্ড! অনুগ্রহ করে সঠিক পাসওয়ার্ড দিয়ে আবার চেষ্টা করুন। (Incorrect password! Better luck next time.)`;
+    }
+    
+    return `${prefix}: ${rawError?.message || rawError}`;
+  };
+
   // Submit Feedback to Cloudflare Pages API
   const submitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -828,6 +883,30 @@ export default function App() {
           "error",
         );
       } else {
+        // Safe check for valid PDF signature (starts with %PDF-), unless activeTool represents img-to-pdf or unlock
+        if (activeTool !== "img-to-pdf" && activeTool !== "unlock") {
+          try {
+            // Read first 5 bytes to verify standard %PDF- header
+            const chunk = await file.slice(0, 5).arrayBuffer();
+            const bytes = new Uint8Array(chunk);
+            const isPDF = bytes.length >= 5 &&
+              bytes[0] === 0x25 && // %
+              bytes[1] === 0x50 && // P
+              bytes[2] === 0x44 && // D
+              bytes[3] === 0x46 && // F
+              bytes[4] === 0x2d;   // -
+            
+            if (!isPDF) {
+              showToast(
+                `ত্ৰুটি: '${file.name}' ফাইলটি পাসওয়ার্ড-লকড বা এনক্রিপ্ট করা রয়েছে। অনুগ্রহ করে প্রথমে 'Unlock PDF' টুলের মাধ্যমে এটি আনলক করুন!`,
+                "error"
+              );
+              continue; // Skip this file
+            }
+          } catch (e) {
+            console.error("Signature verification failed", e);
+          }
+        }
         filtered.push(file);
       }
     }
@@ -1017,7 +1096,7 @@ export default function App() {
             "success",
           );
         } else {
-          showToast(`Compression failed: ${error}`, "error");
+          showToast(getFriendlyErrorMessage("Compression failed", error), "error");
         }
         setLoading(false);
         setProcessingProgress(null);
@@ -1041,7 +1120,7 @@ export default function App() {
       );
       setProcessingProgress(75);
     } catch (err: any) {
-      showToast(`Compression failed: ${err.message}`, "error");
+      showToast(getFriendlyErrorMessage("Compression failed", err), "error");
       setLoading(false);
       setProcessingProgress(null);
     }
@@ -1176,7 +1255,7 @@ export default function App() {
             "success",
           );
         } else {
-          showToast(`Merge failed: ${error}`, "error");
+          showToast(getFriendlyErrorMessage("Merge failed", error), "error");
         }
         setLoading(false);
         setProcessingProgress(null);
@@ -1195,7 +1274,7 @@ export default function App() {
       worker.postMessage({ type: "merge", files: filesBytes }, buffers);
       setProcessingProgress(75);
     } catch (err: any) {
-      showToast(`Merge failed: ${err.message}`, "error");
+      showToast(getFriendlyErrorMessage("Merge failed", err), "error");
       setLoading(false);
       setProcessingProgress(null);
     }
@@ -1275,7 +1354,7 @@ export default function App() {
             "success",
           );
         } else {
-          showToast(`Split operation failed: ${error}`, "error");
+          showToast(getFriendlyErrorMessage("Split operation failed", error), "error");
         }
         setLoading(false);
         setProcessingProgress(null);
@@ -1295,7 +1374,7 @@ export default function App() {
       ]);
       setProcessingProgress(75);
     } catch (err: any) {
-      showToast(`Split operation failed: ${err.message}`, "error");
+      showToast(getFriendlyErrorMessage("Split operation failed", err), "error");
       setLoading(false);
       setProcessingProgress(null);
     }
@@ -1325,7 +1404,7 @@ export default function App() {
             "success",
           );
         } else {
-          showToast(`Rotation application failed: ${error}`, "error");
+          showToast(getFriendlyErrorMessage("Rotation application failed", error), "error");
         }
         setLoading(false);
         setProcessingProgress(null);
@@ -1349,7 +1428,7 @@ export default function App() {
       ]);
       setProcessingProgress(70);
     } catch (err: any) {
-      showToast(`Rotation application failed: ${err.message}`, "error");
+      showToast(getFriendlyErrorMessage("Rotation application failed", err), "error");
       setLoading(false);
       setProcessingProgress(null);
     }
@@ -1416,7 +1495,7 @@ export default function App() {
         "success",
       );
     } catch (err: any) {
-      showToast(`Security protection failed: ${err.message}`, "error");
+      showToast(getFriendlyErrorMessage("Security protection failed", err), "error");
     } finally {
       setLoading(false);
     }
@@ -1488,15 +1567,15 @@ export default function App() {
             "Password matches. Document decrypted and saved!",
             "success",
           );
-        } catch {
-          showToast("Incorrect password.", "error");
+        } catch (loaderErr) {
+          showToast(getFriendlyErrorMessage("Decryption failed", "Incorrect password"), "error");
         }
       } catch (cryptoErr) {
         console.error("Decryption failed:", cryptoErr);
-        showToast("Incorrect password.", "error");
+        showToast(getFriendlyErrorMessage("Decryption failed", "Incorrect password"), "error");
       }
     } catch (err: any) {
-      showToast(`Failed to unlock PDF. Error: ${err.message}`, "error");
+      showToast(getFriendlyErrorMessage("Failed to unlock PDF", err), "error");
     } finally {
       setLoading(false);
     }
@@ -2042,7 +2121,7 @@ export default function App() {
     <ErrorBoundary>
       <div
         id="pdfminty-root"
-        className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200 antialiased"
+        className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200 antialiased overflow-x-hidden w-full"
       >
         {/* Dynamic Toast Notifications */}
         <div
@@ -2089,7 +2168,7 @@ export default function App() {
               className="flex items-center gap-3 cursor-pointer group select-none"
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: "smooth" });
-                setActiveTool(null);
+                changeActiveTool(null);
                 clearWorkspace();
               }}
             >
@@ -2206,7 +2285,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTool(null);
+                    changeActiveTool(null);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
@@ -2216,7 +2295,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTool(null);
+                    changeActiveTool(null);
                     setTimeout(() => {
                       document
                         .getElementById("faq-section")
@@ -2269,7 +2348,7 @@ export default function App() {
         {/* Primary Workspace Space with Floating Background Glows */}
         <main
           id="main-space"
-          className="flex-1 max-w-7xl w-full mx-auto px-4 py-10 relative"
+          className="flex-1 max-w-7xl w-full mx-auto px-4 py-10 relative overflow-x-hidden"
         >
           {/* Subtle Decorative Ambient Glows to enrich theme to a premium professional level */}
           <div className="absolute top-0 left-10 w-96 h-96 bg-emerald-100/30 dark:bg-emerald-900/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] pointer-events-none z-0" />
@@ -2349,7 +2428,7 @@ export default function App() {
                       id={`tool-card-${tool.id}`}
                       onClick={() => {
                         window.scrollTo(0, 0);
-                        setActiveTool(tool.id);
+                        changeActiveTool(tool.id);
                         clearWorkspace();
                       }}
                       className="p-6 rounded-3xl border border-slate-200/70 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:border-emerald-500/30 dark:hover:border-emerald-500/50 hover:ring-4 hover:ring-emerald-500/5 dark:hover:ring-emerald-500/10 cursor-pointer hover:shadow-[0_12px_30px_rgba(16,185,129,0.06)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.2)] hover:-translate-y-1 transition-all duration-300 group text-left relative overflow-hidden flex flex-col justify-between animate-fadein"
@@ -2609,7 +2688,7 @@ export default function App() {
                   id="back-to-dashboard"
                   onClick={() => {
                     window.scrollTo(0, 0);
-                    setActiveTool(null);
+                    changeActiveTool(null);
                     clearWorkspace();
                   }}
                   className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors w-fit group cursor-pointer"
@@ -3941,7 +4020,7 @@ export default function App() {
               <button
                 onClick={() => {
                   window.scrollTo(0, 0);
-                  setActiveTool(null);
+                  changeActiveTool(null);
                   setTimeout(() => {
                     const faqSection = document.getElementById("faq-section");
                     faqSection?.scrollIntoView({ behavior: "smooth" });
