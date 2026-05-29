@@ -1,5 +1,20 @@
 function showInitError(type: string, msg: string) {
-  if (msg && typeof msg === 'string' && (msg.indexOf('failed to connect to websocket') > -1 || msg.indexOf('ResizeObserver') > -1)) return;
+  if (!msg || typeof msg !== 'string') return;
+  
+  // Filter out benign or non-critical errors that are already handled locally or in specific tools
+  const lowerMsg = msg.toLowerCase();
+  if (
+    lowerMsg.includes('failed to connect to websocket') ||
+    lowerMsg.includes('resizeobserver') ||
+    lowerMsg.includes('no pdf header found') ||
+    lowerMsg.includes('failed to parse pdf document') ||
+    lowerMsg.includes('invalidpdfexception') ||
+    lowerMsg.includes('formaterror') ||
+    lowerMsg.includes('pdfdocument')
+  ) {
+    return;
+  }
+  
   const div = document.createElement('div');
   div.className = "fixed top-5 right-5 left-5 bg-rose-50 border border-rose-200 rounded-lg p-4 z-[999999] shadow-lg font-sans";
   
