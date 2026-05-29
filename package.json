@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "node copy-favicons.js && tsc && vite build",
     "lint": "echo 'No linting needed'",
     "preview": "vite preview"
   },
