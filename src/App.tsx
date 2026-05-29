@@ -340,6 +340,7 @@ export default function App() {
 
   // File variables
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isDocumentLocked, setIsDocumentLocked] = useState<boolean>(false);
   const [pdfPages, setPdfPages] = useState<PDFPageInfo[]>([]);
   const [pdfDocument, setPdfDocument] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -1005,6 +1006,7 @@ export default function App() {
     let loadingTask: any = null;
 
     const renderPDFThumbnails = async () => {
+      setIsDocumentLocked(false);
       if (selectedFiles.length === 0 || activeTool === "img-to-pdf") {
         setPdfPages([]);
         setPdfDocument(null);
@@ -1018,9 +1020,27 @@ export default function App() {
 
         if (!active) return;
 
+        let sanitizedBytes: any = new Uint8Array(arrayBuffer);
+        try {
+          // If we are in 'unlock' tool, standard encryption check should be advisory
+          const sanitizedResult = PDFSanitizer.sanitize(sanitizedBytes);
+          sanitizedBytes = sanitizedResult.bytes;
+        } catch (err: any) {
+          if (err?.message?.includes("SECURED_LOCKED")) {
+            setIsDocumentLocked(true);
+            setLoading(false);
+            showToast(
+              "🔒 Standard secured/locked PDF file detected on browser client. Standard page extraction is disabled for safety.",
+              "error"
+            );
+            return;
+          }
+          throw err;
+        }
+
         const pdfjs = await getPdfJs();
         loadingTask = pdfjs.getDocument({
-          data: new Uint8Array(arrayBuffer),
+          data: sanitizedBytes as any,
           useSystemFonts: true,
         });
 
@@ -3854,7 +3874,27 @@ export default function App() {
                   ) : (
                     /* Rendering detailed PDF pages previews for page manipulation */
                     <div className="flex-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 overflow-y-auto">
-                      {pdfPages.length === 0 ? (
+                      {isDocumentLocked ? (
+                        <div className="h-full min-h-[300px] flex flex-col items-center justify-center p-8 bg-amber-500/[0.04] dark:bg-amber-500/[0.02] border border-amber-550/20 dark:border-amber-500/20 rounded-2xl text-center">
+                          <Lock className="w-12 h-12 text-amber-500 bg-amber-500/10 p-2.5 rounded-full mb-3" />
+                          <p className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">
+                            Secure Standard Locked PDF
+                          </p>
+                          <p className="text-xs text-slate-600 dark:text-slate-350 max-w-sm mt-2 leading-relaxed">
+                            This document is standard password-protected / encrypted. Zero cloud-upload client architecture cannot extract pages, handle rotation, or generate thumbnail page previews unless unlocked using decryption credentials.
+                          </p>
+                          <div className="mt-4 flex gap-2 justify-center">
+                            <button
+                              onClick={() => {
+                                changeActiveTool("unlock");
+                              }}
+                              className="px-4.5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs rounded-xl shadow-md shadow-amber-500/10 cursor-pointer transition-all active:scale-95"
+                            >
+                              Open Decryptor Tool
+                            </button>
+                          </div>
+                        </div>
+                      ) : pdfPages.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center p-8 bg-white dark:bg-slate-900 text-center">
                           <Check className="w-12 h-12 text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 p-2.5 rounded-full mb-3" />
                           <p className="text-xs font-extrabold text-slate-700 dark:text-slate-250">
