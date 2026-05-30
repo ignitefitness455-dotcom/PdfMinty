@@ -4314,6 +4314,1016 @@ export default function App() {
             </div>
           )}
 
+          {/* SEO Content for Rotate Tool */}
+          {activeTool === "rotate" && (
+            <div id="seo-rotate-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Rotate PDF Pages Online Free - Fix Document Orientation
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Need a secure way to rotate pdf pages online free? PDFMinty is a 100% free, private pdf editor browser tool that requires no signup or registration. Work confidently knowing your files never leave your device, rotated entirely locally in your web browser.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Rotate PDF Pages Online for Free
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Drop your PDF document into the offline file uploader.",
+                      "Select the specific pages or customized ranges to rotate, or choose to rotate all pages.",
+                      "Click on the 90° left, 90° right, or 180° rotation buttons.",
+                      "Tap the \"Compile & Export\" button to restructure the file content locally.",
+                      "Instantly download the perfectly oriented PDF to your device."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Use PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "Secure Local Execution",
+                        desc: "Process pages directly in your browser's RAM without any data crossing the network."
+                      },
+                      {
+                        title: "Zero Layout Distortions",
+                        desc: "Keeps vector layers, text tags, and fonts perfectly crisp without altering properties."
+                      },
+                      {
+                        title: "Unlimited Rotation",
+                        desc: "Fix as many documents as you need with no subscription blocks or watermarking."
+                      },
+                      {
+                        title: "Completely Free",
+                        desc: "Professional, high-speed alignment toolbox at zero cost with no account required."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "How does PDFMinty rotate pdf pages online free without server uploads?",
+                      a: "PDFMinty operates 100% client-side. We use a secure JavaScript Web Worker that parses the PDF page headers locally and changes the rotation matrix tag without sending data over the network."
+                    },
+                    {
+                      q: "Can I rotate only specific pages?",
+                      a: "Yes! You have complete control. You can select a single page, a custom comma-separated list, or adjust the entire document orientation in one click."
+                    },
+                    {
+                      q: "Does rotating files reduce their quality or render output?",
+                      a: "No. Since the rotation is applied mathematically to the page definition matrix, your graphics, text elements, and embedded imagery preserve their source resolution."
+                    },
+                    {
+                      q: "Are my files safe with PDFMinty?",
+                      a: "Absolutely. All processing happens locally in your browser using secure Web Workers. Your files never leave your device or get uploaded anywhere."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for Delete Pages Tool */}
+          {activeTool === "delete-pages" && (
+            <div id="seo-delete-pages-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Delete Pages from PDF Online - Remove Sheets Instantly
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Need to delete pages from pdf online secure? PDFMinty is a 100% free browser-only system designed with your privacy in mind. Cut covers, extract relevant ranges, or delete unnecessary sheets with zero cloud uploads or signup requirements.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Delete Pages from PDF Online for Free
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Admit your source PDF file inside the file uploader interface.",
+                      "Enter specific pages or comma-separated sequences to remove (e.g. 1, 3-5).",
+                      "Examine the updated page sequence dynamic layout representation.",
+                      "Trigger \"Compile & Export\" to build the prunes locally.",
+                      "Download the customized and pruned PDF directly to your device."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Use PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "100% Client-Side Pruning",
+                        desc: "Your files never touch external clouds, providing security against credential breaches."
+                      },
+                      {
+                        title: "Pixel-Perfect Layouts",
+                        desc: "Deleting pages simply prunes stream references; it never recompresses or reduces resolution."
+                      },
+                      {
+                        title: "No Signups Required",
+                        desc: "Complete your document optimization jobs instantly without fields for credit cards or credentials."
+                      },
+                      {
+                        title: "Cross-Platform Access",
+                        desc: "Responsive layout splits work seamlessly on Chrome, Safari, Edge, or mobile web slots."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "Is it safe to delete pages from pdf online with PDFMinty?",
+                      a: "Absolutely! Since PDFMinty uses a client-side execution workflow, your file content remains isolated in your local sandboxed memory. We have zero servers holding your files."
+                    },
+                    {
+                      q: "Can I enter multiple page ranges at once?",
+                      a: "Yes! You can specify distinct pages (e.g., 2, 4) or continuous chunks (e.g., 5-10) separated cleanly by commas."
+                    },
+                    {
+                      q: "Does deleting pages modify metadata coordinates?",
+                      a: "No, standard visual contents are left completely untouched; we only strip out specific page definitions from the file stream."
+                    },
+                    {
+                      q: "Are my PDF files safe and private?",
+                      a: "Yes, all processing occurs locally using browser Web Workers so your data footprint never exits your device."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for Watermark Tool */}
+          {activeTool === "watermark" && (
+            <div id="seo-watermark-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Add Watermark to PDF Free - Protect and Brand Documents
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Want to add watermark to pdf free without sharing your secure records with public websites? PDFMinty lets you add text stamps, control transparency, and align branding elements directly on your device. Free forever, no registration needed.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Add Watermark to PDF Online for Free
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Select and upload your PDF into our client-side panel.",
+                      "Enter your custom watermark text (e.g. 'CONFIDENTIAL', 'INTERNAL ONLY').",
+                      "Customize the overlay style, including color, transparency opacity, and diagonal slant angle.",
+                      "Select whether the text should appear on all sheets or selected index ranges.",
+                      "Run \"Compile & Export\" to stamp document pages instantly."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Use PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "100% Client-Side Overlay",
+                        desc: "Stamping occurs dynamically inside local worker memory, so your private text remains private."
+                      },
+                      {
+                        title: "Clean Transparency Control",
+                        desc: "Fade branding text subtly into backgrounds without blocking or ruining read legibility."
+                      },
+                      {
+                        title: "Unmetered Workspace Access",
+                        desc: "Protect as many page collections as you want with no price lists or subscriptions."
+                      },
+                      {
+                        title: "Responsive Interface Support",
+                        desc: "Add safety watermarks on standard screens or touch structures with identical security."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "How does PDFMinty add watermark to pdf free without uploading?",
+                      a: "Our system renders text nodes locally as drawing paths using native browser capabilities, injecting them securely into the file stream without passing information over the web."
+                    },
+                    {
+                      q: "Can I customize the watermark colors and layout angles?",
+                      a: "Yes! PDFMinty includes visual handles to pick classic tint schemes, adjust tilt, and slide transparency layers safely."
+                    },
+                    {
+                      q: "Are the stamped watermarks compatible with Adobe Acrobat?",
+                      a: "Absolutely, they compile to fully compliant vector layer formats viewable across modern rendering software."
+                    },
+                    {
+                      q: "Is PDFMinty free to use?",
+                      a: "Yes, PDFMinty is 100% free with no hidden fees, limits, or signup requirements. Files process securely inside your browser."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for Page Numbers Tool */}
+          {activeTool === "page-numbers" && (
+            <div id="seo-page-numbers-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Add Page Numbers to PDF Online - Index Documents Locally
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Easily add page numbers to pdf online without registering are accounts. PDFMinty lets you sequence your pages, choose numbering positions, and format text strings entirely inside your local browser tab. 100% private and free.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Add Page Numbers Online for Free
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Select your target document and import it into the page number editor.",
+                      "Choose numbering alignment coordinates (such as bottom center or top right corners).",
+                      "Format layout indicators (e.g. standard numbers, or \"Page X of Y\").",
+                      "Pick whether you want to skip placing numbers over cover slides.",
+                      "Run \"Add Page Numbers\" to append sequence layers locally."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Use PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "Completely Offline Processing",
+                        desc: "Our toolbox indices are calculated natively inside your device's memory, ensuring total file separation."
+                      },
+                      {
+                        title: "Custom Header / Footer margins",
+                        desc: "Adjust index offset positions to align cleanly with printing standards."
+                      },
+                      {
+                        title: "Compatible with Multi-Page files",
+                        desc: "Easily handles books, academic papers, and sales catalogs containing hundreds of pages."
+                      },
+                      {
+                        title: "Private & Free",
+                        desc: "No emails, marketing trackers, or watermarking on your beautiful output files."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "How does PDFMinty add page numbers to pdf online safely?",
+                      a: "Our client-side system streams pages directly inside your local browser, overlaying custom index canvas layers onto selected margins in real-time without external uploads."
+                    },
+                    {
+                      q: "Can I skip the first page if it is a cover?",
+                      a: "Yes! There is a simple toggle button to ignore numbering on the initial sheet so your chapter models start on target intervals."
+                    },
+                    {
+                      q: "Will this alter my formatting layout boundaries?",
+                      a: "Not at all. The indexing simply appends custom layer strings to existing margins, preserving visual spacing."
+                    },
+                    {
+                      q: "Are my files safe?",
+                      a: "Absolutely. Zero files are uploaded. Everything runs safely within your own device sandbox via Web Workers."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for Add Blank Page Tool */}
+          {activeTool === "add-blank" && (
+            <div id="seo-add-blank-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Add Blank Page to PDF Online - Insert Blank Spaces
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Want to add blank page to pdf online securely? PDFMinty lets you inject empty card segments, spacing elements, or note sheets safely. 100% free with no registration or pricing locks—processed entirely client-side.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Add Blank Pages Online for Free
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Select your source document and add it to our offline workspace.",
+                      "Choose the page index where you wish to inject a blank canvas.",
+                      "Adjust page properties like orientation (portrait/landscape) or size presets.",
+                      "Click \"Add Blank Page\" to insert the slot cleanly within your collection.",
+                      "Save your refreshed, spacious PDF instantly."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Use PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "100% Secure Local Insertion",
+                        desc: "New blank arrays are created in your browser without communicating with cloud storage servers."
+                      },
+                      {
+                        title: "Auto-Matching Viewport Dimensions",
+                        desc: "The inserted sheet auto-matches your document bounds to maintain geometric scaling."
+                      },
+                      {
+                        title: "Zero Branding Artifacts",
+                        desc: "PDFMinty preserves professional layouts with no added watermarks or labels."
+                      },
+                      {
+                        title: "Free of charge forever",
+                        desc: "No limits on document lengths or page injection jobs."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "How does PDFMinty add blank page to pdf online without uploading files?",
+                      a: "Our script parses your file coordinates locally, creates a new blank canvas definition at the target position, and stitches the binary stream together using Web Workers."
+                    },
+                    {
+                      q: "Can I choose the dimensions of the blank page?",
+                      a: "We pre-calculate and match page geometries automatically, but you are free to customize output scales as desired."
+                    },
+                    {
+                      q: "Is there any limitation on where I can insert pages?",
+                      a: "No! You can inject pages at the beginning, end, or between any targeted page numbers."
+                    },
+                    {
+                      q: "Are my secure documents safe?",
+                      a: "Completely. Because PDFMinty holds all processing inside your secure local RAM, confidentiality stays strictly in your hands."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for Protect Tool */}
+          {activeTool === "protect" && (
+            <div id="seo-protect-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Password Protect PDF Online Free - Set Secure Document Restrictions
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Want to password protect pdf online free securely? Encrypt your files locally with PDFMinty. Since all crypt calculations execute directly inside your browser sandbox, your credentials and documents are never cached or leaked.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Password Protect PDF Files
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Admit your original PDF into the secure client editor.",
+                      "Enter your strong alpha-numeric password inside the lock screen field.",
+                      "Configure access rights such as permission to print, copy, or edit.",
+                      "Click on \"Encrypt & Lock\" to run security streams entirely local.",
+                      "Download your strongly secured file instantly."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Use PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "Military-Grade Local Encryption",
+                        desc: "PDF security parameters are compiled on your device without passing raw codes over networks."
+                      },
+                      {
+                        title: "Customizable Permission Tags",
+                        desc: "Restrict user capability selectively to block unauthorized copy-pasting or high-res printing."
+                      },
+                      {
+                        title: "No Signups Ever",
+                        desc: "Enjoy unmetered document hardening instantly under complete anonymity."
+                      },
+                      {
+                        title: "Full Reader Compliance",
+                        desc: "Locks correspond with Adobe systems standards, ensuring safe multi-reader locks."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "Is it safe to password protect pdf online free using PDFMinty?",
+                      a: "Absolutely! Traditional portals upload files to servers, where keys are cached. Because PDFMinty does all processing locally in your browser's RAM, no third party ever sees your password."
+                    },
+                    {
+                      q: "Will my locked document open on other reader software?",
+                      a: "Yes! Our compiler applies standard ISO-compliant protection, meaning major programs correctly prompt modern users for passwords."
+                    },
+                    {
+                      q: "Can I customize separate passwords for edits or viewing?",
+                      a: "Yes, you can define individual user and permission passwords for modular security alignment."
+                    },
+                    {
+                      q: "Are my files safe?",
+                      a: "Completely. All data and secret strings remain securely isolated within your browser sandbox."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for Unlock Tool */}
+          {activeTool === "unlock" && (
+            <div id="seo-unlock-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Unlock PDF Password Online Free - Remove Document Restrictions
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Quickly clear restriction flags from your documents. PDFMinty lets you unlock pdf password online free instantly. By running decoding processes on your local device, we guarantee your password values and file stream bytes remain confidential.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Unlock Password Protected PDFs Online
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Admit your secure, locked, or protected PDF file to our editor workspace.",
+                      "Input the correct security password value inside the decrypt field.",
+                      "Tap \"Unlock Document\" to strip restriction parameters in real-time.",
+                      "Verify that formatting access states are fully unlocked.",
+                      "Download the unfettered PDF directly onto your hard drive."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Use PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "100% Secure Local Unlocking",
+                        desc: "Passwords and security bits are decrypted local-only; files are never exposed to remote logs."
+                      },
+                      {
+                        title: "Re-enable Restricted Permissions",
+                        desc: "Easily restore high-resolution printing, copy pasting, and layout edits on secured sheets."
+                      },
+                      {
+                        title: "Free of charge forever",
+                        desc: "All decryption routines are fully unlocked with zero registration screens."
+                      },
+                      {
+                        title: "Layout Preservation",
+                        desc: "Unlocking edits simple container parameters without modifying graphics, vectors, or margins."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "Can I unlock pdf password online free if I forgot the original password?",
+                      a: "No, PDFMinty is a legal compliance tool designed for lock removal and restriction relaxation of authorized documents. It is not an automated brute-force password recovery software."
+                    },
+                    {
+                      q: "Will this alter any existing pages or layout elements?",
+                      a: "Never. Unlocking simply modifies security metadata flags. Your graphs, fonts, links, and content remain pristine."
+                    },
+                    {
+                      q: "Does PDFMinty save our decryption passwords?",
+                      a: "No. PDFMinty runs 100% offline inside your active browser tab. No passwords or streams are ever sent to external databases or recorded."
+                    },
+                    {
+                      q: "Are my files safe?",
+                      a: "Absolutely. Decryption calculations are fully sandboxed inside local Web Workers to prevent leakage."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for Image to PDF Tool */}
+          {activeTool === "img-to-pdf" && (
+            <div id="seo-img-to-pdf-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Convert Image to PDF Online Free - JPG, PNG & WebP to PDF locally
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Want to convert image to pdf online free safely? PDFMinty packages your scans, receipts, or photos into clean documents completely offline. Secure and fully private, your materials stay right inside your own browser.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Convert Images to PDF
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Select your target images (JPG, PNG, WebP) and import them to our offline converter.",
+                      "Reorder or drag items in the file list to set the ideal sheet queue orientation.",
+                      "Adjust page properties like sheet margin paddings and auto scale size dimensions.",
+                      "Click \"Compile & Export\" to run local drawing builders.",
+                      "Download your crisp, combined PDF document instantly to your local storage."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Use PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "100% Client-Side Encoding",
+                        desc: "Byte structures compile to PDF vector nodes locally without passing photographs over cloud databases."
+                      },
+                      {
+                        title: "Flexible Page Scaling",
+                        desc: "Automatically scale, crop, or padding fit pixel sizes to standard printing boundaries (A4, Letter, etc.)."
+                      },
+                      {
+                        title: "Free of charge forever",
+                        desc: "Batch convert as many pages as you want without queues, watermark prints or limitations."
+                      },
+                      {
+                        title: "Total Browser Safety",
+                        desc: "Requires no software installers or local plugins. Pure modern web standard isolated workers."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "How does the tool convert image to pdf online free without uploading files?",
+                      a: "Our canvas scripts read your local image dimensions directly, translate pixels into vector formats, and write them to a new PDF document using Web Workers entirely on your computer."
+                    },
+                    {
+                      q: "Which graphic file formats are supported?",
+                      a: "We support PNG, JPG, JPEG, and WebP, allowing you to combine different image formats inside one document."
+                    },
+                    {
+                      q: "Will converting images reduce my photo resolutions?",
+                      a: "No! PDFMinty respects input resolutions, wrapping images directly as lossless vector references."
+                    },
+                    {
+                      q: "Are my files safe?",
+                      a: "Absolutely. All processing occurs locally within your secure client browser RAM without server-side storage."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for PDF to Image Tool */}
+          {activeTool === "pdf-to-img" && (
+            <div id="seo-pdf-to-img-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Convert PDF to Image Online Free - Extract Pages as High-Res Graphics
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Want to convert pdf to image online free safely? PDFMinty renders document pages as PNG, JPG, or WebP graphics without cloud uploads. Zero data footprints, no signup required.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Convert PDFs to Images Online
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Admit your source PDF document inside our offline dashboard.",
+                      "Choose your preferred export image format (PNG, WebP, or JPG) and quality preset.",
+                      "Click \"Extract Pages\" to compile vector frames to image canvas models.",
+                      "Review local thumbnails generated dynamically inside your browser screen.",
+                      "Download individual pages, or save the complete set as a single ZIP folder."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Use PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "100% Secure Local Rendering",
+                        desc: "Document viewport rasterizations execute entirely in active web memory sandbox."
+                      },
+                      {
+                        title: "High-Resolution Output Options",
+                        desc: "Preserve text sharpness during rendering so your exported graphics stay printable."
+                      },
+                      {
+                        title: "Free of charge forever",
+                        desc: "No page count barriers or restrictions on length of target files."
+                      },
+                      {
+                        title: "Instant Processing Speed",
+                        desc: "Enjoy extremely fast page extraction with no upload or network latency limits."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "How does the tool convert pdf to image online free without server uploads?",
+                      a: "Our engine loads pages using standard HTML5 Canvas rendering libraries, drawing them onto local memory caches that are directly exportable to PNG/JPG formats inside your browser."
+                    },
+                    {
+                      q: "Can I extract specific pages or must I convert the whole file?",
+                      a: "You have complete control to choose individual slides, preview them on the visual feed, and download chosen frames only."
+                    },
+                    {
+                      q: "Is there support for high-res layout dimensions?",
+                      a: "Yes! We run rendering filters that keep text pixels remarkably clean, offering professional layout outputs."
+                    },
+                    {
+                      q: "Are my files safe and private?",
+                      a: "Absolutely. PDFMinty runs 100% locally. No files are uploaded to external clouds, safeguarding your documents."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for AI PDF Analyzer Tool */}
+          {activeTool === "ai-analyze" && (
+            <div id="seo-ai-analyze-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                AI PDF Analyzer Online Free - Scan and Query Documents Safely
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Try out our secure ai pdf analyzer online free module. PDFMinty indexes, parses, and reads your records locally. Protect your privacy by extracting strings local-only with no central uploads.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Analyze PDFs Using AI Locally
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Select your target document and import it into our secure offline inspector.",
+                      "Let our browser scanner extract text streams and document structure nodes locally.",
+                      "Type in your specific questions or select an automated query prompt.",
+                      "Examine generated summaries, visual indicators, and extracted metadata logs.",
+                      "Download organized reports or save content lists instantly."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Use PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "Complete Local Text Extraction",
+                        desc: "Scans, structures, and text lines are cataloged solely in active browser tab memory."
+                      },
+                      {
+                        title: "Metadata and Security Audit Features",
+                        desc: "Examine hidden tags, creation dates, and encryption coordinates cleanly."
+                      },
+                      {
+                        title: "100% Free with No signup Required",
+                        desc: "Unlock intelligent workspace queries without email registration or commercial subscriptions."
+                      },
+                      {
+                        title: "Zero Third-Party Tracker cookies",
+                        desc: "Conduct business audits privately without being tracked as an advertising lead."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "Is it safe to use this ai pdf analyzer online free with private records?",
+                      a: "Absolutely. Other web platforms save your documents to cloud databases. On PDFMinty, we index file characters locally inside your browser, maintaining full document privacy."
+                    },
+                    {
+                      q: "Do I need to sign up or enter API keys to scan files?",
+                      a: "No! PDFMinty offers a completely free query panel right away without prompts for keys or signups."
+                    },
+                    {
+                      q: "Does PDFMinty save our summaries or parsed documents?",
+                      a: "Never. All data and queries are discarded from local RAM immediately when your browser tab is closed."
+                    },
+                    {
+                      q: "Are my files safe?",
+                      a: "Yes, completely. Content processing runs entirely inside your browser sandbox."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Botton Lock Alert Block */}
           <div className="max-w-7xl mx-auto px-4 mt-12 mb-2 font-sans">
             <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 rounded-2xl p-4 flex items-center justify-center gap-3 max-w-2xl mx-auto shadow-sm text-center">
