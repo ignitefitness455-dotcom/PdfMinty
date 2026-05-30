@@ -64,6 +64,8 @@ body,
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  overscroll-behavior-x: none; /* Prevents mobile browser horizontal elastic swiping showing white background */
+  background-color: #f8fafc; /* Slate-50 default background for light mode */
 }
 
 /* Align native fallback background during iOS/mobile overscroll elasticity */

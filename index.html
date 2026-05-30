@@ -7,6 +7,16 @@
       if (hn === 'pdfminty.com' || hn === 'pdfmity.com' || hn === 'www.pdfmity.com') {
         window.location.replace('https://www.pdfminty.com' + window.location.pathname + window.location.search + window.location.hash);
       }
+      
+      // Early theme detection to avoid flashing white on mobile load
+      try {
+        const saved = localStorage.getItem("pdfminty-theme");
+        if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      } catch (e) {}
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -196,8 +206,8 @@
   </head>
   <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen w-full transition-colors duration-200">
     <div id="root">
-      <div class="flex flex-col h-screen items-center justify-center bg-slate-50">
-        <div class="w-12 h-12 border-4 border-slate-200 border-t-emerald-500 rounded-full animate-spin"></div>
+      <div class="flex flex-col h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div class="w-12 h-12 border-4 border-slate-200 dark:border-slate-800 border-t-emerald-500 rounded-full animate-spin"></div>
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
