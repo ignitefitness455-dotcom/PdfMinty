@@ -4010,6 +4010,310 @@ export default function App() {
               </div>
             </div>
           )}
+
+          {/* SEO Content for Merge Tool */}
+          {activeTool === "merge" && (
+            <div id="seo-merge-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Merge PDF Free Online - Combine PDF Files Locally
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Need to merge PDF without uploading sensitive documents to external servers? PDFMinty is a 100% free, private pdf editor browser only toolkit that requires no signup or registration. Work confidently knowing your files never leave your device, processed entirely locally in your web browser.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Merge PDF Files Locally
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Add your PDF files by dropping them into the workspace or clicking the upload area.",
+                      "Arrange the sequence of files as needed in the files slot list.",
+                      "Click \"Compile & Export\" to combine pages side-by-side locally.",
+                      "See a celebratory confirmation when processing completes instantly.",
+                      "Save your new merged PDF instantly to your computer or mobile."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Merge Files on PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "Zero Third-Party Uploads",
+                        desc: "We host pdf tools that dont upload files, processing everything on your computer's browser using advanced client-side scripts."
+                      },
+                      {
+                        title: "Lightning Speed",
+                        desc: "No upload and download bottleneck speeds up processing to a fraction of a second."
+                      },
+                      {
+                        title: "No Signup, No Subscriptions",
+                        desc: "Get 100% free, unmetered access to combine documents without logging in."
+                      },
+                      {
+                        title: "Consistent Layout Quality",
+                        desc: "Secure combining algorithms enforce safe scale mapping without altering file contents."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions about PDF Merger
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "How does PDFMinty merge PDF without uploading?",
+                      a: "We use local browser Web Workers and WebAssembly wrappers. The files are parsed as binary streams internally on your device, avoiding standard remote server interactions."
+                    },
+                    {
+                      q: "What are the limits on file sizes or counts?",
+                      a: "Unlike other online split pdf online free no signup programs, PDFMinty is 100% free with no file sequence count limits. Only your system's hardware memory controls the limit!"
+                    },
+                    {
+                      q: "Is there a private pdf editor browser only tool required for installation?",
+                      a: "No. It runs directly as a progressive web application on any standard modern web browser on smartphones, tablets, or computers."
+                    },
+                    {
+                      q: "Are my merged documents safe?",
+                      a: "Yes, completely. Since PDFMinty is part of the modern generation of pdf tools that dont upload files, your files are processed in a secure browser sandbox."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for Split Tool */}
+          {activeTool === "split" && (
+            <div id="seo-split-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Split PDF Online Free No Signup - Extract Pages Instantly
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Extract targeted ranges or split pdf online free no signup instantly with PDFMinty. Our free client-side splitter processes documents locally on your device without server-side processing for ultimate security. Enjoy a fully private pdf editor browser only workspace that guarantees your data stays confidential.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Split and Extract PDF Pages
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Upload the PDF file you wish to split into the drag-and-drop workspace.",
+                      "Select the specific pages or custom range (e.g. 1-3) to extract on the configuration panel.",
+                      "Tap \"Compile & Export Extractions\" to run the extraction engine entirely offline.",
+                      "Verify the outputs are compliant with your custom layout requirements.",
+                      "Download the new sliced compact PDF document straight to your local system storage."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Benefits of Local Client-Side PDF Splitting
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "Guaranteed File Protection",
+                        desc: "PDFMinty is a private pdf editor browser only system, so critical documents containing credentials or private numbers reside safely inside your RAM."
+                      },
+                      {
+                        title: "No Server Lag",
+                        desc: "Since we utilize browser-level processing, page extraction happens instantaneously without waiting in server queues."
+                      },
+                      {
+                        title: "No Restrictions",
+                        desc: "Extract as many pages as you want for free, without creating accounts or subscription limits."
+                      },
+                      {
+                        title: "Pixel-Perfect Metadata Preservation",
+                        desc: "Sliced files preserve hyper-links, layout formatting, fonts, and internal document tags natively."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Split PDF FAQ
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "Can I split pdf online free no signup safely on public networks?",
+                      a: "Absolutely. Since we utilize pdf tools that dont upload files, your secure file streams remain hidden locally on your device even if you are on standard public Wi-Fi."
+                    },
+                    {
+                      q: "Do I need a specific browser to split PDFs?",
+                      a: "PDFMinty runs smoothly on Safari, Firefox, Edge, and Chrome on all systems, functioning as a fully compliant private pdf editor browser only tool."
+                    },
+                    {
+                      q: "Can I extract individual sections and combine them later?",
+                      a: "Yes! You can extract specific chunks with the Splitter tool and then easily assemble them using our Merge PDF tool sequentially."
+                    },
+                    {
+                      q: "Are my PDF security features overwritten?",
+                      a: "Secured or locked PDFs require password decryption before extraction. Try using our Unlock PDF tool first to handle document layers."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SEO Content for Compress Tool */}
+          {activeTool === "compress" && (
+            <div id="seo-compress-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
+                Compress PDF Without Losing Quality - Shrink PDF File Size
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium">
+                Looking to compress pdf without losing quality? PDFMinty is a 100% free tool that shrinks your PDF documents completely offline in your browser. With no signup required, enjoy premium, privacy-focused file size reduction. Never upload your confidential files to unknown servers again—everything happens locally.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    How to Compress Your PDF Files Locally
+                  </h2>
+                  <ol className="space-y-3.5">
+                    {[
+                      "Select or drag your target PDF into the responsive offline workspace.",
+                      "Choose your preferred compression mode (Balanced, High Lossless, or Maximum).",
+                      "Tap the \"Compile & Export\" button to compress pdf without losing quality.",
+                      "Watch the progress bar advance as our Web Worker parses file stream structures.",
+                      "Securely download the highly optimized, compact document instantly."
+                    ].map((step, idx) => (
+                      <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[11px]">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-normal">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+                    Why Compress PDFs with PDFMinty?
+                  </h2>
+                  <ul className="space-y-4">
+                    {[
+                      {
+                        title: "Absolute Privacy",
+                        desc: "PDFMinty provides pdf tools that dont upload files, ensuring tax forms, bank statements, or receipts never exit your browser."
+                      },
+                      {
+                        title: "Advanced Vector Preservation",
+                        desc: "Our offline compression algorithms strip redundant metadata to shrink filesize without blurring text."
+                      },
+                      {
+                        title: "Free & Unlimited",
+                        desc: "Reduce files of any size with zero restrictions, watermark stamps, or premium membership constraints."
+                      },
+                      {
+                        title: "Optimized for Portability",
+                        desc: "Generate lightweight PDF versions perfect for standard email attachments or fast web speed loading."
+                      }
+                    ].map((bullet, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-xs">
+                        <span className="mt-1 text-emerald-500 dark:text-emerald-400">✓</span>
+                        <div>
+                          <p className="font-extrabold text-slate-800 dark:text-slate-200 mb-0.5">{bullet.title}</p>
+                          <p className="font-medium text-slate-500 dark:text-slate-400 leading-normal">{bullet.desc}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200/50 dark:border-slate-800/60 pt-8">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-6 font-sans">
+                  Frequently Asked Questions about PDF Compression
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      q: "Can I compress pdf without losing quality?",
+                      a: "Yes! Our Balanced compression mode carefully removes hidden technical details, embedded unused fonts, and duplicate color profiles while keeping vector elements perfectly crisp."
+                    },
+                    {
+                      q: "Why should I avoid server-side compressors?",
+                      a: "Traditional online portals upload pages to clouds, presenting privacy leaks. PDFMinty is a private pdf editor browser only utility preserving full file sovereignty."
+                    },
+                    {
+                      q: "Is there a maximum file size limit for compressor tools?",
+                      a: "We support files up to 50MB directly in your web browser. Higher files processed offline depend solely on your device's capacity."
+                    },
+                    {
+                      q: "Does PDFMinty store cached compressed documents?",
+                      a: "No. PDFMinty is designed around pdf tools that dont upload files. All objects are cleared immediately from RAM and IndexedDB when browser tabs are closed."
+                    }
+                  ].map((faq, idx) => (
+                    <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl">
+                      <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-200 mb-2">{faq.q}</h4>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Botton Lock Alert Block */}
           <div className="max-w-7xl mx-auto px-4 mt-12 mb-2 font-sans">
             <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 rounded-2xl p-4 flex items-center justify-center gap-3 max-w-2xl mx-auto shadow-sm text-center">
