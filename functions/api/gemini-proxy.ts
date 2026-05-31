@@ -5,11 +5,12 @@ interface Env {
   RATELIMIT_KV?: any; // KVNamespace
 }
 
-export const onRequestOptions: PagesFunction<Env> = async () => {
+export const onRequestOptions: PagesFunction<Env> = async (context) => {
+  const origin = context.request.headers.get("Origin") || "";
   return new Response(null, {
     status: 204,
     headers: {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": origin || "https://www.pdfminty.com",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Origin",
       "Access-Control-Max-Age": "86400",
@@ -22,17 +23,21 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // 1. Strict Origin / Domain Safety Checks
   const origin = request.headers.get("Origin") || "";
-  
-  if (origin) {
-    // Support local development plus matching subdomain wildcard for pages.dev
-    const isLocal = origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:");
-    const isProd = origin.endsWith(".pages.dev") || origin.includes("pdfminty");
-    if (!isLocal && !isProd) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Access Denied: Unregistered Origin domain." }),
-        { status: 403, headers: { "Content-Type": "application/json" } }
-      );
-    }
+  const isLocal = origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:");
+  const isProd = /^https:\/\/([a-z0-9-]+\.)?pdfminty\.(com|pages\.dev)$/.test(origin);
+
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": origin || "https://www.pdfminty.com",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Origin",
+    "Content-Type": "application/json",
+  };
+
+  if (!isLocal && !isProd) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Access Denied: Unregistered Origin." }),
+      { status: 403, headers: corsHeaders }
+    );
   }
 
   // 2. Client Rate Limiting
@@ -56,10 +61,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           }),
           { 
             status: 429, 
-            headers: { 
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*",
-            } 
+            headers: corsHeaders
           }
         );
       }
@@ -83,10 +85,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       JSON.stringify({ success: false, error: "Payload verification failed: invalid JSON body input." }),
       { 
         status: 400, 
-        headers: { 
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        } 
+        headers: corsHeaders
       }
     );
   }
@@ -96,10 +95,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       JSON.stringify({ success: false, error: "Missing Target Text: PDF text extraction produced empty content." }),
       { 
         status: 400, 
-        headers: { 
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        } 
+        headers: corsHeaders
       }
     );
   }
@@ -114,10 +110,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       }),
       { 
         status: 501, 
-        headers: { 
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        } 
+        headers: corsHeaders
       }
     );
   }
@@ -161,10 +154,7 @@ ${extractedText.substring(0, 40000)}
       JSON.stringify({ success: true, analysis: analysisText }),
       {
         status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: corsHeaders,
       }
     );
   } catch (apiErr: any) {
@@ -176,10 +166,7 @@ ${extractedText.substring(0, 40000)}
       }),
       {
         status: 502,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: corsHeaders,
       }
     );
   }

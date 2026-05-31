@@ -2,22 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <script>
-      const hn = window.location.hostname.toLowerCase();
-      if (hn === 'pdfminty.com' || hn === 'pdfmity.com' || hn === 'www.pdfmity.com') {
-        window.location.replace('https://www.pdfminty.com' + window.location.pathname + window.location.search + window.location.hash);
-      }
-      
-      // Early theme detection to avoid flashing white on mobile load
-      try {
-        const saved = localStorage.getItem("pdfminty-theme");
-        if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
-      } catch (e) {}
-    </script>
+    <script src="/early-init.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
