@@ -19,6 +19,13 @@ export default function ProtectPage() {
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
 
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [permissions, setPermissions] = useState({
+    printing: true,
+    modifying: false,
+    copying: false,
+    annotating: false,
+  });
   const [isDocumentLocked, setIsDocumentLocked] = useState<boolean>(false);
   const [pdfPages, setPdfPages] = useState<PDFPageInfo[]>([]);
   const [pdfDocument, setPdfDocument] = useState<any>(null);
@@ -143,12 +150,27 @@ export default function ProtectPage() {
     setIsDocumentLocked(false);
     setCompletedResult(null);
     setPassword("");
+    setConfirmPassword("");
+    setPermissions({
+      printing: true,
+      modifying: false,
+      copying: false,
+      annotating: false,
+    });
   };
 
   const executeProtect = async () => {
     if (selectedFiles.length === 0) return;
     if (!password) {
       showToast("Please enter an encryption password.", "error");
+      return;
+    }
+    if (password !== confirmPassword) {
+      showToast("Passwords do not match! Please check again.", "error");
+      return;
+    }
+    if (password.length < 4) {
+      showToast("Lock password must be at least 4 characters long.", "error");
       return;
     }
 
@@ -158,53 +180,43 @@ export default function ProtectPage() {
       const buffer = await primaryFile.arrayBuffer();
       const fileBytes = new Uint8Array(buffer);
 
-      const enc = new TextEncoder();
-      const saltBytes = window.crypto.getRandomValues(new Uint8Array(16));
-      const ivBytes = window.crypto.getRandomValues(new Uint8Array(12));
+      const { createDedicatedWorker } = await import("../core/WorkerManager");
+      const worker = createDedicatedWorker("protect");
 
-      const baseKey = await window.crypto.subtle.importKey(
-        "raw",
-        enc.encode(password),
-        { name: "PBKDF2" },
-        false,
-        ["deriveBits", "deriveKey"],
-      );
+      worker.onmessage = (e: MessageEvent) => {
+        const { success, bytes, error } = e.data;
+        if (success && bytes) {
+          const defaultName = primaryFile.name.toLowerCase().endsWith(".pdf")
+            ? primaryFile.name.replace(/\.pdf$/i, "_protected.pdf")
+            : `${primaryFile.name}_protected.pdf`;
 
-      const key = await window.crypto.subtle.deriveKey(
+          triggerDownload(bytes, defaultName, setCompletedResult);
+          showToast("Offline sandbox encryption lock applied successfully!", "success");
+        } else {
+          showToast(getFriendlyErrorMessage("Security protection failed", error), "error");
+        }
+        setLoading(false);
+        worker.terminate();
+      };
+
+      worker.onerror = (err) => {
+        console.error("Protect Worker Error:", err);
+        showToast("Worker connection error occurred during protection.", "error");
+        setLoading(false);
+        worker.terminate();
+      };
+
+      worker.postMessage(
         {
-          name: "PBKDF2",
-          salt: saltBytes as any,
-          iterations: 100000,
-          hash: "SHA-256",
+          type: "protect",
+          fileBytes,
+          userPassword: password,
+          permissions,
         },
-        baseKey,
-        { name: "AES-GCM", length: 256 },
-        false,
-        ["encrypt"],
+        [fileBytes.buffer]
       );
-
-      const encryptedBuffer = await window.crypto.subtle.encrypt(
-        {
-          name: "AES-GCM",
-          iv: ivBytes as any,
-        },
-        key,
-        fileBytes as any,
-      );
-
-      const encryptedBytes = new Uint8Array(encryptedBuffer);
-      const outputBytes = new Uint8Array(
-        saltBytes.length + ivBytes.length + encryptedBytes.length,
-      );
-      outputBytes.set(saltBytes, 0);
-      outputBytes.set(ivBytes, saltBytes.length);
-      outputBytes.set(encryptedBytes, saltBytes.length + ivBytes.length);
-
-      triggerDownload(outputBytes, "secured_document.pdf", setCompletedResult);
-      showToast("Offline sandbox encryption lock applied successfully!", "success");
     } catch (err: any) {
       showToast(getFriendlyErrorMessage("Security protection failed", err), "error");
-    } finally {
       setLoading(false);
     }
   };
@@ -268,18 +280,80 @@ export default function ProtectPage() {
                     </button>
                   </div>
 
-                  <div className="space-y-2 pt-1">
-                    <label htmlFor="protect-pass-input" className="text-xs font-bold text-slate-705 dark:text-slate-300 block">
-                      Lock Password Code
-                    </label>
-                    <input
-                      id="protect-pass-input"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter strong encryption password"
-                      className="w-full text-xs font-extrabold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 outline-none focus:border-emerald-500"
-                    />
+                  <div className="space-y-4 pt-1">
+                    <div className="space-y-1.5">
+                      <label htmlFor="protect-pass-input" className="text-xs font-bold text-slate-705 dark:text-slate-300 block">
+                        Lock Password Code
+                      </label>
+                      <input
+                        id="protect-pass-input"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter strong encryption password"
+                        className="w-full text-xs font-extrabold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 outline-none focus:border-emerald-500"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="protect-confirm-pass-input" className="text-xs font-bold text-slate-750 dark:text-slate-305 block">
+                        Confirm Password Code
+                      </label>
+                      <input
+                        id="protect-confirm-pass-input"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Retype password to confirm"
+                        className="w-full text-xs font-extrabold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 outline-none focus:border-emerald-500"
+                      />
+                    </div>
+
+                    {/* Permissions checklist */}
+                    <div className="space-y-2.5 bg-slate-50/65 dark:bg-slate-950/45 p-3.5 rounded-2xl border border-slate-150 dark:border-slate-850/60">
+                      <span className="text-[10px] font-black tracking-wider text-slate-600 dark:text-slate-400 uppercase block">
+                        Document Permission Flags (Offline-Locks)
+                      </span>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-2.5 text-xs text-slate-705 dark:text-slate-300 font-semibold cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={permissions.printing}
+                            onChange={(e) => setPermissions({ ...permissions, printing: e.target.checked })}
+                            className="rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                          />
+                          <span>Allow Printing (Original DPI)</span>
+                        </label>
+                        <label className="flex items-center gap-2.5 text-xs text-slate-705 dark:text-slate-300 font-semibold cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={permissions.modifying}
+                            onChange={(e) => setPermissions({ ...permissions, modifying: e.target.checked })}
+                            className="rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                          />
+                          <span>Allow Modifications (Page Edits)</span>
+                        </label>
+                        <label className="flex items-center gap-2.5 text-xs text-slate-705 dark:text-slate-300 font-semibold cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={permissions.copying}
+                            onChange={(e) => setPermissions({ ...permissions, copying: e.target.checked })}
+                            className="rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                          />
+                          <span>Allow Metadata & Text Copying</span>
+                        </label>
+                        <label className="flex items-center gap-2.5 text-xs text-slate-705 dark:text-slate-300 font-semibold cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={permissions.annotating}
+                            onChange={(e) => setPermissions({ ...permissions, annotating: e.target.checked })}
+                            className="rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                          />
+                          <span>Allow Comments & Annotations</span>
+                        </label>
+                      </div>
+                    </div>
+
                     <div className="text-[10px] text-slate-450 dark:text-slate-500 font-semibold leading-normal">
                       🛡️ Uses fully client-side crypto sandbox (PBKDF2 derivative iteration locks). This tool NEVER sends passwords or files to any cloud server!
                     </div>

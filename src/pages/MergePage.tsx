@@ -17,6 +17,10 @@ export default function MergePage() {
   const [loading, setLoading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  const MAX_TOTAL_SIZE = 500 * 1024 * 1024; // 500 MB limit
+  const MAX_FILES = 50;
 
   useEffect(() => {
     return () => {
@@ -32,9 +36,25 @@ export default function MergePage() {
       showToast("Only PDF files are supported for merging.", "error");
     }
 
+    if (selectedFiles.length + pdfs.length > MAX_FILES) {
+      showToast(`Maximum limit of ${MAX_FILES} files allowed.`, "error");
+      return;
+    }
+
+    const currentSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+    const incomingSize = pdfs.reduce((sum, f) => sum + f.size, 0);
+    if (currentSize + incomingSize > MAX_TOTAL_SIZE) {
+      showToast("Combined size exceeds client-side merge safety limit of 500 MB.", "error");
+      return;
+    }
+
     const filtered = pdfs.filter(file => {
-      if (file.size > 50 * 1024 * 1024) {
-        showToast(`File '${file.name}' exceeds the 50MB limit and was skipped.`, "error");
+      if (file.size === 0) {
+        showToast(`Skipped empty file: '${file.name}'`, "error");
+        return false;
+      }
+      if (file.size > 100 * 1024 * 1024) {
+        showToast(`File '${file.name}' exceeds the 100MB per-file safety limit.`, "error");
         return false;
       }
       return true;
@@ -72,6 +92,30 @@ export default function MergePage() {
     });
   };
 
+  // Drag and Drop support
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    setSelectedFiles(prev => {
+      const copy = [...prev];
+      const draggedItem = copy[draggedIndex!];
+      copy.splice(draggedIndex!, 1);
+      copy.splice(index, 0, draggedItem);
+      return copy;
+    });
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
   const clearWorkspace = () => {
     setSelectedFiles([]);
     setProcessingProgress(null);
@@ -85,20 +129,33 @@ export default function MergePage() {
     }
 
     setLoading(true);
-    setProcessingProgress(15);
+    setProcessingProgress(10);
     try {
       const { createDedicatedWorker } = await import("../core/WorkerManager");
       const worker = createDedicatedWorker("merge");
 
+      // Validate each file step-by-step and read contents safely with accurate progress
       const filesBytes: Uint8Array[] = [];
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        const buffer = await file.arrayBuffer();
-        filesBytes.push(new Uint8Array(buffer));
-        setProcessingProgress(Math.min(40, 15 + Math.round((i / selectedFiles.length) * 25)));
+        setProcessingProgress(Math.min(45, 10 + Math.round((i / selectedFiles.length) * 35)));
+        
+        try {
+          const buffer = await file.arrayBuffer();
+          const bytes = new Uint8Array(buffer);
+          
+          // Verify file compliance by matching magic PDF signature: "%PDF"
+          if (bytes.length < 5 || !String.fromCharCode(...bytes.slice(0, 5)).includes("%PDF")) {
+            throw new Error("Invalid format. File is missing the standard '%PDF' signature.");
+          }
+          
+          filesBytes.push(bytes);
+        } catch (fileErr: any) {
+          throw new Error(`Corrupted or incompatible file: "${file.name}". ${fileErr.message || fileErr}`);
+        }
       }
 
-      setProcessingProgress(45);
+      setProcessingProgress(50);
 
       worker.onmessage = (e: MessageEvent) => {
         const { success, bytes, error } = e.data;
@@ -195,7 +252,13 @@ export default function MergePage() {
                     {selectedFiles.map((file, idx) => (
                       <div
                         key={idx}
-                        className="p-3 flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 font-medium bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 rounded-xl"
+                        draggable={!loading}
+                        onDragStart={(e) => handleDragStart(e, idx)}
+                        onDragOver={(e) => handleDragOver(e, idx)}
+                        onDragEnd={handleDragEnd}
+                        className={`p-3 flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 font-medium bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors ${
+                          draggedIndex === idx ? "opacity-30 border-dashed border-emerald-400" : ""
+                        }`}
                       >
                         <div className="flex items-center gap-3 truncate min-w-0 pr-4">
                           <span className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-850 flex items-center justify-center font-bold text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
@@ -211,7 +274,7 @@ export default function MergePage() {
                           <button
                             type="button"
                             onClick={() => moveUp(idx)}
-                            disabled={idx === 0}
+                            disabled={idx === 0 || loading}
                             className="p-1.5 text-slate-500 hover:text-slate-800 disabled:opacity-30 disabled:pointer-events-none rounded border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 shrink-0 bg-transparent"
                             title="Move Up"
                           >
@@ -221,7 +284,7 @@ export default function MergePage() {
                           <button
                             type="button"
                             onClick={() => moveDown(idx)}
-                            disabled={idx === selectedFiles.length - 1}
+                            disabled={idx === selectedFiles.length - 1 || loading}
                             className="p-1.5 text-slate-500 hover:text-slate-800 disabled:opacity-30 disabled:pointer-events-none rounded border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 shrink-0 bg-transparent"
                             title="Move Down"
                           >
@@ -231,6 +294,7 @@ export default function MergePage() {
                           <button
                             type="button"
                             onClick={() => removeFile(idx)}
+                            disabled={loading}
                             className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded border border-rose-100 dark:border-rose-900/30 shrink-0 bg-transparent"
                             title="Remove file"
                           >
@@ -242,24 +306,37 @@ export default function MergePage() {
                   </div>
 
                   <div className="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800/60 text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-semibold">
-                    💡 Pages will be ordered according to the sequence listed above. Arrange your PDFs up and down to get the exact sequence you desire before outputting.
+                    💡 Pages will be ordered according to the sequence listed above. You can drag and drop objects or use the up/down controllers to rearrange your sequence before compiling.
                   </div>
                 </div>
               )}
 
               {/* Loader */}
               {loading && (
-                <div className="py-12 flex flex-col items-center justify-center space-y-4">
-                  <RefreshCw className="w-10 h-10 text-emerald-500 animate-spin" />
-                  <div className="text-center">
-                    <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200">
+                <div className="py-12 flex flex-col items-center justify-center space-y-6">
+                  <div className="relative flex items-center justify-center">
+                    <RefreshCw className="w-12 h-12 text-emerald-500 animate-spin" />
+                    {processingProgress !== null && (
+                      <span className="absolute text-[11px] font-black text-slate-700 dark:text-slate-200">
+                        {processingProgress}%
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-center w-full max-w-md px-6">
+                    <p className="text-sm font-black text-slate-800 dark:text-slate-100">
                       Merging PDFs completely offline...
                     </p>
                     {processingProgress !== null && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-1">
-                        Progress: {processingProgress}%
-                      </p>
+                      <div className="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden mt-3 shadow-inner">
+                        <div 
+                          className="bg-emerald-500 h-full rounded-full transition-all duration-300 ease-out"
+                          style={{ width: `${processingProgress}%` }}
+                        />
+                      </div>
                     )}
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 font-bold block mt-2">
+                      Zero server-side bandwidth wasted. Zero exposure.
+                    </span>
                   </div>
                 </div>
               )}

@@ -19,6 +19,7 @@ export default function SplitPage() {
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
 
   const [splitRange, setSplitRange] = useState("1-3");
+  const [splitMode, setSplitMode] = useState<"single" | "multiple">("single");
   const [isDocumentLocked, setIsDocumentLocked] = useState<boolean>(false);
   const [pdfPages, setPdfPages] = useState<PDFPageInfo[]>([]);
   const [pdfDocument, setPdfDocument] = useState<any>(null);
@@ -193,50 +194,140 @@ export default function SplitPage() {
       const srcDoc = await PDFDocument.load(sanitized.bytes);
       const totalPages = srcDoc.getPageCount();
 
-      const targetPageIndices = parsePageRanges(splitRange, totalPages);
+      if (splitMode === "single") {
+        const targetPageIndices = parsePageRanges(splitRange, totalPages);
 
-      if (targetPageIndices.length === 0) {
-        showToast("Invalid page range format or out of bounds.", "error");
-        setLoading(false);
-        setProcessingProgress(null);
-        return;
-      }
-
-      setProcessingProgress(45);
-
-      const { createDedicatedWorker } = await import("../core/WorkerManager");
-      const worker = createDedicatedWorker("split");
-
-      worker.onmessage = (e: MessageEvent) => {
-        const { success, bytes, error } = e.data;
-        if (success && bytes) {
-          setProcessingProgress(100);
-          triggerDownload(
-            bytes,
-            `extracted_pages_${splitRange.replace(/[,*-]/g, "_")}.pdf`,
-            setCompletedResult
-          );
-          showToast("Requested pages extracted and compiled offline successfully!", "success");
-        } else {
-          showToast(getFriendlyErrorMessage("Split operation failed", error), "error");
+        if (targetPageIndices.length === 0) {
+          showToast("Invalid page range format or out of bounds.", "error");
+          setLoading(false);
+          setProcessingProgress(null);
+          return;
         }
-        setLoading(false);
-        setProcessingProgress(null);
-        worker.terminate();
-      };
 
-      worker.onerror = (err) => {
-        console.error("Split Worker Error:", err);
-        showToast("Worker connection error occurred during split.", "error");
-        setLoading(false);
-        setProcessingProgress(null);
-        worker.terminate();
-      };
+        setProcessingProgress(45);
 
-      worker.postMessage({ type: "split", fileBytes, targetPageIndices }, [
-        fileBytes.buffer,
-      ]);
-      setProcessingProgress(75);
+        const { createDedicatedWorker } = await import("../core/WorkerManager");
+        const worker = createDedicatedWorker("split");
+
+        worker.onmessage = (e: MessageEvent) => {
+          const { success, bytes, error } = e.data;
+          if (success && bytes) {
+            setProcessingProgress(100);
+            triggerDownload(
+              bytes,
+              `${primaryFile.name.replace(/\.pdf$/i, "")}_extracted.pdf`,
+              setCompletedResult
+            );
+            showToast("Requested pages extracted and compiled offline successfully!", "success");
+          } else {
+            showToast(getFriendlyErrorMessage("Split operation failed", error), "error");
+          }
+          setLoading(false);
+          setProcessingProgress(null);
+          worker.terminate();
+        };
+
+        worker.onerror = (err) => {
+          console.error("Split Worker Error:", err);
+          showToast("Worker connection error occurred during split.", "error");
+          setLoading(false);
+          setProcessingProgress(null);
+          worker.terminate();
+        };
+
+        worker.postMessage({ type: "split", fileBytes, targetPageIndices }, [
+          fileBytes.buffer,
+        ]);
+        setProcessingProgress(75);
+      } else {
+        // Multiple splits based on distinct segments
+        const ranges: { start: number; end: number; name?: string }[] = [];
+        const segments = splitRange.replace(/\s+/g, "").split(",");
+
+        for (const segment of segments) {
+          if (segment.includes("-")) {
+            const [startStr, endStr] = segment.split("-");
+            const start = parseInt(startStr, 10) - 1;
+            const end = parseInt(endStr, 10) - 1;
+            if (!isNaN(start) && !isNaN(end) && start >= 0 && end < totalPages && start <= end) {
+              ranges.push({ start, end, name: `${primaryFile.name.replace(/\.pdf$/i, "")}_pages_${start + 1}_to_${end + 1}.pdf` });
+            }
+          } else {
+            const page = parseInt(segment, 10);
+            if (!isNaN(page)) {
+              const idx = page - 1;
+              if (idx >= 0 && idx < totalPages) {
+                ranges.push({ start: idx, end: idx, name: `${primaryFile.name.replace(/\.pdf$/i, "")}_page_${page}.pdf` });
+              }
+            }
+          }
+        }
+
+        if (ranges.length === 0) {
+          showToast("Invalid split range configuration.", "error");
+          setLoading(false);
+          setProcessingProgress(null);
+          return;
+        }
+
+        setProcessingProgress(45);
+
+        const { createDedicatedWorker } = await import("../core/WorkerManager");
+        const worker = createDedicatedWorker("split-multi");
+
+        worker.onmessage = async (e: MessageEvent) => {
+          const { success, results, error } = e.data;
+          if (success && results) {
+            setProcessingProgress(80);
+            try {
+              if (results.length === 1) {
+                const singleBytes = results[0].bytes;
+                triggerDownload(singleBytes, results[0].name, setCompletedResult);
+              } else {
+                const JSZip = (await import("jszip")).default;
+                const zip = new JSZip();
+                results.forEach((r: any) => {
+                  zip.file(r.name, r.bytes);
+                });
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+                const url = URL.createObjectURL(zipBlob);
+                setCompletedResult({
+                  url,
+                  filename: `${primaryFile.name.replace(/\.pdf$/i, "")}_splits.zip`,
+                  type: "application/zip",
+                });
+                
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${primaryFile.name.replace(/\.pdf$/i, "")}_splits.zip`;
+                a.click();
+              }
+              setProcessingProgress(100);
+              showToast("PDF split into separate files successfully!", "success");
+            } catch (zipErr: any) {
+              showToast(`Failed to archive split files: ${zipErr.message || zipErr}`, "error");
+            }
+          } else {
+            showToast(getFriendlyErrorMessage("Multi-split operation failed", error), "error");
+          }
+          setLoading(false);
+          setProcessingProgress(null);
+          worker.terminate();
+        };
+
+        worker.onerror = (err) => {
+          console.error("Multi-Split Worker Error:", err);
+          showToast("Worker connection error occurred during split.", "error");
+          setLoading(false);
+          setProcessingProgress(null);
+          worker.terminate();
+        };
+
+        worker.postMessage({ type: "split-multi", fileBytes, ranges }, [
+          fileBytes.buffer,
+        ]);
+        setProcessingProgress(75);
+      }
     } catch (err: any) {
       showToast(getFriendlyErrorMessage("Split operation failed", err), "error");
       setLoading(false);
@@ -301,6 +392,36 @@ export default function SplitPage() {
                     >
                       Clear File
                     </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                      Extraction Mode
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-950/60 p-1 rounded-xl border border-slate-150 dark:border-slate-850/60">
+                      <button
+                        type="button"
+                        onClick={() => setSplitMode("single")}
+                        className={`px-3 py-2 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
+                          splitMode === "single"
+                            ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+                            : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+                        }`}
+                      >
+                        One Combined PDF
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSplitMode("multiple")}
+                        className={`px-3 py-2 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
+                          splitMode === "multiple"
+                            ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+                            : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+                        }`}
+                      >
+                        Separate Files (ZIP)
+                      </button>
+                    </div>
                   </div>
 
                   <div className="space-y-2">

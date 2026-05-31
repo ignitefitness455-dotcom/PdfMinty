@@ -280,6 +280,11 @@ export default function WatermarkPage() {
                         placeholder="e.g. DRAFT or CONFIDENTIAL"
                         className="w-full text-xs font-extrabold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 outline-none focus:border-emerald-500"
                       />
+                      {/[^\x1f-\x7e\xa0-\xff]/.test(watermarkText) && (
+                        <p className="text-[10px] text-amber-600 dark:text-amber-400 font-extrabold mt-1.5 leading-normal bg-amber-500/10 dark:bg-amber-400/5 p-2.5 rounded-lg border border-amber-500/20">
+                          ⚠️ Non-Latin characters (CJK, Bangla, Arabic, Cyrillic, or Emojis) detected. Standard offline document fonts do not have glyph sets for these scripts and will likely render as unreadable glyph boxes. For best results, use standard alphanumeric English phrases.
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">

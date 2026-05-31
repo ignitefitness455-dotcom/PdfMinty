@@ -63,67 +63,48 @@ export default function UnlockPage() {
       const arrayBuffer = await primaryFile.arrayBuffer();
       const fileBytes = new Uint8Array(arrayBuffer);
 
-      if (fileBytes.length < 28) {
-        showToast("Incorrect password.", "error");
-        setLoading(false);
-        return;
-      }
+      const { createDedicatedWorker } = await import("../core/WorkerManager");
+      const worker = createDedicatedWorker("unlock");
 
-      const saltBytes = fileBytes.slice(0, 16);
-      const ivBytes = fileBytes.slice(16, 28);
-      const encryptedBytes = fileBytes.slice(28);
+      worker.onmessage = (e: MessageEvent) => {
+        const { success, bytes, error } = e.data;
+        if (success && bytes) {
+          // Validate decrypted result byte-integrity
+          try {
+            const sanitized = PDFSanitizer.sanitize(bytes);
+            const defaultName = primaryFile.name.toLowerCase().endsWith(".pdf")
+              ? primaryFile.name.replace(/\.pdf$/i, "_unlocked.pdf")
+              : `${primaryFile.name}_unlocked.pdf`;
 
-      const enc = new TextEncoder();
-      const baseKey = await window.crypto.subtle.importKey(
-        "raw",
-        enc.encode(password),
-        { name: "PBKDF2" },
-        false,
-        ["deriveBits", "deriveKey"],
-      );
-
-      const key = await window.crypto.subtle.deriveKey(
-        {
-          name: "PBKDF2",
-          salt: saltBytes as any,
-          iterations: 100000,
-          hash: "SHA-256",
-        },
-        baseKey,
-        { name: "AES-GCM", length: 256 },
-        false,
-        ["decrypt"],
-      );
-
-      try {
-        const decryptedBuffer = await window.crypto.subtle.decrypt(
-          {
-            name: "AES-GCM",
-            iv: ivBytes as any,
-          },
-          key,
-          encryptedBytes as any,
-        );
-
-        const decryptedBytes = new Uint8Array(decryptedBuffer);
-
-        // Validate decrypted result byte-integrity
-        try {
-          const sanitized = PDFSanitizer.sanitize(decryptedBytes);
-          const { PDFDocument } = await import("pdf-lib");
-          await PDFDocument.load(sanitized.bytes);
-          triggerDownload(sanitized.bytes, "unlocked_document.pdf", setCompletedResult);
-          showToast("Password matches! Document decrypted successfully.", "success");
-        } catch (loaderErr) {
-          showToast(getFriendlyErrorMessage("Decryption failed", "Incorrect password"), "error");
+            triggerDownload(sanitized.bytes, defaultName, setCompletedResult);
+            showToast("Password matches! Document decrypted successfully.", "success");
+          } catch (loaderErr) {
+            showToast("Incorrect password or corrupted secure file decryption.", "error");
+          }
+        } else {
+          showToast(getFriendlyErrorMessage("Decryption failed", error || "Incorrect password"), "error");
         }
-      } catch (cryptoErr) {
-        console.error("Decryption failed:", cryptoErr);
-        showToast(getFriendlyErrorMessage("Decryption failed", "Incorrect password"), "error");
-      }
+        setLoading(false);
+        worker.terminate();
+      };
+
+      worker.onerror = (err) => {
+        console.error("Unlock Worker Error:", err);
+        showToast("Worker connection error occurred during decryption.", "error");
+        setLoading(false);
+        worker.terminate();
+      };
+
+      worker.postMessage(
+        {
+          type: "unlock",
+          fileBytes,
+          password,
+        },
+        [fileBytes.buffer]
+      );
     } catch (err: any) {
       showToast(getFriendlyErrorMessage("Failed to unlock PDF", err), "error");
-    } finally {
       setLoading(false);
     }
   };

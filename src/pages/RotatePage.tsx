@@ -139,12 +139,22 @@ export default function RotatePage() {
     setPdfPages((prev) =>
       prev.map((p) => {
         if (p.index === idx) {
-          return { ...p, rotation: (p.rotation + 90) % 360 };
+          return { ...p, rotation: ((p.rotation + 90) % 360) };
         }
         return p;
       })
     );
     showToast(`Page ${idx + 1} rotated locally in preview. Press Apply down here to compile.`, "info");
+  };
+
+  const handleBatchRotate = (deg: 90 | 180 | 270) => {
+    setPdfPages((prev) =>
+      prev.map((p) => ({
+        ...p,
+        rotation: (p.rotation + deg) % 360,
+      }))
+    );
+    showToast(`All pages rotated clockwise +${deg}°. Click Apply status to save.`, "success");
   };
 
   const clearWorkspace = () => {
@@ -173,7 +183,7 @@ export default function RotatePage() {
         const { success, bytes, error } = e.data;
         if (success && bytes) {
           setProcessingProgress(100);
-          triggerDownload(bytes, "rotated_document.pdf", setCompletedResult);
+          triggerDownload(bytes, `rotated_${primaryFile.name}`, setCompletedResult);
           showToast("Document rotations applied successfully completely offline!", "success");
         } else {
           showToast(getFriendlyErrorMessage("Rotation application failed", error), "error");
@@ -193,7 +203,7 @@ export default function RotatePage() {
 
       const pageRotations = pdfPages.map((p) => ({
         index: p.index,
-        rotation: p.rotation,
+        rotation: (p.rotation % 360) as 0 | 90 | 180 | 270,
       }));
       worker.postMessage({ type: "rotate", fileBytes, pageRotations }, [
         fileBytes.buffer,
@@ -259,14 +269,43 @@ export default function RotatePage() {
                     <button
                       type="button"
                       onClick={clearWorkspace}
-                      className="text-[10px] font-black text-rose-500 hover:text-rose-700 font-sans border-0 bg-transparent"
+                      className="text-[10px] font-black text-rose-500 hover:text-rose-700 font-sans border-0 bg-transparent cursor-pointer"
                     >
                       Clear File
                     </button>
                   </div>
 
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                      Rotate All Pages Clockwise
+                    </label>
+                    <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-950/60 p-1 rounded-xl border border-slate-150 dark:border-slate-850/60">
+                      <button
+                        type="button"
+                        onClick={() => handleBatchRotate(90)}
+                        className="py-2.5 text-[10px] sm:text-xs font-bold rounded-lg transition-all border-0 bg-white dark:bg-slate-800 text-slate-800 dark:text-white shadow-xs cursor-pointer hover:bg-slate-50 border border-slate-200 dark:border-slate-700 hover:scale-[1.02]"
+                      >
+                        +90° CW
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleBatchRotate(180)}
+                        className="py-2.5 text-[10px] sm:text-xs font-bold rounded-lg transition-all border-0 bg-white dark:bg-slate-800 text-slate-800 dark:text-white shadow-xs cursor-pointer hover:bg-slate-50 border border-slate-200 dark:border-slate-700 hover:scale-[1.02]"
+                      >
+                        180° Flip
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleBatchRotate(270)}
+                        className="py-2.5 text-[10px] sm:text-xs font-bold rounded-lg transition-all border-0 bg-white dark:bg-slate-800 text-slate-800 dark:text-white shadow-xs cursor-pointer hover:bg-slate-50 border border-slate-200 dark:border-slate-700 hover:scale-[1.02]"
+                      >
+                        -90° (270°)
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800/60 text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-semibold">
-                    💡 Tap individually on any page thumbnail in the workspace preview on the right to rotate its layout offsets clockwise. Click the button below when done.
+                    💡 Click the quick batch buttons above to rotate all pages immediately, or click individual rotate buttons within the workspace preview. Select your rotation configuration and target layout before compiling.
                   </div>
                 </div>
               )}

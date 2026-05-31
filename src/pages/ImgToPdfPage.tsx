@@ -18,6 +18,7 @@ export default function ImgToPdfPage() {
   const [loading, setLoading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
+  const [pageSize, setPageSize] = useState<'fit' | 'A4' | 'Letter'>("fit");
 
   useEffect(() => {
     setImageUrls((prevUrls) => {
@@ -169,6 +170,7 @@ export default function ImgToPdfPage() {
         {
           type: "img-to-pdf",
           imageFilesData,
+          pageSize,
         },
         transferList,
       );
@@ -226,6 +228,42 @@ export default function ImgToPdfPage() {
 
               {selectedFiles.length > 0 && !completedResult && (
                 <div className="space-y-4">
+                  {/* Page Size & Layout Selection */}
+                  <div className="space-y-2.5 bg-slate-50/50 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-150 dark:border-slate-800">
+                    <label className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+                      Target Page Dimensions layout
+                    </label>
+                    <div className="grid grid-cols-3 gap-2 p-1 bg-slate-100/60 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-850">
+                      {[
+                        { id: "fit", label: "Fit to Image" },
+                        { id: "A4", label: "A4 Standard" },
+                        { id: "Letter", label: "US Letter" },
+                      ].map((sizeItem) => (
+                        <button
+                          key={sizeItem.id}
+                          type="button"
+                          onClick={() => setPageSize(sizeItem.id as any)}
+                          className={`py-2 text-[10px] sm:text-xs font-black rounded-lg transition-all border-0 cursor-pointer ${
+                            pageSize === sizeItem.id
+                              ? "bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 shadow-xs"
+                              : "bg-white dark:bg-slate-800 text-slate-705 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                          }`}
+                        >
+                          {sizeItem.label}
+                        </button>
+                      ))}
+                    </div>
+                    {pageSize !== "fit" ? (
+                      <p className="text-[10px] text-slate-500 font-semibold mt-1">
+                        💡 Images will be scaled proportionally to fit the {pageSize === "A4" ? "A4 (595 × 842 pt)" : "Letter (612 × 792 pt)"} layout with comfortable print margins.
+                      </p>
+                    ) : (
+                      <p className="text-[10px] text-slate-500 font-semibold mt-1">
+                        💡 Every PDF page's physical size matches the source image resolution exactly (no cropping / borders).
+                      </p>
+                    )}
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 tracking-wider uppercase">
                       Queue Images ({selectedFiles.length})
@@ -300,6 +338,9 @@ export default function ImgToPdfPage() {
                       );
                     })}
                   </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-2 bg-slate-50 dark:bg-slate-950/20 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/40 leading-relaxed">
+                    ⚠️ <strong>Supported formats:</strong> PNG, JPEG/JPG. High-resolution images are embedded in full quality natively.
+                  </p>
                 </div>
               )}
 

@@ -23,6 +23,68 @@ export default function DeletePagesPage() {
   const [pdfPages, setPdfPages] = useState<PDFPageInfo[]>([]);
   const [pdfDocument, setPdfDocument] = useState<any>(null);
   const [pagesToDelete, setPagesToDelete] = useState<number[]>([]);
+  const [rangeInputText, setRangeInputText] = useState("");
+
+  const applyRangeSelection = () => {
+    if (!pdfPages.length) return;
+    const totalPages = pdfPages.length;
+    const indices: number[] = [];
+    const segments = rangeInputText.replace(/\s+/g, "").split(",");
+
+    for (const segment of segments) {
+      if (segment.includes("-")) {
+        const [startStr, endStr] = segment.split("-");
+        const start = parseInt(startStr, 10);
+        const end = parseInt(endStr, 10);
+        if (!isNaN(start) && !isNaN(end)) {
+          const lower = Math.max(1, Math.min(start, totalPages));
+          const upper = Math.max(1, Math.min(end, totalPages));
+          for (
+            let i = Math.min(lower, upper);
+            i <= Math.max(lower, upper);
+            i++
+          ) {
+            indices.push(i - 1);
+          }
+        }
+      } else {
+        const page = parseInt(segment, 10);
+        if (!isNaN(page)) {
+          const idx = page - 1;
+          if (idx >= 0 && idx < totalPages) {
+            indices.push(idx);
+          }
+        }
+      }
+    }
+
+    if (indices.length === 0) {
+      showToast("Invalid formats or page numbers out of range", "error");
+      return;
+    }
+
+    const uniqueSet = Array.from(new Set([...pagesToDelete, ...indices])).sort((a, b) => a - b);
+    setPagesToDelete(uniqueSet);
+    showToast(`Added ${indices.length} page(s) to selector!`, "success");
+    setRangeInputText("");
+  };
+
+  const selectEvenPages = () => {
+    const evenIndices = pdfPages.map(p => p.index).filter(idx => idx % 2 === 1);
+    setPagesToDelete(Array.from(new Set([...pagesToDelete, ...evenIndices])));
+    showToast("Even numbered source pages queued.", "info");
+  };
+
+  const selectOddPages = () => {
+    const oddIndices = pdfPages.map(p => p.index).filter(idx => idx % 2 === 0);
+    setPagesToDelete(Array.from(new Set([...pagesToDelete, ...oddIndices])));
+    showToast("Odd numbered source pages queued.", "info");
+  };
+
+  const clearSelection = () => {
+    setPagesToDelete([]);
+    showToast("Reset current selection markers.", "info");
+  };
 
   useEffect(() => {
     return () => {
@@ -263,17 +325,72 @@ export default function DeletePagesPage() {
                     <button
                       type="button"
                       onClick={clearWorkspace}
-                      className="text-[10px] font-black text-rose-500 hover:text-rose-700 font-sans border-0 bg-transparent"
+                      className="text-[10px] font-black text-rose-500 hover:text-rose-700 font-sans border-0 bg-transparent cursor-pointer"
                     >
                       Clear File
                     </button>
                   </div>
 
-                  <div className="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800/60 text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-semibold space-y-2">
-                    <p>💡 Click on any page preview card on the right to select it for deletion. Selected items will be indicated by a red trashcan overlay.</p>
+                  {/* Range Definition Selection Input */}
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+                      Add Pages to Selection by Range
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="e.g. 1-3, 5, 8-10"
+                        value={rangeInputText}
+                        onChange={(e) => setRangeInputText(e.target.value)}
+                        className="flex-1 px-3 py-2 text-xs font-semibold rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={applyRangeSelection}
+                        className="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-750 dark:hover:bg-slate-700 text-white text-xs font-bold rounded-lg border-0 cursor-pointer transition-all active:scale-[0.98]"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Quick selection actions */}
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+                      Quick Marker Presets
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-950/40 p-1 rounded-xl border border-slate-150 dark:border-slate-850/60">
+                      <button
+                        type="button"
+                        onClick={selectEvenPages}
+                        className="py-1.5 text-[10px] font-bold rounded bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 text-slate-770 dark:text-slate-200 shadow-3xs hover:bg-slate-50 cursor-pointer"
+                      >
+                        Select Even
+                      </button>
+                      <button
+                        type="button"
+                        onClick={selectOddPages}
+                        className="py-1.5 text-[10px] font-bold rounded bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 text-slate-770 dark:text-slate-200 shadow-3xs hover:bg-slate-50 cursor-pointer"
+                      >
+                        Select Odd
+                      </button>
+                    </div>
                     {pagesToDelete.length > 0 && (
-                      <p className="text-rose-600 dark:text-rose-400 font-bold">
-                        ⚠️ Current Selection: {pagesToDelete.length} page(s) marked for removal.
+                      <button
+                        type="button"
+                        onClick={clearSelection}
+                        className="w-full py-1 text-[10px] font-bold text-rose-500 hover:text-rose-600 border border-transparent hover:border-rose-100 dark:hover:border-rose-950/20 bg-rose-50/20 dark:bg-rose-950/10 rounded-lg cursor-pointer"
+                      >
+                        Deselect All Marked Pages
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800/60 text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-semibold space-y-2">
+                    <p>💡 Click on page preview cards on the right or type ranges above to mark items for deletion. Marked items display an "Omit Page" badge.</p>
+                    {pagesToDelete.length > 0 && (
+                      <p className="text-rose-600 dark:text-rose-400 font-bold leading-tight">
+                        ⚠️ Selection: {pagesToDelete.length} page(s) marked to be omitted.
                       </p>
                     )}
                   </div>

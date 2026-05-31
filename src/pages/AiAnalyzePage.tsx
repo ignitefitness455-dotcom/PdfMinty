@@ -94,22 +94,21 @@ export default function AiAnalyzePage() {
       setProcessingProgress(40);
 
       const pageCount = pdf.numPages;
-      const scanLimit = Math.min(pageCount, 12);
       let extractedText = "";
 
-      for (let i = 1; i <= scanLimit; i++) {
+      for (let i = 1; i <= pageCount; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
         const strings = content.items.map((item: any) => (item as any).str);
         extractedText += strings.join(" ") + "\n";
 
-        const prg = Math.min(40 + Math.round((i / scanLimit) * 35), 75);
+        const prg = Math.min(40 + Math.round((i / pageCount) * 35), 75);
         setProcessingProgress(prg);
       }
 
-      if (!extractedText.trim()) {
+      if (!extractedText || extractedText.trim().length < 10) {
         throw new Error(
-          "PDF document text content appears completely empty. Is this a scanned-image only PDF? (Ensure PDF contains digital embedded text layout blocks)."
+          "This PDF appears to be a scanned image or has no extractable text. AI analysis requires text-based PDFs."
         );
       }
 
@@ -123,7 +122,7 @@ export default function AiAnalyzePage() {
       const response = await fetch(`${apiBase}/api/gemini-proxy`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: extractedText, name: primaryFile.name }),
+        body: JSON.stringify({ text: extractedText.substring(0, 40000), name: primaryFile.name }),
       });
 
       if (!response.ok) {

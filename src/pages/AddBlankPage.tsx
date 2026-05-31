@@ -20,6 +20,8 @@ export default function AddBlankPage() {
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
 
   const [blankPageSize, setBlankPageSize] = useState("A4");
+  const [customWidth, setCustomWidth] = useState(595);
+  const [customHeight, setCustomHeight] = useState(841);
   const [blankPagePos, setBlankPagePos] = useState("end");
   const [blankPageAt, setBlankPageAt] = useState(1);
 
@@ -191,6 +193,8 @@ export default function AddBlankPage() {
           type: "add-blank",
           fileBytes,
           blankPageSize,
+          customWidth: blankPageSize === "custom" ? customWidth : undefined,
+          customHeight: blankPageSize === "custom" ? customHeight : undefined,
           blankPagePos,
           blankPageAt,
         },
@@ -274,10 +278,46 @@ export default function AddBlankPage() {
                         onChange={(e) => setBlankPageSize(e.target.value)}
                         className="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 outline-none"
                       >
-                        <option value="A4">A4 (210mm x 297mm)</option>
-                        <option value="Letter">US Letter (8.5" x 11")</option>
+                        <option value="A4">A4 (210mm x 297mm / 595 x 842 pt)</option>
+                        <option value="Letter">US Letter (8.5" x 11" / 612 x 792 pt)</option>
+                        <option value="Legal">Legal (8.5" x 14" / 612 x 1008 pt)</option>
+                        <option value="A3">A3 (297mm x 420mm / 842 x 1191 pt)</option>
+                        <option value="custom">Custom Dimensions</option>
                       </select>
                     </div>
+
+                    {blankPageSize === "custom" && (
+                      <div className="grid grid-cols-2 gap-3.5 pt-0.5 animate-fadein">
+                        <div className="space-y-1.5">
+                          <label htmlFor="custom-width" className="text-[11px] font-bold text-slate-600 dark:text-slate-400 block">
+                            Width (points)
+                          </label>
+                          <input
+                            id="custom-width"
+                            type="number"
+                            min="10"
+                            max="5000"
+                            value={customWidth}
+                            onChange={(e) => setCustomWidth(Math.max(10, parseInt(e.target.value) || 0))}
+                            className="w-full text-xs font-extrabold px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 outline-none focus:border-emerald-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label htmlFor="custom-height" className="text-[11px] font-bold text-slate-600 dark:text-slate-400 block">
+                            Height (points)
+                          </label>
+                          <input
+                            id="custom-height"
+                            type="number"
+                            min="10"
+                            max="5000"
+                            value={customHeight}
+                            onChange={(e) => setCustomHeight(Math.max(10, parseInt(e.target.value) || 0))}
+                            className="w-full text-xs font-extrabold px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 outline-none focus:border-emerald-500"
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     <div className="space-y-1.5">
                       <label htmlFor="blank-pos-select" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">

@@ -18,6 +18,7 @@ export default function CompressPage() {
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
 
+  const [compressStats, setCompressStats] = useState<{ originalSize: number; newSize: number } | null>(null);
   const [compressQuality, setCompressQuality] = useState<"high" | "medium" | "low" >("medium");
   const [isDocumentLocked, setIsDocumentLocked] = useState<boolean>(false);
   const [pdfPages, setPdfPages] = useState<PDFPageInfo[]>([]);
@@ -132,6 +133,7 @@ export default function CompressPage() {
     }
 
     setCompletedResult(null);
+    setCompressStats(null);
     setSelectedFiles([file]);
     showToast(`Loaded document: ${file.name}`, "success");
   };
@@ -142,6 +144,7 @@ export default function CompressPage() {
     setPdfDocument(null);
     setIsDocumentLocked(false);
     setCompletedResult(null);
+    setCompressStats(null);
   };
 
   const executeCompress = async () => {
@@ -153,6 +156,7 @@ export default function CompressPage() {
       const primaryFile = selectedFiles[0];
       const buffer = await primaryFile.arrayBuffer();
       const fileBytes = new Uint8Array(buffer);
+      const originalLen = fileBytes.length;
 
       setProcessingProgress(45);
       const { createDedicatedWorker } = await import("../core/WorkerManager");
@@ -162,8 +166,12 @@ export default function CompressPage() {
         const { success, bytes, error } = e.data;
         if (success && bytes) {
           setProcessingProgress(100);
+          setCompressStats({
+            originalSize: originalLen,
+            newSize: bytes.length,
+          });
           triggerDownload(bytes, `compressed_${primaryFile.name}`, setCompletedResult);
-          showToast("Document compressed successfully entirely offline!", "success");
+          showToast("Document structures optimized offline successfully!", "success");
         } else {
           showToast(getFriendlyErrorMessage("Compression failed", error), "error");
         }
@@ -222,8 +230,11 @@ export default function CompressPage() {
                 <h2 className="text-lg font-black text-slate-905 dark:text-slate-50 leading-tight">
                   Compress PDF File Size
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-450 mt-1 font-medium">
-                  Shrinking files offline to lower bandwidth, conserving disk spaces while securing page text sharp elements.
+                <p className="text-xs text-slate-500 dark:text-slate-450 mt-1 font-medium leading-relaxed">
+                  Optimizes PDF structure and prunes metadata offline. 
+                  <span className="block mt-1.5 font-semibold text-amber-600 dark:text-amber-400">
+                    ⚠️ Note: client-side tools cannot compress embedded images without visual re-draw. For images/scans, consider using our <Link to="/img-to-pdf" className="underline font-bold text-emerald-500 hover:text-emerald-650">Image to PDF tool</Link>.
+                  </span>
                 </p>
               </div>
 
@@ -315,6 +326,32 @@ export default function CompressPage() {
                       {completedResult.filename}
                     </p>
                   </div>
+
+                  {compressStats && (
+                    <div className="bg-slate-50/70 dark:bg-slate-950/65 p-4 border border-slate-100 dark:border-slate-800/80 rounded-2xl space-y-2.5 text-left max-w-sm mx-auto">
+                      <p className="text-xs font-black text-slate-700 dark:text-slate-300">Offline Compression Report</p>
+                      <div className="grid grid-cols-2 gap-y-1.5 gap-x-2 text-[11px] font-semibold text-slate-550 dark:text-slate-400">
+                        <div>Original Size:</div>
+                        <div className="text-right text-slate-700 dark:text-slate-300">{(compressStats.originalSize / 1024).toFixed(1)} KB</div>
+                        <div>Optimized Size:</div>
+                        <div className="text-right text-slate-700 dark:text-slate-300">{(compressStats.newSize / 1024).toFixed(1)} KB</div>
+                        {compressStats.newSize < compressStats.originalSize && (
+                          <>
+                            <div className="text-emerald-600 dark:text-emerald-400 font-bold">Absolute Savings:</div>
+                            <div className="text-right font-black text-emerald-600 dark:text-emerald-400">
+                              {((1 - compressStats.newSize / compressStats.originalSize) * 100).toFixed(1)}%
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      {compressStats.newSize >= compressStats.originalSize && (
+                        <p className="text-[10px] text-amber-600 dark:text-amber-450 leading-relaxed font-bold border-t border-slate-100 dark:border-slate-800 pt-2">
+                          ⚠️ This PDF is already highly structurally optimized. Safe lossless client-side tools cannot reduce the footprint further without quality degradation.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex justify-center gap-3 pt-2">
                     <button
                       type="button"

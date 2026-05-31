@@ -136,7 +136,7 @@ ${extractedText.substring(0, 40000)}
 ---`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.1-flash lite",
       contents: prompt,
       config: {
         temperature: 0.2,
