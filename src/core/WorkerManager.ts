@@ -8,7 +8,7 @@ async function loadPDF(bytes: Uint8Array, options?: any) {
 }
 
 // @ts-ignore
-import PDFWorker from '../workers/pdf-worker.ts?worker';
+import PDFWorker from '../workers/pdf-worker.ts?worker&inline';
 
 // Main-thread virtual worker fallback for mobile browsers and cross-origin iframe sandboxes
 class VirtualWorker {
@@ -261,18 +261,10 @@ async function runTaskDirectly(type: string, payload: any): Promise<any> {
 }
 
 export function createDedicatedWorker(_taskName?: string): Worker {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  const isIframe = window.self !== window.top;
-
-  // On Mobile devices or inside cross-origin sandboxed iframes, we ALWAYS bypass module-worker limitations
-  // by utilizing a lightweight VirtualWorker working instantly on standard synchronous microtasks context.
-  if (isMobile || isIframe) {
-    return new VirtualWorker() as any;
-  }
-
   try {
     return new PDFWorker();
   } catch (err) {
+    console.warn('Real Web Worker initialization failed; falling back to VirtualWorker:', err);
     return new VirtualWorker() as any;
   }
 }
