@@ -3551,36 +3551,49 @@ export default function App() {
                         else if (activeTool === "ai-analyze")
                           executeAIAnalyze();
                       }}
-                      className={`w-full py-3.5 rounded-xl text-white font-extrabold text-sm tracking-wide flex items-center justify-center gap-2.5 shadow-md shadow-emerald-500/10 cursor-pointer transition-all ${
-                        selectedFiles.length === 0 || loading
+                      className={`w-full py-3.5 rounded-xl text-white font-extrabold text-sm tracking-wide flex items-center justify-center gap-2.5 shadow-md cursor-pointer transition-all relative overflow-hidden ${
+                        selectedFiles.length === 0
                           ? "bg-slate-300 dark:bg-slate-800 shadow-none cursor-not-allowed text-slate-500 dark:text-slate-600"
-                          : "bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98]"
+                          : loading
+                          ? "bg-emerald-600 dark:bg-emerald-500/90 cursor-wait animate-pulse-glow shadow-emerald-500/25"
+                          : "bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] shadow-emerald-500/10"
                       }`}
                     >
+                      {loading && (
+                        <div className="absolute inset-0 animate-shimmer-sweep pointer-events-none" />
+                      )}
                       {loading ? (
-                        <RefreshCw className="w-4.5 h-4.5 animate-spin" />
+                        <RefreshCw className="w-4.5 h-4.5 animate-spin relative z-10" />
                       ) : (
                         <Download className="w-4.5 h-4.5" />
                       )}
-                      {loading
-                        ? "Processing Document..."
-                        : `Compile & Export ${toolsList.find((t) => t.id === activeTool)?.name.split(" ")[0]}`}
+                      <span className="relative z-10">
+                        {loading
+                          ? "Processing Document..."
+                          : `Compile & Export ${toolsList.find((t) => t.id === activeTool)?.name.split(" ")[0]}`}
+                      </span>
                     </button>
                     {processingProgress !== null && (
                       <div
-                        className="mt-3 space-y-1.5"
+                        className="mt-3 space-y-2"
                         role="status"
                         aria-live="polite"
                       >
-                        <div className="flex justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                          <span>Rendering Page Sequences</span>
-                          <span>{processingProgress}%</span>
+                        <div className="flex justify-between text-xs font-extrabold text-emerald-600 dark:text-emerald-400 font-sans">
+                          <span className="flex items-center gap-1.5">
+                            <RefreshCw className="w-3 h-3 animate-spin text-emerald-500" />
+                            Rendering Page Sequences
+                          </span>
+                          <span className="font-mono">{processingProgress}%</span>
                         </div>
-                        <progress
-                          value={processingProgress}
-                          max="100"
-                          className="w-full h-2 rounded-full overflow-hidden appearance-none [&::-webkit-progress-bar]:bg-slate-100 dark:[&::-webkit-progress-bar]:bg-slate-800 [&::-webkit-progress-value]:bg-emerald-500 [&::-moz-progress-bar]:bg-emerald-500 transition-all"
-                        ></progress>
+                        <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden relative shadow-inner">
+                          <div
+                            style={{ width: `${processingProgress}%` }}
+                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300 relative rounded-full overflow-hidden shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                          >
+                            <div className="absolute inset-0 animate-stripes opacity-25" />
+                          </div>
+                        </div>
                       </div>
                     )}
 

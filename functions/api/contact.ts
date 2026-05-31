@@ -4,13 +4,19 @@ interface Env {
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { request } = context;
+  const origin = request.headers.get("Origin") || "";
+
+  const isLocal = origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:");
+  const isProd = /^https:\/\/([a-z0-9-]+\.)?pdfminty\.(com|pages\.dev)$/.test(origin);
+
+  const corsOrigin = isLocal || isProd ? origin : "https://www.pdfminty.com";
 
   // Handle preflight OPTIONS request
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
       headers: {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": corsOrigin,
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
         "Access-Control-Max-Age": "86400",
@@ -27,7 +33,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         headers: {
           "Content-Type": "application/json",
           "Allow": "POST",
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin": corsOrigin,
         },
       }
     );
@@ -42,7 +48,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           status: 500,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": corsOrigin,
           },
         }
       );
@@ -74,7 +80,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           status: 429,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": corsOrigin,
           },
         }
       );
@@ -91,7 +97,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           status: 400,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": corsOrigin,
           },
         }
       );
@@ -107,7 +113,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           status: 400,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": corsOrigin,
           },
         }
       );
@@ -120,7 +126,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           status: 400,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": corsOrigin,
           },
         }
       );
@@ -133,7 +139,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           status: 400,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": corsOrigin,
           },
         }
       );
@@ -146,7 +152,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           status: 400,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": corsOrigin,
           },
         }
       );
@@ -177,7 +183,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin": corsOrigin,
         },
       }
     );
@@ -188,7 +194,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         status: 500,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin": corsOrigin,
         },
       }
     );

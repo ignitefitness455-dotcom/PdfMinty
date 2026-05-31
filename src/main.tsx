@@ -6,6 +6,8 @@ import App from './App.tsx';
 import './index.css';
 
 // Global error handler to help debug on mobile without destroying the app
+const isDev = import.meta.env.DEV;
+
 const showErrorOverlay = (title: string, message: string, details?: string) => {
   if (message.includes('failed to connect to websocket')) return; // Ignore expected Vite HMR errors
   if (message.includes('ResizeObserver')) return; // Ignore benign ResizeObserver errors
@@ -39,7 +41,7 @@ const showErrorOverlay = (title: string, message: string, details?: string) => {
   p.appendChild(document.createTextNode(message));
   div.appendChild(p);
 
-  if (details) {
+  if (details && isDev) {
     const detailsEl = document.createElement('details');
     
     const summary = document.createElement('summary');

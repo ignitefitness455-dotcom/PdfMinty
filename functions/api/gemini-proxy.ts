@@ -119,11 +119,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
     const ai = new GoogleGenAI({
       apiKey: apiKey,
-      httpOptions: {
-        headers: {
-          "User-Agent": "aistudio-build",
-        },
-      },
     });
 
     const prompt = `You are an expert document intelligence assistant.
@@ -160,9 +155,9 @@ ${extractedText.substring(0, 40000)}
   } catch (apiErr: any) {
     console.error("Gemini API Client Invocation Error:", apiErr);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: apiErr.message || "An upstream error occurred during the secure Gemini AI analysis call." 
+      JSON.stringify({
+        success: false,
+        error: "An upstream error occurred during AI analysis. Please try again later."
       }),
       {
         status: 502,
