@@ -33,6 +33,49 @@
 
     <title>PDFMinty - Free Online PDF Tools | No Upload Needed</title>
     
+    <style>
+      /* Critical CSS for loading state — inline হওয়ায় render-blocking নয় */
+      .loading-root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      }
+      html.dark .loading-root {
+        background: #020617;
+      }
+      .loading-spinner {
+        width: 48px;
+        height: 48px;
+        border: 3px solid #e2e8f0;
+        border-top-color: #10b981; /* beautiful emerald-500 tint */
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      html.dark .loading-spinner {
+        border-color: #1e293b;
+        border-top-color: #34d399; /* emerald-400 */
+      }
+      .loading-text {
+        margin-top: 16px;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 500;
+      }
+      html.dark .loading-text {
+        color: #94a3b8;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      /* FOUC prevention */
+      html { background-color: #f8fafc; }
+      html.dark { background-color: #020617; }
+    </style>
+    
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     [
@@ -199,8 +242,9 @@
   </head>
   <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen w-full transition-colors duration-200">
     <div id="root">
-      <div class="flex flex-col h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div class="w-12 h-12 border-4 border-slate-200 dark:border-slate-800 border-t-emerald-500 rounded-full animate-spin"></div>
+      <div class="loading-root" id="loading-skeleton">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading PDFMinty...</p>
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>

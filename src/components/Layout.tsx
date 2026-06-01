@@ -26,6 +26,7 @@ import Minimize2 from "lucide-react/icons/minimize-2";
 import Brain from "lucide-react/icons/brain";
 import FileText from "lucide-react/icons/file-text";
 import { Toast, ToolType } from "../types";
+import { Toast as ToastUI } from "./Toast";
 import confetti from "canvas-confetti";
 
 interface LayoutContextType {
@@ -300,38 +301,24 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         id="pdfminty-root"
         className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200 antialiased overflow-x-hidden w-full"
       >
+        {/* Skip to Content Link for Keyboard Accessibility */}
+        <a href="#main-content" className="skip-link">
+          Skip to Content
+        </a>
+
         {/* Dynamic Toast Notifications */}
         <div
           id="toast-deck"
-          className="fixed top-4 right-4 left-4 sm:left-auto sm:right-5 z-50 flex flex-col gap-2 sm:max-w-sm pointer-events-none"
+          className="fixed top-5 right-5 left-5 md:left-auto md:right-6 z-55 flex flex-col gap-3 max-w-sm ml-auto pointer-events-none"
           aria-live="polite"
           aria-atomic="true"
         >
           {toasts.map((toast) => (
-            <div
+            <ToastUI
               key={toast.id}
-              id={`toast-${toast.id}`}
-              className={`pointer-events-auto p-4 rounded-xl shadow-lg border flex items-center gap-3 animate-slideup ${
-                toast.type === "success"
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                  : toast.type === "error"
-                    ? "bg-rose-50 text-rose-800 border-rose-200"
-                    : "bg-slate-800 text-white border-slate-700"
-              }`}
-            >
-              {toast.type === "success" && (
-                <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-              )}
-              {toast.type === "error" && (
-                <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
-              )}
-              {toast.type === "info" && (
-                <Info className="w-5 h-5 text-teal-400 shrink-0" />
-              )}
-              <span className="text-xs font-medium tracking-wide">
-                {toast.message}
-              </span>
-            </div>
+              toast={toast}
+              onRemove={(id) => setToasts((prev) => prev.filter((t) => t.id !== id))}
+            />
           ))}
         </div>
 
@@ -511,7 +498,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
         {/* Primary Workspace Space with Floating Background Glows */}
         <main
-          id="main-space"
+          id="main-content"
           className="flex-1 max-w-7xl w-full mx-auto px-4 py-10 relative overflow-x-hidden min-h-[60vh]"
         >
           {/* Decorative Ambient Glows */}
@@ -519,7 +506,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           <div className="absolute top-20 right-10 w-80 h-80 bg-teal-100/20 dark:bg-teal-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[80px] pointer-events-none z-0 animate-pulse duration-10000" />
           <div className="absolute bottom-40 left-1/3 w-96 h-96 bg-indigo-100/10 dark:bg-indigo-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[120px] pointer-events-none z-0" />
 
-          {children}
+          <div className="container-pdfminty py-2 sm:py-4 lg:py-6 relative z-10">
+            {children}
+          </div>
 
           {/* Secure lock alert footer block */}
           <div className="max-w-7xl mx-auto px-4 mt-12 mb-2 font-sans relative z-10">

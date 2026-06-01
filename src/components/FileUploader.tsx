@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import FileUp from "lucide-react/icons/file-up";
+import AlertCircle from "lucide-react/icons/alert-circle";
 
 interface FileUploaderProps {
   onFilesSelected: (files: File[]) => void;
@@ -15,6 +16,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   placeholder,
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onDragOver = (e: React.DragEvent) => {
@@ -30,6 +32,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   const onDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
+    setError(null);
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const filesArray = Array.from(e.dataTransfer.files);
       const filtered = filesArray.filter((file) => {
@@ -40,13 +44,18 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         }
         return true;
       });
+
       if (filtered.length > 0) {
         onFilesSelected(multiple ? filtered : [filtered[0]]);
+      } else {
+        const expectedType = accept === "application/pdf" ? "PDF format" : "Image formats (JPG, PNG, WEBP)";
+        setError(`Invalid file type dropped. Please provide ${expectedType}.`);
       }
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null);
     if (e.target.files && e.target.files.length > 0) {
       const filesArray = Array.from(e.target.files);
       onFilesSelected(multiple ? filesArray : [filesArray[0]]);
@@ -54,10 +63,21 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   };
 
   return (
-    <div className="space-y-2">
-      <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 tracking-wider uppercase">
-        Upload Target File(s)
-      </span>
+    <div className="space-y-3 font-sans w-full">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-black text-slate-400 dark:text-slate-500 tracking-wider uppercase">
+          Upload Target File(s)
+        </span>
+        {accept === "application/pdf" ? (
+          <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold px-2 py-0.5 rounded-full border border-slate-200/50 dark:border-slate-700/50">
+            PDF Required
+          </span>
+        ) : (
+          <span className="text-[10px] bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/35">
+            Images Welcomed
+          </span>
+        )}
+      </div>
 
       <input
         aria-label="File upload"
@@ -76,18 +96,30 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all active:scale-[0.99] select-none flex flex-col items-center justify-center min-h-[180px] ${
+        className={`relative border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer transition-all duration-300 ease-out select-none flex flex-col items-center justify-center min-h-[220px] shadow-sm hover:shadow-md ${
           isDragOver
-            ? "border-emerald-500 bg-emerald-50/50 scale-[0.98] dark:bg-emerald-950/20"
-            : "border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-400 hover:bg-slate-50/30 dark:hover:bg-slate-950/20 bg-transparent"
+            ? "border-emerald-500 bg-emerald-50/70 scale-[1.01] dark:bg-emerald-950/30 dark:border-emerald-400/80 shadow-emerald-500/5"
+            : "border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-400 hover:bg-slate-50/40 dark:hover:bg-slate-950/20 bg-white/50 dark:bg-slate-900/30"
         }`}
       >
-        <FileUp className="w-8 h-8 text-emerald-500 mb-3 animate-pulse" />
-        <p className="text-xs font-extrabold text-slate-700 dark:text-slate-200 max-w-[240px] leading-tight">
-          {placeholder}
+        {/* Animated Ripple ring active on Drag Over */}
+        {isDragOver && (
+          <div className="absolute inset-0 rounded-3xl border-2 border-emerald-400/50 animate-pulse pointer-events-none" />
+        )}
+
+        <div className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center mb-4 transition-all duration-300 ${
+          isDragOver
+            ? "bg-emerald-100 dark:bg-emerald-900/60 scale-110 text-emerald-600 dark:text-emerald-410"
+            : "bg-slate-100 dark:bg-slate-800/80 text-slate-400 dark:text-slate-400 group-hover:scale-105"
+        }`}>
+          <FileUp className={`w-7 h-7 transition-all duration-300 ${isDragOver ? "animate-bounce" : ""}`} />
+        </div>
+
+        <p className="text-sm font-extrabold text-slate-700 dark:text-slate-200 max-w-[280px] leading-snug">
+          {isDragOver ? "Drop file(s) here now!" : placeholder}
         </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold">
-          Or use the tap upload below
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
+          Drag & drop instantly anywhere in this card or tap choose
         </p>
 
         <button
@@ -96,12 +128,22 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             e.stopPropagation();
             fileInputRef.current?.click();
           }}
-          className="mt-4 w-full max-w-[220px] inline-flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/10 cursor-pointer min-h-[48px] transition-all duration-75 active:scale-[0.97] border-0"
+          className="mt-5 w-full max-w-[210px] inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white rounded-2xl text-xs font-extrabold shadow-lg shadow-emerald-500/10 cursor-pointer min-h-[44px] transition-all duration-150 border-0"
         >
           <FileUp className="w-4 h-4" />
           <span>Choose File(s)</span>
         </button>
       </div>
+
+      {error && (
+        <div className="flex items-start gap-2.5 text-rose-600 dark:text-rose-400 text-xs bg-rose-50 dark:bg-rose-950/30 rounded-2xl p-4.5 border border-rose-100 dark:border-rose-900/40 animate-fadein shadow-sm">
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-rose-500 dark:text-rose-450" />
+          <div>
+            <p className="font-extrabold">Requirement Alert</p>
+            <p className="mt-0.5 text-slate-500 dark:text-slate-300 leading-relaxed font-semibold">{error}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
