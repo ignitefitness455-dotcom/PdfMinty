@@ -1,0 +1,12 @@
+{
+  "entry": ["src/main.tsx", "functions/**/*.ts"],
+  "project": ["src/**/*.ts", "src/**/*.tsx", "functions/**/*.ts"],
+  "ignore": ["src/**/*.d.ts", "src/vite-env.d.ts"],
+  "rules": {
+    "files": "warn",
+    "dependencies": "warn",
+    "devDependencies": "warn",
+    "exports": "warn",
+    "types": "warn"
+  }
+}

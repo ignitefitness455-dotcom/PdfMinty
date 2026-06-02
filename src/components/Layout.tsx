@@ -28,6 +28,7 @@ import FileText from "lucide-react/icons/file-text";
 import { Toast, ToolType } from "../types";
 import { Toast as ToastUI } from "./Toast";
 import confetti from "canvas-confetti";
+import { Breadcrumbs, RelatedTools } from "./InternalSEO";
 
 interface LayoutContextType {
   showToast: (message: string, type?: "success" | "error" | "info") => void;
@@ -180,6 +181,23 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       root.classList.remove("dark");
     }
   }, [theme]);
+
+  // Scroll to Top state
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   // Modals
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -507,7 +525,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           <div className="absolute bottom-40 left-1/3 w-96 h-96 bg-indigo-100/10 dark:bg-indigo-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[120px] pointer-events-none z-0" />
 
           <div className="container-pdfminty py-2 sm:py-4 lg:py-6 relative z-10">
+            <Breadcrumbs />
             {children}
+            <RelatedTools />
           </div>
 
           {/* Secure lock alert footer block */}
@@ -823,14 +843,16 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         )}
 
         {/* Back scroll */}
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-6 right-6 p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl hover:translate-y-[-2px] hover:scale-105 active:scale-95 transition-all cursor-pointer z-4 group border-0"
-          title="Scroll to Top"
-          aria-label="Scroll to top"
-        >
-          <ArrowUp className="w-5 h-5 group-hover:translate-y-[-1px] transition-transform animate-none" />
-        </button>
+        {showScrollTop && (
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="fixed bottom-6 right-6 p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl hover:translate-y-[-2px] hover:scale-105 active:scale-95 transition-all cursor-pointer z-40 group border-0 animate-fadein"
+            title="Scroll to Top"
+            aria-label="Scroll to top"
+          >
+            <ArrowUp className="w-5 h-5 group-hover:translate-y-[-1px] transition-transform animate-none" />
+          </button>
+        )}
       </div>
     </LayoutContext.Provider>
   );

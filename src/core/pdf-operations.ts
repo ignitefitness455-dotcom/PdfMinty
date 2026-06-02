@@ -1,5 +1,6 @@
 import { PDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib';
 import { PDFSanitizer } from './PDFSanitizer';
+import { PDF_PAGE_SIZES, WATERMARK_DEFAULTS, PAGE_NUMBER_DEFAULTS } from '../config/constants';
 
 export async function loadPDF(bytes: Uint8Array, options?: any) {
   const sanitized = PDFSanitizer.sanitize(bytes);
@@ -131,7 +132,7 @@ export async function watermarkPDF(payload: WatermarkPayload) {
     const y = cy - (textWidth / 2) * Math.sin(angleRad) - (watermarkSize / 2) * Math.cos(angleRad);
 
     // Safeguard-boundaries clamping with padding
-    const padding = 20;
+    const padding = WATERMARK_DEFAULTS.PADDING;
     const maxBoundX = Math.max(padding, width - textWidth - padding);
     const maxBoundY = Math.max(padding, height - watermarkSize - padding);
     const clampedX = Math.max(padding, Math.min(x, maxBoundX));
@@ -142,7 +143,7 @@ export async function watermarkPDF(payload: WatermarkPayload) {
       y: clampedY,
       font: helveticaBold,
       size: watermarkSize,
-      color: rgb(0.62, 0.68, 0.75),
+      color: rgb(WATERMARK_DEFAULTS.COLOR.r, WATERMARK_DEFAULTS.COLOR.g, WATERMARK_DEFAULTS.COLOR.b),
       opacity: Math.max(0.05, Math.min(1, watermarkOpacity)),
       rotate: degrees(watermarkRotation),
     });
@@ -169,8 +170,8 @@ export async function addPageNumbersPDF(payload: PageNumbersPayload) {
     } else if (pageNumberFormat === 'page-x' || pageNumberFormat === 'simple') {
       labelText = `Page ${idx + 1}`;
     }
-    const size = 10;
-    const margin = 25;
+    const size = PAGE_NUMBER_DEFAULTS.FONT_SIZE;
+    const margin = PAGE_NUMBER_DEFAULTS.MARGIN;
     const textWidth = helvetica.widthOfTextAtSize(labelText, size);
 
     let x = width / 2 - textWidth / 2;
@@ -204,7 +205,7 @@ export async function addPageNumbersPDF(payload: PageNumbersPayload) {
         break;
     }
 
-    page.drawText(labelText, { x, y, font: helvetica, size, color: rgb(0.3, 0.4, 0.45) });
+    page.drawText(labelText, { x, y, font: helvetica, size, color: rgb(PAGE_NUMBER_DEFAULTS.COLOR.r, PAGE_NUMBER_DEFAULTS.COLOR.g, PAGE_NUMBER_DEFAULTS.COLOR.b) });
   });
   return pdfDoc.save();
 }
@@ -222,11 +223,11 @@ export async function addBlankPagePDF(payload: AddBlankPayload) {
   const pdfDoc = await loadPDF(fileBytes);
   const pageCount = pdfDoc.getPageCount();
 
-  const sizes: Record<string, [number, number]> = {
-    A4: [595.27, 841.89],
-    Letter: [612, 792],
-    Legal: [612, 1008],
-    A3: [841.89, 1190.55],
+  const sizes: Record<string, readonly [number, number]> = {
+    A4: PDF_PAGE_SIZES.A4,
+    Letter: PDF_PAGE_SIZES.LETTER,
+    Legal: PDF_PAGE_SIZES.LEGAL,
+    A3: PDF_PAGE_SIZES.A3,
   };
 
   let w: number;
@@ -261,9 +262,9 @@ export async function imagesToPDF(payload: ImgToPdfPayload) {
     throw new Error('No images provided.');
   }
   const pdfDoc = await PDFDocument.create();
-  const sizes: Record<string, [number, number]> = {
-    A4: [595.27, 841.89],
-    Letter: [612, 792],
+  const sizes: Record<string, readonly [number, number]> = {
+    A4: PDF_PAGE_SIZES.A4,
+    Letter: PDF_PAGE_SIZES.LETTER,
   };
 
   for (const item of imageFilesData) {

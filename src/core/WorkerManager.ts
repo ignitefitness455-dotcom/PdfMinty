@@ -1,6 +1,5 @@
 import * as ops from './pdf-operations';
 
-// @ts-ignore
 import PDFWorker from '../workers/pdf-worker.ts?worker&inline';
 
 class VirtualWorker {
@@ -9,7 +8,7 @@ class VirtualWorker {
   cancelled: boolean = false;
 
   async postMessage(message: any, _transfer?: Transferable[]) {
-    // Support both nested payload format and flat payload format for maximum page component compatibility
+    // Gracefully handle both flat and nested message structures
     const { type, payload: nestedPayload, id, ...flatPayload } = message;
     const payload = nestedPayload !== undefined ? nestedPayload : flatPayload;
 
@@ -34,13 +33,13 @@ class VirtualWorker {
           case 'compress': bytes = await ops.compressPDF(payload); break;
           case 'protect': bytes = await ops.protectPDF(payload); break;
           case 'unlock': bytes = await ops.unlockPDF(payload); break;
-          default: throw new Error(`Unsupported: ${type}`);
+          default: throw new Error(`Unsupported task type: ${type}`);
         }
         if (this.cancelled) return;
         if (this.onmessage) this.onmessage({ data: { id, success: true, bytes } } as MessageEvent);
       } catch (error: any) {
         if (this.cancelled) return;
-        if (this.onmessage) this.onmessage({ data: { id, success: false, error: error.message || error } } as MessageEvent);
+        if (this.onmessage) this.onmessage({ data: { id, success: false, error: error.message || 'Unknown error' } } as MessageEvent);
       }
     }, 0);
   }

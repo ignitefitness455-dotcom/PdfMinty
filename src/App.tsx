@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from "react";
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import ToolSkeleton from "./components/ToolSkeleton";
+import Canonical from "./components/Canonical";
 
 // Lazy-loaded components for route splitting
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -69,6 +70,7 @@ class ErrorBoundary extends React.Component<
 export default function App() {
   return (
     <Router>
+      <Canonical />
       <Layout>
         <ErrorBoundary>
           <Suspense fallback={<ToolSkeleton />}>

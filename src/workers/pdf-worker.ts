@@ -15,11 +15,12 @@ self.onmessage = async (e: MessageEvent) => {
       case 'split':
         bytes = await ops.splitPDF(payload);
         break;
-      case 'split-multi':
+      case 'split-multi': {
         const results = await ops.splitPDFMulti(payload);
         const buffers = results.map(r => r.bytes.buffer);
         self.postMessage({ id, success: true, results }, buffers as any);
         return;
+      }
       case 'rotate':
         bytes = await ops.rotatePDF(payload);
         break;

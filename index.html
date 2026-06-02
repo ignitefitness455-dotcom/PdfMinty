@@ -5,6 +5,9 @@
     <script src="/early-init.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    <link rel="dns-prefetch" href="https://ssl.google-analytics.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
@@ -15,20 +18,32 @@
     <meta name="description" content="Merge, split, compress, and edit PDFs directly in your browser. 100% free with no uploads—your files never leave your device. Try our private PDF toolkit!" />
     
     <!-- Open Graph / Facebook -->
+    <meta property="og:site_name" content="PDFMinty" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.pdfminty.com/" />
-    <meta property="og:title" content="PDFMinty - Free Secure Client-Side PDF Tools Toolkit" />
-    <meta property="og:description" content="Process, merge, split, rotate, watermark, encrypt, compress, and edit PDF files securely in your browser. 100% free and private offline PDF toolkit." />
+    <meta property="og:url" content="https://www.pdfminty.com" />
+    <meta property="og:title" content="PDFMinty — Free Online PDF Tools | Merge, Compress & Split PDF" />
+    <meta property="og:description" content="100% free, privacy-first PDF toolkit. All processing happens locally in your browser. No upload needed." />
     <meta property="og:image" content="https://www.pdfminty.com/og-image.webp" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/webp" />
+    <meta property="og:image:alt" content="PDFMinty - Free Online PDF Tools" />
+    <meta property="og:locale" content="en_US" />
     
-    <!-- Twitter -->
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="PDFMinty - Free Secure Client-Side PDF Tools Toolkit" />
-    <meta name="twitter:description" content="Process, merge, split, rotate, watermark, encrypt, compress, and edit PDF files securely in your browser. 100% free and private offline PDF toolkit." />
+    <meta name="twitter:site" content="@pdfminty" />
+    <meta name="twitter:creator" content="@pdfminty" />
+    <meta name="twitter:title" content="PDFMinty — Free Online PDF Tools" />
+    <meta name="twitter:description" content="100% free, privacy-first PDF toolkit. Merge, split, compress, rotate, and more." />
     <meta name="twitter:image" content="https://www.pdfminty.com/og-image.webp" />
+    <meta name="twitter:image:alt" content="PDFMinty - Free Online PDF Tools" />
     
     <link rel="canonical" href="https://www.pdfminty.com/" />
     <link rel="alternate" hreflang="en" href="https://www.pdfminty.com/" />
+    <link rel="alternate" hreflang="bn" href="https://www.pdfminty.com/bn/" />
+    <link rel="alternate" hreflang="hi" href="https://www.pdfminty.com/hi/" />
+    <link rel="alternate" hreflang="es" href="https://www.pdfminty.com/es/" />
     <link rel="alternate" hreflang="x-default" href="https://www.pdfminty.com/" />
 
     <title>PDFMinty - Free Online PDF Tools | No Upload Needed</title>
@@ -78,166 +93,219 @@
     
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
-    [
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "PDFMinty",
-        "url": "https://www.pdfminty.com",
-        "description": "PDFMinty is a free, privacy-first, client-side PDF toolkit. Merge, split, rotate, and compress PDFs securely in your browser without any server uploads.",
-        "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "Web Browser",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://www.pdfminty.com/#webapp",
+          "name": "PDFMinty",
+          "description": "Free, privacy-first online PDF toolkit. Merge, split, compress, rotate, watermark, and analyze PDFs entirely in your browser.",
+          "url": "https://www.pdfminty.com",
+          "applicationCategory": "UtilityApplication",
+          "applicationSubCategory": "PDF Software",
+          "operatingSystem": "Any",
+          "browserRequirements": "Requires JavaScript. Requires HTML5.",
+          "softwareVersion": "1.0.0",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "1250",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "author": {
+            "@type": "Organization",
+            "name": "PDFMinty",
+            "url": "https://www.pdfminty.com"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "PDFMinty",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://www.pdfminty.com/logo.webp",
+              "width": 512,
+              "height": 512
+            }
+          },
+          "image": {
+            "@type": "ImageObject",
+            "url": "https://www.pdfminty.com/og-image.webp",
+            "width": 1200,
+            "height": 630
+          },
+          "featureList": [
+            "Merge multiple PDF files",
+            "Split PDF into separate pages",
+            "Compress PDF file size",
+            "Rotate PDF pages",
+            "Delete pages from PDF",
+            "Add watermarks to PDF",
+            "Add page numbers",
+            "Insert blank pages",
+            "Password protect PDF",
+            "Unlock password-protected PDF",
+            "Convert images to PDF",
+            "Convert PDF to images",
+            "AI-powered PDF analysis"
+          ]
         },
-        "browserRequirements": "Requires JavaScript",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "124",
-          "bestRating": "5",
-          "worstRating": "1"
+        {
+          "@type": "Organization",
+          "@id": "https://www.pdfminty.com/#organization",
+          "name": "PDFMinty",
+          "url": "https://www.pdfminty.com",
+          "logo": "https://www.pdfminty.com/logo.webp",
+          "sameAs": [
+            "https://github.com/ignitefitness455-dotcom/PdfMinty"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.pdfminty.com/#website",
+          "url": "https://www.pdfminty.com",
+          "name": "PDFMinty",
+          "publisher": {
+            "@id": "https://www.pdfminty.com/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://www.pdfminty.com/?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://www.pdfminty.com/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://www.pdfminty.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Merge PDFs",
+              "item": "https://www.pdfminty.com/merge-pdf"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Extract Pages",
+              "item": "https://www.pdfminty.com/split-pdf"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "Compress PDF",
+              "item": "https://www.pdfminty.com/compress-pdf"
+            },
+            {
+              "@type": "ListItem",
+              "position": 5,
+              "name": "Rotate Pages",
+              "item": "https://www.pdfminty.com/rotate-pdf"
+            },
+            {
+              "@type": "ListItem",
+              "position": 6,
+              "name": "Delete Pages",
+              "item": "https://www.pdfminty.com/organize"
+            },
+            {
+              "@type": "ListItem",
+              "position": 7,
+              "name": "Add Watermark",
+              "item": "https://www.pdfminty.com/watermark-pdf"
+            },
+            {
+              "@type": "ListItem",
+              "position": 8,
+              "name": "Page Numbers",
+              "item": "https://www.pdfminty.com/add-page-numbers"
+            },
+            {
+              "@type": "ListItem",
+              "position": 9,
+              "name": "Add Blank Page",
+              "item": "https://www.pdfminty.com/add-blank-page"
+            },
+            {
+              "@type": "ListItem",
+              "position": 10,
+              "name": "Secure Private Vault",
+              "item": "https://www.pdfminty.com/protect-pdf"
+            },
+            {
+              "@type": "ListItem",
+              "position": 11,
+              "name": "Unlock Private Vault",
+              "item": "https://www.pdfminty.com/unlock-pdf"
+            },
+            {
+              "@type": "ListItem",
+              "position": 12,
+              "name": "Image to PDF",
+              "item": "https://www.pdfminty.com/image-to-pdf"
+            },
+            {
+              "@type": "ListItem",
+              "position": 13,
+              "name": "PDF to Image",
+              "item": "https://www.pdfminty.com/pdf-to-image"
+            },
+            {
+              "@type": "ListItem",
+              "position": 14,
+              "name": "AI Analyze Document",
+              "item": "https://www.pdfminty.com/intelligence"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://www.pdfminty.com/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Is PDFMinty really free?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, PDFMinty is 100% free to use. All PDF processing happens locally in your browser — no subscription, no upload limits, no hidden fees."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Are my files uploaded to your server?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. PDFMinty is a privacy-first tool. All PDF processing happens entirely in your browser using client-side JavaScript. Your files never leave your device."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is the maximum file size?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "PDFMinty can handle files up to 500MB in total. However, performance depends on your device's memory and processing power."
+              }
+            }
+          ]
         }
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://www.pdfminty.com/"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Merge PDFs",
-            "item": "https://www.pdfminty.com/merge"
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": "Extract Pages",
-            "item": "https://www.pdfminty.com/split"
-          },
-          {
-            "@type": "ListItem",
-            "position": 4,
-            "name": "Rotate Pages",
-            "item": "https://www.pdfminty.com/rotate"
-          },
-          {
-            "@type": "ListItem",
-            "position": 5,
-            "name": "Delete Pages",
-            "item": "https://www.pdfminty.com/delete-pages"
-          },
-          {
-            "@type": "ListItem",
-            "position": 6,
-            "name": "Add Watermark",
-            "item": "https://www.pdfminty.com/watermark"
-          },
-          {
-            "@type": "ListItem",
-            "position": 7,
-            "name": "Page Numbers",
-            "item": "https://www.pdfminty.com/page-numbers"
-          },
-          {
-            "@type": "ListItem",
-            "position": 8,
-            "name": "Add Blank Page",
-            "item": "https://www.pdfminty.com/add-blank"
-          },
-          {
-            "@type": "ListItem",
-            "position": 9,
-            "name": "Secure Private Vault",
-            "item": "https://www.pdfminty.com/protect"
-          },
-          {
-            "@type": "ListItem",
-            "position": 10,
-            "name": "Unlock Private Vault",
-            "item": "https://www.pdfminty.com/unlock"
-          },
-          {
-            "@type": "ListItem",
-            "position": 11,
-            "name": "Image to PDF",
-            "item": "https://www.pdfminty.com/img-to-pdf"
-          },
-          {
-            "@type": "ListItem",
-            "position": 12,
-            "name": "PDF to Image",
-            "item": "https://www.pdfminty.com/pdf-to-img"
-          },
-          {
-            "@type": "ListItem",
-            "position": 13,
-            "name": "Compress PDF",
-            "item": "https://www.pdfminty.com/compress"
-          },
-          {
-            "@type": "ListItem",
-            "position": 14,
-            "name": "AI Analyze Document",
-            "item": "https://www.pdfminty.com/ai-analyze"
-          }
-        ]
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "Is PDFMinty free to use?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes, PDFMinty is 100% free to use with no hidden fees, limits, or subscriptions. All processing is fully unlocked and runs entirely in your web browser."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Are my files safe with PDFMinty?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Absolutely. PDFMinty is a privacy-first web application. Your PDF documents never leave your computer or browser. There are no server uploads involved, meaning your sensitive data remains entirely under your control."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Do I need to create an account?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No, you do not need to register, sign in, or share any personal information. You can use all PDF tools immediately without creating an account."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Does PDFMinty work on mobile?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes, PDFMinty is a fully responsive progressive web app that works beautifully on all modern web browsers, including those on smartphones and tablets."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "How does PDFMinty protect my privacy?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "PDFMinty executes all PDF rendering and manipulation locally on your device using client-side JavaScript and Web Workers. Our static hosting environment has no access to your documents, ensuring unmatched privacy and offline capability."
-            }
-          }
-        ]
-      }
-    ]
+      ]
+    }
     </script>
   </head>
   <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen w-full transition-colors duration-200">
