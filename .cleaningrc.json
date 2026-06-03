@@ -1,0 +1,39 @@
+{
+  "fileComments": "PdfMinty Automated Cleaning System configuration rules",
+
+  "// ignorePatterns": "Directories or paths excluded entirely from parsing",
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/temp/**",
+    "**/.git/**",
+    "**/.cleaning-patches/**"
+  ],
+
+  "// deadCodeThreshold": "Minimum confidence level (high | medium | low) required to report inactive exports or declarations",
+  "deadCodeThreshold": "high",
+
+  "// duplicateSimilarity": "Minimum similarity percentage threshold (0-100) used for duplicate block identification",
+  "duplicateSimilarity": 90,
+
+  "// maxFileSize": "Skip processing files exceeding this memory size limit in bytes (10485760 = 10MB)",
+  "maxFileSize": 10485760,
+
+  "// protectedPaths": "Sensitive core files that are locked and must never be processed or modified under any circumstances",
+  "protectedPaths": [
+    "src/core/pdf-operations.ts",
+    "src/core/WorkerManager.ts"
+  ],
+
+  "// protectedPatterns": "Exclude files matching these regex expression filters from structural deletion operations",
+  "protectedPatterns": [
+    "/.*encrypt.*/i",
+    "/.*security.*/i"
+  ],
+
+  "// autoApproveSafe": "Toggle true to automatically stage and approve SAFE (🟢) recommendations without user interactive prompts",
+  "autoApproveSafe": true,
+
+  "// requireDryRun": "Enforces a sandboxed dry-run validation pass before applying changes to live src modules",
+  "requireDryRun": true
+}
