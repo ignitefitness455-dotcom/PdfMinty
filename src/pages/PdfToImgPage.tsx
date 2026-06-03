@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
-import { triggerDownload, getPdfJs } from "../core/utils";
+import { getPdfJs } from "../core/utils";
 import { PDFSanitizer } from "../core/PDFSanitizer";
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
@@ -19,7 +19,6 @@ export default function PdfToImgPage() {
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
 
-  const [isDocumentLocked, setIsDocumentLocked] = useState<boolean>(false);
   const [format, setFormat] = useState<"png" | "jpeg">("png");
   const [scale, setScale] = useState<number>(2); // 1 = 72, 2 = 144, 3 = 216 DPI
   const [images, setImages] = useState<{ url: string; pageNum: number }[]>([]);
@@ -47,14 +46,12 @@ export default function PdfToImgPage() {
 
     setCompletedResult(null);
     setSelectedFiles([file]);
-    setIsDocumentLocked(false);
     setImages([]);
     showToast(`Loaded document: ${file.name}`, "success");
   };
 
   const clearWorkspace = () => {
     setSelectedFiles([]);
-    setIsDocumentLocked(false);
     setCompletedResult(null);
     setProcessingProgress(null);
     setImages([]);
@@ -76,7 +73,6 @@ export default function PdfToImgPage() {
         sanitizedBytes = sanitizedResult.bytes;
       } catch (err: any) {
         if (err?.message?.includes("SECURED_LOCKED")) {
-          setIsDocumentLocked(true);
           setLoading(false);
           showToast(
             "🔒 Standard secured/locked PDF file detected. Image extraction is restricted. Use the Unlock tool first.",

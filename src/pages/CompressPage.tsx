@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
@@ -228,14 +228,27 @@ export default function CompressPage() {
             <div className="space-y-6">
               <div className="text-left">
                 <h2 className="text-lg font-black text-slate-905 dark:text-slate-50 leading-tight">
-                  Compress PDF File Size
+                  Lossless PDF Optimization
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-450 mt-1 font-medium leading-relaxed">
-                  Optimizes PDF structure and prunes metadata offline. 
-                  <span className="block mt-1.5 font-semibold text-amber-600 dark:text-amber-400">
-                    ⚠️ Note: client-side tools cannot compress embedded images without visual re-draw. For images/scans, consider using our <Link to="/img-to-pdf" className="underline font-bold text-emerald-500 hover:text-emerald-650">Image to PDF tool</Link>.
-                  </span>
+                  Optimizes PDF structure, linearizes objects, and prunes metadata completely offline.
                 </p>
+                <div className="bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800 rounded-2xl p-4.5 space-y-2.5 text-xs mt-3">
+                  <span className="font-extrabold text-slate-905 dark:text-slate-100 flex items-center gap-1.5">
+                    🛡️ Privacy-First & Offline Only
+                  </span>
+                  <p className="text-slate-550 dark:text-slate-400 font-medium leading-normal">
+                    This browser-side utility uses <code>pdf-lib</code> to optimize documents locally. To ensure client-side performance under absolute privacy, this tool performs standard <strong>Lossless Metadata & Structural Optimization</strong>:
+                  </p>
+                  <ul className="list-disc pl-4 space-y-1 text-slate-500 dark:text-slate-450 font-medium">
+                    <li>Transforms internal document references into zipped stream objects.</li>
+                    <li>Wipes stale modification timestamps and editor/user trackers.</li>
+                    <li>Prunes redundant visual resources safely without re-render degradation.</li>
+                  </ul>
+                  <p className="text-amber-600 dark:text-amber-400 font-bold leading-normal text-[11px] border-t border-slate-200/50 dark:border-slate-850 pt-2">
+                    ⚠️ Note: True image downsampling/lossy compression requires visual re-draw engines that can modify pixel arrays. If compressing scanned pages, use our <Link to="/img-to-pdf" className="underline font-extrabold text-emerald-500 hover:text-emerald-600">Image to PDF tool</Link> to adjust scale and quality during import.
+                  </p>
+                </div>
               </div>
 
               {!completedResult && selectedFiles.length === 0 && (
@@ -264,13 +277,13 @@ export default function CompressPage() {
 
                   <div className="space-y-3">
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-                      Compression Presets
+                      Optimization Profiles
                     </label>
                     <div className="flex flex-col gap-2">
                       {[
-                        { val: "medium", label: "Recommended Compression", desc: "Best balance of visual clarity and reduced file footprint." },
-                        { val: "high", label: "Extreme compression", desc: "Prune deeply for ultra small sizes. Scanned files can slightly degrade." },
-                        { val: "low", label: "Less Compression, Max Quality", desc: "Squeeze slightly but ensure zero visual page element alterations." }
+                        { val: "medium", label: "Recommended Lossless Optimization", desc: "Strips non-essential metadata and tracks, while structuring active elements beautifully." },
+                        { val: "high", label: "Extreme Metadata Pruning", desc: "Aggressive metadata clear. Wipes names, tags, templates, and sets dates to epoch." },
+                        { val: "low", label: "Standard Stream Compression", desc: "Prepares raw internal streams for minimal overhead while preserving document title/author." }
                       ].map((c) => (
                         <button
                           key={c.val}

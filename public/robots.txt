@@ -7,6 +7,3 @@ Disallow: /functions/
 
 # Sitemap
 Sitemap: https://www.pdfminty.com/sitemap.xml
-
-# Crawl rate
-Crawl-delay: 1

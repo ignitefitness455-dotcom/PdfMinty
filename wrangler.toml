@@ -1,11 +1,21 @@
 name = "pdfminty"
-compatibility_date = "2026-05-26"
+compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
 
 [vars]
 ENVIRONMENT = "production"
 # SECRET_KEY (e.g. GEMINI_API_KEY) should be configured securely via wrangler secret put
 
-[[kv_namespaces]]
+# Production Environment Config
+[env.production]
+[[env.production.kv_namespaces]]
 binding = "RATELIMIT_KV"
 id = "a43016cede9e4e92bc4ee8776b952cfb"
+
+# Staging Environment Config
+[env.staging]
+[[env.staging.kv_namespaces]]
+binding = "RATELIMIT_KV"
+id = "YOUR_STAGING_RATELIMIT_KV_NAMESPACE_ID"

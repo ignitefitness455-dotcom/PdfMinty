@@ -5,7 +5,7 @@ import viteCompression from 'vite-plugin-compression';
 import { fileURLToPath, URL } from 'node:url';
 import { visualizer } from 'rollup-plugin-visualizer';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       'lucide-react/icons': fileURLToPath(
@@ -27,9 +27,9 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    viteCompression({ algorithm: 'gzip' }),
-    viteCompression({ algorithm: 'brotliCompress' }),
-    visualizer({
+    viteCompression({ algorithm: 'gzip', filter: /\.(js|css|html|svg)$/ }),
+    viteCompression({ algorithm: 'brotliCompress', filter: /\.(js|css|html|svg)$/ }),
+    mode === 'analyze' && visualizer({
       open: true,
       gzipSize: true,
       brotliSize: true,
@@ -59,30 +59,30 @@ export default defineConfig({
     cssCodeSplit: true,
     assetsInlineLimit: 4096,
     rollupOptions: {
-      external: ['@google/genai'],
+      external: [],
       output: {
         manualChunks(id) {
-          // React core (rarely changes — cacheable)
           if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
             return 'react-core';
           }
-          // Routing
           if (id.includes('node_modules/react-router')) {
             return 'router';
           }
-          // PDF processing (heavy, only when tool opens)
           if (id.includes('node_modules/pdf-lib')) {
             return 'pdf-lib';
           }
-          // Icons (only if still using barrel import)
           if (id.includes('node_modules/lucide-react')) {
             return 'icons';
           }
-          // JSZip (only for pdf-to-img if implemented)
           if (id.includes('node_modules/jszip')) {
             return 'jszip';
           }
-          // Everything else from node_modules
+          if (id.includes('node_modules/pdfjs-dist')) {
+            return 'pdfjs';
+          }
+          if (id.includes('node_modules/react-markdown') || id.includes('node_modules/remark')) {
+            return 'markdown';
+          }
           if (id.includes('node_modules')) {
             return 'vendor';
           }
@@ -90,4 +90,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

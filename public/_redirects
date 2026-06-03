@@ -1,1 +1,13 @@
-/* /index.html 200
+/merge-pdf /index.html 200
+/split-pdf /index.html 200
+/compress-pdf /index.html 200
+/rotate-pdf /index.html 200
+/organize /index.html 200
+/watermark-pdf /index.html 200
+/add-page-numbers /index.html 200
+/add-blank-page /index.html 200
+/protect-pdf /index.html 200
+/unlock-pdf /index.html 200
+/image-to-pdf /index.html 200
+/pdf-to-image /index.html 200
+/intelligence /index.html 200

@@ -1,4 +1,4 @@
-import { sanitizeString, isValidEmail } from "../utils/validation";
+import { sanitizeString } from "../utils/validation";
 import { getCorsOrigin, getCorsHeaders } from "../utils/cors";
 
 interface Env {
@@ -43,14 +43,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
     }
 
-    // Identify Client IP
+    // Identify Client IP to prevent spamming reporting endpoint
     const ip = request.headers.get("cf-connecting-ip") || "127.0.0.1";
-    const ipKey = `rate_limit:${ip}`;
-    const limit = 3;
+    const ipKey = `rate_limit_error:${ip}`;
+    const limit = 20; // Allow up to 20 reports per hour to tolerate some rapid errors
     const oneHourMs = 3600000;
     const nowMs = Date.now();
 
-    // Check rate limit (entries with the same IP in the last hour)
+    // Check rate limit
     const previousRequestsRaw = await kv.get(ipKey);
     let timestamps: number[] = [];
     if (previousRequestsRaw) {
@@ -64,7 +64,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     if (timestamps.length >= limit) {
       return new Response(
-        JSON.stringify({ success: false, error: "Rate limit exceeded. Too many requests from this IP in the last hour." }),
+        JSON.stringify({ success: false, error: "Rate limit exceeded" }),
         {
           status: 429,
           headers: {
@@ -75,7 +75,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
     }
 
-    // Parse JSON body
+    // Parse the JSON body
     let payload: any;
     try {
       payload = await request.json();
@@ -92,67 +92,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
     }
 
-    const { name: rawName, email: rawEmail, subject: rawSubject, message: rawMessage, timestamp } = payload;
+    const { message, stack, timestamp, url } = payload;
 
-    // Validate email syntax first using our secure regex function
-    if (!rawEmail || typeof rawEmail !== "string" || !isValidEmail(rawEmail.trim())) {
-      return new Response(
-        JSON.stringify({ success: false, error: "A valid email address is required" }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": corsOrigin,
-          },
-        }
-      );
-    }
-
-    // Sanitize values to prevent XSS before storage and usage
-    const name = sanitizeString(rawName?.trim());
-    const email = sanitizeString(rawEmail?.trim());
-    const subject = sanitizeString(rawSubject?.trim());
-    const message = sanitizeString(rawMessage?.trim());
-
-    // Validate and check non-empty
-    if (!name || name === "") {
-      return new Response(
-        JSON.stringify({ success: false, error: "Name is required and cannot be empty" }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": corsOrigin,
-          },
-        }
-      );
-    }
-
-    if (!subject || subject === "") {
-      return new Response(
-        JSON.stringify({ success: false, error: "Subject is required and cannot be empty" }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": corsOrigin,
-          },
-        }
-      );
-    }
-
-    if (!message || message === "") {
-      return new Response(
-        JSON.stringify({ success: false, error: "Message is required and cannot be empty" }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": corsOrigin,
-          },
-        }
-      );
-    }
+    const cleanMessage = sanitizeString(message?.trim());
+    const cleanStack = sanitizeString(stack?.trim());
+    const cleanUrl = sanitizeString(url?.trim());
 
     // Update rate-limiting list
     timestamps.push(nowMs);
@@ -161,12 +105,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // Store in KV
     const cleanTimestamp = timestamp ? String(timestamp) : new Date().toISOString();
     const randomHex = Math.random().toString(16).substring(2, 8).padEnd(6, "0");
-    const storageKey = `contact:${cleanTimestamp}:${randomHex}`;
+    const storageKey = `error:${cleanTimestamp}:${randomHex}`;
     const storageValue = JSON.stringify({
-      name,
-      email,
-      subject,
-      message,
+      message: cleanMessage,
+      stack: cleanStack,
+      url: cleanUrl,
       timestamp: cleanTimestamp,
       ip,
     });

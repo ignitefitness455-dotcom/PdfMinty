@@ -19,6 +19,7 @@ const routes = [
 ];
 
 const today = new Date().toISOString().split('T')[0];
+const siteUrl = process.env.VITE_SITE_URL || 'https://www.pdfminty.com';
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -26,7 +27,7 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
                             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 ${routes.map(r => `  <url>
-    <loc>https://www.pdfminty.com${r.path === '/' ? '' : r.path}</loc>
+    <loc>${siteUrl}${r.path === '/' ? '' : r.path}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${r.freq}</changefreq>
     <priority>${r.priority}</priority>

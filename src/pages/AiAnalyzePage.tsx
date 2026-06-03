@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
-import { triggerDownload, getPdfJs } from "../core/utils";
+import { getPdfJs } from "../core/utils";
 import { PDFSanitizer } from "../core/PDFSanitizer";
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
@@ -16,7 +16,6 @@ export default function AiAnalyzePage() {
   const [loading, setLoading] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
 
-  const [isDocumentLocked, setIsDocumentLocked] = useState<boolean>(false);
   const [aiAnalyzing, setAiAnalyzing] = useState(false);
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
@@ -37,13 +36,11 @@ export default function AiAnalyzePage() {
     setAiAnalysisResult(null);
     setAiError(null);
     setSelectedFiles([file]);
-    setIsDocumentLocked(false);
     showToast(`Loaded document: ${file.name}`, "success");
   };
 
   const clearWorkspace = () => {
     setSelectedFiles([]);
-    setIsDocumentLocked(false);
     setProcessingProgress(null);
     setAiAnalyzing(false);
     setAiAnalysisResult(null);
@@ -71,7 +68,6 @@ export default function AiAnalyzePage() {
         sanitizedBytes = sanitizedResult.bytes;
       } catch (err: any) {
         if (err?.message?.includes("SECURED_LOCKED")) {
-          setIsDocumentLocked(true);
           setLoading(false);
           setAiAnalyzing(false);
           showToast(

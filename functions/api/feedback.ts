@@ -1,26 +1,19 @@
+import { sanitizeString, isValidEmail } from "../utils/validation";
+import { getCorsOrigin, getCorsHeaders } from "../utils/cors";
+
 interface Env {
   RATELIMIT_KV: KVNamespace;
 }
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { request } = context;
-  const origin = request.headers.get("Origin") || "";
-
-  const isLocal = origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:");
-  const isProd = /^https:\/\/([a-z0-9-]+\.)?pdfminty\.(com|pages\.dev)$/.test(origin);
-
-  const corsOrigin = isLocal || isProd ? origin : "https://www.pdfminty.com";
+  const corsOrigin = getCorsOrigin(request);
 
   // Handle preflight OPTIONS request
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": corsOrigin,
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Access-Control-Max-Age": "86400",
-      },
+      headers: getCorsHeaders(corsOrigin),
     });
   }
 
@@ -30,11 +23,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       JSON.stringify({ success: false, error: "Method Not Allowed" }),
       {
         status: 405,
-        headers: {
-          "Content-Type": "application/json",
-          "Allow": "POST",
-          "Access-Control-Allow-Origin": corsOrigin,
-        },
+        headers: getCorsHeaders(corsOrigin),
       }
     );
   }
@@ -103,7 +92,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
     }
 
-    const { rating, comment, email, timestamp } = payload;
+    const { rating, comment: rawComment, email: rawEmail, timestamp } = payload;
 
     const parsedRating = Number(rating);
     if (!rating || isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
@@ -119,7 +108,25 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
     }
 
-    if (!comment || typeof comment !== "string" || comment.trim() === "") {
+    // Validate email syntax if provided
+    if (rawEmail && typeof rawEmail === "string" && rawEmail.trim() !== "" && !isValidEmail(rawEmail.trim())) {
+      return new Response(
+        JSON.stringify({ success: false, error: "The provided email address is invalid" }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": corsOrigin,
+          },
+        }
+      );
+    }
+
+    // Sanitize comment and email (if present) before usage or storage
+    const comment = sanitizeString(rawComment?.trim());
+    const email = rawEmail ? sanitizeString(rawEmail.trim()) : undefined;
+
+    if (!comment || comment === "") {
       return new Response(
         JSON.stringify({ success: false, error: "Comment is required and cannot be empty" }),
         {

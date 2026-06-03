@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
-import { triggerDownload, getFriendlyErrorMessage } from "../core/utils";
+import { triggerDownload } from "../core/utils";
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
 import Trash2 from "lucide-react/icons/trash-2";
@@ -10,6 +10,52 @@ import ArrowUp from "lucide-react/icons/arrow-up";
 import ArrowDown from "lucide-react/icons/arrow-down";
 import Download from "lucide-react/icons/download";
 import Check from "lucide-react/icons/check";
+
+// Helper to convert WebP to standard PNG using HTML5 Canvas on the browser main-thread
+function convertWebPToPng(file: File): Promise<{ bytes: Uint8Array; type: string; name: string }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Failed to get 2D context from canvas for WebP conversion"));
+        return;
+      }
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          reject(new Error("Canvas conversion to blob failed"));
+          return;
+        }
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (reader.result instanceof ArrayBuffer) {
+            const newName = file.name.replace(/\.webp$/i, ".png");
+            resolve({
+              bytes: new Uint8Array(reader.result),
+              type: "image/png",
+              name: newName,
+            });
+          } else {
+            reject(new Error("FileReader failed to read WebP blob as ArrayBuffer"));
+          }
+        };
+        reader.onerror = () => reject(reader.error || new Error("FileReader error reading WebP blob"));
+        reader.readAsArrayBuffer(blob);
+      }, "image/png");
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Failed to load WebP image for conversion"));
+    };
+    img.src = url;
+  });
+}
 
 export default function ImgToPdfPage() {
   const { showToast } = useLayout();
@@ -61,7 +107,7 @@ export default function ImgToPdfPage() {
   const handleFilesSelected = (files: File[]) => {
     const images = files.filter(f => f.type.startsWith("image/"));
     if (images.length !== files.length) {
-      showToast("Only standard image formats (JPG/PNG) are supported here.", "error");
+      showToast("Only standard image formats (JPG/PNG/WebP) are supported here.", "error");
     }
 
     const filtered = images.filter(file => {
@@ -131,12 +177,20 @@ export default function ImgToPdfPage() {
       let progress = 15;
       for (let i = 0; i < selectedFiles.length; i++) {
         const imgFile = selectedFiles[i];
-        const arrayBuffer = await imgFile.arrayBuffer();
-        imageFilesData.push({
-          bytes: new Uint8Array(arrayBuffer),
-          type: imgFile.type,
-          name: imgFile.name
-        });
+        let assetData: { bytes: Uint8Array; type: string; name: string };
+
+        if (imgFile.type === "image/webp" || imgFile.name.toLowerCase().endsWith(".webp")) {
+          assetData = await convertWebPToPng(imgFile);
+        } else {
+          const arrayBuffer = await imgFile.arrayBuffer();
+          assetData = {
+            bytes: new Uint8Array(arrayBuffer),
+            type: imgFile.type,
+            name: imgFile.name,
+          };
+        }
+
+        imageFilesData.push(assetData);
         progress = Math.min(60, progress + 10);
         setProcessingProgress(progress);
       }

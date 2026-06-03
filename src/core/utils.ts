@@ -1,4 +1,3 @@
-import { PDFSanitizer } from "./PDFSanitizer";
 import confetti from "canvas-confetti";
 
 let cachedPdfJs: any = null;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CheckCircle from 'lucide-react/icons/check-circle';
 import AlertCircle from 'lucide-react/icons/alert-circle';
 import Info from 'lucide-react/icons/info';

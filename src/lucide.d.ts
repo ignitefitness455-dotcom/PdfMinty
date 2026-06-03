@@ -1,6 +1,12 @@
 declare module 'lucide-react/icons/*' {
   import { LucideProps } from 'lucide-react';
-  import { FC } from 'react';
-  const Icon: FC<LucideProps>;
+  import { ReactElement } from 'react';
+
+  interface LucideIcon {
+    (props: LucideProps): ReactElement | null;
+    displayName?: string;
+  }
+
+  const Icon: LucideIcon;
   export default Icon;
 }

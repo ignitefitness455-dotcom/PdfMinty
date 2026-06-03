@@ -215,8 +215,8 @@ export interface AddBlankPayload {
   blankPageSize: 'A4' | 'Letter' | 'Legal' | 'A3' | 'custom';
   customWidth?: number;
   customHeight?: number;
-  blankPagePos: 'start' | 'end' | 'custom';
-  blankPageAt?: string;
+  blankPagePos: 'start' | 'end' | 'custom' | 'after';
+  blankPageAt?: string | number;
 }
 export async function addBlankPagePDF(payload: AddBlankPayload) {
   const { fileBytes, blankPageSize, customWidth, customHeight, blankPagePos, blankPageAt } = payload;
@@ -242,10 +242,14 @@ export async function addBlankPagePDF(payload: AddBlankPayload) {
   }
 
   let insertionIndex = pageCount;
-  if (blankPagePos === 'start') insertionIndex = 0;
-  else if (blankPagePos === 'custom') {
-    const customIdx = parseInt(blankPageAt || '1', 10);
+  if (blankPagePos === 'start') {
+    insertionIndex = 0;
+  } else if (blankPagePos === 'custom') {
+    const customIdx = typeof blankPageAt === 'number' ? blankPageAt : parseInt(blankPageAt || '1', 10);
     if (!isNaN(customIdx)) insertionIndex = Math.max(0, Math.min(customIdx - 1, pageCount));
+  } else if (blankPagePos === 'after') {
+    const customIdx = typeof blankPageAt === 'number' ? blankPageAt : parseInt(blankPageAt || '1', 10);
+    if (!isNaN(customIdx)) insertionIndex = Math.max(0, Math.min(customIdx, pageCount));
   }
 
   pdfDoc.insertPage(insertionIndex, [w, h]);
@@ -310,15 +314,29 @@ export async function compressPDF(payload: CompressPayload) {
   const { fileBytes, quality } = payload;
   const pdfDoc = await loadPDF(fileBytes, { ignoreEncryption: true });
 
-  // Remove metadata for all qualities
-  pdfDoc.setTitle('');
-  pdfDoc.setAuthor('');
-  pdfDoc.setSubject('');
-  pdfDoc.setCreator('');
-  pdfDoc.setProducer('PDFMinty');
-  pdfDoc.setCreationDate(new Date());
-  pdfDoc.setModificationDate(new Date());
+  // Handle quality preset modes for Lossless Metadata & Structural Optimization
+  if (quality === 'high') {
+    // Aggressive Metadata Pruning: Completely wipe all identifiers
+    try { pdfDoc.setTitle(''); } catch (_) {}
+    try { pdfDoc.setAuthor(''); } catch (_) {}
+    try { pdfDoc.setSubject(''); } catch (_) {}
+    try { pdfDoc.setCreator(''); } catch (_) {}
+    try { pdfDoc.setProducer('PDFMinty Lossless'); } catch (_) {}
+    try { pdfDoc.setCreationDate(new Date('1970-01-01T00:00:00Z')); } catch (_) {}
+    try { pdfDoc.setModificationDate(new Date('1970-01-01T00:00:00Z')); } catch (_) {}
+  } else if (quality === 'medium') {
+    // Recommended Lossless Optimization: Wipe tracks, preserve standard dates and basic structures
+    try { pdfDoc.setSubject(''); } catch (_) {}
+    try { pdfDoc.setCreator(''); } catch (_) {}
+    try { pdfDoc.setProducer('PDFMinty'); } catch (_) {}
+    try { pdfDoc.setModificationDate(new Date()); } catch (_) {}
+  } else {
+    // Standard Stream Compression: Kept simple with minimal modifications
+    try { pdfDoc.setProducer('PDFMinty Standard'); } catch (_) {}
+    try { pdfDoc.setModificationDate(new Date()); } catch (_) {}
+  }
 
+  // Compress structural streams with useObjectStreams
   return pdfDoc.save({
     useObjectStreams: true,
   });
@@ -341,6 +359,106 @@ export async function protectPDF(payload: ProtectPayload) {
     throw new Error('Password cannot be empty.');
   }
 
+  // 1. Generate a modern, beautiful valid PDF warning envelope
+  const pDoc = await PDFDocument.create();
+  const page = pDoc.addPage([600, 400]);
+  const helveticaBold = await pDoc.embedFont(StandardFonts.HelveticaBold);
+  const helvetica = await pDoc.embedFont(StandardFonts.Helvetica);
+
+  // Background
+  page.drawRectangle({
+    x: 0,
+    y: 0,
+    width: 600,
+    height: 400,
+    color: rgb(0.97, 0.98, 1.0),
+  });
+
+  // Border card
+  page.drawRectangle({
+    x: 40,
+    y: 110,
+    width: 520,
+    height: 220,
+    color: rgb(1, 1, 1),
+    borderColor: rgb(0.85, 0.88, 0.92),
+    borderWidth: 1.5,
+  });
+
+  // Locked Banner Title
+  page.drawText("🔒 Secured with PdfMinty AES-256", {
+    x: 60,
+    y: 290,
+    size: 20,
+    font: helveticaBold,
+    color: rgb(0.06, 0.09, 0.16),
+  });
+
+  // Subtitle
+  page.drawText("This PDF document is protected using military-grade client-side encryption (AES-256-GCM).", {
+    x: 60,
+    y: 255,
+    size: 10,
+    font: helvetica,
+    color: rgb(0.35, 0.4, 0.5),
+  });
+
+  // Explainer Title
+  page.drawText("To access and decrypt this document, please follow these steps:", {
+    x: 60,
+    y: 225,
+    size: 11,
+    font: helveticaBold,
+    color: rgb(0.2, 0.25, 0.35),
+  });
+
+  // Step 1
+  page.drawText("1. Visit the PdfMinty standard application (https://pdfminty.com).", {
+    x: 80,
+    y: 200,
+    size: 10.5,
+    font: helvetica,
+    color: rgb(0.3, 0.35, 0.45),
+  });
+
+  // Step 2
+  page.drawText("2. Select the 'Unlock PDF' tool from the primary dashboard.", {
+    x: 80,
+    y: 180,
+    size: 10.5,
+    font: helvetica,
+    color: rgb(0.3, 0.35, 0.45),
+  });
+
+  // Step 3
+  page.drawText("3. Upload/drop this secure envelope PDF and enter your lock password.", {
+    x: 80,
+    y: 160,
+    size: 10.5,
+    font: helvetica,
+    color: rgb(0.3, 0.35, 0.45),
+  });
+
+  // Footer metadata
+  page.drawText("4. Download the original decrypted version. Processed entirely client-side.", {
+    x: 80,
+    y: 140,
+    size: 10.5,
+    font: helvetica,
+    color: rgb(0.3, 0.35, 0.45),
+  });
+
+  page.drawText("Privacy Policy: Zero data leaves your device. Content remains completely encrypted offline.", {
+    x: 60,
+    y: 60,
+    size: 9.5,
+    font: helvetica,
+    color: rgb(0.45, 0.5, 0.6),
+  });
+
+  const envelopePdfBytes = await pDoc.save();
+
+  // 2. Encrypt the original PDF raw bytes with AES-GCM
   const enc = new TextEncoder();
   const saltBytes = crypto.getRandomValues(new Uint8Array(16));
   const ivBytes = crypto.getRandomValues(new Uint8Array(12));
@@ -376,12 +494,34 @@ export async function protectPDF(payload: ProtectPayload) {
   );
 
   const encryptedBytes = new Uint8Array(encryptedBuffer);
-  const outputBytes = new Uint8Array(
-    saltBytes.length + ivBytes.length + encryptedBytes.length,
-  );
-  outputBytes.set(saltBytes, 0);
-  outputBytes.set(ivBytes, saltBytes.length);
-  outputBytes.set(encryptedBytes, saltBytes.length + ivBytes.length);
+
+  // 3. Construct standard composite file (envelope PDF bytes + crypt footer block)
+  // Layout from start: [envelopePdfBytes] ... [saltBytes (16)] [ivBytes (12)] [encryptedBytes (encLen)] [encLen (4)] [magic 'MINTY' (5)]
+  const encLen = encryptedBytes.length;
+  const footerSize = 16 + 12 + encLen + 4 + 5;
+  const footerBytes = new Uint8Array(footerSize);
+
+  footerBytes.set(saltBytes, 0); // Offset 0, length 16
+  footerBytes.set(ivBytes, 16);  // Offset 16, length 12
+  footerBytes.set(encryptedBytes, 28); // Offset 28, length encLen
+
+  // Set the 32-bit big-endian length of encryptedBytes
+  const view = new DataView(footerBytes.buffer, footerBytes.byteOffset + 16 + 12 + encLen, 4);
+  view.setUint32(0, encLen, false); // false = big-endian
+
+  // Set magic bytes 'MINTY' at the ultimate offset
+  const magicOffset = 16 + 12 + encLen + 4;
+  footerBytes[magicOffset]     = 77; // M
+  footerBytes[magicOffset + 1] = 73; // I
+  footerBytes[magicOffset + 2] = 78; // N
+  footerBytes[magicOffset + 3] = 84; // T
+  footerBytes[magicOffset + 4] = 89; // Y
+
+  // Concatenate everything cleanly
+  const outputBytes = new Uint8Array(envelopePdfBytes.length + footerBytes.length);
+  outputBytes.set(envelopePdfBytes, 0);
+  outputBytes.set(footerBytes, envelopePdfBytes.length);
+
   return outputBytes;
 }
 
@@ -395,13 +535,36 @@ export async function unlockPDF(payload: UnlockPayload) {
     throw new Error('Password is required to unlock the PDF.');
   }
 
-  if (fileBytes.length < 28) {
+  const len = fileBytes.length;
+  if (len < 16 + 12 + 4 + 5) {
     throw new Error('Invalid protected file format or incorrect password.');
   }
 
-  const saltBytes = fileBytes.slice(0, 16);
-  const ivBytes = fileBytes.slice(16, 28);
-  const encryptedBytes = fileBytes.slice(28);
+  // Check magic bytes at the extreme trailing edge
+  const magicPos = len - 5;
+  const isMinty = 
+    fileBytes[magicPos] === 77 &&
+    fileBytes[magicPos + 1] === 73 &&
+    fileBytes[magicPos + 2] === 78 &&
+    fileBytes[magicPos + 3] === 84 &&
+    fileBytes[magicPos + 4] === 89;
+
+  if (!isMinty) {
+    throw new Error('NOT_MINTY_SECURED_LOCK');
+  }
+
+  // Retrieve encrypted length from the preceding 4-byte segment
+  const view = new DataView(fileBytes.buffer, fileBytes.byteOffset + len - 9, 4);
+  const encLen = view.getUint32(0, false);
+
+  const startOfPayload = len - 9 - encLen - 12 - 16;
+  if (startOfPayload < 0) {
+    throw new Error('Invalid secure envelope structure.');
+  }
+
+  const saltBytes = fileBytes.slice(startOfPayload, startOfPayload + 16);
+  const ivBytes = fileBytes.slice(startOfPayload + 16, startOfPayload + 28);
+  const encryptedBytes = fileBytes.slice(startOfPayload + 28, startOfPayload + 28 + encLen);
 
   const enc = new TextEncoder();
   const baseKey = await crypto.subtle.importKey(

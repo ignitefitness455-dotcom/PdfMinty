@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
@@ -82,7 +82,11 @@ export default function UnlockPage() {
             showToast("Incorrect password or corrupted secure file decryption.", "error");
           }
         } else {
-          showToast(getFriendlyErrorMessage("Decryption failed", error || "Incorrect password"), "error");
+          if (error === "NOT_MINTY_SECURED_LOCK") {
+            showToast("🔒 Standard secure-locked PDF detected. Standard Acrobat password locks must be decrypted with standard readers. Only PdfMinty AES-256 secure envelopes are unlocked here.", "error");
+          } else {
+            showToast(getFriendlyErrorMessage("Decryption failed", error || "Incorrect password"), "error");
+          }
         }
         setLoading(false);
         worker.terminate();
@@ -140,7 +144,7 @@ export default function UnlockPage() {
                   Decrypt & Unlock Secured PDFs
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-450 mt-1 font-medium">
-                  Provide your decryption passphrase to decrypt standard AES-GCM password locked documents entirely locally.
+                  Provide your decryption passphrase to decrypt standard AES-GCM secure envelope files entirely locally.
                 </p>
               </div>
 

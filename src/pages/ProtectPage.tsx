@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
@@ -249,10 +249,10 @@ export default function ProtectPage() {
             <div className="space-y-6">
               <div className="text-left">
                 <h2 className="text-lg font-black text-slate-905 dark:text-slate-50 leading-tight">
-                  Protect with AES-GCM Key
+                  AES-256 Secure Envelope
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-450 mt-1 font-medium">
-                  Add secure offline military grade lock passwords to prevent unauthorized document reviews completely.
+                  Pack your PDF inside a secure offline envelope protected with military-grade client-side encryption.
                 </p>
               </div>
 
@@ -309,53 +309,21 @@ export default function ProtectPage() {
                       />
                     </div>
 
-                    {/* Permissions checklist */}
-                    <div className="space-y-2.5 bg-slate-50/65 dark:bg-slate-950/45 p-3.5 rounded-2xl border border-slate-150 dark:border-slate-850/60">
+                    {/* Secure Envelope custom info */}
+                    <div className="space-y-2.5 bg-slate-50/65 dark:bg-slate-950/45 p-3.5 rounded-2xl border border-slate-150 dark:border-slate-850/60 text-left">
                       <span className="text-[10px] font-black tracking-wider text-slate-600 dark:text-slate-400 uppercase block">
-                        Document Permission Flags (Offline-Locks)
+                        AES-256 Envelope Cryptography
                       </span>
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-2.5 text-xs text-slate-705 dark:text-slate-300 font-semibold cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={permissions.printing}
-                            onChange={(e) => setPermissions({ ...permissions, printing: e.target.checked })}
-                            className="rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
-                          />
-                          <span>Allow Printing (Original DPI)</span>
-                        </label>
-                        <label className="flex items-center gap-2.5 text-xs text-slate-705 dark:text-slate-300 font-semibold cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={permissions.modifying}
-                            onChange={(e) => setPermissions({ ...permissions, modifying: e.target.checked })}
-                            className="rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
-                          />
-                          <span>Allow Modifications (Page Edits)</span>
-                        </label>
-                        <label className="flex items-center gap-2.5 text-xs text-slate-705 dark:text-slate-300 font-semibold cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={permissions.copying}
-                            onChange={(e) => setPermissions({ ...permissions, copying: e.target.checked })}
-                            className="rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
-                          />
-                          <span>Allow Metadata & Text Copying</span>
-                        </label>
-                        <label className="flex items-center gap-2.5 text-xs text-slate-705 dark:text-slate-300 font-semibold cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={permissions.annotating}
-                            onChange={(e) => setPermissions({ ...permissions, annotating: e.target.checked })}
-                            className="rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
-                          />
-                          <span>Allow Comments & Annotations</span>
-                        </label>
-                      </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-semibold">
+                        Unlike standard PDF passwords which are weak and easily broken, PdfMinty packs your file into an offline <span className="text-emerald-500 font-bold">AES-256-GCM Secure Envelope</span>. 
+                      </p>
+                      <p className="text-[11px] text-slate-550 dark:text-slate-450 leading-relaxed font-medium">
+                        Standard readers can open the PDF output perfectly to show a professional information panel, while the original contents remain safely locked and hidden until decrypted via our offline Unlock tool.
+                      </p>
                     </div>
 
                     <div className="text-[10px] text-slate-450 dark:text-slate-500 font-semibold leading-normal">
-                      🛡️ Uses fully client-side crypto sandbox (PBKDF2 derivative iteration locks). This tool NEVER sends passwords or files to any cloud server!
+                      🛡️ Uses fully client-side crypto sandbox (PBKDF2 derivative iteration locks). This tool NEVER sends passwords or files to any server!
                     </div>
                   </div>
                 </div>

@@ -5,6 +5,8 @@
     "lib": ["ES2022"],
     "moduleResolution": "bundler",
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
     "noEmit": true,
     "skipLibCheck": true,
     "types": ["@cloudflare/workers-types"]

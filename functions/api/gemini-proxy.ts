@@ -1,20 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
+import { getCorsOrigin, getCorsHeaders, isAllowedOrigin } from "../utils/cors";
 
 interface Env {
   GEMINI_API_KEY?: string;
+  GEMINI_MODEL?: string;
   RATELIMIT_KV?: any; // KVNamespace
 }
 
 export const onRequestOptions: PagesFunction<Env> = async (context) => {
-  const origin = context.request.headers.get("Origin") || "";
+  const corsOrigin = getCorsOrigin(context.request);
   return new Response(null, {
     status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": origin || "https://www.pdfminty.com",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Origin",
-      "Access-Control-Max-Age": "86400",
-    },
+    headers: getCorsHeaders(corsOrigin),
   });
 };
 
@@ -23,17 +20,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // 1. Strict Origin / Domain Safety Checks
   const origin = request.headers.get("Origin") || "";
-  const isLocal = origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:");
-  const isProd = /^https:\/\/([a-z0-9-]+\.)?pdfminty\.(com|pages\.dev)$/.test(origin);
+  const corsOrigin = getCorsOrigin(request);
+  const corsHeaders = getCorsHeaders(corsOrigin);
 
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": origin || "https://www.pdfminty.com",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Origin",
-    "Content-Type": "application/json",
-  };
-
-  if (!isLocal && !isProd) {
+  if (!isAllowedOrigin(origin)) {
     return new Response(
       JSON.stringify({ success: false, error: "Access Denied: Unregistered Origin." }),
       { status: 403, headers: corsHeaders }
@@ -115,10 +105,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     );
   }
 
+  const modelName = env.GEMINI_MODEL || "gemini-1.5-flash";
+
   // 5. Invoke Google Gemini AI
   try {
     const ai = new GoogleGenAI({
       apiKey: apiKey,
+      httpOptions: {
+        headers: {
+          "User-Agent": "aistudio-build",
+        },
+      },
     });
 
     const prompt = `You are an expert document intelligence assistant.
@@ -136,7 +133,7 @@ ${extractedText.substring(0, 40000)}
 ---`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash lite",
+      model: modelName,
       contents: prompt,
       config: {
         temperature: 0.2,
