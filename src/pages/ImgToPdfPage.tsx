@@ -273,9 +273,9 @@ export default function ImgToPdfPage() {
 
               {!completedResult && selectedFiles.length === 0 && (
                 <FileUploader
-                  placeholder="Drop images (JPG, PNG) here or click to choose"
+                  placeholder="Drop images (JPG, PNG, WebP) here or click to choose"
                   multiple={true}
-                  accept="image/*"
+                  accept="image/jpeg, image/png, image/webp"
                   onFilesSelected={handleFilesSelected}
                 />
               )}
@@ -393,7 +393,7 @@ export default function ImgToPdfPage() {
                     })}
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-2 bg-slate-50 dark:bg-slate-950/20 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/40 leading-relaxed">
-                    ⚠️ <strong>Supported formats:</strong> PNG, JPEG/JPG. High-resolution images are embedded in full quality natively.
+                    ⚠️ <strong>Supported formats:</strong> PNG, JPEG/JPG, WebP. High-resolution images are embedded in full quality natively.
                   </p>
                 </div>
               )}

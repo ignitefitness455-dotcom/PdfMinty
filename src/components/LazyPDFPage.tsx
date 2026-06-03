@@ -18,6 +18,7 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
 
   useEffect(() => {
     let active = true;
+    let canvasElement: HTMLCanvasElement | null = null;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -27,6 +28,7 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
             if (!active) return;
             const viewport = page.getViewport({ scale: 0.4 });
             const canvas = document.createElement("canvas");
+            canvasElement = canvas;
             const context = canvas.getContext("2d");
 
             if (context) {
@@ -46,6 +48,8 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
                 console.error("Lazy render page failed:", err);
               } finally {
                 if (active) setRendering(false);
+                canvas.width = 0;
+                canvas.height = 0;
               }
             }
           });
@@ -63,6 +67,10 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
     return () => {
       active = false;
       observer.disconnect();
+      if (canvasElement) {
+        canvasElement.width = 0;
+        canvasElement.height = 0;
+      }
     };
   }, [pdfDoc, pageIndex, imgUrl, rendering]);
 

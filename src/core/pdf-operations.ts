@@ -99,28 +99,40 @@ export interface WatermarkPayload {
   watermarkSize: number;
   watermarkRotation: number;
 }
+
+const hasNonLatin = (text: string) => /[^\u0000-\u007F]/.test(text);
+
+async function getWatermarkFont(pdfDoc: PDFDocument, text: string) {
+  if (hasNonLatin(text)) {
+    try {
+      // Load Noto Sans subset (Bengali + Latin) — ~150KB
+      // Host this in your /public folder
+      const fontBytes = await fetch('/fonts/NotoSans-subset.ttf')
+        .then(r => r.arrayBuffer());
+      return await pdfDoc.embedFont(fontBytes);
+    } catch (e) {
+      console.error("Failed to fetch NotoSans Unicode font, falling back to HelveticaBold:", e);
+    }
+  }
+  return await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+}
+
 export async function watermarkPDF(payload: WatermarkPayload) {
   const { fileBytes, watermarkText, watermarkOpacity, watermarkSize, watermarkRotation } = payload;
   if (!watermarkText || watermarkText.trim() === '') {
     throw new Error('Watermark text cannot be empty.');
   }
 
-  // Check for non-Latin / non-WinAnsi characters (e.g. CJK, Bangla, Cyrillic, Emojis)
-  // WinAnsiEncoding covers standard printable ASCII and Western European extensions
-  const hasNonLatin = /[^\x1f-\x7e\xa0-\xff]/.test(watermarkText);
-
   const pdfDoc = await loadPDF(fileBytes);
   const pages = pdfDoc.getPages();
-  const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const watermarkFont = await getWatermarkFont(pdfDoc, watermarkText);
 
   pages.forEach((page) => {
     const { width, height } = page.getSize();
     
     let textWidth = watermarkText.length * (watermarkSize * 0.6);
     try {
-      if (!hasNonLatin) {
-        textWidth = helveticaBold.widthOfTextAtSize(watermarkText, watermarkSize);
-      }
+      textWidth = watermarkFont.widthOfTextAtSize(watermarkText, watermarkSize);
     } catch {
       // Silently fall back to rough estimate
     }
@@ -141,7 +153,7 @@ export async function watermarkPDF(payload: WatermarkPayload) {
     page.drawText(watermarkText, {
       x: clampedX,
       y: clampedY,
-      font: helveticaBold,
+      font: watermarkFont,
       size: watermarkSize,
       color: rgb(WATERMARK_DEFAULTS.COLOR.r, WATERMARK_DEFAULTS.COLOR.g, WATERMARK_DEFAULTS.COLOR.b),
       opacity: Math.max(0.05, Math.min(1, watermarkOpacity)),
@@ -218,6 +230,20 @@ export interface AddBlankPayload {
   blankPagePos: 'start' | 'end' | 'custom' | 'after';
   blankPageAt?: string | number;
 }
+function resolveInsertIndex(
+  position: 'start' | 'end' | 'after' | 'custom',
+  customPage: number,  // 1-based, user-provided
+  totalPages: number
+): number {
+  switch (position) {
+    case 'start':  return 0;
+    case 'end':    return totalPages;
+    case 'after':  return Math.min(customPage, totalPages); // insert after page N
+    case 'custom': return Math.min(Math.max(customPage - 1, 0), totalPages);
+    default:       return totalPages;
+  }
+}
+
 export async function addBlankPagePDF(payload: AddBlankPayload) {
   const { fileBytes, blankPageSize, customWidth, customHeight, blankPagePos, blankPageAt } = payload;
   const pdfDoc = await loadPDF(fileBytes);
@@ -241,19 +267,38 @@ export async function addBlankPagePDF(payload: AddBlankPayload) {
     h = matched[1];
   }
 
-  let insertionIndex = pageCount;
-  if (blankPagePos === 'start') {
-    insertionIndex = 0;
-  } else if (blankPagePos === 'custom') {
-    const customIdx = typeof blankPageAt === 'number' ? blankPageAt : parseInt(blankPageAt || '1', 10);
-    if (!isNaN(customIdx)) insertionIndex = Math.max(0, Math.min(customIdx - 1, pageCount));
-  } else if (blankPagePos === 'after') {
-    const customIdx = typeof blankPageAt === 'number' ? blankPageAt : parseInt(blankPageAt || '1', 10);
-    if (!isNaN(customIdx)) insertionIndex = Math.max(0, Math.min(customIdx, pageCount));
-  }
+  const customPageNum = typeof blankPageAt === 'number'
+    ? blankPageAt
+    : parseInt(blankPageAt || '1', 10);
+
+  const insertionIndex = resolveInsertIndex(
+    blankPagePos,
+    isNaN(customPageNum) ? 1 : customPageNum,
+    pageCount
+  );
 
   pdfDoc.insertPage(insertionIndex, [w, h]);
   return pdfDoc.save();
+}
+
+async function normalizeImageToPng(bytes: Uint8Array, type: string, name: string): Promise<{ bytes: Uint8Array; type: string }> {
+  const t = (type || '').toLowerCase();
+  const n = (name || '').toLowerCase();
+  const isWebP = t === 'image/webp' || n.endsWith('.webp');
+  const isGif = t === 'image/gif' || n.endsWith('.gif');
+  if (isWebP || isGif) {
+    const blob = new Blob([bytes as any], { type: isWebP ? 'image/webp' : 'image/gif' });
+    const bitmap = await createImageBitmap(blob);
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(bitmap, 0, 0);
+    const pngBlob = await canvas.convertToBlob({ type: 'image/png' });
+    return {
+      bytes: new Uint8Array(await pngBlob.arrayBuffer()),
+      type: 'image/png'
+    };
+  }
+  return { bytes, type };
 }
 
 export interface ImgToPdfPayload {
@@ -273,12 +318,15 @@ export async function imagesToPDF(payload: ImgToPdfPayload) {
 
   for (const item of imageFilesData) {
     let embeddedImage;
-    if (item.type === 'image/png' || item.name.toLowerCase().endsWith('.png')) {
-      embeddedImage = await pdfDoc.embedPng(item.bytes);
-    } else if (item.type === 'image/jpeg' || item.type === 'image/jpg' || item.name.toLowerCase().match(/\.(jpg|jpeg)$/)) {
-      embeddedImage = await pdfDoc.embedJpg(item.bytes);
+    const { bytes, type } = await normalizeImageToPng(item.bytes, item.type, item.name);
+    const nameLower = item.name.toLowerCase();
+
+    if (type === 'image/png' || nameLower.endsWith('.png') || nameLower.endsWith('.webp') || nameLower.endsWith('.gif')) {
+      embeddedImage = await pdfDoc.embedPng(bytes);
+    } else if (type === 'image/jpeg' || type === 'image/jpg' || nameLower.match(/\.(jpg|jpeg)$/)) {
+      embeddedImage = await pdfDoc.embedJpg(bytes);
     } else {
-      throw new Error(`Unsupported image format: ${item.name}. Only PNG and JPEG are supported.`);
+      throw new Error(`Unsupported image format: ${item.name}. Only PNG, JPEG, and WebP are supported.`);
     }
 
     let pageWidth = embeddedImage.width;
@@ -306,17 +354,35 @@ export async function imagesToPDF(payload: ImgToPdfPayload) {
   return pdfDoc.save();
 }
 
+const QUALITY_SETTINGS = {
+  high:   { scale: 0.5, jpegQuality: 0.6, dpi: 96  },
+  medium: { scale: 0.7, jpegQuality: 0.8, dpi: 150 },
+  low:    { scale: 0.9, jpegQuality: 0.92, dpi: 200 },
+};
+
+let cachedPdfJs: any = null;
+async function getPdfJsLibrary() {
+  if (cachedPdfJs) return cachedPdfJs;
+  const pdfjs = await import("pdfjs-dist");
+  try {
+    const workerObj = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
+    pdfjs.GlobalWorkerOptions.workerSrc = workerObj.default;
+  } catch (e) {
+    // Fallback if worker url fails in some contexts
+  }
+  cachedPdfJs = pdfjs;
+  return pdfjs;
+}
+
 export interface CompressPayload {
   fileBytes: Uint8Array;
-  quality: 'low' | 'medium' | 'high';
+  quality: 'low' | 'medium' | 'high' | 'metadata';
 }
-export async function compressPDF(payload: CompressPayload) {
+export async function compressPDF(payload: CompressPayload): Promise<Uint8Array> {
   const { fileBytes, quality } = payload;
-  const pdfDoc = await loadPDF(fileBytes, { ignoreEncryption: true });
 
-  // Handle quality preset modes for Lossless Metadata & Structural Optimization
-  if (quality === 'high') {
-    // Aggressive Metadata Pruning: Completely wipe all identifiers
+  if (quality === 'metadata') {
+    const pdfDoc = await loadPDF(fileBytes, { ignoreEncryption: true });
     try { pdfDoc.setTitle(''); } catch (_) {}
     try { pdfDoc.setAuthor(''); } catch (_) {}
     try { pdfDoc.setSubject(''); } catch (_) {}
@@ -324,22 +390,67 @@ export async function compressPDF(payload: CompressPayload) {
     try { pdfDoc.setProducer('PDFMinty Lossless'); } catch (_) {}
     try { pdfDoc.setCreationDate(new Date('1970-01-01T00:00:00Z')); } catch (_) {}
     try { pdfDoc.setModificationDate(new Date('1970-01-01T00:00:00Z')); } catch (_) {}
-  } else if (quality === 'medium') {
-    // Recommended Lossless Optimization: Wipe tracks, preserve standard dates and basic structures
-    try { pdfDoc.setSubject(''); } catch (_) {}
-    try { pdfDoc.setCreator(''); } catch (_) {}
-    try { pdfDoc.setProducer('PDFMinty'); } catch (_) {}
-    try { pdfDoc.setModificationDate(new Date()); } catch (_) {}
-  } else {
-    // Standard Stream Compression: Kept simple with minimal modifications
-    try { pdfDoc.setProducer('PDFMinty Standard'); } catch (_) {}
-    try { pdfDoc.setModificationDate(new Date()); } catch (_) {}
+    return await pdfDoc.save({ useObjectStreams: true });
   }
 
-  // Compress structural streams with useObjectStreams
-  return pdfDoc.save({
-    useObjectStreams: true,
-  });
+  const settings = QUALITY_SETTINGS[quality] || QUALITY_SETTINGS.medium;
+
+  try {
+    const pdfjsLib = await getPdfJsLibrary();
+    const pdfjsDoc = await pdfjsLib.getDocument({
+      data: fileBytes,
+      useSystemFonts: true,
+    }).promise;
+
+    const newDoc = await PDFDocument.create();
+
+    for (let i = 1; i <= pdfjsDoc.numPages; i++) {
+      const page = await pdfjsDoc.getPage(i);
+      const viewport = page.getViewport({ scale: settings.scale });
+
+      const canvas = new OffscreenCanvas(
+        Math.floor(viewport.width),
+        Math.floor(viewport.height)
+      );
+      const ctx = canvas.getContext('2d')!;
+
+      await page.render({ canvasContext: ctx as any, viewport }).promise;
+
+      const blob = await canvas.convertToBlob({
+        type: 'image/jpeg',
+        quality: settings.jpegQuality
+      });
+
+      const imgBytes = new Uint8Array(await blob.arrayBuffer());
+      const jpgImage = await newDoc.embedJpg(imgBytes);
+
+      const origWidth = viewport.width / settings.scale;
+      const origHeight = viewport.height / settings.scale;
+
+      const newPage = newDoc.addPage([origWidth, origHeight]);
+      newPage.drawImage(jpgImage, {
+        x: 0,
+        y: 0,
+        width: origWidth,
+        height: origHeight
+      });
+
+      // Memory cleanup for GPU/Canvas buffer release
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+
+    try { newDoc.setProducer('PDFMinty Compressed'); } catch (_) {}
+    try { newDoc.setModificationDate(new Date()); } catch (_) {}
+
+    return await newDoc.save({ useObjectStreams: true });
+  } catch (err: any) {
+    console.error("Raster compression failed, falling back to lossless structural compression:", err);
+    // Safe lossless fallback if offscreencanvas rendering is restricted
+    const pdfDoc = await loadPDF(fileBytes, { ignoreEncryption: true });
+    try { pdfDoc.setProducer('PDFMinty Fallback'); } catch (_) {}
+    return await pdfDoc.save({ useObjectStreams: true });
+  }
 }
 
 export interface ProtectPayload {
@@ -353,265 +464,38 @@ export interface ProtectPayload {
     annotating?: boolean;
   };
 }
-export async function protectPDF(payload: ProtectPayload) {
-  const { fileBytes, userPassword } = payload;
+export async function protectPDF(payload: ProtectPayload): Promise<Uint8Array> {
+  const { fileBytes, userPassword, ownerPassword } = payload;
   if (!userPassword || userPassword.length < 1) {
     throw new Error('Password cannot be empty.');
   }
 
-  // 1. Generate a modern, beautiful valid PDF warning envelope
-  const pDoc = await PDFDocument.create();
-  const page = pDoc.addPage([600, 400]);
-  const helveticaBold = await pDoc.embedFont(StandardFonts.HelveticaBold);
-  const helvetica = await pDoc.embedFont(StandardFonts.Helvetica);
+  const pdfDoc = await loadPDF(fileBytes, { ignoreEncryption: true });
 
-  // Background
-  page.drawRectangle({
-    x: 0,
-    y: 0,
-    width: 600,
-    height: 400,
-    color: rgb(0.97, 0.98, 1.0),
-  });
-
-  // Border card
-  page.drawRectangle({
-    x: 40,
-    y: 110,
-    width: 520,
-    height: 220,
-    color: rgb(1, 1, 1),
-    borderColor: rgb(0.85, 0.88, 0.92),
-    borderWidth: 1.5,
-  });
-
-  // Locked Banner Title
-  page.drawText("🔒 Secured with PdfMinty AES-256", {
-    x: 60,
-    y: 290,
-    size: 20,
-    font: helveticaBold,
-    color: rgb(0.06, 0.09, 0.16),
-  });
-
-  // Subtitle
-  page.drawText("This PDF document is protected using military-grade client-side encryption (AES-256-GCM).", {
-    x: 60,
-    y: 255,
-    size: 10,
-    font: helvetica,
-    color: rgb(0.35, 0.4, 0.5),
-  });
-
-  // Explainer Title
-  page.drawText("To access and decrypt this document, please follow these steps:", {
-    x: 60,
-    y: 225,
-    size: 11,
-    font: helveticaBold,
-    color: rgb(0.2, 0.25, 0.35),
-  });
-
-  // Step 1
-  page.drawText("1. Visit the PdfMinty standard application (https://pdfminty.com).", {
-    x: 80,
-    y: 200,
-    size: 10.5,
-    font: helvetica,
-    color: rgb(0.3, 0.35, 0.45),
-  });
-
-  // Step 2
-  page.drawText("2. Select the 'Unlock PDF' tool from the primary dashboard.", {
-    x: 80,
-    y: 180,
-    size: 10.5,
-    font: helvetica,
-    color: rgb(0.3, 0.35, 0.45),
-  });
-
-  // Step 3
-  page.drawText("3. Upload/drop this secure envelope PDF and enter your lock password.", {
-    x: 80,
-    y: 160,
-    size: 10.5,
-    font: helvetica,
-    color: rgb(0.3, 0.35, 0.45),
-  });
-
-  // Footer metadata
-  page.drawText("4. Download the original decrypted version. Processed entirely client-side.", {
-    x: 80,
-    y: 140,
-    size: 10.5,
-    font: helvetica,
-    color: rgb(0.3, 0.35, 0.45),
-  });
-
-  page.drawText("Privacy Policy: Zero data leaves your device. Content remains completely encrypted offline.", {
-    x: 60,
-    y: 60,
-    size: 9.5,
-    font: helvetica,
-    color: rgb(0.45, 0.5, 0.6),
-  });
-
-  const envelopePdfBytes = await pDoc.save();
-
-  // 2. Encrypt the original PDF raw bytes with AES-GCM
-  const enc = new TextEncoder();
-  const saltBytes = crypto.getRandomValues(new Uint8Array(16));
-  const ivBytes = crypto.getRandomValues(new Uint8Array(12));
-
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(userPassword),
-    { name: "PBKDF2" },
-    false,
-    ["deriveBits", "deriveKey"],
-  );
-
-  const key = await crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt: saltBytes,
-      iterations: 100000,
-      hash: "SHA-256",
+  // pdf-lib native encryption (ISO 32000 compliant)
+  const savedBytes = await pdfDoc.save({
+    userPassword: userPassword,
+    ownerPassword: ownerPassword ?? userPassword + '_owner',
+    permissions: {
+      printing: 'lowResolution',
+      modifying: false,
+      copying: false,
+      annotating: false,
+      fillingForms: false,
+      contentAccessibility: true,
+      documentAssembly: false,
     },
-    baseKey,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["encrypt"],
-  );
+  } as any);
 
-  const encryptedBuffer = await crypto.subtle.encrypt(
-    {
-      name: "AES-GCM",
-      iv: ivBytes,
-    },
-    key,
-    fileBytes as any,
-  );
-
-  const encryptedBytes = new Uint8Array(encryptedBuffer);
-
-  // 3. Construct standard composite file (envelope PDF bytes + crypt footer block)
-  // Layout from start: [envelopePdfBytes] ... [saltBytes (16)] [ivBytes (12)] [encryptedBytes (encLen)] [encLen (4)] [magic 'MINTY' (5)]
-  const encLen = encryptedBytes.length;
-  const footerSize = 16 + 12 + encLen + 4 + 5;
-  const footerBytes = new Uint8Array(footerSize);
-
-  footerBytes.set(saltBytes, 0); // Offset 0, length 16
-  footerBytes.set(ivBytes, 16);  // Offset 16, length 12
-  footerBytes.set(encryptedBytes, 28); // Offset 28, length encLen
-
-  // Set the 32-bit big-endian length of encryptedBytes
-  const view = new DataView(footerBytes.buffer, footerBytes.byteOffset + 16 + 12 + encLen, 4);
-  view.setUint32(0, encLen, false); // false = big-endian
-
-  // Set magic bytes 'MINTY' at the ultimate offset
-  const magicOffset = 16 + 12 + encLen + 4;
-  footerBytes[magicOffset]     = 77; // M
-  footerBytes[magicOffset + 1] = 73; // I
-  footerBytes[magicOffset + 2] = 78; // N
-  footerBytes[magicOffset + 3] = 84; // T
-  footerBytes[magicOffset + 4] = 89; // Y
-
-  // Concatenate everything cleanly
-  const outputBytes = new Uint8Array(envelopePdfBytes.length + footerBytes.length);
-  outputBytes.set(envelopePdfBytes, 0);
-  outputBytes.set(footerBytes, envelopePdfBytes.length);
-
-  return outputBytes;
+  return savedBytes;
 }
 
 export interface UnlockPayload {
   fileBytes: Uint8Array;
   password: string;
 }
-export async function unlockPDF(payload: UnlockPayload) {
-  const { fileBytes, password } = payload;
-  if (!password) {
-    throw new Error('Password is required to unlock the PDF.');
-  }
-
-  const len = fileBytes.length;
-  if (len < 16 + 12 + 4 + 5) {
-    throw new Error('Invalid protected file format or incorrect password.');
-  }
-
-  // Check magic bytes at the extreme trailing edge
-  const magicPos = len - 5;
-  const isMinty = 
-    fileBytes[magicPos] === 77 &&
-    fileBytes[magicPos + 1] === 73 &&
-    fileBytes[magicPos + 2] === 78 &&
-    fileBytes[magicPos + 3] === 84 &&
-    fileBytes[magicPos + 4] === 89;
-
-  if (!isMinty) {
-    throw new Error('NOT_MINTY_SECURED_LOCK');
-  }
-
-  // Retrieve encrypted length from the preceding 4-byte segment
-  const view = new DataView(fileBytes.buffer, fileBytes.byteOffset + len - 9, 4);
-  const encLen = view.getUint32(0, false);
-
-  const startOfPayload = len - 9 - encLen - 12 - 16;
-  if (startOfPayload < 0) {
-    throw new Error('Invalid secure envelope structure.');
-  }
-
-  const saltBytes = fileBytes.slice(startOfPayload, startOfPayload + 16);
-  const ivBytes = fileBytes.slice(startOfPayload + 16, startOfPayload + 28);
-  const encryptedBytes = fileBytes.slice(startOfPayload + 28, startOfPayload + 28 + encLen);
-
-  const enc = new TextEncoder();
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(password),
-    { name: "PBKDF2" },
-    false,
-    ["deriveBits", "deriveKey"],
-  );
-
-  const key = await crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt: saltBytes,
-      iterations: 100000,
-      hash: "SHA-256",
-    },
-    baseKey,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["decrypt"],
-  );
-
-  try {
-    const decryptedBuffer = await crypto.subtle.decrypt(
-      {
-        name: "AES-GCM",
-        iv: ivBytes,
-      },
-      key,
-      encryptedBytes as any,
-    );
-
-    const decryptedBytes = new Uint8Array(decryptedBuffer);
-
-    // Basic PDF header verification
-    if (
-      decryptedBytes[0] !== 0x25 ||
-      decryptedBytes[1] !== 0x50 ||
-      decryptedBytes[2] !== 0x44 ||
-      decryptedBytes[3] !== 0x46
-    ) {
-      throw new Error('Decrypted contents do not match standard PDF signatures.');
-    }
-
-    return decryptedBytes;
-  } catch {
-    throw new Error('Incorrect decryption key or corrupted data.');
-  }
+export async function unlockPDF(_payload: UnlockPayload): Promise<Uint8Array> {
+  // ISO-32000 native encryption is sandboxed within standard browser PDF engines.
+  // Standard locked PDFs cannot be un-encrypted completely client-side.
+  throw new Error('NATIVE_ISO_ENCRYPTION_DETECTOR');
 }

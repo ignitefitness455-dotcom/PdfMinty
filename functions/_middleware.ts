@@ -11,11 +11,11 @@ export const onRequest: PagesFunction<any> = async (context) => {
   headers.set(
     "Content-Security-Policy",
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com; " +
+    "script-src 'self' https://static.cloudflareinsights.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com data:; " +
     "img-src 'self' blob: data:; " +
-    "connect-src 'self' https://api.google.com https://generativelanguage.googleapis.com; " +
+    "connect-src 'self'; " +
     "frame-ancestors 'self' https://*.google.com https://*.run.app https://*.pages.dev;"
   );
 

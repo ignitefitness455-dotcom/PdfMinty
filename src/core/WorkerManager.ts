@@ -47,11 +47,27 @@ class VirtualWorker {
   terminate() { this.cancelled = true; }
 }
 
-export function createDedicatedWorker(_taskName?: string): Worker {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  const isIframe = window.self !== window.top;
+function canUseWebWorker(): boolean {
+  // Feature detection — NOT user agent sniffing
+  try {
+    if (typeof Worker === 'undefined') return false;
+    if (window.self !== window.top) {
+      // Iframe context: try creating a test worker
+      const testBlob = new Blob(['self.postMessage("ok")'], 
+        { type: 'application/javascript' });
+      const testUrl = URL.createObjectURL(testBlob);
+      const testWorker = new Worker(testUrl);
+      testWorker.terminate();
+      URL.revokeObjectURL(testUrl);
+    }
+    return true;
+  } catch {
+    return false; // Only fall back to VirtualWorker if Worker creation fails
+  }
+}
 
-  if (isMobile || isIframe) {
+export function createDedicatedWorker(_taskName?: string): Worker {
+  if (!canUseWebWorker()) {
     return new VirtualWorker() as any;
   }
   try {

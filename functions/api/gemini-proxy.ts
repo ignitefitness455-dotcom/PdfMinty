@@ -15,6 +15,26 @@ export const onRequestOptions: PagesFunction<Env> = async (context) => {
   });
 };
 
+function truncateText(text: string, maxGraphemes: number): string {
+  const normalized = text.normalize("NFC");
+  try {
+    const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
+    let count = 0;
+    let result = "";
+    for (const segment of segmenter.segment(normalized)) {
+      if (count >= maxGraphemes) break;
+      result += segment.segment;
+      count++;
+    }
+    return result;
+  } catch (e) {
+    return normalized.substring(0, maxGraphemes);
+  }
+}
+
+// In-memory emergency fallback (per isolate, resets on cold start)
+const memoryRateLimit = new Map<string, number>();
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
@@ -30,7 +50,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     );
   }
 
-  // 2. Client Rate Limiting
+  // 2. Client Rate Limiting (fail-closed with in-memory fallback)
   const clientIp = request.headers.get("CF-Connecting-IP") || "local_dev";
   const limitKey = `ratelimit:${clientIp}`;
   
@@ -58,7 +78,21 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       
       await env.RATELIMIT_KV.put(blockKey, (count + 1).toString(), { expirationTtl: 3600 });
     } catch (kvErr: any) {
-      console.error("Rate limit KV failure, bypassing to prevent user lockout:", kvErr);
+      console.error("Rate limiting KV failure, using fail-closed in-memory fallback:", kvErr);
+      const memCount = memoryRateLimit.get(clientIp) ?? 0;
+      if (memCount >= 3) { // Strict limit during KV outage
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: "Service Temporarily Unavailable: Database connection issues. Emergency rate limit of 3 requests exceeded." 
+          }),
+          { 
+            status: 503, 
+            headers: corsHeaders
+          }
+        );
+      }
+      memoryRateLimit.set(clientIp, memCount + 1);
     }
   }
 
@@ -105,7 +139,20 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     );
   }
 
-  const modelName = env.GEMINI_MODEL || "gemini-1.5-flash";
+  const modelName = env.GEMINI_MODEL ?? "gemini-2.0-flash";
+  const VALID_MODELS = [
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+    "gemini-2.0-flash",
+    "gemini-2.5-flash-preview-05-20"
+  ];
+
+  if (!VALID_MODELS.includes(modelName)) {
+    return new Response(
+      JSON.stringify({ success: false, error: `Invalid model: ${modelName}` }),
+      { status: 500, headers: corsHeaders }
+    );
+  }
 
   // 5. Invoke Google Gemini AI
   try {
@@ -129,7 +176,7 @@ Provide a professional, complete analysis structured strictly into:
 
 Extracted PDF Content:
 ---
-${extractedText.substring(0, 40000)}
+${truncateText(extractedText, 40000)}
 ---`;
 
     const response = await ai.models.generateContent({

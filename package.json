@@ -27,6 +27,7 @@
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
+    "@google/genai": "^2.6.0",
     "canvas-confetti": "^1.9.3",
     "jszip": "^3.10.1",
     "lucide-react": "^0.511.0",
@@ -40,7 +41,6 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260528.1",
     "@eslint/js": "^9.26.0",
-    "@google/genai": "^2.6.0",
     "@tailwindcss/vite": "^4.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.2",
@@ -52,7 +52,7 @@
     "@vitest/ui": "^3.2.3",
     "eslint": "^9.26.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-import-x": "^4.5.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -73,7 +73,7 @@
     "vitest": "^3.2.3"
   },
   "overrides": {
-    "eslint-plugin-import": {
+    "eslint-plugin-import-x": {
       "eslint": "$eslint"
     }
   }
