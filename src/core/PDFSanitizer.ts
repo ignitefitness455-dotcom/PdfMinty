@@ -71,23 +71,11 @@ export class PDFSanitizer {
       }
     }
 
-    // Also check cross-reference streams (PDF 1.5+) for modern encrypted files.
-    // FIX: The previous regex used [^>]* which stops at any '>' character in
-    // normal binary PDF content, causing false-positive encryption detection on
-    // completely ordinary PDFs. Replaced with a direct string search that locates
-    // the /Type /XRef marker and then inspects the surrounding context window for
-    // /Encrypt, which is both faster and immune to binary content false matches.
+    // Also check cross-reference streams (PDF 1.5+) trailer dictionary keys for modern files
     if (!isEncrypted) {
-      const xrefIndex = text.indexOf("/Type /XRef");
-      const altXrefIndex = text.indexOf("/Type/XRef");
-      const foundAt = xrefIndex !== -1 ? xrefIndex : altXrefIndex;
-      if (foundAt !== -1) {
-        const searchFrom = Math.max(0, foundAt - 200);
-        const searchTo = Math.min(text.length, foundAt + 500);
-        const xrefContext = text.slice(searchFrom, searchTo);
-        if (xrefContext.includes("/Encrypt")) {
-          isEncrypted = true;
-        }
+      const xrefStreamRegex = /<<[^>]*\/Type\s*\/XRef[^>]*\/Encrypt[^>]*>>/gi;
+      if (xrefStreamRegex.test(text)) {
+        isEncrypted = true;
       }
     }
 

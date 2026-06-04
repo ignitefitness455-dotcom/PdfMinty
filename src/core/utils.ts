@@ -4,22 +4,23 @@ let cachedPdfJs: any = null;
 
 export const getPdfJs = async () => {
   if (cachedPdfJs) return cachedPdfJs;
-  console.debug("[PDFMINTY-DEBUG] getPdfJs(): Worker load attempt started.");
+
   const pdfjs = await import("pdfjs-dist");
-  try {
-    const workerUrl = new URL(
-      "pdfjs-dist/build/pdf.worker.min.mjs",
-      import.meta.url
-    ).toString();
-    console.debug(`[PDFMINTY-DEBUG] getPdfJs(): Succeeded loading local worker from URL "${workerUrl}"`);
-    pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
-  } catch (err) {
-    console.debug("[PDFMINTY-DEBUG] getPdfJs(): Failed loading local worker. Error:", err);
-    console.warn("Failed to load local PDF.js worker; falling back to CDN worker source.", err);
-    const fallbackUrl = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.7.284/pdf.worker.min.mjs";
-    console.debug(`[PDFMINTY-DEBUG] getPdfJs(): Falling back to CDN URL "${fallbackUrl}"`);
-    pdfjs.GlobalWorkerOptions.workerSrc = fallbackUrl;
-  }
+
+  // FIX: Worker is now initialized only here, in a single place.
+  // Previously, CompressPage and SplitPage each ran their own
+  // pdfjsLib.GlobalWorkerOptions.workerSrc assignment at import time,
+  // creating a duplicate initialization that conflicted with this
+  // function in production builds. The result was a worker that never
+  // attached correctly, causing loadingTask.promise to hang forever,
+  // setLoading(false) to never be called, and the uploaded file to
+  // silently disappear when the component unmounted.
+  const workerUrl = new URL(
+    "pdfjs-dist/build/pdf.worker.min.mjs",
+    import.meta.url
+  ).toString();
+
+  pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
   cachedPdfJs = pdfjs;
   return pdfjs;
 };

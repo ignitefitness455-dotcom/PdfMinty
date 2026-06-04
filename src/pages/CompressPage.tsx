@@ -6,13 +6,6 @@ import { PdfPreview } from "../components/PdfPreview";
 import { triggerDownload, getFriendlyErrorMessage, getPdfJs } from "../core/utils";
 import { PDFSanitizer } from "../core/PDFSanitizer";
 
-// Setting pdfjs-dist worker source manually as required by Vite/Vite-plugin and pdf.js version 5+
-import * as pdfjsLib from 'pdfjs-dist';
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url
-).toString();
-
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
 import Download from "lucide-react/icons/download";
@@ -111,9 +104,7 @@ export default function CompressPage() {
           showToast("Info: Unable to render preview thumbnails for this document lock/format.", "info");
         }
       } finally {
-        if (active) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
