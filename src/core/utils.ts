@@ -29,6 +29,8 @@ export const getFriendlyErrorMessage = (prefix: string, rawError: any): string =
   const errorStr = String(rawError?.message || rawError || "").toLowerCase();
   
   if (
+    errorStr.includes("secured_locked") ||
+    errorStr.includes("/encrypt") ||
     errorStr.includes("no pdf header found") ||
     errorStr.includes("failed to parse pdf document") ||
     errorStr.includes("invalid pdf") ||
@@ -36,6 +38,14 @@ export const getFriendlyErrorMessage = (prefix: string, rawError: any): string =
     errorStr.includes("pdfdocument")
   ) {
     return `${prefix}: ফাইলটি পাসওয়ার্ড-লকড বা এনক্রিপ্ট করা রয়েছে। অনুগ্রহ করে প্রথমে "Unlock PDF" টুল ব্যবহার করে লকটি খুলুন! (The file is encrypted or locked. Please use the "Unlock PDF" tool first to decrypt it.)`;
+  }
+  
+  if (
+    errorStr.includes("pdf header magic") ||
+    errorStr.includes("missing the standard") ||
+    errorStr.includes("header signature")
+  ) {
+    return `${prefix}: অননুমোদিত বা অসম্পূর্ণ ফাইল ফরম্যাট। ফাইলটিতে সঠিক '%PDF' হেডার সিগনেচার পাওয়া যায়নি। (Incompatible file format. The file is missing a standard '%PDF' header signature.)`;
   }
   
   if (
