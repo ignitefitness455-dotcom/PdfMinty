@@ -144,20 +144,12 @@ export default function MergePage() {
           const buffer = await file.arrayBuffer();
           const bytes = new Uint8Array(buffer);
           
-          // FIX: The previous check only inspected the first 5 bytes of the raw
-          // file, which fails for valid PDFs where the header is preceded by a
-          // small amount of binary noise. PDFSanitizer already handles this by
-          // scanning the first 1024 bytes and slicing off any leading garbage.
-          const { PDFSanitizer } = await import("../core/PDFSanitizer");
-          let sanitizedBytes = bytes;
-          try {
-            const result = PDFSanitizer.sanitize(bytes);
-            sanitizedBytes = result.bytes;
-          } catch (sanitizeErr: any) {
-            throw new Error(sanitizeErr?.message || "File could not be validated.");
+          // Verify file compliance by matching magic PDF signature: "%PDF"
+          if (bytes.length < 5 || !String.fromCharCode(...bytes.slice(0, 5)).includes("%PDF")) {
+            throw new Error("Invalid format. File is missing the standard '%PDF' signature.");
           }
-
-          filesBytes.push(sanitizedBytes);
+          
+          filesBytes.push(bytes);
         } catch (fileErr: any) {
           throw new Error(`Corrupted or incompatible file: "${file.name}". ${fileErr.message || fileErr}`);
         }
@@ -418,4 +410,36 @@ export default function MergePage() {
                 "Add your PDF files by dropping them into the workspace or clicking the upload area.",
                 "Arrange the sequence of files as needed in the files slot list.",
                 "Click \"Compile & Export\" to combine pages side-by-side locally.",
-               
+                "See a celebratory confirmation when processing completes instantly.",
+                "Save your new merged PDF instantly to your computer or mobile."
+              ].map((step, idx) => (
+                <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400 select-text">
+                  <span className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[10px] shrink-0 mt-0.5">
+                    {idx + 1}
+                  </span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div>
+            <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
+              Why use offline merging?
+            </h2>
+            <div className="space-y-4 text-xs font-medium text-slate-600 dark:text-slate-400 select-text">
+              <p>
+                <strong>Zero Upload Files:</strong> Traditional online PDF tools force you to upload documents of invoices, confidential reports, or IDs onto their remote clouds, creating serious security leaks.
+              </p>
+              <p>
+                <strong>Uncompromising Performance:</strong> By merging directly inside your local hardware resources, PDFMinty bypasses lengthy network waiting times, making merging incredibly robust and faster.
+              </p>
+              <p>
+                <strong>100% Client-Side Integrity:</strong> Enjoy limitless file merging options completely. Save files confidently offline!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
