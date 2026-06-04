@@ -4,80 +4,80 @@ import path from 'path';
 const routes = [
   {
     path: '/merge-pdf',
-    title: 'Merge PDFs Online Free | Combine Multiple PDF Files - PDFMinty',
-    desc: 'Merge multiple PDF files into one document for free. No upload required — all processing happens locally in your browser for absolute privacy and speed.',
+    title: 'Merge PDFs Online Free | Combine Multiple PDFs — PDFMinty',
+    desc: 'Merge multiple PDF files into one document for free. No upload, no registration. All processing happens in your browser.',
     name: 'Merge PDFs'
   },
   {
     path: '/split-pdf',
-    title: 'Split PDF Online Free | Extract Pages from PDF - PDFMinty',
-    desc: 'Split PDF pages or extract specific pages for free. Privacy-first local processing means your secure files never leave your device.',
+    title: 'Split PDF Online Free | Extract Pages from PDF — PDFMinty',
+    desc: 'Split PDF pages or extract specific pages for free. Privacy-first, client-side processing.',
     name: 'Extract Pages'
   },
   {
     path: '/compress-pdf',
-    title: 'Compress PDF Online Free | Reduce PDF File Size - PDFMinty',
-    desc: 'Compress PDF files to reduce size for free. Optimize and shrink PDFs locally in your browser without uploading to any server.',
+    title: 'Compress PDF Online Free | Reduce File Size — PDFMinty',
+    desc: 'Compress PDF files to reduce size without losing quality. Free, fast, and private.',
     name: 'Compress PDF'
   },
   {
     path: '/rotate-pdf',
-    title: 'Rotate PDF Pages Online Free | Flip PDF Orientation - PDFMinty',
-    desc: 'Rotate PDF pages 90°, 180°, or 270° for free. Client-side processing ensures complete privacy and instant download.',
+    title: 'Rotate PDF Pages Online Free — PDFMinty',
+    desc: 'Rotate PDF pages left or right for free. No upload needed.',
     name: 'Rotate Pages'
   },
   {
     path: '/organize',
-    title: 'Delete PDF Pages Online Free | Remove Pages from PDF - PDFMinty',
-    desc: 'Delete unwanted pages from your PDF for free. No server upload required — process entirely in your browser.',
+    title: 'Delete PDF Pages Online Free | Organize PDF — PDFMinty',
+    desc: 'Delete unwanted pages from PDF files. Free and privacy-first.',
     name: 'Delete Pages'
   },
   {
     path: '/watermark-pdf',
-    title: 'Add Watermark to PDF Online Free | Text Watermark - PDFMinty',
-    desc: 'Add text watermarks to PDF pages for free. Protect and stamp your documents with custom watermarks locally.',
+    title: 'Add Watermark to PDF Online Free — PDFMinty',
+    desc: 'Add text or image watermarks to PDF files for free. Client-side processing.',
     name: 'Add Watermark'
   },
   {
     path: '/add-page-numbers',
-    title: 'Add Page Numbers to PDF Online Free | Insert Bates - PDFMinty',
-    desc: 'Add page numbers to PDF documents for free. Customize position, margins, and format with privacy-first local processing.',
+    title: 'Add Page Numbers to PDF Online Free — PDFMinty',
+    desc: 'Add page numbers to PDF documents for free. Customizable position and style.',
     name: 'Page Numbers'
   },
   {
     path: '/add-blank-page',
-    title: 'Add Blank Page to PDF Online Free | Insert Empty Pages - PDFMinty',
-    desc: 'Insert blank pages into your PDF for free. Choose from A4, Letter, Legal, A3, or custom page sizes directly in browser.',
+    title: 'Insert Blank Pages into PDF Online Free — PDFMinty',
+    desc: 'Insert blank pages into PDF files at any position. Free and private.',
     name: 'Add Blank Page'
   },
   {
     path: '/protect-pdf',
-    title: 'Password Protect PDF Online Free | Encrypt PDF Document - PDFMinty',
-    desc: 'Add password protection and permissions key to your PDF for free. Encrypt documents with owner passwords locally.',
+    title: 'Password Protect PDF Online Free — PDFMinty',
+    desc: 'Add password protection to PDF files for free. Secure your documents.',
     name: 'Secure Private Vault'
   },
   {
     path: '/unlock-pdf',
-    title: 'Unlock PDF Online Free | Remove PDF Passwords & Keys - PDFMinty',
-    desc: 'Remove password restriction and print/edit permissions from PDF files for free. Decrypt documents locally with total safety.',
+    title: 'Unlock PDF Online Free | Remove Password — PDFMinty',
+    desc: 'Remove password protection from PDF files. Free and client-side.',
     name: 'Unlock Private Vault'
   },
   {
     path: '/image-to-pdf',
-    title: 'Convert Images to PDF Online Free | JPG/PNG to PDF - PDFMinty',
-    desc: 'Convert JPG, JPEG, and PNG images to PDF files for free. Combine multiple photos into a single formatted PDF document offline.',
+    title: 'Convert Image to PDF Online Free — PDFMinty',
+    desc: 'Convert JPG, PNG, WebP images to PDF for free. No upload needed.',
     name: 'Image to PDF'
   },
   {
     path: '/pdf-to-image',
-    title: 'Convert PDF to Images Online Free | PDF to JPG/PNG - PDFMinty',
-    desc: 'Convert PDF pages to high-quality JPG or PNG images for free. Extract individual pages as downloadable photos locally.',
+    title: 'Convert PDF to Image Online Free — PDFMinty',
+    desc: 'Convert PDF pages to JPG or PNG images for free. Privacy-first processing.',
     name: 'PDF to Image'
   },
   {
     path: '/intelligence',
-    title: 'AI PDF Analyzer Online Free | Smart Document Insights - PDFMinty',
-    desc: 'Analyze PDF documents with secure local or server AI. Extract summaries, critical action items, and clear answers with complete privacy.',
+    title: 'AI PDF Analyzer Online Free | Smart Document Analysis — PDFMinty',
+    desc: 'Analyze PDF documents with AI. Extract insights, summaries, and key information.',
     name: 'AI Analyze Document'
   }
 ];
