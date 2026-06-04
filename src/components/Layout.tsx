@@ -156,8 +156,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   // Theme State (Dark mode toggle support)
   const [theme, setTheme] = useState<"light" | "dark">(() => {
-    const saved = localStorage.getItem("pdfminty-theme");
-    if (saved === "dark" || saved === "light") return saved;
+    try {
+      const saved = localStorage.getItem("pdfminty-theme");
+      if (saved === "dark" || saved === "light") return saved;
+    } catch (e) {}
     if (
       window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -168,7 +170,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   });
 
   useEffect(() => {
-    localStorage.setItem("pdfminty-theme", theme);
+    try {
+      localStorage.setItem("pdfminty-theme", theme);
+    } catch (e) {}
     const root = document.documentElement;
     if (theme === "dark") {
       root.classList.add("dark");

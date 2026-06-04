@@ -1,4 +1,5 @@
-import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
 interface RouteMeta {
@@ -67,18 +68,21 @@ const METADATA: Record<string, RouteMeta> = {
 
 export default function Canonical() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isCapacitor = typeof window !== "undefined" && typeof (window as any).Capacitor !== "undefined";
 
-  // Real, physical redirect for old HashRouter URLs (Browser only, Capacitor excluded)
-  if (!isCapacitor && window.location.hash && window.location.hash.startsWith("#/")) {
-    const hashPath = window.location.hash.slice(1); // e.g. "/merge-pdf"
-    const urlParts = hashPath.split("?");
-    const targetPath = urlParts[0];
-    const targetQuery = urlParts[1] ? "?" + urlParts[1] : "";
-    window.location.replace(targetPath + targetQuery);
-    return null;
-  }
+  // Redirect old HashRouter URLs safely inside useEffect using React Router's SPA replace navigation
+  // to avoid physical page reloads which trigger Google Search "Redirect Notice" blocks.
+  useEffect(() => {
+    if (!isCapacitor && window.location.hash && window.location.hash.startsWith("#/")) {
+      const hashPath = window.location.hash.slice(1); // e.g. "/merge-pdf"
+      const urlParts = hashPath.split("?");
+      const targetPath = urlParts[0];
+      const targetQuery = urlParts[1] ? "?" + urlParts[1] : "";
+      navigate(targetPath + targetQuery, { replace: true });
+    }
+  }, [isCapacitor, navigate]);
 
   let cleanPath = location.pathname;
 

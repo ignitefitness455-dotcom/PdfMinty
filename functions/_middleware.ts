@@ -1,4 +1,15 @@
 export const onRequest: PagesFunction<any> = async (context) => {
+  const url = new URL(context.request.url);
+  const hostname = url.hostname.toLowerCase();
+
+  // 1. Server-side Canonical Domain & Typo Redirects (301 Permanent Redirect)
+  // This directs non-www and typo hostnames cleanly to www.pdfminty.com at the edge.
+  // Doing this server-side prevents Google "Redirect Notice" warnings on search results.
+  if (hostname === "pdfminty.com" || hostname === "pdfmity.com" || hostname === "www.pdfmity.com") {
+    const canonicalUrl = `https://www.pdfminty.com${url.pathname}${url.search}`;
+    return Response.redirect(canonicalUrl, 301);
+  }
+
   const response = await context.next();
 
   // Clone headers to allow modification
