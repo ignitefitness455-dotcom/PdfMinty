@@ -69,6 +69,16 @@ export default function Canonical() {
   const location = useLocation();
 
   useEffect(() => {
+    // Real, physical redirect for old HashRouter URLs
+    if (window.location.hash && window.location.hash.startsWith("#/")) {
+      const hashPath = window.location.hash.slice(1); // e.g. "/merge-pdf"
+      const urlParts = hashPath.split("?");
+      const targetPath = urlParts[0];
+      const targetQuery = urlParts[1] ? "?" + urlParts[1] : "";
+      window.location.replace(targetPath + targetQuery);
+      return;
+    }
+
     let cleanPath = location.pathname;
 
     // Normalize HashRouter paths if they spill onto hash structures
