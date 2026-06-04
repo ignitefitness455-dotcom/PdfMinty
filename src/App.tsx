@@ -1,8 +1,13 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { Layout } from "./components/Layout";
 import ToolSkeleton from "./components/ToolSkeleton";
 import Canonical from "./components/Canonical";
+
+// Detect if running inside Capacitor mobile app
+const isCapacitor = typeof window !== "undefined" && typeof (window as any).Capacitor !== "undefined";
+const Router = isCapacitor ? HashRouter : BrowserRouter;
 
 // Lazy-loaded components for route splitting
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -69,32 +74,34 @@ class ErrorBoundary extends React.Component<
 
 export default function App() {
   return (
-    <Router>
-      <Canonical />
-      <Layout>
-        <ErrorBoundary>
-          <Suspense fallback={<ToolSkeleton />}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/merge-pdf" element={<MergePage />} />
-              <Route path="/split-pdf" element={<SplitPage />} />
-              <Route path="/compress-pdf" element={<CompressPage />} />
-              <Route path="/rotate-pdf" element={<RotatePage />} />
-              <Route path="/organize" element={<DeletePagesPage />} />
-              <Route path="/watermark-pdf" element={<WatermarkPage />} />
-              <Route path="/add-page-numbers" element={<PageNumbersPage />} />
-              <Route path="/add-blank-page" element={<AddBlankPage />} />
-              <Route path="/protect-pdf" element={<ProtectPage />} />
-              <Route path="/unlock-pdf" element={<UnlockPage />} />
-              <Route path="/image-to-pdf" element={<ImgToPdfPage />} />
-              <Route path="/pdf-to-image" element={<PdfToImgPage />} />
-              <Route path="/intelligence" element={<AiAnalyzePage />} />
-              {/* Fallback routing */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
-        </ErrorBoundary>
-      </Layout>
-    </Router>
+    <HelmetProvider>
+      <Router>
+        <Canonical />
+        <Layout>
+          <ErrorBoundary>
+            <Suspense fallback={<ToolSkeleton />}>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/merge-pdf" element={<MergePage />} />
+                <Route path="/split-pdf" element={<SplitPage />} />
+                <Route path="/compress-pdf" element={<CompressPage />} />
+                <Route path="/rotate-pdf" element={<RotatePage />} />
+                <Route path="/organize" element={<DeletePagesPage />} />
+                <Route path="/watermark-pdf" element={<WatermarkPage />} />
+                <Route path="/add-page-numbers" element={<PageNumbersPage />} />
+                <Route path="/add-blank-page" element={<AddBlankPage />} />
+                <Route path="/protect-pdf" element={<ProtectPage />} />
+                <Route path="/unlock-pdf" element={<UnlockPage />} />
+                <Route path="/image-to-pdf" element={<ImgToPdfPage />} />
+                <Route path="/pdf-to-image" element={<PdfToImgPage />} />
+                <Route path="/intelligence" element={<AiAnalyzePage />} />
+                {/* Fallback routing */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
+        </Layout>
+      </Router>
+    </HelmetProvider>
   );
 }

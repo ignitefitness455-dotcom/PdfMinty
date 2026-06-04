@@ -28,7 +28,7 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
                             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 ${routes.map(r => `  <url>
     <loc>${siteUrl}${r.path === '/' ? '' : r.path}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${r.path === '/' ? today : '2026-06-04'}</lastmod>
     <changefreq>${r.freq}</changefreq>
     <priority>${r.priority}</priority>
   </url>`).join('\n')}
