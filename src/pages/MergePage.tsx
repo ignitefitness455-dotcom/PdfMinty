@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
 import { triggerDownload, getFriendlyErrorMessage } from "../core/utils";
+import { PDFSanitizer } from "../core/PDFSanitizer";
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
 import Trash2 from "lucide-react/icons/trash-2";
@@ -144,14 +145,17 @@ export default function MergePage() {
           const buffer = await file.arrayBuffer();
           const bytes = new Uint8Array(buffer);
           
-          // Verify file compliance by matching magic PDF signature: "%PDF"
-          if (bytes.length < 5 || !String.fromCharCode(...bytes.slice(0, 5)).includes("%PDF")) {
-            throw new Error("Invalid format. File is missing the standard '%PDF' signature.");
-          }
-          
-          filesBytes.push(bytes);
+          // Validate and sanitize the PDF stream using our core binary-level validator
+          const sanitizedResult = PDFSanitizer.sanitize(bytes);
+          filesBytes.push(sanitizedResult.bytes);
         } catch (fileErr: any) {
-          throw new Error(`Corrupted or incompatible file: "${file.name}". ${fileErr.message || fileErr}`);
+          let customMsg = fileErr.message || fileErr;
+          if (customMsg.includes("SECURED_LOCKED")) {
+            customMsg = "🔒 Standard secured/locked PDF file detected. Merging is restricted. Please use the Unlock PDF tool first to decrypt it.";
+          } else if (customMsg.includes("PDF header magic") || customMsg.includes("%PDF")) {
+            customMsg = "Incompatible file format. The file is missing a standard '%PDF' header signature.";
+          }
+          throw new Error(`Corrupted or incompatible file: "${file.name}". ${customMsg}`);
         }
       }
 
