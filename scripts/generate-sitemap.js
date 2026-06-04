@@ -3,19 +3,19 @@ import path from 'path';
 
 const routes = [
   { path: '/', priority: '1.0', freq: 'daily' },
-  { path: '/merge-pdf', priority: '0.9', freq: 'weekly' },
-  { path: '/split-pdf', priority: '0.9', freq: 'weekly' },
-  { path: '/compress-pdf', priority: '0.9', freq: 'weekly' },
-  { path: '/rotate-pdf', priority: '0.8', freq: 'weekly' },
-  { path: '/organize', priority: '0.8', freq: 'weekly' },
-  { path: '/watermark-pdf', priority: '0.8', freq: 'weekly' },
-  { path: '/add-page-numbers', priority: '0.8', freq: 'weekly' },
-  { path: '/add-blank-page', priority: '0.7', freq: 'weekly' },
-  { path: '/protect-pdf', priority: '0.7', freq: 'weekly' },
-  { path: '/unlock-pdf', priority: '0.7', freq: 'weekly' },
-  { path: '/image-to-pdf', priority: '0.8', freq: 'weekly' },
-  { path: '/pdf-to-image', priority: '0.8', freq: 'weekly' },
-  { path: '/intelligence', priority: '0.9', freq: 'weekly' },
+  { path: '/merge-pdf', priority: '0.8', freq: 'monthly' },
+  { path: '/split-pdf', priority: '0.8', freq: 'monthly' },
+  { path: '/compress-pdf', priority: '0.8', freq: 'monthly' },
+  { path: '/rotate-pdf', priority: '0.8', freq: 'monthly' },
+  { path: '/organize', priority: '0.8', freq: 'monthly' },
+  { path: '/watermark-pdf', priority: '0.8', freq: 'monthly' },
+  { path: '/add-page-numbers', priority: '0.8', freq: 'monthly' },
+  { path: '/add-blank-page', priority: '0.8', freq: 'monthly' },
+  { path: '/protect-pdf', priority: '0.8', freq: 'monthly' },
+  { path: '/unlock-pdf', priority: '0.8', freq: 'monthly' },
+  { path: '/image-to-pdf', priority: '0.8', freq: 'monthly' },
+  { path: '/pdf-to-image', priority: '0.8', freq: 'monthly' },
+  { path: '/intelligence', priority: '0.8', freq: 'monthly' },
 ];
 
 const today = new Date().toISOString().split('T')[0];

@@ -1,7 +1,21 @@
 (function() {
+  let targetPath = window.location.pathname;
+  let cleanHash = window.location.hash || '';
+
+  // Standardize hash routing to path routing
+  if (cleanHash.startsWith('#/')) {
+    const routeParts = cleanHash.slice(2).split('?');
+    targetPath = '/' + routeParts[0];
+    cleanHash = routeParts[1] ? '?' + routeParts[1] : '';
+  }
+
   const hn = window.location.hostname.toLowerCase();
   if (hn === 'pdfminty.com' || hn === 'pdfmity.com' || hn === 'www.pdfmity.com') {
-    window.location.replace('https://www.pdfminty.com' + window.location.pathname + window.location.search + window.location.hash);
+    window.location.replace('https://www.pdfminty.com' + targetPath + (cleanHash.startsWith('?') ? cleanHash : window.location.search + cleanHash));
+    return;
+  } else if (window.location.hash && window.location.hash.startsWith('#/')) {
+    window.location.replace(targetPath + window.location.search);
+    return;
   }
   
   // Early theme detection to avoid flashing white on mobile load
