@@ -10,11 +10,18 @@
   }
 
   const hn = window.location.hostname.toLowerCase();
+  
+  // Rule 1: Redirect non-www and typo hostnames to canonical www.pdfminty.com with clean paths
   if (hn === 'pdfminty.com' || hn === 'pdfmity.com' || hn === 'www.pdfmity.com') {
-    window.location.replace('https://www.pdfminty.com' + targetPath + (cleanHash.startsWith('?') ? cleanHash : window.location.search + cleanHash));
+    const finalQuery = cleanHash.startsWith('?') ? cleanHash : window.location.search;
+    window.location.replace('https://www.pdfminty.com' + targetPath + finalQuery);
     return;
-  } else if (window.location.hash && window.location.hash.startsWith('#/')) {
-    window.location.replace(targetPath + window.location.search);
+  }
+  
+  // Rule 2: If we are already on www.pdfminty.com (or local/dev) but have a "#/" hash, redirect to clean path
+  if (window.location.hash && window.location.hash.startsWith('#/')) {
+    const finalQuery = cleanHash.startsWith('?') ? cleanHash : window.location.search;
+    window.location.replace(targetPath + finalQuery);
     return;
   }
   
