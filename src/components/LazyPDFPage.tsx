@@ -22,8 +22,10 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        console.debug(`[PDFMINTY-DEBUG] LazyPDFPage: observer fired. pageIndex=${pageIndex}, isIntersecting=${entry.isIntersecting}, hasImgUrl=${!!imgUrl}, isRendering=${rendering}, hasPdfDoc=${!!pdfDoc}`);
         if (entry.isIntersecting && !imgUrl && !rendering && pdfDoc) {
           setRendering(true);
+          console.debug(`[PDFMINTY-DEBUG] LazyPDFPage: page render start for pageIndex=${pageIndex}`);
           pdfDoc.getPage(pageIndex + 1).then(async (page: any) => {
             if (!active) return;
             const viewport = page.getViewport({ scale: 0.4 });
@@ -34,6 +36,7 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
             if (context) {
               canvas.width = viewport.width;
               canvas.height = viewport.height;
+              console.debug(`[PDFMINTY-DEBUG] LazyPDFPage: canvas dimensions designed for pageIndex=${pageIndex}: width=${canvas.width}, height=${canvas.height}`);
               try {
                 await page.render({
                   canvasContext: context,
@@ -44,8 +47,10 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
                 if (!active) return;
                 const localUrl = canvas.toDataURL("image/jpeg", 0.85);
                 setImgUrl(localUrl);
+                console.debug(`[PDFMINTY-DEBUG] LazyPDFPage: render successful & imgUrl set for pageIndex=${pageIndex}, urlLength=${localUrl.length}`);
               } catch (err) {
                 console.error("Lazy render page failed:", err);
+                console.debug(`[PDFMINTY-DEBUG] LazyPDFPage: render failure for pageIndex=${pageIndex}. Error:`, err);
               } finally {
                 if (active) setRendering(false);
                 canvas.width = 0;

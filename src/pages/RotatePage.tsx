@@ -45,6 +45,7 @@ export default function RotatePage() {
       setLoading(true);
       try {
         const primaryFile = selectedFiles[0];
+        console.debug(`[PDFMINTY-DEBUG] RotatePage: Starting renderPDFThumbnails for file: name="${primaryFile.name}", size=${primaryFile.size} bytes`);
         const arrayBuffer = await primaryFile.arrayBuffer();
 
         if (!active) return;
@@ -53,6 +54,7 @@ export default function RotatePage() {
         try {
           const sanitizedResult = PDFSanitizer.sanitize(sanitizedBytes);
           sanitizedBytes = sanitizedResult.bytes;
+          console.debug(`[PDFMINTY-DEBUG] RotatePage: sanitizedBytes length=${sanitizedBytes.length}`);
         } catch (err: any) {
           if (err?.message?.includes("SECURED_LOCKED")) {
             setIsDocumentLocked(true);
@@ -66,6 +68,7 @@ export default function RotatePage() {
           throw err;
         }
 
+        console.debug("[PDFMINTY-DEBUG] RotatePage: pdfjs loading started");
         const pdfjs = await getPdfJs();
         loadingTask = pdfjs.getDocument({
           data: sanitizedBytes as any,
@@ -76,6 +79,7 @@ export default function RotatePage() {
         if (!active) return;
 
         const pageCount = pdf.numPages;
+        console.debug(`[PDFMINTY-DEBUG] RotatePage: pdf loading completed. pageCount=${pageCount}`);
         const previews: PDFPageInfo[] = [];
 
         for (let i = 1; i <= Math.min(pageCount, 150); i++) {
@@ -91,6 +95,7 @@ export default function RotatePage() {
             height: viewport.height,
           });
         }
+        console.debug(`[PDFMINTY-DEBUG] RotatePage: preview thumbnails array length=${previews.length}`);
         if (active) {
           setPdfDocument(pdf);
           setPdfPages(previews);
@@ -125,6 +130,7 @@ export default function RotatePage() {
     }
 
     const file = pdfs[0];
+    console.debug(`[PDFMINTY-DEBUG] RotatePage.handleFilesSelected(): File selected: name="${file.name}", size=${file.size} bytes`);
     if (file.size > 50 * 1024 * 1024) {
       showToast(`File '${file.name}' exceeds the 50MB limit.`, "error");
       return;

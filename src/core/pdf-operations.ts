@@ -365,10 +365,14 @@ async function getPdfJsLibrary() {
   if (cachedPdfJs) return cachedPdfJs;
   const pdfjs = await import("pdfjs-dist");
   try {
-    const workerObj = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
-    pdfjs.GlobalWorkerOptions.workerSrc = workerObj.default;
-  } catch (e) {
-    // Fallback if worker url fails in some contexts
+    const workerUrl = new URL(
+      "pdfjs-dist/build/pdf.worker.min.mjs",
+      import.meta.url
+    ).toString();
+    pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+  } catch (err) {
+    console.warn("Failed to load local PDF.js worker in operations; falling back to CDN.", err);
+    pdfjs.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.7.284/pdf.worker.min.mjs";
   }
   cachedPdfJs = pdfjs;
   return pdfjs;

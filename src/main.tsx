@@ -7,12 +7,9 @@ import ErrorBoundary from './components/ErrorBoundary.tsx';
 import { ToastProvider } from './contexts/ToastContext.tsx';
 import './index.css';
 
-// Production-এ error silently log করে, user-কে দেখায় না
-// ErrorBoundary already handles React errors
-// Global errors শুধু console-এ
 window.addEventListener('error', (event) => {
   console.error('Global error:', event.error);
-  event.preventDefault(); // ✅ Default browser error page বন্ধ
+  event.preventDefault();
 });
 
 window.addEventListener('unhandledrejection', (event) => {
@@ -20,11 +17,13 @@ window.addEventListener('unhandledrejection', (event) => {
   event.preventDefault();
 });
 
-// Remove loading skeleton once React mounts
-const skeleton = document.getElementById('loading-skeleton');
-if (skeleton) skeleton.remove();
-
-createRoot(document.getElementById('root')!).render(
+// FIX: The skeleton is now removed AFTER React's first render completes,
+// not before. Previously it was removed synchronously before createRoot().render(),
+// which caused a DOM flash during lazy-loaded route transitions and could
+// drop file state in tools that load PDF previews asynchronously.
+// requestAnimationFrame ensures removal happens after the browser has painted.
+const root = createRoot(document.getElementById('root')!);
+root.render(
   <StrictMode>
     <ErrorBoundary>
       <ToastProvider>
@@ -33,3 +32,8 @@ createRoot(document.getElementById('root')!).render(
     </ErrorBoundary>
   </StrictMode>
 );
+
+requestAnimationFrame(() => {
+  const skeleton = document.getElementById('loading-skeleton');
+  if (skeleton) skeleton.remove();
+});

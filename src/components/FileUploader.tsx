@@ -40,25 +40,66 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         if (accept === "application/pdf") {
           return file.type === "application/pdf" || file.name.endsWith(".pdf");
         } else if (accept.includes("image/")) {
-          return file.type.startsWith("image/") || /\.(jpe?g|png|webp)/i.test(file.name);
+          return (
+            file.type.startsWith("image/") ||
+            /\.(jpe?g|png|webp)/i.test(file.name)
+          );
         }
         return true;
       });
 
       if (filtered.length > 0) {
-        onFilesSelected(multiple ? filtered : [filtered[0]]);
+        // FIX: Wrapped in try/catch so drag-and-drop errors are shown
+        // visibly in the UI instead of failing silently.
+        try {
+          onFilesSelected(multiple ? filtered : [filtered[0]]);
+        } catch (err: any) {
+          setError(
+            `File could not be loaded: ${err?.message || "Unknown error."}`
+          );
+        }
       } else {
-        const expectedType = accept === "application/pdf" ? "PDF format" : "Image formats (JPG, PNG, WEBP)";
-        setError(`Invalid file type dropped. Please provide ${expectedType}.`);
+        const expectedType =
+          accept === "application/pdf"
+            ? "PDF format"
+            : "Image formats (JPG, PNG, WEBP)";
+        setError(
+          `Invalid file type. Please provide a file in ${expectedType}.`
+        );
       }
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
-    if (e.target.files && e.target.files.length > 0) {
-      const filesArray = Array.from(e.target.files);
-      onFilesSelected(multiple ? filesArray : [filesArray[0]]);
+
+    // FIX: File objects are copied from the input immediately into a local
+    // array before the input value is reset. If the value were reset first,
+    // e.target.files would become null and the File references would be lost.
+    const files = e.target.files ? Array.from(e.target.files) : [];
+
+    // FIX: The input value is reset after copying the files. This ensures
+    // that selecting the same file a second time fires onChange again,
+    // which previously did not happen and left the UI in a stuck state.
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    if (files.length === 0) return;
+
+    // FIX: Wrapped in try/catch so any failure inside onFilesSelected
+    // (e.g. pdfjs-dist failing to load a preview) is caught and shown
+    // as a visible error message. Previously this would fail silently
+    // because production builds have drop_console: true, leaving the
+    // user with a blank screen and no indication of what went wrong.
+    try {
+      onFilesSelected(multiple ? files : [files[0]]);
+    } catch (err: any) {
+      setError(
+        `File could not be loaded: ${
+          err?.message || "Unknown error. Please try a different file."
+        }`
+      );
     }
   };
 
@@ -79,6 +120,10 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         )}
       </div>
 
+      {/* FIX: Removed e.stopPropagation() from the input's onClick handler.
+          In certain browsers and on mobile, this was preventing the file
+          dialog from opening reliably, which is why uploads appeared to
+          work briefly and then reset without selecting any file. */}
       <input
         aria-label="File upload"
         type="file"
@@ -87,7 +132,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         multiple={multiple}
         accept={accept}
         className="hidden"
-        onClick={(e) => e.stopPropagation()}
       />
 
       <div
@@ -102,24 +146,25 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             : "border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-400 hover:bg-slate-50/40 dark:hover:bg-slate-950/20 bg-white/50 dark:bg-slate-900/30"
         }`}
       >
-        {/* Animated Ripple ring active on Drag Over */}
         {isDragOver && (
           <div className="absolute inset-0 rounded-3xl border-2 border-emerald-400/50 animate-pulse pointer-events-none" />
         )}
 
-        <div className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center mb-4 transition-all duration-300 ${
-          isDragOver
-            ? "bg-emerald-100 dark:bg-emerald-900/60 scale-110 text-emerald-600 dark:text-emerald-410"
-            : "bg-slate-100 dark:bg-slate-800/80 text-slate-400 dark:text-slate-400 group-hover:scale-105"
-        }`}>
-          <FileUp className={`w-7 h-7 transition-all duration-300 ${isDragOver ? "animate-bounce" : ""}`} />
+        <div
+          className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center mb-4 transition-all duration-300 ${
+            isDragOver
+              ? "bg-emerald-100 dark:bg-emerald-900/60 scale-110 text-emerald-600"
+              : "bg-slate-100 dark:bg-slate-800/80 text-slate-400"
+          }`}
+        >
+          <FileUp className="w-7 h-7 transition-all duration-300" />
         </div>
 
         <p className="text-sm font-extrabold text-slate-700 dark:text-slate-200 max-w-[280px] leading-snug">
           {isDragOver ? "Drop file(s) here now!" : placeholder}
         </p>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
-          Drag & drop instantly anywhere in this card or tap choose
+          Drag & drop anywhere in this card, or tap to choose
         </p>
 
         <button
@@ -135,12 +180,17 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </button>
       </div>
 
+      {/* FIX: Error messages are now always rendered visibly in the UI.
+          Previously, errors in the upload pipeline would be swallowed
+          silently in production, leaving users with no feedback. */}
       {error && (
-        <div className="flex items-start gap-2.5 text-rose-600 dark:text-rose-400 text-xs bg-rose-50 dark:bg-rose-950/30 rounded-2xl p-4.5 border border-rose-100 dark:border-rose-900/40 animate-fadein shadow-sm">
-          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-rose-500 dark:text-rose-450" />
+        <div className="flex items-start gap-2.5 text-rose-600 dark:text-rose-400 text-xs bg-rose-50 dark:bg-rose-950/30 rounded-2xl p-4 border border-rose-100 dark:border-rose-900/40 animate-fadein shadow-sm">
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-rose-500" />
           <div>
-            <p className="font-extrabold">Requirement Alert</p>
-            <p className="mt-0.5 text-slate-500 dark:text-slate-300 leading-relaxed font-semibold">{error}</p>
+            <p className="font-extrabold">Upload Failed</p>
+            <p className="mt-0.5 text-slate-500 dark:text-slate-300 leading-relaxed font-semibold">
+              {error}
+            </p>
           </div>
         </div>
       )}

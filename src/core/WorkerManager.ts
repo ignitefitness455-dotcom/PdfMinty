@@ -67,12 +67,17 @@ function canUseWebWorker(): boolean {
 }
 
 export function createDedicatedWorker(_taskName?: string): Worker {
+  console.debug(`[PDFMINTY-DEBUG] createDedicatedWorker(): Starting creation for task="${_taskName || 'unknown'}"`);
   if (!canUseWebWorker()) {
+    console.debug(`[PDFMINTY-DEBUG] createDedicatedWorker(): Fallback to VirtualWorker. Reason: Web Workers not supported or blocked in iframe context.`);
     return new VirtualWorker() as any;
   }
   try {
-    return new PDFWorker();
+    const worker = new PDFWorker();
+    console.debug("[PDFMINTY-DEBUG] createDedicatedWorker(): Success creating HTML5 WebWorker (PDFWorker)");
+    return worker;
   } catch (err) {
+    console.debug("[PDFMINTY-DEBUG] createDedicatedWorker(): Fallback to VirtualWorker. Reason: Exception caught during PDFWorker instantiation. Error:", err);
     return new VirtualWorker() as any;
   }
 }

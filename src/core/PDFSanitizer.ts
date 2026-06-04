@@ -28,6 +28,7 @@ export class PDFSanitizer {
    * corruption of incremental updates or digital signatures.
    */
   public static sanitize(inputBytes: Uint8Array): SanitizationResult {
+    console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): starting. Input size=${inputBytes ? inputBytes.length : 0} bytes`);
     if (!inputBytes || inputBytes.length < 5) {
       throw new Error("Invalid PDF stream: Input buffer is empty or structurally too small.");
     }
@@ -37,6 +38,7 @@ export class PDFSanitizer {
 
     // 1. Viewport & Heuristic Magic Header Scanner
     const headerOffset = this.findHeaderOffset(bytes);
+    console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): findHeaderOffset result index=${headerOffset}. Header found=${headerOffset !== -1}`);
     if (headerOffset === -1) {
       throw new Error(
         "Fatal Parser Exception: No compliant PDF header magic ('%PDF-') found within the first 1024 bytes."
@@ -77,6 +79,8 @@ export class PDFSanitizer {
       }
     }
 
+    console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): encryption detected=${isEncrypted}`);
+
     if (isEncrypted) {
       throw new Error(
         "SECURED_LOCKED: The PDF contains a file-level /Encrypt dictionary element. Cannot merge or process without decryption credentials."
@@ -85,6 +89,7 @@ export class PDFSanitizer {
 
     // 4. Do NOT truncate at %%EOF — return the full buffer
     // Only sanitize via pdf-lib's downstream load and re-save pipelines
+    console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): complete. Output size=${bytes.length} bytes`);
     return {
       bytes,
       headerRecovered,
