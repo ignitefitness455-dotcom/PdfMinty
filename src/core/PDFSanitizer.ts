@@ -27,7 +27,7 @@ export class PDFSanitizer {
    * Crucially, does NOT truncate after the last %%EOF block, preventing silent 
    * corruption of incremental updates or digital signatures.
    */
-  public static sanitize(inputBytes: Uint8Array): SanitizationResult {
+  public static sanitize(inputBytes: Uint8Array, options?: { skipEncryptionCheck?: boolean }): SanitizationResult {
     console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): starting. Input size=${inputBytes ? inputBytes.length : 0} bytes`);
     if (!inputBytes || inputBytes.length < 5) {
       throw new Error("Invalid PDF stream: Input buffer is empty or structurally too small.");
@@ -81,7 +81,7 @@ export class PDFSanitizer {
 
     console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): encryption detected=${isEncrypted}`);
 
-    if (isEncrypted) {
+    if (isEncrypted && !options?.skipEncryptionCheck) {
       throw new Error(
         "SECURED_LOCKED: The PDF contains a file-level /Encrypt dictionary element. Cannot merge or process without decryption credentials."
       );

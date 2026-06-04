@@ -3,7 +3,8 @@ import { PDFSanitizer } from './PDFSanitizer';
 import { PDF_PAGE_SIZES, WATERMARK_DEFAULTS, PAGE_NUMBER_DEFAULTS } from '../config/constants';
 
 export async function loadPDF(bytes: Uint8Array, options?: any) {
-  const sanitized = PDFSanitizer.sanitize(bytes);
+  const skipEncryptionCheck = options?.ignoreEncryption === true;
+  const sanitized = PDFSanitizer.sanitize(bytes, { skipEncryptionCheck });
   return await PDFDocument.load(sanitized.bytes, options);
 }
 
