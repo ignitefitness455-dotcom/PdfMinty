@@ -40,6 +40,18 @@ class ErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught an uncaught exception:", error, errorInfo);
+
+    // Auto-reload on chunk load error caused by new deployment
+    if (
+      error.name === "ChunkLoadError" ||
+      error.message.includes("Failed to fetch dynamically imported module") ||
+      error.message.includes("Importing a module script failed")
+    ) {
+      if (!sessionStorage.getItem("pdfminty_auto_reloaded")) {
+        sessionStorage.setItem("pdfminty_auto_reloaded", "true");
+        window.location.reload();
+      }
+    }
   }
 
   render() {
