@@ -8,32 +8,61 @@
 @variant dark (&:where(.dark, .dark *));
 
 /* WebKit (Chrome, Safari, Edge) & Firefox scrollbars for sleek professional appearance */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar,
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+#root::-webkit-scrollbar-track,
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg-primary);
+  border-left: 1px solid var(--border-color);
 }
 
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+#root::-webkit-scrollbar-thumb,
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
+  border: 2.5px solid var(--bg-primary);
 }
 
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+#root::-webkit-scrollbar-thumb:hover,
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
-/* Firefox scrollbars */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+.dark html::-webkit-scrollbar-thumb,
+.dark body::-webkit-scrollbar-thumb,
+.dark #root::-webkit-scrollbar-thumb,
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-color: var(--bg-primary);
 }
 
-.dark * {
-  scrollbar-color: #475569 transparent;
+.dark html::-webkit-scrollbar-thumb:hover,
+.dark body::-webkit-scrollbar-thumb:hover,
+.dark #root::-webkit-scrollbar-thumb:hover,
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Firefox scrollbars */
+html, body {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 var(--bg-primary);
+}
+
+.dark html, .dark body {
+  scrollbar-color: #475569 var(--bg-primary);
 }
 
 /* Animations */
@@ -85,9 +114,16 @@
 }
 
 /* Ensure full screen stretch and prevent horizontal overflows on mobile viewports with instant colors */
-html,
-body,
-#root {
+html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+body {
   width: 100%;
   min-height: 100vh;
   margin: 0;
@@ -97,6 +133,11 @@ body,
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
 }
 
 /* Diagonal stripes slide animation */

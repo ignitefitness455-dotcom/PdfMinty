@@ -845,7 +845,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         {showScrollTop && (
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 right-6 p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl hover:translate-y-[-2px] hover:scale-105 active:scale-95 transition-all cursor-pointer z-40 group border-0 animate-fadein"
+            className="fixed bottom-6 right-6 p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl hover:translate-y-[-2px] hover:scale-105 active:scale-95 transition-all cursor-pointer z-50 group border-0 animate-fadein"
             title="Scroll to Top"
             aria-label="Scroll to top"
           >
