@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
-import { getPdfJs } from "../core/utils";
+import { getPdfJs, truncateTextGrapheme } from "../core/utils";
 import { PDFSanitizer } from "../core/PDFSanitizer";
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
@@ -124,7 +124,7 @@ export default function AiAnalyzePage() {
           response = await fetch(`${apiBase}/api/gemini-proxy`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: extractedText.substring(0, 40000), name: primaryFile.name }),
+            body: JSON.stringify({ text: truncateTextGrapheme(extractedText, 40000), name: primaryFile.name }),
           });
           
           if (response.ok) break;

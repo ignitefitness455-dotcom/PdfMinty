@@ -160,7 +160,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     // Store in KV
     const cleanTimestamp = timestamp ? String(timestamp) : new Date().toISOString();
-    const randomHex = Math.random().toString(16).substring(2, 8).padEnd(6, "0");
+    const randomHex = crypto.randomUUID().substring(0, 6);
     const storageKey = `contact:${cleanTimestamp}:${randomHex}`;
     const storageValue = JSON.stringify({
       name,

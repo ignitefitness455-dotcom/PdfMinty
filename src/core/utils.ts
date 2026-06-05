@@ -59,6 +59,23 @@ export const getFriendlyErrorMessage = (prefix: string, rawError: any): string =
   return `${prefix}: ${rawError?.message || rawError}`;
 };
 
+export function truncateTextGrapheme(text: string, maxGraphemes: number): string {
+  const normalized = text.normalize("NFC");
+  try {
+    const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
+    let count = 0;
+    let result = "";
+    for (const segment of segmenter.segment(normalized)) {
+      if (count >= maxGraphemes) break;
+      result += segment.segment;
+      count++;
+    }
+    return result;
+  } catch (e) {
+    return normalized.substring(0, maxGraphemes);
+  }
+}
+
 export const triggerDownload = (
   bytes: Uint8Array,
   filename: string,

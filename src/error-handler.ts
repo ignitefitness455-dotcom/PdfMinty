@@ -34,7 +34,7 @@ async function reportError(message: string, stack: string) {
         message: cleanMessage,
         stack: cleanStack,
         timestamp: new Date().toISOString(),
-        url: sanitizeErrorDetail(window.location.href),
+        url: window.location.pathname,
       }),
     });
   } catch (err) {
