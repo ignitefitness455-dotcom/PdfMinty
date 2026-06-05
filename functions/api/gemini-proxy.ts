@@ -50,7 +50,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     );
   }
 
-  // 2. Client Rate Limiting (fail-closed with in-memory fallback)
+  // 2. Client Rate Limiting (fail-closed if KV fails)
   const clientIp = request.headers.get("CF-Connecting-IP") || "local_dev";
   const limitKey = `ratelimit:${clientIp}`;
   
@@ -78,21 +78,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       
       await env.RATELIMIT_KV.put(blockKey, (count + 1).toString(), { expirationTtl: 3600 });
     } catch (kvErr: any) {
-      console.error("Rate limiting KV failure, using fail-closed in-memory fallback:", kvErr);
-      const memCount = memoryRateLimit.get(clientIp) ?? 0;
-      if (memCount >= 3) { // Strict limit during KV outage
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: "Service Temporarily Unavailable: Database connection issues. Emergency rate limit of 3 requests exceeded." 
-          }),
-          { 
-            status: 503, 
-            headers: corsHeaders
-          }
-        );
-      }
-      memoryRateLimit.set(clientIp, memCount + 1);
+      console.error("Rate limiting KV failure (fail-closed):", kvErr);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: "Service Temporarily Unavailable: Rate limiter or database storage validation failed (fail-closed)." 
+        }),
+        { 
+          status: 503, 
+          headers: corsHeaders
+        }
+      );
     }
   }
 
@@ -145,6 +141,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     "gemini-1.5-flash",
     "gemini-1.5-pro",
     "gemini-2.0-flash",
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
     "gemini-2.5-flash-preview-05-20"
   ];
 
