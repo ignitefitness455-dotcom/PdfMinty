@@ -8,7 +8,8 @@ export function Breadcrumbs() {
   const location = useLocation();
   const { toolsList } = useLayout();
 
-  const currentPath = location.pathname;
+  const rawPath = location.pathname;
+  const currentPath = rawPath.endsWith("/") && rawPath !== "/" ? rawPath.slice(0, -1) : rawPath;
   if (currentPath === "/") return null;
 
   // Match current tool by slug
@@ -49,7 +50,8 @@ export function RelatedTools() {
   const location = useLocation();
   const { toolsList } = useLayout();
 
-  const currentPath = location.pathname;
+  const rawPath = location.pathname;
+  const currentPath = rawPath.endsWith("/") && rawPath !== "/" ? rawPath.slice(0, -1) : rawPath;
   if (currentPath === "/") return null;
 
   const activeTool = toolsList.find((t) => "/" + t.slug === currentPath);
