@@ -202,7 +202,7 @@ ${truncateText(extractedText, 40000)}
     return new Response(
       JSON.stringify({
         success: false,
-        error: "An upstream error occurred during AI analysis. Please try again later."
+        error: `An upstream error occurred during AI analysis: ${apiErr instanceof Error ? apiErr.message : String(apiErr)}`
       }),
       {
         status: 502,

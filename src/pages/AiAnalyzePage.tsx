@@ -115,18 +115,50 @@ export default function AiAnalyzePage() {
         (import.meta as any).env?.VITE_API_BASE_URL ||
         (import.meta as any).env?.VITE_CLOUDFLARE_API_URL ||
         "";
-      const response = await fetch(`${apiBase}/api/gemini-proxy`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: extractedText.substring(0, 40000), name: primaryFile.name }),
-      });
+        
+      let response: Response | null = null;
+      let retries = 2;
+      
+      while (retries >= 0) {
+        try {
+          response = await fetch(`${apiBase}/api/gemini-proxy`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: extractedText.substring(0, 40000), name: primaryFile.name }),
+          });
+          
+          if (response.ok) break;
+          
+          // If 502 or 503, retry a couple of times for cold-start or worker propagation
+          if ((response.status === 502 || response.status === 503 || response.status === 522) && retries > 0) {
+            retries--;
+            await new Promise(r => setTimeout(r, 2000)); // wait 2 seconds
+            continue;
+          }
+          break;
+        } catch (fetchErr) {
+          if (retries > 0) {
+            retries--;
+            await new Promise(r => setTimeout(r, 2000));
+            continue;
+          }
+          throw new Error("Network connection failed while reaching the AI Proxy Server.");
+        }
+      }
 
-      if (!response.ok) {
-        const errJson: any = await response.json().catch(() => ({}));
-        throw new Error(
-          (errJson && errJson.error) ||
-            `Server returned code ${response.status}`
-        );
+      if (!response || !response.ok) {
+        const errJson: any = await response?.json().catch(() => ({}));
+        let errMsg = errJson?.error;
+        if (!errMsg) {
+          if (response?.status === 502) {
+            errMsg = "Server is starting up or updating deployment. Please try again in a few seconds.";
+          } else if (response?.status === 524 || response?.status === 504) {
+             errMsg = "The document was too large and the AI analysis timed out.";
+          } else {
+             errMsg = `Server encountered an issue (Code ${response?.status || 'Unknown'})`;
+          }
+        }
+        throw new Error(errMsg);
       }
 
       const resJson: any = await response.json();
