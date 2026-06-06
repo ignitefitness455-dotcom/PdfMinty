@@ -61,5 +61,5 @@ If you prefer managing deployments programmatically or via continuous integratio
 
 Ensure that the environment-specific keys match your active environment:
 
-- **Gemini Model Configuration**: Set `GEMINI_MODEL="gemini-3.1-flash-lite"` (or your preferred optimized production model) inside your Workers Environment Variables.
+- **Gemini Model Configuration**: Set `GEMINI_MODEL="gemini-2.0-flash"` (recommended) or `"gemini-2.5-flash"` for higher quality analysis. See the valid model list in `functions/api/gemini-proxy.ts` inside your Workers Environment Variables.
 - **Wrangler KV Binding**: Ensure `RATELIMIT_KV` is bound to the respective namespace IDs as configured in `wrangler.toml`.

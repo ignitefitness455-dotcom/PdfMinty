@@ -103,16 +103,31 @@ export class PDFSanitizer {
 
   private static findSequence(bytes: Uint8Array, pattern: Uint8Array, fromIndex = 0): number {
     const len = pattern.length;
+    if (len === 0) return -1;
+    const firstByte = pattern[0];
     const max = bytes.length - len;
-    for (let i = fromIndex; i <= max; i++) {
+
+    let i = fromIndex;
+    while (i <= max) {
+      // Find the next occurrence of the first byte of the pattern at native speed
+      const nextIndex = bytes.indexOf(firstByte, i);
+      if (nextIndex === -1 || nextIndex > max) {
+        return -1;
+      }
+
+      // Check if subsequent bytes match the pattern
       let isMatch = true;
-      for (let j = 0; j < len; j++) {
-        if (bytes[i + j] !== pattern[j]) {
+      for (let j = 1; j < len; j++) {
+        if (bytes[nextIndex + j] !== pattern[j]) {
           isMatch = false;
           break;
         }
       }
-      if (isMatch) return i;
+
+      if (isMatch) {
+        return nextIndex;
+      }
+      i = nextIndex + 1;
     }
     return -1;
   }
@@ -121,73 +136,81 @@ export class PDFSanitizer {
     const len = bytes.length;
     let i = 0;
 
+    const endstreamPattern = new Uint8Array([101, 110, 100, 115, 116, 114, 101, 97, 109]); // 'endstream'
+
     while (i < len) {
-      // 1. Check if we are entering a stream block
-      if (i + 6 <= len && 
-          bytes[i] === 115 &&     // 's'
-          bytes[i + 1] === 116 && // 't'
-          bytes[i + 2] === 114 && // 'r'
-          bytes[i + 3] === 101 && // 'e'
-          bytes[i + 4] === 97 &&  // 'a'
-          bytes[i + 5] === 109    // 'm'
-      ) {
-        // Fast-forward to find the matching 'endstream'
-        // This is done exactly once per stream block, advancing the outer loop pointer 'i'.
-        i += 6;
-        let foundEnd = false;
-        while (i + 9 <= len) {
-          if (
-            bytes[i] === 101 &&     // 'e'
-            bytes[i + 1] === 110 && // 'n'
-            bytes[i + 2] === 100 && // 'd'
-            bytes[i + 3] === 115 && // 's'
-            bytes[i + 4] === 116 && // 't'
-            bytes[i + 5] === 114 && // 'r'
-            bytes[i + 6] === 101 && // 'e'
-            bytes[i + 7] === 97 &&  // 'a'
-            bytes[i + 8] === 109    // 'm'
-          ) {
-            i += 9;
-            foundEnd = true;
-            break;
-          }
-          i++;
-        }
-        if (foundEnd) {
-          continue;
-        }
+      // Find the next potential stream start ('s') or encrypt key start ('/')
+      // of interest using native accelerated single-byte searches.
+      const nextSlash = bytes.indexOf(47, i); // '/'
+      const nextStreamChar = bytes.indexOf(115, i); // 's'
+
+      // If neither is found, we are done
+      if (nextSlash === -1 && nextStreamChar === -1) {
+        break;
       }
 
-      // 2. Check for /Encrypt or /encrypt
-      if (i + 8 <= len && bytes[i] === 47) { // '/'
-        const isEncrypt = (
-          (bytes[i + 1] === 69 || bytes[i + 1] === 101) && // 'E' or 'e'
-          bytes[i + 2] === 110 && // 'n'
-          bytes[i + 3] === 99 &&  // 'c'
-          bytes[i + 4] === 114 && // 'r'
-          bytes[i + 5] === 121 && // 'y'
-          bytes[i + 6] === 112 && // 'p'
-          bytes[i + 7] === 116    // 't'
-        );
+      const hasSlash = nextSlash !== -1;
+      const hasStream = nextStreamChar !== -1;
 
-        if (isEncrypt) {
-          // Verify if followed by a delimiter
-          const nextByte = i + 8 < len ? bytes[i + 8] : 0;
-          if (
-            nextByte === 32 ||  // space
-            nextByte === 10 ||  // LF
-            nextByte === 13 ||  // CR
-            nextByte === 47 ||  // '/'
-            nextByte === 62 ||  // '>'
-            nextByte === 60 ||  // '<'
-            (nextByte >= 48 && nextByte <= 57) // digit
-          ) {
-            return true;
+      if (hasSlash && (!hasStream || nextSlash < nextStreamChar)) {
+        // Potential /Encrypt dictionary key appears first
+        if (nextSlash + 8 <= len) {
+          const isEncrypt = (
+            (bytes[nextSlash + 1] === 69 || bytes[nextSlash + 1] === 101) && // 'E' or 'e'
+            bytes[nextSlash + 2] === 110 && // 'n'
+            bytes[nextSlash + 3] === 99 &&  // 'c'
+            bytes[nextSlash + 4] === 114 && // 'r'
+            bytes[nextSlash + 5] === 121 && // 'y'
+            bytes[nextSlash + 6] === 112 && // 'p'
+            bytes[nextSlash + 7] === 116    // 't'
+          );
+
+          if (isEncrypt) {
+            // Verify if followed by a delimiter to avoid false-positive matches
+            const nextByte = nextSlash + 8 < len ? bytes[nextSlash + 8] : 0;
+            if (
+              nextByte === 32 ||  // space
+              nextByte === 10 ||  // LF
+              nextByte === 13 ||  // CR
+              nextByte === 47 ||  // '/'
+              nextByte === 62 ||  // '>'
+              nextByte === 60 ||  // '<'
+              (nextByte >= 48 && nextByte <= 57) // digit
+            ) {
+              return true;
+            }
           }
         }
-      }
+        // Advance cursor past the slash to continue looking
+        i = nextSlash + 1;
+      } else {
+        // 'stream' keyword appears first
+        if (nextStreamChar + 6 <= len) {
+          const isStream = (
+            bytes[nextStreamChar + 1] === 116 && // 't'
+            bytes[nextStreamChar + 2] === 114 && // 'r'
+            bytes[nextStreamChar + 3] === 101 && // 'e'
+            bytes[nextStreamChar + 4] === 97 &&  // 'a'
+            bytes[nextStreamChar + 5] === 109    // 'm'
+          );
 
-      i++;
+          if (isStream) {
+            // Find corresponding 'endstream' using optimized sub-array search
+            const nextEnd = this.findSequence(bytes, endstreamPattern, nextStreamChar + 6);
+            if (nextEnd !== -1) {
+              // Safely skip the entire stream payload
+              i = nextEnd + 9;
+              continue;
+            } else {
+              // Malformed/truncated stream block; skip the 'stream' keyword itself
+              i = nextStreamChar + 6;
+              continue;
+            }
+          }
+        }
+        // Advance cursor past 's'
+        i = nextStreamChar + 1;
+      }
     }
 
     return false;

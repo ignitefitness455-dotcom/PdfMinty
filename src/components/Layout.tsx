@@ -25,11 +25,14 @@ import { ToolType } from "../types";
 import { useToast } from "../contexts/ToastContext";
 import confetti from "canvas-confetti";
 import { Breadcrumbs, RelatedTools } from "./InternalSEO";
+import { SkipToContent } from "./SkipToContent";
 
 interface LayoutContextType {
   showToast: (message: string, type?: "success" | "error" | "info") => void;
   theme: "light" | "dark";
-  setTheme: React.Dispatch<React.SetStateAction<"light" | "dark">>;
+  themeSetting: "light" | "dark" | "system";
+  setThemeSetting: (setting: "light" | "dark" | "system") => void;
+  setTheme: (theme: "light" | "dark") => void;
   toolsList: typeof toolsList;
 }
 
@@ -164,13 +167,26 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const location = useLocation();
   const { showToast } = useToast();
 
-  // Theme State (Dark mode toggle support)
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
+  // Theme Setting State (can be "light", "dark", or "system")
+  const [themeSetting, setThemeSetting] = useState<"light" | "dark" | "system">(() => {
     try {
-      const saved = localStorage.getItem("pdfminty-theme");
-      if (saved === "dark" || saved === "light") return saved;
+      const saved = localStorage.getItem("pdfminty-theme-setting");
+      if (saved === "light" || saved === "dark" || saved === "system") {
+        return saved;
+      }
+      // Check legacy setting
+      const legacySaved = localStorage.getItem("pdfminty-theme");
+      if (legacySaved === "light" || legacySaved === "dark") {
+        return legacySaved;
+      }
     } catch (e) {}
+    return "system"; // Default is to automatically follow system preference
+  });
+
+  // Calculate current system theme match
+  const [systemTheme, setSystemTheme] = useState<"light" | "dark">(() => {
     if (
+      typeof window !== "undefined" &&
       window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches
     ) {
@@ -179,17 +195,54 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     return "light";
   });
 
+  // Listen for system theme media query changes dynamically
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleMediaQueryChange = (e: MediaQueryListEvent) => {
+      setSystemTheme(e.matches ? "dark" : "light");
+    };
+
+    // Modern browsers support addEventListener
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", handleMediaQueryChange);
+      return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
+    } else {
+      (mediaQuery as any).addListener(handleMediaQueryChange);
+      return () => (mediaQuery as any).removeListener(handleMediaQueryChange);
+    }
+  }, []);
+
+  // Compute resolved active theme ("light" or "dark")
+  const theme: "light" | "dark" = themeSetting === "system" ? systemTheme : themeSetting;
+
+  // Apply resolved theme classes to root document
   useEffect(() => {
     try {
-      localStorage.setItem("pdfminty-theme", theme);
+      localStorage.setItem("pdfminty-theme-setting", themeSetting);
+      localStorage.setItem("pdfminty-theme", themeSetting); // backward compatibility
     } catch (e) {}
+
     const root = document.documentElement;
     if (theme === "dark") {
       root.classList.add("dark");
     } else {
       root.classList.remove("dark");
     }
-  }, [theme]);
+  }, [theme, themeSetting]);
+
+  // Backward-compatible setTheme handler
+  const setThemeLegacy = (val: "light" | "dark" | ((prev: "light" | "dark") => "light" | "dark")) => {
+    if (typeof val === "function") {
+      setThemeSetting((prevSetting) => {
+        const currentActive = prevSetting === "system" ? systemTheme : prevSetting;
+        return val(currentActive);
+      });
+    } else {
+      setThemeSetting(val);
+    }
+  };
 
   // Scroll to Top state
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -342,15 +395,22 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   };
 
   return (
-    <LayoutContext.Provider value={{ showToast, theme, setTheme, toolsList }}>
+    <LayoutContext.Provider
+      value={{
+        showToast,
+        theme,
+        themeSetting,
+        setThemeSetting,
+        setTheme: setThemeLegacy,
+        toolsList,
+      }}
+    >
       <div
         id="pdfminty-root"
         className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200 antialiased overflow-x-hidden w-full"
       >
         {/* Skip to Content Link for Keyboard Accessibility */}
-        <a href="#main-content" className="skip-link">
-          Skip to Content
-        </a>
+        <SkipToContent />
 
         {/* Header */}
         <header
@@ -500,26 +560,20 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <span className="sm:hidden">🔒 Secure</span>
               </span>
 
-              {/* Theme Toggle Button */}
+              {/* Single Theme Toggle Option */}
               <button
                 type="button"
                 id="theme-toggler"
-                onClick={() =>
-                  setTheme((prev) => (prev === "light" ? "dark" : "light"))
-                }
-                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/60 dark:border-slate-800/80 transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1.5 font-bold"
-                aria-label="Toggle Dark / Light Mode"
+                onClick={() => {
+                  setThemeSetting(theme === "light" ? "dark" : "light");
+                }}
+                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/60 dark:border-slate-800/80 transition-all cursor-pointer shadow-sm flex items-center justify-center font-bold focus:outline-none"
+                aria-label="Toggle Dark Mode"
               >
                 {theme === "light" ? (
-                  <>
-                    <Moon className="w-4 h-4 text-slate-700" />
-                    <span className="text-[11px] hidden md:inline">Dark</span>
-                  </>
+                  <Moon className="w-4 h-4 text-indigo-500 fill-indigo-500/10" />
                 ) : (
-                  <>
-                    <Sun className="w-4 h-4 text-amber-400 animate-pulse" />
-                    <span className="text-[11px] hidden md:inline">Light</span>
-                  </>
+                  <Sun className="w-4 h-4 text-amber-500 animate-pulse" />
                 )}
               </button>
             </div>

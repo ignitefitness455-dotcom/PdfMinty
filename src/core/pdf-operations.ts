@@ -548,3 +548,54 @@ export async function unlockPDF(payload: UnlockPayload): Promise<Uint8Array> {
     throw err;
   }
 }
+
+export interface PdfToImagePayload {
+  fileBytes: Uint8Array;
+  scale: number;
+  format: 'png' | 'jpeg';
+}
+
+export interface PdfToImgPageResult {
+  pageNum: number;
+  bytes: Uint8Array;
+}
+
+export async function pdfToImage(payload: PdfToImagePayload): Promise<PdfToImgPageResult[]> {
+  const { fileBytes, scale, format } = payload;
+  const pdfjsLib = await getPdfJsLibrary();
+  const pdfjsDoc = await pdfjsLib.getDocument({
+    data: fileBytes,
+    useSystemFonts: true,
+  }).promise;
+
+  const results: PdfToImgPageResult[] = [];
+  const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+  const totalPages = pdfjsDoc.numPages;
+
+  for (let i = 1; i <= totalPages; i++) {
+    const page = await pdfjsDoc.getPage(i);
+    const viewport = page.getViewport({ scale });
+
+    const canvas = createCanvas(
+      Math.floor(viewport.width),
+      Math.floor(viewport.height)
+    );
+    const ctx = canvas.getContext('2d')!;
+
+    await page.render({ canvasContext: ctx as any, viewport }).promise;
+
+    const blob = await canvasToBlob(canvas, mimeType, 0.92);
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+
+    results.push({
+      pageNum: i,
+      bytes,
+    });
+
+    // Memory cleanup
+    canvas.width = 0;
+    canvas.height = 0;
+  }
+
+  return results;
+}

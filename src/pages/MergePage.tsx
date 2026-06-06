@@ -183,8 +183,7 @@ export default function MergePage() {
         worker.terminate();
       };
 
-      const buffers = filesBytes.map((fb) => fb.buffer);
-      worker.postMessage({ type: "merge", files: filesBytes }, buffers);
+      worker.postMessage({ type: "merge", files: filesBytes });
       setProcessingProgress(75);
     } catch (err: any) {
       showToast(getFriendlyErrorMessage("Merge failed", err), "error");

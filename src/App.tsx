@@ -5,6 +5,7 @@ import { Layout } from "./components/Layout";
 import ToolSkeleton from "./components/ToolSkeleton";
 import Canonical from "./components/Canonical";
 import ErrorBoundary from "./components/ErrorBoundary";
+import PWAController from "./components/PWAController";
 
 // Detect if running inside Capacitor mobile app
 const isCapacitor = typeof window !== "undefined" && typeof (window as any).Capacitor !== "undefined";
@@ -31,6 +32,7 @@ export default function App() {
     <HelmetProvider>
       <Router>
         <Canonical />
+        <PWAController />
         <Layout>
           <ErrorBoundary>
             <Suspense fallback={<ToolSkeleton />}>

@@ -48,6 +48,12 @@ self.onmessage = async (e: MessageEvent) => {
       case 'unlock':
         bytes = await ops.unlockPDF(payload);
         break;
+      case 'pdf-to-image': {
+        const results = await ops.pdfToImage(payload);
+        const buffers = results.map(r => r.bytes.buffer);
+        self.postMessage({ id, success: true, results }, buffers as any);
+        return;
+      }
       default:
         throw new Error(`Unsupported task type: ${type}`);
     }

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import FileUp from "lucide-react/icons/file-up";
 import AlertCircle from "lucide-react/icons/alert-circle";
 
@@ -17,16 +17,27 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Announce uploader role support on mount
+  useEffect(() => {
+    const formatHelp = accept === "application/pdf" ? "PDF format" : "images format";
+    setAnnouncement(`File Uploader online. Upload target is ${formatHelp}. Click or drag files to start.`);
+  }, [accept]);
 
   const onDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(true);
+    if (!isDragOver) {
+      setIsDragOver(true);
+      setAnnouncement("Dragover active. Release to upload files.");
+    }
   };
 
   const onDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
+    setAnnouncement("Dragover canceled.");
   };
 
   const onDrop = async (e: React.DragEvent) => {
@@ -49,23 +60,23 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       });
 
       if (filtered.length > 0) {
-        // FIX: Wrapped in try/catch so drag-and-drop errors are shown
-        // visibly in the UI instead of failing silently.
         try {
-          onFilesSelected(multiple ? filtered : [filtered[0]]);
+          const targetFiles = multiple ? filtered : [filtered[0]];
+          onFilesSelected(targetFiles);
+          setAnnouncement(`Successfully loaded ${targetFiles.length} file(s).`);
         } catch (err: any) {
-          setError(
-            `File could not be loaded: ${err?.message || "Unknown error."}`
-          );
+          const msg = `File could not be loaded: ${err?.message || "Unknown error."}`;
+          setError(msg);
+          setAnnouncement(msg);
         }
       } else {
         const expectedType =
           accept === "application/pdf"
             ? "PDF format"
             : "Image formats (JPG, PNG, WEBP)";
-        setError(
-          `Invalid file type. Please provide a file in ${expectedType}.`
-        );
+        const msg = `Invalid file type. Please provide a file in ${expectedType}.`;
+        setError(msg);
+        setAnnouncement(msg);
       }
     }
   };
@@ -73,38 +84,41 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
 
-    // FIX: File objects are copied from the input immediately into a local
-    // array before the input value is reset. If the value were reset first,
-    // e.target.files would become null and the File references would be lost.
     const files = e.target.files ? Array.from(e.target.files) : [];
 
-    // FIX: The input value is reset after copying the files. This ensures
-    // that selecting the same file a second time fires onChange again,
-    // which previously did not happen and left the UI in a stuck state.
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
 
     if (files.length === 0) return;
 
-    // FIX: Wrapped in try/catch so any failure inside onFilesSelected
-    // (e.g. pdfjs-dist failing to load a preview) is caught and shown
-    // as a visible error message. Previously this would fail silently
-    // because production builds have drop_console: true, leaving the
-    // user with a blank screen and no indication of what went wrong.
     try {
-      onFilesSelected(multiple ? files : [files[0]]);
+      const targetFiles = multiple ? files : [files[0]];
+      onFilesSelected(targetFiles);
+      setAnnouncement(`Successfully loaded ${targetFiles.length} file(s).`);
     } catch (err: any) {
-      setError(
-        `File could not be loaded: ${
-          err?.message || "Unknown error. Please try a different file."
-        }`
-      );
+      const msg = `File could not be loaded: ${
+        err?.message || "Unknown error. Please try a different file."
+      }`;
+      setError(msg);
+      setAnnouncement(msg);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      fileInputRef.current?.click();
     }
   };
 
   return (
     <div className="space-y-3 font-sans w-full">
+      {/* Screen Reader Live region to announce state changes, success, or errors */}
+      <div className="sr-only" role="status" aria-live="polite">
+        {announcement}
+      </div>
+
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-black text-slate-400 dark:text-slate-500 tracking-wider uppercase">
           Upload Target File(s)
@@ -120,12 +134,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         )}
       </div>
 
-      {/* FIX: Removed e.stopPropagation() from the input's onClick handler.
-          In certain browsers and on mobile, this was preventing the file
-          dialog from opening reliably, which is why uploads appeared to
-          work briefly and then reset without selecting any file. */}
       <input
-        aria-label="File upload"
+        aria-label="File upload upload dialog"
+        tabIndex={-1}
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
@@ -136,18 +147,22 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
       <div
         id="dropzone-area"
+        role="button"
+        tabIndex={0}
+        aria-describedby="upload-instructions"
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
+        onKeyDown={handleKeyDown}
         onClick={() => fileInputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer transition-all duration-300 ease-out select-none flex flex-col items-center justify-center min-h-[220px] shadow-sm hover:shadow-md ${
+        className={`relative border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer transition-all duration-300 ease-out select-none flex flex-col items-center justify-center min-h-[220px] shadow-sm hover:shadow-md focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/5 dark:focus:ring-emerald-500/10 ${
           isDragOver
             ? "border-emerald-500 bg-emerald-50/70 scale-[1.01] dark:bg-emerald-950/30 dark:border-emerald-400/80 shadow-emerald-500/5"
             : "border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-400 hover:bg-slate-50/40 dark:hover:bg-slate-950/20 bg-white/50 dark:bg-slate-900/30"
         }`}
       >
         {isDragOver && (
-          <div className="absolute inset-0 rounded-3xl border-2 border-emerald-400/50 animate-pulse pointer-events-none" />
+          <div className="absolute inset-0 rounded-3xl border-2 border-emerald-400/50 animate-pulse pointer-events-none" aria-hidden="true" />
         )}
 
         <div
@@ -156,36 +171,36 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               ? "bg-emerald-100 dark:bg-emerald-900/60 scale-110 text-emerald-600"
               : "bg-slate-100 dark:bg-slate-800/80 text-slate-400"
           }`}
+          aria-hidden="true"
         >
           <FileUp className="w-7 h-7 transition-all duration-300" />
         </div>
 
-        <p className="text-sm font-extrabold text-slate-700 dark:text-slate-200 max-w-[280px] leading-snug">
+        <p id="upload-instructions" className="text-sm font-extrabold text-slate-700 dark:text-slate-200 max-w-[280px] leading-snug">
           {isDragOver ? "Drop file(s) here now!" : placeholder}
         </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
-          Drag & drop anywhere in this card, or tap to choose
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium" aria-hidden="true">
+          Drag & drop anywhere in this card, or tap/press Space to choose
         </p>
 
         <button
           type="button"
+          tabIndex={-1}
           onClick={(e) => {
             e.stopPropagation();
             fileInputRef.current?.click();
           }}
           className="mt-5 w-full max-w-[210px] inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white rounded-2xl text-xs font-extrabold shadow-lg shadow-emerald-500/10 cursor-pointer min-h-[44px] transition-all duration-150 border-0"
+          aria-hidden="true"
         >
           <FileUp className="w-4 h-4" />
           <span>Choose File(s)</span>
         </button>
       </div>
 
-      {/* FIX: Error messages are now always rendered visibly in the UI.
-          Previously, errors in the upload pipeline would be swallowed
-          silently in production, leaving users with no feedback. */}
       {error && (
-        <div className="flex items-start gap-2.5 text-rose-600 dark:text-rose-400 text-xs bg-rose-50 dark:bg-rose-950/30 rounded-2xl p-4 border border-rose-100 dark:border-rose-900/40 animate-fadein shadow-sm">
-          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-rose-500" />
+        <div className="flex items-start gap-2.5 text-rose-600 dark:text-rose-400 text-xs bg-rose-50 dark:bg-rose-950/30 rounded-2xl p-4 border border-rose-100 dark:border-rose-900/40 animate-fadein shadow-sm" role="alert" aria-live="assertive">
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-rose-500" aria-hidden="true" />
           <div>
             <p className="font-extrabold">Upload Failed</p>
             <p className="mt-0.5 text-slate-500 dark:text-slate-300 leading-relaxed font-semibold">

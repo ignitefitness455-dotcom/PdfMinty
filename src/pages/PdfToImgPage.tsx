@@ -2,15 +2,15 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
-import { getPdfJs } from "../core/utils";
+import { triggerDownload, getFriendlyErrorMessage } from "../core/utils";
 import { PDFSanitizer } from "../core/PDFSanitizer";
+import { executePdfWorker } from "../core/pdfRunner";
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
 import Image from "lucide-react/icons/image";
 import Download from "lucide-react/icons/download";
 import Check from "lucide-react/icons/check";
 import JSZip from "jszip";
-import confetti from "canvas-confetti";
 
 export default function PdfToImgPage() {
   const { showToast } = useLayout();
@@ -51,6 +51,11 @@ export default function PdfToImgPage() {
   };
 
   const clearWorkspace = () => {
+    images.forEach((img) => {
+      if (img.url.startsWith("blob:")) {
+        URL.revokeObjectURL(img.url);
+      }
+    });
     setSelectedFiles([]);
     setCompletedResult(null);
     setProcessingProgress(null);
@@ -61,7 +66,7 @@ export default function PdfToImgPage() {
     if (selectedFiles.length === 0) return;
 
     setLoading(true);
-    setProcessingProgress(0);
+    setProcessingProgress(20);
     setImages([]);
     try {
       const primaryFile = selectedFiles[0];
@@ -83,68 +88,36 @@ export default function PdfToImgPage() {
         throw err;
       }
 
-      const pdfjs = await getPdfJs();
-      const loadingTask = pdfjs.getDocument({
-        data: sanitizedBytes as any,
-        useSystemFonts: true,
-      });
+      setProcessingProgress(50);
+      const { results } = await executePdfWorker(
+        "pdf-to-image",
+        { fileBytes: sanitizedBytes, scale, format },
+        [sanitizedBytes.buffer]
+      );
 
-      const pdf = await loadingTask.promise;
-      const totalPages = pdf.numPages;
+      setProcessingProgress(80);
       const extractedImages: { url: string; pageNum: number }[] = [];
       const zipDoc = new JSZip();
 
-      for (let i = 1; i <= totalPages; i++) {
-        const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale });
-
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-
-        if (context) {
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-
-          await page.render({
-            canvasContext: context,
-            viewport: viewport,
-            canvas: canvas,
-          }).promise;
-
-          const mimeType = format === "png" ? "image/png" : "image/jpeg";
-          const dataUrl = canvas.toDataURL(mimeType, 0.92);
-          extractedImages.push({ url: dataUrl, pageNum: i });
-
-          const base64Data = dataUrl.split(",")[1];
-          zipDoc.file(`page-${i}.${format}`, base64Data, { base64: true });
-        }
-
-        setProcessingProgress(Math.round((i / totalPages) * 100));
-        await new Promise((resolve) => requestAnimationFrame(resolve));
+      for (const item of results) {
+        const blob = new Blob([item.bytes], { type: format === "png" ? "image/png" : "image/jpeg" });
+        const url = URL.createObjectURL(blob);
+        extractedImages.push({ url, pageNum: item.pageNum });
+        zipDoc.file(`page-${item.pageNum}.${format}`, item.bytes);
       }
 
       setImages(extractedImages);
 
-      const contentBlob = await zipDoc.generateAsync({ type: "blob" });
-      const zipUrl = URL.createObjectURL(contentBlob);
+      setProcessingProgress(95);
+      const zipBytes = await zipDoc.generateAsync({ type: "uint8array" });
       const zipName = primaryFile.name.toLowerCase().endsWith(".pdf")
         ? primaryFile.name.replace(/\.pdf$/i, `_images_${format}.zip`)
         : `${primaryFile.name}_images_${format}.zip`;
 
-      setCompletedResult({
-        url: zipUrl,
-        filename: zipName,
-        type: "application/zip"
-      });
-
-      confetti({
-        particleCount: 100,
-        spread: 60,
-        origin: { y: 0.85 },
-      });
-      showToast(`Document conversion successful! Extracted ${totalPages} frames.`, "success");
+      triggerDownload(zipBytes, zipName, setCompletedResult);
+      showToast(`Document conversion successful! Extracted ${results.length} frames.`, "success");
     } catch (err: any) {
-      showToast(`Conversion to image failed: ${err.message}`, "error");
+      showToast(getFriendlyErrorMessage("Conversion to image failed", err), "error");
     } finally {
       setLoading(false);
       setProcessingProgress(null);

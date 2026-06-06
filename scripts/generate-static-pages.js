@@ -157,14 +157,7 @@ function generateRouteJsonLd(route, absoluteUrl) {
       "price": "0",
       "priceCurrency": "USD"
     },
-    "browserRequirements": "Requires JavaScript",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "1250",
-      "bestRating": "5",
-      "worstRating": "1"
-    }
+    "browserRequirements": "Requires JavaScript"
   };
   return `<script type="application/ld+json">${JSON.stringify(data)}</script>`;
 }
@@ -199,9 +192,6 @@ try {
     // 5. Canonical link and alternates
     html = setCanonicalLink(html, absoluteUrl);
     html = setAlternateLink(html, "en", absoluteUrl);
-    html = setAlternateLink(html, "bn", `https://www.pdfminty.com/bn${route.path}`);
-    html = setAlternateLink(html, "hi", `https://www.pdfminty.com/hi${route.path}`);
-    html = setAlternateLink(html, "es", `https://www.pdfminty.com/es${route.path}`);
     html = setAlternateLink(html, "x-default", absoluteUrl);
 
     // 6. Generate JSON-LD Structured Data specifically for this utility route
@@ -221,9 +211,6 @@ try {
   let homeHtml = baseHTML;
   homeHtml = setCanonicalLink(homeHtml, "https://www.pdfminty.com/");
   homeHtml = setAlternateLink(homeHtml, "en", "https://www.pdfminty.com/");
-  homeHtml = setAlternateLink(homeHtml, "bn", "https://www.pdfminty.com/bn/");
-  homeHtml = setAlternateLink(homeHtml, "hi", "https://www.pdfminty.com/hi/");
-  homeHtml = setAlternateLink(homeHtml, "es", "https://www.pdfminty.com/es/");
   homeHtml = setAlternateLink(homeHtml, "x-default", "https://www.pdfminty.com/");
 
   fs.writeFileSync(templatePath, homeHtml, 'utf-8');

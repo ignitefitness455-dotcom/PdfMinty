@@ -1,5 +1,6 @@
 import './polyfill.ts';
 import './error-handler.ts';
+import './config/i18n.ts';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';

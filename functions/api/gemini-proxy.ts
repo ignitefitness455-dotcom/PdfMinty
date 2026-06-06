@@ -8,6 +8,8 @@ interface Env {
   USER_AGENT?: string;
 }
 
+const inMemoryRateLimitFallback = new Map<string, number>();
+
 export const onRequestOptions: PagesFunction<Env> = async (context) => {
   const corsOrigin = getCorsOrigin(context.request);
   return new Response(null, {
@@ -89,17 +91,16 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     await env.RATELIMIT_KV.put(blockKey, (count + 1).toString(), { expirationTtl: 3600 });
   } catch (kvErr: any) {
-    console.error("Rate limiting KV failure (fail-closed):", kvErr);
-    return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: "Service Temporarily Unavailable: Rate limiter or database storage validation failed (fail-closed)." 
-      }),
-      { 
-        status: 503, 
-        headers: corsHeaders
-      }
-    );
+    console.warn("Rate limiting KV failure (fail-open with in-memory fallback):", kvErr);
+    const memCount = inMemoryRateLimitFallback.get(clientIp) || 0;
+    if (memCount >= 5) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Too Many Requests: Rate limit reached. Please try again soon." }),
+        { status: 429, headers: corsHeaders }
+      );
+    }
+    inMemoryRateLimitFallback.set(clientIp, memCount + 1);
+    // Continue — do NOT return here, let the AI call proceed
   }
 
   // 3. Extract Payload
@@ -153,10 +154,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     "gemini-2.0-flash",
     "gemini-2.5-flash",
     "gemini-2.5-pro",
-    "gemini-2.5-flash-preview-05-20",
-    "gemini-3.1-flash-lite",
-    "gemini-3.1-flash",
-    "gemini-3.1-pro"
+    "gemini-2.5-flash-preview-05-20"
   ];
 
   if (!VALID_MODELS.includes(modelName)) {
