@@ -11,6 +11,7 @@ import RefreshCw from "lucide-react/icons/refresh-cw";
 import Download from "lucide-react/icons/download";
 import Check from "lucide-react/icons/check";
 import { PDFPageInfo } from "../types";
+import { UPLOAD_LIMITS } from "../config/constants";
 
 export default function CompressPage() {
   const { showToast } = useLayout();
@@ -126,8 +127,8 @@ export default function CompressPage() {
     }
 
     const file = pdfs[0];
-    if (file.size > 50 * 1024 * 1024) {
-      showToast(`File '${file.name}' exceeds the 50MB limit.`, "error");
+    if (file.size > UPLOAD_LIMITS.MAX_SINGLE_FILE) {
+      showToast(`File '${file.name}' exceeds the ${UPLOAD_LIMITS.MAX_SINGLE_FILE / (1024 * 1024)}MB limit.`, "error");
       return;
     }
 
@@ -276,10 +277,10 @@ export default function CompressPage() {
                     </label>
                     <div className="flex flex-col gap-2">
                       {[
-                        { val: "medium", label: "Balanced Compression (150 DPI)", desc: "Resamples pages to images at 150 DPI JPEG. Recommended for standard screens." },
-                        { val: "high", label: "High Compression (96 DPI)", desc: "Resamples pages to images at 96 DPI JPEG. Maximum space savings, lower visual fidelity." },
-                        { val: "low", label: "Low Compression (200 DPI)", desc: "Resamples pages to images at 200 DPI JPEG. Extremely sharp text and vector graphics preserved." },
-                        { val: "metadata", label: "Lossless Metadata Only (Preserve Text)", desc: "Keeps all text selectable, forms interactive, and fonts vector. Wipes structural tracks." }
+                        { val: "medium",   label: "Balanced (150 DPI — Recommended)",         desc: "Resamples pages to 150 DPI JPEG. Good balance of size and clarity for most use cases." },
+                        { val: "high",     label: "Maximum Compression (96 DPI — Smallest File)", desc: "Resamples pages to 96 DPI JPEG. Smallest possible file size, reduced visual fidelity." },
+                        { val: "low",      label: "Minimum Compression (200 DPI — Best Quality)", desc: "Resamples pages to 200 DPI JPEG. Sharpest text and vector output, largest resulting file." },
+                        { val: "metadata", label: "Lossless Metadata Strip (Preserve Text)",   desc: "Keeps all text selectable, forms interactive, and fonts vector. Removes only structural metadata." }
                       ].map((c) => (
                         <button
                           key={c.val}

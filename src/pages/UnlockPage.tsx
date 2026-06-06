@@ -12,6 +12,7 @@ import AlertTriangle from "lucide-react/icons/alert-triangle";
 import HelpCircle from "lucide-react/icons/help-circle";
 import CheckCircle from "lucide-react/icons/check-circle";
 import Download from "lucide-react/icons/download";
+import { UPLOAD_LIMITS } from "../config/constants";
 
 type OSType = "mac" | "windows" | "linux" | "mobile";
 
@@ -47,8 +48,8 @@ export default function UnlockPage() {
     }
 
     const file = pdfs[0];
-    if (file.size > 50 * 1024 * 1024) {
-      showToast(`File '${file.name}' exceeds the 50MB benchmark limits.`, "error");
+    if (file.size > UPLOAD_LIMITS.MAX_SINGLE_FILE) {
+      showToast(`File '${file.name}' exceeds the ${UPLOAD_LIMITS.MAX_SINGLE_FILE / (1024 * 1024)}MB benchmark limits.`, "error");
       return;
     }
 

@@ -11,6 +11,7 @@ import ArrowUp from "lucide-react/icons/arrow-up";
 import ArrowDown from "lucide-react/icons/arrow-down";
 import Download from "lucide-react/icons/download";
 import Check from "lucide-react/icons/check";
+import { UPLOAD_LIMITS } from "../config/constants";
 
 export default function MergePage() {
   const { showToast } = useLayout();
@@ -19,9 +20,6 @@ export default function MergePage() {
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
   const [completedResult, setCompletedResult] = useState<{ url: string; filename: string; type: string } | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-
-  const MAX_TOTAL_SIZE = 500 * 1024 * 1024; // 500 MB limit
-  const MAX_FILES = 50;
 
   useEffect(() => {
     return () => {
@@ -37,15 +35,15 @@ export default function MergePage() {
       showToast("Only PDF files are supported for merging.", "error");
     }
 
-    if (selectedFiles.length + pdfs.length > MAX_FILES) {
-      showToast(`Maximum limit of ${MAX_FILES} files allowed.`, "error");
+    if (selectedFiles.length + pdfs.length > UPLOAD_LIMITS.MAX_FILES) {
+      showToast(`Maximum limit of ${UPLOAD_LIMITS.MAX_FILES} files allowed.`, "error");
       return;
     }
 
     const currentSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
     const incomingSize = pdfs.reduce((sum, f) => sum + f.size, 0);
-    if (currentSize + incomingSize > MAX_TOTAL_SIZE) {
-      showToast("Combined size exceeds client-side merge safety limit of 500 MB.", "error");
+    if (currentSize + incomingSize > UPLOAD_LIMITS.MAX_TOTAL_SIZE) {
+      showToast(`Combined size exceeds client-side merge safety limit of ${UPLOAD_LIMITS.MAX_TOTAL_SIZE / (1024 * 1024)} MB.`, "error");
       return;
     }
 
@@ -54,8 +52,8 @@ export default function MergePage() {
         showToast(`Skipped empty file: '${file.name}'`, "error");
         return false;
       }
-      if (file.size > 100 * 1024 * 1024) {
-        showToast(`File '${file.name}' exceeds the 100MB per-file safety limit.`, "error");
+      if (file.size > UPLOAD_LIMITS.MAX_SINGLE_FILE) {
+        showToast(`File '${file.name}' exceeds the ${UPLOAD_LIMITS.MAX_SINGLE_FILE / (1024 * 1024)}MB per-file safety limit.`, "error");
         return false;
       }
       return true;

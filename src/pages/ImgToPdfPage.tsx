@@ -10,6 +10,7 @@ import ArrowUp from "lucide-react/icons/arrow-up";
 import ArrowDown from "lucide-react/icons/arrow-down";
 import Download from "lucide-react/icons/download";
 import Check from "lucide-react/icons/check";
+import { UPLOAD_LIMITS } from "../config/constants";
 
 // Helper to convert WebP to standard PNG using HTML5 Canvas on the browser main-thread
 function convertWebPToPng(file: File): Promise<{ bytes: Uint8Array; type: string; name: string }> {
@@ -111,8 +112,8 @@ export default function ImgToPdfPage() {
     }
 
     const filtered = images.filter(file => {
-      if (file.size > 50 * 1024 * 1024) {
-        showToast(`File '${file.name}' exceeds the 50MB limit and was skipped.`, "error");
+      if (file.size > UPLOAD_LIMITS.MAX_SINGLE_FILE) {
+        showToast(`File '${file.name}' exceeds the ${UPLOAD_LIMITS.MAX_SINGLE_FILE / (1024 * 1024)}MB limit and was skipped.`, "error");
         return false;
       }
       return true;

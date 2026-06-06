@@ -11,6 +11,7 @@ import Plus from "lucide-react/icons/plus";
 import Download from "lucide-react/icons/download";
 import Check from "lucide-react/icons/check";
 import { PDFPageInfo } from "../types";
+import { UPLOAD_LIMITS } from "../config/constants";
 
 export default function AddBlankPage() {
   const { showToast } = useLayout();
@@ -132,8 +133,8 @@ export default function AddBlankPage() {
     }
 
     const file = pdfs[0];
-    if (file.size > 50 * 1024 * 1024) {
-      showToast(`File '${file.name}' exceeds the 50MB limit.`, "error");
+    if (file.size > UPLOAD_LIMITS.MAX_SINGLE_FILE) {
+      showToast(`File '${file.name}' exceeds the ${UPLOAD_LIMITS.MAX_SINGLE_FILE / (1024 * 1024)}MB limit.`, "error");
       return;
     }
 
