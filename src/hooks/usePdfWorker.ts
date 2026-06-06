@@ -80,7 +80,7 @@ export function usePdfWorker() {
       };
 
       // Construct a unified payload message
-      const message = { id, type, payload, ...payload };
+      const message = { id, type, payload };
       if (transferable && transferable.length > 0) {
         worker.postMessage(message, transferable);
       } else {
