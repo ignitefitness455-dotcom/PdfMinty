@@ -24,6 +24,16 @@ export function usePdfWorker() {
       const id = ++idRef.current;
       setState({ loading: true, progress: 0, error: null, result: null });
 
+      // Clean up previous running worker if active
+      if (workerRef.current) {
+        try {
+          workerRef.current.terminate();
+        } catch (err) {
+          // Already terminated or error
+        }
+        workerRef.current = null;
+      }
+
       const worker = createDedicatedWorker(type);
       workerRef.current = worker;
 
@@ -44,13 +54,29 @@ export function usePdfWorker() {
           setState({ loading: false, progress: 0, error: data.error, result: null });
           reject(new Error(data.error));
         }
-        worker.terminate();
+
+        if (workerRef.current === worker) {
+          workerRef.current = null;
+        }
+        try {
+          worker.terminate();
+        } catch (err) {
+          // Already terminated
+        }
       };
 
       worker.onerror = (err) => {
         setState({ loading: false, progress: 0, error: err.message, result: null });
         reject(err);
-        worker.terminate();
+        
+        if (workerRef.current === worker) {
+          workerRef.current = null;
+        }
+        try {
+          worker.terminate();
+        } catch (e) {
+          // Already terminated
+        }
       };
 
       // Construct a unified payload message
@@ -65,7 +91,11 @@ export function usePdfWorker() {
 
   const cancel = useCallback(() => {
     if (workerRef.current) {
-      workerRef.current.terminate();
+      try {
+        workerRef.current.terminate();
+      } catch (err) {
+        // Catch gracefully
+      }
       workerRef.current = null;
       setState({ loading: false, progress: 0, error: 'Cancelled by user', result: null });
     }
@@ -74,7 +104,11 @@ export function usePdfWorker() {
   useEffect(() => {
     return () => {
       if (workerRef.current) {
-        workerRef.current.terminate();
+        try {
+          workerRef.current.terminate();
+        } catch (err) {
+          // Catch gracefully
+        }
         workerRef.current = null;
       }
     };

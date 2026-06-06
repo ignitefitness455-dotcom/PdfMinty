@@ -16,6 +16,7 @@ export const onRequest: PagesFunction<any> = async (context) => {
   const headers = new Headers(response.headers);
 
   // 1. Strict Content-Security-Policy (CSP)
+  // Keep CSP identical with public/_headers
   // Standard strict default-src 'self' with permissions for styling, fonts, and images.
   // frame-ancestors is designed to allow rendering inside trusted spaces (like AI Studio previews)
   // while preventing unauthorized malicious clickjacking.

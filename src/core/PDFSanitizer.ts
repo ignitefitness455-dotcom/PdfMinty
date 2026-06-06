@@ -118,37 +118,70 @@ export class PDFSanitizer {
   }
 
   private static checkEncryptionBinary(bytes: Uint8Array): boolean {
-    const endstreamPattern = new Uint8Array([101, 110, 100, 115, 116, 114, 101, 97, 109]); // 'endstream'
-    const encryptPattern = new Uint8Array([47, 69, 110, 99, 114, 121, 112, 116]); // '/Encrypt'
-    const encryptPattern2 = new Uint8Array([47, 101, 110, 99, 114, 121, 112, 116]); // '/encrypt'
-
     const len = bytes.length;
     let i = 0;
+
     while (i < len) {
-      // Check if we are entering a stream block
+      // 1. Check if we are entering a stream block
       if (i + 6 <= len && 
-          bytes[i] === 115 && bytes[i+1] === 116 && bytes[i+2] === 114 && 
-          bytes[i+3] === 101 && bytes[i+4] === 97 && bytes[i+5] === 109) {
-        // Find next 'endstream'
-        const nextEnd = this.findSequence(bytes, endstreamPattern, i + 6);
-        if (nextEnd !== -1) {
-          i = nextEnd + 9; // Skip past 'endstream'
+          bytes[i] === 115 &&     // 's'
+          bytes[i + 1] === 116 && // 't'
+          bytes[i + 2] === 114 && // 'r'
+          bytes[i + 3] === 101 && // 'e'
+          bytes[i + 4] === 97 &&  // 'a'
+          bytes[i + 5] === 109    // 'm'
+      ) {
+        // Fast-forward to find the matching 'endstream'
+        // This is done exactly once per stream block, advancing the outer loop pointer 'i'.
+        i += 6;
+        let foundEnd = false;
+        while (i + 9 <= len) {
+          if (
+            bytes[i] === 101 &&     // 'e'
+            bytes[i + 1] === 110 && // 'n'
+            bytes[i + 2] === 100 && // 'd'
+            bytes[i + 3] === 115 && // 's'
+            bytes[i + 4] === 116 && // 't'
+            bytes[i + 5] === 114 && // 'r'
+            bytes[i + 6] === 101 && // 'e'
+            bytes[i + 7] === 97 &&  // 'a'
+            bytes[i + 8] === 109    // 'm'
+          ) {
+            i += 9;
+            foundEnd = true;
+            break;
+          }
+          i++;
+        }
+        if (foundEnd) {
           continue;
         }
       }
 
-      // Check for /Encrypt or /encrypt
-      if (i + 8 <= len) {
-        let matchEncrypt = true;
-        let matchEncrypt2 = true;
-        for (let j = 0; j < 8; j++) {
-          if (bytes[i + j] !== encryptPattern[j]) matchEncrypt = false;
-          if (bytes[i + j] !== encryptPattern2[j]) matchEncrypt2 = false;
-        }
-        if (matchEncrypt || matchEncrypt2) {
+      // 2. Check for /Encrypt or /encrypt
+      if (i + 8 <= len && bytes[i] === 47) { // '/'
+        const isEncrypt = (
+          (bytes[i + 1] === 69 || bytes[i + 1] === 101) && // 'E' or 'e'
+          bytes[i + 2] === 110 && // 'n'
+          bytes[i + 3] === 99 &&  // 'c'
+          bytes[i + 4] === 114 && // 'r'
+          bytes[i + 5] === 121 && // 'y'
+          bytes[i + 6] === 112 && // 'p'
+          bytes[i + 7] === 116    // 't'
+        );
+
+        if (isEncrypt) {
           // Verify if followed by a delimiter
           const nextByte = i + 8 < len ? bytes[i + 8] : 0;
-          if (nextByte === 32 || nextByte === 10 || nextByte === 13 || nextByte === 47 || nextByte === 62 || nextByte === 60 || (nextByte >= 48 && nextByte <= 57)) {
+          if (
+            nextByte === 32 ||  // space
+            nextByte === 10 ||  // LF
+            nextByte === 13 ||  // CR
+            nextByte === 47 ||  // '/'
+            nextByte === 62 ||  // '>'
+            nextByte === 60 ||  // '<'
+            (nextByte >= 48 && nextByte <= 57) // digit
+          ) {
             return true;
           }
         }
