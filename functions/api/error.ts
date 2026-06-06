@@ -43,26 +43,17 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
     }
 
-    // Identify Client IP to prevent spamming reporting endpoint
+    // Identify Client IP to prevent spamming reporting endpoint and check hourly rate limit using an atomic counter
     const ip = request.headers.get("cf-connecting-ip") || "127.0.0.1";
-    const ipKey = `rate_limit_error:${ip}`;
-    const limit = 20; // Allow up to 20 reports per hour to tolerate some rapid errors
-    const oneHourMs = 3600000;
-    const nowMs = Date.now();
+    const now = Math.floor(Date.now() / 1000);
+    const hourBlock = now - (now % 3600);
+    const rateLimitKey = `rate_limit:error:${ip}:${hourBlock}`;
+    const limit = 20;
 
-    // Check rate limit
-    const previousRequestsRaw = await kv.get(ipKey);
-    let timestamps: number[] = [];
-    if (previousRequestsRaw) {
-      try {
-        timestamps = JSON.parse(previousRequestsRaw);
-      } catch (_) {}
-    }
+    const countStr = await kv.get(rateLimitKey);
+    const count = countStr ? parseInt(countStr, 10) : 0;
 
-    const oneHourAgo = nowMs - oneHourMs;
-    timestamps = timestamps.filter((t) => t > oneHourAgo);
-
-    if (timestamps.length >= limit) {
+    if (count >= limit) {
       return new Response(
         JSON.stringify({ success: false, error: "Rate limit exceeded" }),
         {
@@ -74,6 +65,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         }
       );
     }
+
+    await kv.put(rateLimitKey, (count + 1).toString(), { expirationTtl: 3600 });
 
     // Parse the JSON body
     let payload: any;
@@ -97,10 +90,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const cleanMessage = sanitizeString(message?.trim());
     const cleanStack = sanitizeString(stack?.trim());
     const cleanUrl = sanitizeString(url?.trim());
-
-    // Update rate-limiting list
-    timestamps.push(nowMs);
-    await kv.put(ipKey, JSON.stringify(timestamps), { expirationTtl: 3600 });
 
     // Store in KV
     const cleanTimestamp = timestamp ? String(timestamp) : new Date().toISOString();

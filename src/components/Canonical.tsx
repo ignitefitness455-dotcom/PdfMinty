@@ -121,9 +121,6 @@ export default function Canonical() {
       {/* Canonical and hreflang Alternate Tags */}
       <link rel="canonical" href={canonicalUrl} />
       <link rel="alternate" hrefLang="en" href={canonicalUrl} />
-      <link rel="alternate" hrefLang="bn" href={`https://www.pdfminty.com/bn${cleanPath === "/" ? "/" : cleanPath}`} />
-      <link rel="alternate" hrefLang="hi" href={`https://www.pdfminty.com/hi${cleanPath === "/" ? "/" : cleanPath}`} />
-      <link rel="alternate" hrefLang="es" href={`https://www.pdfminty.com/es${cleanPath === "/" ? "/" : cleanPath}`} />
       <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
     </Helmet>
   );

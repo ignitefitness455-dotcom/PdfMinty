@@ -43,26 +43,17 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
     }
 
-    // Identify Client IP
+    // Identify Client IP and check hourly rate limit using an atomic counter
     const ip = request.headers.get("cf-connecting-ip") || "127.0.0.1";
-    const ipKey = `rate_limit:contact:${ip}`;
+    const now = Math.floor(Date.now() / 1000);
+    const hourBlock = now - (now % 3600);
+    const rateLimitKey = `rate_limit:contact:${ip}:${hourBlock}`;
     const limit = 3;
-    const oneHourMs = 3600000;
-    const nowMs = Date.now();
 
-    // Check rate limit (entries with the same IP in the last hour)
-    const previousRequestsRaw = await kv.get(ipKey);
-    let timestamps: number[] = [];
-    if (previousRequestsRaw) {
-      try {
-        timestamps = JSON.parse(previousRequestsRaw);
-      } catch (_) {}
-    }
+    const countStr = await kv.get(rateLimitKey);
+    const count = countStr ? parseInt(countStr, 10) : 0;
 
-    const oneHourAgo = nowMs - oneHourMs;
-    timestamps = timestamps.filter((t) => t > oneHourAgo);
-
-    if (timestamps.length >= limit) {
+    if (count >= limit) {
       return new Response(
         JSON.stringify({ success: false, error: "Rate limit exceeded. Too many requests from this IP in the last hour." }),
         {
@@ -74,6 +65,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         }
       );
     }
+
+    await kv.put(rateLimitKey, (count + 1).toString(), { expirationTtl: 3600 });
 
     // Parse JSON body
     let payload: any;
@@ -153,10 +146,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         }
       );
     }
-
-    // Update rate-limiting list
-    timestamps.push(nowMs);
-    await kv.put(ipKey, JSON.stringify(timestamps), { expirationTtl: 3600 });
 
     // Store in KV
     const cleanTimestamp = timestamp ? String(timestamp) : new Date().toISOString();
