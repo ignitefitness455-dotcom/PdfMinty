@@ -5,7 +5,11 @@ pages_build_output_dir = "dist"
 
 [vars]
 ENVIRONMENT = "production"
-# SECRET_KEY (e.g. GEMINI_API_KEY) should be configured securely via wrangler secret put
+USER_AGENT = "PDFMinty-Document-Analyzer/1.0"
+# GEMINI_API_KEY is a secure secret. Do NOT place its plaintext value here.
+# Bind it in production via standard Cloudflare command-line tools:
+# wrangler pages secret put GEMINI_API_KEY
+# Access it securely inside the Worker via env.GEMINI_API_KEY.
 
 # Production Environment Config
 [env.production]
@@ -17,4 +21,4 @@ id = "a43016cede9e4e92bc4ee8776b952cfb"
 [env.preview]
 [[env.preview.kv_namespaces]]
 binding = "RATELIMIT_KV"
-id = "a43016cede9e4e92bc4ee8776b952cfb"
+id = "your-preview-kv-id"

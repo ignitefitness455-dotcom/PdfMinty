@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
 import { PdfPreview } from "../components/PdfPreview";
-import { triggerDownload, getFriendlyErrorMessage, getPdfJs } from "../core/utils";
-import { PDFSanitizer } from "../core/PDFSanitizer";
+import { triggerDownload, getFriendlyErrorMessage } from "../core/utils";
+import { preprocessAndLoadPdf, executePdfWorker } from "../core/pdfRunner";
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
 import Download from "lucide-react/icons/download";
@@ -32,7 +32,6 @@ export default function RotatePage() {
 
   useEffect(() => {
     let active = true;
-    let loadingTask: any = null;
 
     const renderPDFThumbnails = async () => {
       setIsDocumentLocked(false);
@@ -45,41 +44,15 @@ export default function RotatePage() {
       setLoading(true);
       try {
         const primaryFile = selectedFiles[0];
-        console.debug(`[PDFMINTY-DEBUG] RotatePage: Starting renderPDFThumbnails for file: name="${primaryFile.name}", size=${primaryFile.size} bytes`);
-        const arrayBuffer = await primaryFile.arrayBuffer();
-
-        if (!active) return;
-
-        let sanitizedBytes: any = new Uint8Array(arrayBuffer);
-        try {
-          const sanitizedResult = PDFSanitizer.sanitize(sanitizedBytes);
-          sanitizedBytes = sanitizedResult.bytes;
-          console.debug(`[PDFMINTY-DEBUG] RotatePage: sanitizedBytes length=${sanitizedBytes.length}`);
-        } catch (err: any) {
-          if (err?.message?.includes("SECURED_LOCKED")) {
-            setIsDocumentLocked(true);
-            setLoading(false);
-            showToast(
-              "🔒 Standard secured/locked PDF file detected. Rotation is restricted. Use the Unlock tool first.",
-              "error"
-            );
-            return;
-          }
-          throw err;
-        }
-
-        console.debug("[PDFMINTY-DEBUG] RotatePage: pdfjs loading started");
-        const pdfjs = await getPdfJs();
-        loadingTask = pdfjs.getDocument({
-          data: sanitizedBytes as any,
-          useSystemFonts: true,
+        const { pdf } = await preprocessAndLoadPdf(primaryFile, {
+          onEncrypted: () => setIsDocumentLocked(true),
+          showToast,
+          customLockMessage: "🔒 Standard secured/locked PDF file detected. Rotation is restricted. Use the Unlock tool first."
         });
 
-        const pdf = await loadingTask.promise;
         if (!active) return;
 
         const pageCount = pdf.numPages;
-        console.debug(`[PDFMINTY-DEBUG] RotatePage: pdf loading completed. pageCount=${pageCount}`);
         const previews: PDFPageInfo[] = [];
 
         for (let i = 1; i <= Math.min(pageCount, 150); i++) {
@@ -95,14 +68,13 @@ export default function RotatePage() {
             height: viewport.height,
           });
         }
-        console.debug(`[PDFMINTY-DEBUG] RotatePage: preview thumbnails array length=${previews.length}`);
         if (active) {
           setPdfDocument(pdf);
           setPdfPages(previews);
         }
       } catch (err: any) {
         console.error(err);
-        if (active) {
+        if (active && !isDocumentLocked) {
           showToast("Info: Unable to render preview thumbnails for this document lock/format.", "info");
         }
       } finally {
@@ -116,11 +88,8 @@ export default function RotatePage() {
 
     return () => {
       active = false;
-      if (loadingTask && typeof loadingTask.destroy === "function") {
-        loadingTask.destroy();
-      }
     };
-  }, [selectedFiles]);
+  }, [selectedFiles, isDocumentLocked]);
 
   const handleFilesSelected = (files: File[]) => {
     const pdfs = files.filter(f => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
@@ -182,41 +151,24 @@ export default function RotatePage() {
       const fileBytes = new Uint8Array(buffer);
 
       setProcessingProgress(40);
-      const { createDedicatedWorker } = await import("../core/WorkerManager");
-      const worker = createDedicatedWorker("rotate");
-
-      worker.onmessage = (e: MessageEvent) => {
-        const { success, bytes, error } = e.data;
-        if (success && bytes) {
-          setProcessingProgress(100);
-          triggerDownload(bytes, `rotated_${primaryFile.name}`, setCompletedResult);
-          showToast("Document rotations applied successfully completely offline!", "success");
-        } else {
-          showToast(getFriendlyErrorMessage("Rotation application failed", error), "error");
-        }
-        setLoading(false);
-        setProcessingProgress(null);
-        worker.terminate();
-      };
-
-      worker.onerror = (err) => {
-        console.error("Rotate Worker Error:", err);
-        showToast("Worker error occurred during rotate.", "error");
-        setLoading(false);
-        setProcessingProgress(null);
-        worker.terminate();
-      };
-
       const pageRotations = pdfPages.map((p) => ({
         index: p.index,
         rotation: (p.rotation % 360) as 0 | 90 | 180 | 270,
       }));
-      worker.postMessage({ type: "rotate", fileBytes, pageRotations }, [
-        fileBytes.buffer,
-      ]);
+
       setProcessingProgress(70);
+      const { bytes } = await executePdfWorker(
+        "rotate",
+        { fileBytes, pageRotations },
+        [fileBytes.buffer]
+      );
+
+      setProcessingProgress(100);
+      triggerDownload(bytes, `rotated_${primaryFile.name}`, setCompletedResult);
+      showToast("Document rotations applied successfully completely offline!", "success");
     } catch (err: any) {
       showToast(getFriendlyErrorMessage("Rotation application failed", err), "error");
+    } finally {
       setLoading(false);
       setProcessingProgress(null);
     }

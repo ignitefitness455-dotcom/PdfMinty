@@ -90,6 +90,11 @@ export default function AiAnalyzePage() {
       setProcessingProgress(40);
 
       const pageCount = pdf.numPages;
+      const MAX_AI_PAGES = 50;
+      if (pageCount > MAX_AI_PAGES) {
+        throw new Error(`PDF exceeds maximum ${MAX_AI_PAGES} pages for AI analysis. Please split the PDF or select a smaller file.`);
+      }
+
       let extractedText = "";
 
       for (let i = 1; i <= pageCount; i++) {

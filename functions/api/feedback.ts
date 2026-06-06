@@ -45,7 +45,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     // Identify Client IP
     const ip = request.headers.get("cf-connecting-ip") || "127.0.0.1";
-    const ipKey = `rate_limit:${ip}`;
+    const ipKey = `rate_limit:feedback:${ip}`;
     const limit = 3;
     const oneHourMs = 3600000;
     const nowMs = Date.now();

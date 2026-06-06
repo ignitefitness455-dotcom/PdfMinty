@@ -35,9 +35,10 @@ export const getFriendlyErrorMessage = (prefix: string, rawError: any): string =
     errorStr.includes("failed to parse pdf document") ||
     errorStr.includes("invalid pdf") ||
     errorStr.includes("formaterror") ||
-    errorStr.includes("pdfdocument")
+    errorStr.includes("holds encrypted content") ||
+    errorStr.includes("encrypted content")
   ) {
-    return `${prefix}: ফাইলটি পাসওয়ার্ড-লকড বা এনক্রিপ্ট করা রয়েছে। অনুগ্রহ করে প্রথমে "Unlock PDF" টুল ব্যবহার করে লকটি খুলুন! (The file is encrypted or locked. Please use the "Unlock PDF" tool first to decrypt it.)`;
+    return `${prefix}: The file is encrypted or locked. Please use the "Unlock PDF" tool first to decrypt it.`;
   }
   
   if (
@@ -45,7 +46,7 @@ export const getFriendlyErrorMessage = (prefix: string, rawError: any): string =
     errorStr.includes("missing the standard") ||
     errorStr.includes("header signature")
   ) {
-    return `${prefix}: অননুমোদিত বা অসম্পূর্ণ ফাইল ফরম্যাট। ফাইলটিতে সঠিক '%PDF' হেডার সিগনেচার পাওয়া যায়নি। (Incompatible file format. The file is missing a standard '%PDF' header signature.)`;
+    return `${prefix}: Incompatible file format. The file is missing a standard '%PDF' header signature.`;
   }
   
   if (
@@ -53,7 +54,7 @@ export const getFriendlyErrorMessage = (prefix: string, rawError: any): string =
     errorStr.includes("decrypt") || 
     errorStr.includes("bad decrypt")
   ) {
-    return `${prefix}: ভুল পাসওয়ার্ড! অনুগ্রহ করে সঠিক পাসওয়ার্ড দিয়ে আবার চেষ্টা করুন। (Incorrect password! Better luck next time.)`;
+    return `${prefix}: Incorrect password! Please verify and try again.`;
   }
   
   return `${prefix}: ${rawError?.message || rawError}`;

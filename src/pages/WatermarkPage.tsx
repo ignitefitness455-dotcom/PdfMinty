@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
 import { PdfPreview } from "../components/PdfPreview";
-import { triggerDownload, getPdfJs } from "../core/utils";
-import { PDFSanitizer } from "../core/PDFSanitizer";
+import { triggerDownload } from "../core/utils";
+import { preprocessAndLoadPdf, executePdfWorker } from "../core/pdfRunner";
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
 import Stamp from "lucide-react/icons/stamp";
@@ -38,7 +38,6 @@ export default function WatermarkPage() {
 
   useEffect(() => {
     let active = true;
-    let loadingTask: any = null;
 
     const renderPDFThumbnails = async () => {
       setIsDocumentLocked(false);
@@ -51,34 +50,12 @@ export default function WatermarkPage() {
       setLoading(true);
       try {
         const primaryFile = selectedFiles[0];
-        const arrayBuffer = await primaryFile.arrayBuffer();
-
-        if (!active) return;
-
-        let sanitizedBytes: any = new Uint8Array(arrayBuffer);
-        try {
-          const sanitizedResult = PDFSanitizer.sanitize(sanitizedBytes);
-          sanitizedBytes = sanitizedResult.bytes;
-        } catch (err: any) {
-          if (err?.message?.includes("SECURED_LOCKED")) {
-            setIsDocumentLocked(true);
-            setLoading(false);
-            showToast(
-              "🔒 Standard secured/locked PDF file detected. Watermarking is restricted. Use the Unlock tool first.",
-              "error"
-            );
-            return;
-          }
-          throw err;
-        }
-
-        const pdfjs = await getPdfJs();
-        loadingTask = pdfjs.getDocument({
-          data: sanitizedBytes as any,
-          useSystemFonts: true,
+        const { pdf } = await preprocessAndLoadPdf(primaryFile, {
+          onEncrypted: () => setIsDocumentLocked(true),
+          showToast,
+          customLockMessage: "🔒 Standard secured/locked PDF file detected. Watermarking is restricted. Use the Unlock tool first."
         });
 
-        const pdf = await loadingTask.promise;
         if (!active) return;
 
         const pageCount = pdf.numPages;
@@ -103,7 +80,7 @@ export default function WatermarkPage() {
         }
       } catch (err: any) {
         console.error(err);
-        if (active) {
+        if (active && !isDocumentLocked) {
           showToast("Info: Unable to render preview thumbnails for this document lock/format.", "info");
         }
       } finally {
@@ -117,11 +94,8 @@ export default function WatermarkPage() {
 
     return () => {
       active = false;
-      if (loadingTask && typeof loadingTask.destroy === "function") {
-        loadingTask.destroy();
-      }
     };
-  }, [selectedFiles]);
+  }, [selectedFiles, isDocumentLocked]);
 
   const handleFilesSelected = (files: File[]) => {
     const pdfs = files.filter(f => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
@@ -164,34 +138,11 @@ export default function WatermarkPage() {
       const fileBytes = new Uint8Array(buffer);
 
       setProcessingProgress(40);
-      const { createDedicatedWorker } = await import("../core/WorkerManager");
-      const worker = createDedicatedWorker("watermark");
+      setProcessingProgress(70);
 
-      worker.onmessage = (e: MessageEvent) => {
-        const { success, bytes, error } = e.data;
-        if (success && bytes) {
-          setProcessingProgress(100);
-          triggerDownload(bytes, "watermarked_document.pdf", setCompletedResult);
-          showToast("Watermark applied successfully off the main thread!", "success");
-        } else {
-          showToast(`Watermark application failed: ${error}`, "error");
-        }
-        setLoading(false);
-        setProcessingProgress(null);
-        worker.terminate();
-      };
-
-      worker.onerror = (err) => {
-        console.error("Watermark Worker Error:", err);
-        showToast("Worker connection error occurred during watermarking.", "error");
-        setLoading(false);
-        setProcessingProgress(null);
-        worker.terminate();
-      };
-
-      worker.postMessage(
+      const { bytes } = await executePdfWorker(
+        "watermark",
         {
-          type: "watermark",
           fileBytes,
           watermarkText,
           watermarkOpacity,
@@ -200,9 +151,13 @@ export default function WatermarkPage() {
         },
         [fileBytes.buffer]
       );
-      setProcessingProgress(70);
+
+      setProcessingProgress(100);
+      triggerDownload(bytes, "watermarked_document.pdf", setCompletedResult);
+      showToast("Watermark applied successfully off the main thread!", "success");
     } catch (err: any) {
-      showToast(`Watermark application failed: ${err.message}`, "error");
+      showToast(`Watermark application failed: ${err.message || err}`, "error");
+    } finally {
       setLoading(false);
       setProcessingProgress(null);
     }

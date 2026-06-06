@@ -49,34 +49,17 @@ export class PDFSanitizer {
       headerRecovered = true;
     }
 
-    // Decode full bytes stream to a search string using 'latin1' encoding
-    // this preserves code values exactly 0-255 in JavaScript characters
-    const text = new TextDecoder("latin1").decode(bytes);
-
     // 2. Find the FIRST valid %%EOF (not the last) to check validation footprint
-    const firstEofIndex = text.indexOf("%%EOF");
+    const eofPattern = new Uint8Array([37, 37, 69, 79, 70]); // '%%EOF'
+    const firstEofIndex = this.findSequence(bytes, eofPattern);
     if (firstEofIndex === -1) {
       throw new Error("Fatal Parser Exception: Invalid PDF: No %%EOF marker found.");
     }
 
-    // 3. Binary-Level Encryption Detector
-    // Search the decoded string for occurrences of "/Encrypt" inside trailer dictionary blocks
+    // 3. Binary-Level Encryption Detector (O(1) memory, skipping binary stream contents)
     let isEncrypted = false;
-    const trailerRegex = /trailer\s*<<([\s\S]*?)>>/gi;
-    let trailerMatch;
-    while ((trailerMatch = trailerRegex.exec(text)) !== null) {
-      if (trailerMatch[1].includes("/Encrypt")) {
-        isEncrypted = true;
-        break;
-      }
-    }
-
-    // Also check cross-reference streams (PDF 1.5+) trailer dictionary keys for modern files
-    if (!isEncrypted) {
-      const xrefStreamRegex = /<<[^>]*\/Type\s*\/XRef[^>]*\/Encrypt[^>]*>>/gi;
-      if (xrefStreamRegex.test(text)) {
-        isEncrypted = true;
-      }
+    if (!options?.skipEncryptionCheck) {
+      isEncrypted = this.checkEncryptionBinary(bytes);
     }
 
     console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): encryption detected=${isEncrypted}`);
@@ -116,5 +99,64 @@ export class PDFSanitizer {
       }
     }
     return -1;
+  }
+
+  private static findSequence(bytes: Uint8Array, pattern: Uint8Array, fromIndex = 0): number {
+    const len = pattern.length;
+    const max = bytes.length - len;
+    for (let i = fromIndex; i <= max; i++) {
+      let isMatch = true;
+      for (let j = 0; j < len; j++) {
+        if (bytes[i + j] !== pattern[j]) {
+          isMatch = false;
+          break;
+        }
+      }
+      if (isMatch) return i;
+    }
+    return -1;
+  }
+
+  private static checkEncryptionBinary(bytes: Uint8Array): boolean {
+    const endstreamPattern = new Uint8Array([101, 110, 100, 115, 116, 114, 101, 97, 109]); // 'endstream'
+    const encryptPattern = new Uint8Array([47, 69, 110, 99, 114, 121, 112, 116]); // '/Encrypt'
+    const encryptPattern2 = new Uint8Array([47, 101, 110, 99, 114, 121, 112, 116]); // '/encrypt'
+
+    const len = bytes.length;
+    let i = 0;
+    while (i < len) {
+      // Check if we are entering a stream block
+      if (i + 6 <= len && 
+          bytes[i] === 115 && bytes[i+1] === 116 && bytes[i+2] === 114 && 
+          bytes[i+3] === 101 && bytes[i+4] === 97 && bytes[i+5] === 109) {
+        // Find next 'endstream'
+        const nextEnd = this.findSequence(bytes, endstreamPattern, i + 6);
+        if (nextEnd !== -1) {
+          i = nextEnd + 9; // Skip past 'endstream'
+          continue;
+        }
+      }
+
+      // Check for /Encrypt or /encrypt
+      if (i + 8 <= len) {
+        let matchEncrypt = true;
+        let matchEncrypt2 = true;
+        for (let j = 0; j < 8; j++) {
+          if (bytes[i + j] !== encryptPattern[j]) matchEncrypt = false;
+          if (bytes[i + j] !== encryptPattern2[j]) matchEncrypt2 = false;
+        }
+        if (matchEncrypt || matchEncrypt2) {
+          // Verify if followed by a delimiter
+          const nextByte = i + 8 < len ? bytes[i + 8] : 0;
+          if (nextByte === 32 || nextByte === 10 || nextByte === 13 || nextByte === 47 || nextByte === 62 || nextByte === 60 || (nextByte >= 48 && nextByte <= 57)) {
+            return true;
+          }
+        }
+      }
+
+      i++;
+    }
+
+    return false;
   }
 }

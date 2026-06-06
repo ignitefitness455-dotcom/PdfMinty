@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { z } from "zod";
 import Moon from "lucide-react/icons/moon";
 import Sun from "lucide-react/icons/sun";
 import MessageSquare from "lucide-react/icons/message-square";
@@ -20,8 +21,8 @@ import ImageIcon from "lucide-react/icons/image";
 import Layers from "lucide-react/icons/layers";
 import Minimize2 from "lucide-react/icons/minimize-2";
 import Brain from "lucide-react/icons/brain";
-import { Toast, ToolType } from "../types";
-import { Toast as ToastUI } from "./Toast";
+import { ToolType } from "../types";
+import { useToast } from "../contexts/ToastContext";
 import confetti from "canvas-confetti";
 import { Breadcrumbs, RelatedTools } from "./InternalSEO";
 
@@ -149,10 +150,19 @@ const toolsList = [
   },
 ];
 
+export const contactSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
+  email: z.string().trim().email("Invalid email address"),
+  subject: z.string().trim().min(1, "Subject is required").max(200, "Subject too long"),
+  message: z.string().trim().min(10, "Message must be at least 10 characters").max(5000, "Message too long"),
+});
+
+export type ContactFormData = z.infer<typeof contactSchema>;
+
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const { showToast } = useToast();
 
   // Theme State (Dark mode toggle support)
   const [theme, setTheme] = useState<"light" | "dark">(() => {
@@ -211,18 +221,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [contactSubject, setContactSubject] = useState("");
   const [contactMessage, setContactMessage] = useState("");
   const [contactSubmitting, setContactSubmitting] = useState(false);
+  const [contactErrors, setContactErrors] = useState<{
+    name?: string;
+    email?: string;
+    subject?: string;
+    message?: string;
+  }>({});
 
-  // Notification Toast Helper
-  const showToast = (
-    message: string,
-    type: "success" | "error" | "info" = "info",
-  ) => {
-    const id = Date.now().toString();
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4500);
-  };
+  // Note: showToast now uses the global ToastContext provider via useToast.
 
   const submitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -275,6 +281,29 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   const submitContactUs = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate using Zod
+    const validation = contactSchema.safeParse({
+      name: contactName,
+      email: contactEmail,
+      subject: contactSubject,
+      message: contactMessage,
+    });
+
+    if (!validation.success) {
+      const fieldErrors: typeof contactErrors = {};
+      validation.error.issues.forEach((issue) => {
+        const path = issue.path[0] as keyof typeof contactErrors;
+        if (path) {
+          fieldErrors[path] = issue.message;
+        }
+      });
+      setContactErrors(fieldErrors);
+      showToast("Please correct the form validation errors.", "error");
+      return;
+    }
+
+    setContactErrors({});
     setContactSubmitting(true);
     try {
       const apiBase = "";
@@ -322,22 +351,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         <a href="#main-content" className="skip-link">
           Skip to Content
         </a>
-
-        {/* Dynamic Toast Notifications */}
-        <div
-          id="toast-deck"
-          className="fixed top-5 right-5 left-5 md:left-auto md:right-6 z-55 flex flex-col gap-3 max-w-sm ml-auto pointer-events-none"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          {toasts.map((toast) => (
-            <ToastUI
-              key={toast.id}
-              toast={toast}
-              onRemove={(id) => setToasts((prev) => prev.filter((t) => t.id !== id))}
-            />
-          ))}
-        </div>
 
         {/* Header */}
         <header
@@ -766,10 +779,22 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                       autoFocus
                       type="text"
                       value={contactName}
-                      onChange={(e) => setContactName(e.target.value)}
+                      onChange={(e) => {
+                        setContactName(e.target.value);
+                        if (contactErrors.name) {
+                          setContactErrors((prev) => ({ ...prev, name: undefined }));
+                        }
+                      }}
                       placeholder="John Doe"
-                      className="w-full text-xs font-medium px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-sans"
+                      className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
+                        contactErrors.name
+                          ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
+                          : "border-slate-200 dark:border-slate-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
+                      }`}
                     />
+                    {contactErrors.name && (
+                      <p className="text-[10px] text-rose-500 font-bold mt-1">{contactErrors.name}</p>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
@@ -780,10 +805,22 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                       required
                       type="email"
                       value={contactEmail}
-                      onChange={(e) => setContactEmail(e.target.value)}
+                      onChange={(e) => {
+                        setContactEmail(e.target.value);
+                        if (contactErrors.email) {
+                          setContactErrors((prev) => ({ ...prev, email: undefined }));
+                        }
+                      }}
                       placeholder="john@example.com"
-                      className="w-full text-xs font-medium px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-sans"
+                      className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
+                        contactErrors.email
+                          ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
+                          : "border-slate-200 dark:border-slate-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
+                      }`}
                     />
+                    {contactErrors.email && (
+                      <p className="text-[10px] text-rose-500 font-bold mt-1">{contactErrors.email}</p>
+                    )}
                   </div>
                 </div>
 
@@ -796,10 +833,22 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     required
                     type="text"
                     value={contactSubject}
-                    onChange={(e) => setContactSubject(e.target.value)}
+                    onChange={(e) => {
+                      setContactSubject(e.target.value);
+                      if (contactErrors.subject) {
+                        setContactErrors((prev) => ({ ...prev, subject: undefined }));
+                      }
+                    }}
                     placeholder="Inquiry or partnership topic"
-                    className="w-full text-xs font-medium px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-sans"
+                    className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
+                      contactErrors.subject
+                        ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
+                        : "border-slate-200 dark:border-slate-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
+                    }`}
                   />
+                  {contactErrors.subject && (
+                    <p className="text-[10px] text-rose-500 font-bold mt-1">{contactErrors.subject}</p>
+                  )}
                 </div>
 
                 <div>
@@ -811,10 +860,22 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     required
                     rows={4}
                     value={contactMessage}
-                    onChange={(e) => setContactMessage(e.target.value)}
+                    onChange={(e) => {
+                      setContactMessage(e.target.value);
+                      if (contactErrors.message) {
+                        setContactErrors((prev) => ({ ...prev, message: undefined }));
+                      }
+                    }}
                     placeholder="Type details of your message..."
-                    className="w-full text-xs font-medium p-3 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none font-sans"
+                    className={`w-full text-xs font-medium p-3 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:ring-1 transition-all resize-none font-sans ${
+                      contactErrors.message
+                        ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
+                        : "border-slate-200 dark:border-slate-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
+                    }`}
                   />
+                  {contactErrors.message && (
+                    <p className="text-[10px] text-rose-500 font-bold mt-1">{contactErrors.message}</p>
+                  )}
                 </div>
 
                 <div className="flex gap-3 pt-3">

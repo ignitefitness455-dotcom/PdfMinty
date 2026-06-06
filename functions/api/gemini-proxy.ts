@@ -5,6 +5,7 @@ interface Env {
   GEMINI_API_KEY?: string;
   GEMINI_MODEL?: string;
   RATELIMIT_KV?: any; // KVNamespace
+  USER_AGENT?: string;
 }
 
 export const onRequestOptions: PagesFunction<Env> = async (context) => {
@@ -32,9 +33,6 @@ function truncateText(text: string, maxGraphemes: number): string {
   }
 }
 
-// In-memory emergency fallback (per isolate, resets on cold start)
-const memoryRateLimit = new Map<string, number>();
-
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
@@ -54,42 +52,54 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const clientIp = request.headers.get("CF-Connecting-IP") || "local_dev";
   const limitKey = `ratelimit:${clientIp}`;
   
-  if (env.RATELIMIT_KV) {
-    try {
-      const now = Math.floor(Date.now() / 1000);
-      const hourBlock = now - (now % 3600);
-      const blockKey = `${limitKey}:${hourBlock}`;
-      
-      const countStr = await env.RATELIMIT_KV.get(blockKey);
-      const count = countStr ? parseInt(countStr, 10) : 0;
-      
-      if (count >= 30) {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: "Too Many Requests: Rate limit of 30 secure operations per hour reached. Please try again soon." 
-          }),
-          { 
-            status: 429, 
-            headers: corsHeaders
-          }
-        );
+  if (!env.RATELIMIT_KV) {
+    console.error("Rate limiting failure: RATELIMIT_KV binding is not defined (fail-closed).");
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: "Service Temporarily Unavailable: Rate limiter or database storage validation failed (fail-closed)." 
+      }),
+      { 
+        status: 503, 
+        headers: corsHeaders
       }
-      
-      await env.RATELIMIT_KV.put(blockKey, (count + 1).toString(), { expirationTtl: 3600 });
-    } catch (kvErr: any) {
-      console.error("Rate limiting KV failure (fail-closed):", kvErr);
+    );
+  }
+
+  try {
+    const now = Math.floor(Date.now() / 1000);
+    const hourBlock = now - (now % 3600);
+    const blockKey = `${limitKey}:${hourBlock}`;
+    
+    const countStr = await env.RATELIMIT_KV.get(blockKey);
+    const count = countStr ? parseInt(countStr, 10) : 0;
+    
+    if (count >= 30) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: "Service Temporarily Unavailable: Rate limiter or database storage validation failed (fail-closed)." 
+          error: "Too Many Requests: Rate limit of 30 secure operations per hour reached. Please try again soon." 
         }),
         { 
-          status: 503, 
+          status: 429, 
           headers: corsHeaders
         }
       );
     }
+    
+    await env.RATELIMIT_KV.put(blockKey, (count + 1).toString(), { expirationTtl: 3600 });
+  } catch (kvErr: any) {
+    console.error("Rate limiting KV failure (fail-closed):", kvErr);
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: "Service Temporarily Unavailable: Rate limiter or database storage validation failed (fail-closed)." 
+      }),
+      { 
+        status: 503, 
+        headers: corsHeaders
+      }
+    );
   }
 
   // 3. Extract Payload
@@ -143,7 +153,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     "gemini-2.0-flash",
     "gemini-2.5-flash",
     "gemini-2.5-pro",
-    "gemini-2.5-flash-preview-05-20"
+    "gemini-2.5-flash-preview-05-20",
+    "gemini-3.1-flash-lite",
+    "gemini-3.1-flash",
+    "gemini-3.1-pro"
   ];
 
   if (!VALID_MODELS.includes(modelName)) {
@@ -155,11 +168,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // 5. Invoke Google Gemini AI
   try {
+    const userAgent = env.USER_AGENT || "PDFMinty-Document-Analyzer/1.0";
     const ai = new GoogleGenAI({
       apiKey: apiKey,
       httpOptions: {
         headers: {
-          "User-Agent": "aistudio-build",
+          "User-Agent": userAgent,
         },
       },
     });

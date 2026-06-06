@@ -22,15 +22,7 @@
     "test:ci": "vitest run --coverage",
     "ci": "npm run typecheck && npm run lint && npm run format:check && npm run build",
     "preview": "vite preview",
-    "prepare": "husky",
-    "cleaning:scan": "ts-node scripts/deep-scan.ts",
-    "cleaning:proposal": "ts-node scripts/generate-proposal.ts",
-    "cleaning:review": "ts-node scripts/review-ui.ts",
-    "cleaning:dry-run": "ts-node scripts/apply-cleaning.ts --dry-run",
-    "cleaning:apply": "ts-node scripts/apply-cleaning.ts --apply",
-    "cleaning:rollback": "bash scripts/rollback.sh",
-    "cleaning:test": "tsx scripts/test-cleaning-system.ts",
-    "cleaning:full": "npm run cleaning:scan && npm run cleaning:proposal && npm run cleaning:review"
+    "prepare": "husky"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
@@ -45,7 +37,8 @@
     "react-dom": "^18.3.1",
     "react-helmet-async": "^3.0.0",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.6.1"
+    "react-router-dom": "^6.30.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260528.1",
@@ -55,6 +48,7 @@
     "@testing-library/react": "^16.3.2",
     "@types/canvas-confetti": "^1.6.4",
     "@types/jszip": "^3.4.1",
+    "@types/node": "^25.9.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.5.0",

@@ -282,6 +282,38 @@ export async function addBlankPagePDF(payload: AddBlankPayload) {
   return pdfDoc.save();
 }
 
+function createCanvas(width: number, height: number): any {
+  if (typeof OffscreenCanvas !== 'undefined') {
+    return new OffscreenCanvas(width, height);
+  }
+  if (typeof document !== 'undefined') {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+  }
+  throw new Error('Canvas creation fallback is not available in web worker context without OffscreenCanvas support.');
+}
+
+function canvasToBlob(canvas: any, type: string, quality?: number): Promise<Blob> {
+  if (typeof canvas.convertToBlob === 'function') {
+    return canvas.convertToBlob({ type, quality });
+  }
+  return new Promise((resolve, reject) => {
+    if (typeof canvas.toBlob === 'function') {
+      canvas.toBlob((blob: Blob | null) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Canvas toBlob conversion returned null.'));
+        }
+      }, type, quality);
+    } else {
+      reject(new Error('Canvas toBlob is not supported in this environment.'));
+    }
+  });
+}
+
 async function normalizeImageToPng(bytes: Uint8Array, type: string, name: string): Promise<{ bytes: Uint8Array; type: string }> {
   const t = (type || '').toLowerCase();
   const n = (name || '').toLowerCase();
@@ -290,10 +322,10 @@ async function normalizeImageToPng(bytes: Uint8Array, type: string, name: string
   if (isWebP || isGif) {
     const blob = new Blob([bytes as any], { type: isWebP ? 'image/webp' : 'image/gif' });
     const bitmap = await createImageBitmap(blob);
-    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const canvas = createCanvas(bitmap.width, bitmap.height);
     const ctx = canvas.getContext('2d')!;
     ctx.drawImage(bitmap, 0, 0);
-    const pngBlob = await canvas.convertToBlob({ type: 'image/png' });
+    const pngBlob = await canvasToBlob(canvas, 'image/png');
     return {
       bytes: new Uint8Array(await pngBlob.arrayBuffer()),
       type: 'image/png'
@@ -386,8 +418,11 @@ export interface CompressPayload {
 export async function compressPDF(payload: CompressPayload): Promise<Uint8Array> {
   const { fileBytes, quality } = payload;
 
+  // Clone the bytes to a pristine array to ensure fallback works even if PDF.js detaches/transfers the original buffer
+  const backupBytes = fileBytes.slice(0);
+
   if (quality === 'metadata') {
-    const pdfDoc = await loadPDF(fileBytes, { ignoreEncryption: true });
+    const pdfDoc = await loadPDF(backupBytes, { ignoreEncryption: true });
     try { pdfDoc.setTitle(''); } catch (_) {}
     try { pdfDoc.setAuthor(''); } catch (_) {}
     try { pdfDoc.setSubject(''); } catch (_) {}
@@ -410,49 +445,46 @@ export async function compressPDF(payload: CompressPayload): Promise<Uint8Array>
     const newDoc = await PDFDocument.create();
 
     for (let i = 1; i <= pdfjsDoc.numPages; i++) {
-      const page = await pdfjsDoc.getPage(i);
-      const viewport = page.getViewport({ scale: settings.scale });
+       const page = await pdfjsDoc.getPage(i);
+       const viewport = page.getViewport({ scale: settings.scale });
 
-      const canvas = new OffscreenCanvas(
-        Math.floor(viewport.width),
-        Math.floor(viewport.height)
-      );
-      const ctx = canvas.getContext('2d')!;
+       const canvas = createCanvas(
+         Math.floor(viewport.width),
+         Math.floor(viewport.height)
+       );
+       const ctx = canvas.getContext('2d')!;
 
-      await page.render({ canvasContext: ctx as any, viewport }).promise;
+       await page.render({ canvasContext: ctx as any, viewport }).promise;
 
-      const blob = await canvas.convertToBlob({
-        type: 'image/jpeg',
-        quality: settings.jpegQuality
-      });
+       const blob = await canvasToBlob(canvas, 'image/jpeg', settings.jpegQuality);
 
-      const imgBytes = new Uint8Array(await blob.arrayBuffer());
-      const jpgImage = await newDoc.embedJpg(imgBytes);
+       const imgBytes = new Uint8Array(await blob.arrayBuffer());
+       const jpgImage = await newDoc.embedJpg(imgBytes);
 
-      const origWidth = viewport.width / settings.scale;
-      const origHeight = viewport.height / settings.scale;
+       const origWidth = viewport.width / settings.scale;
+       const origHeight = viewport.height / settings.scale;
 
-      const newPage = newDoc.addPage([origWidth, origHeight]);
-      newPage.drawImage(jpgImage, {
-        x: 0,
-        y: 0,
-        width: origWidth,
-        height: origHeight
-      });
+       const newPage = newDoc.addPage([origWidth, origHeight]);
+       newPage.drawImage(jpgImage, {
+         x: 0,
+         y: 0,
+         width: origWidth,
+         height: origHeight
+       });
 
-      // Memory cleanup for GPU/Canvas buffer release
-      canvas.width = 0;
-      canvas.height = 0;
-    }
+       // Memory cleanup for GPU/Canvas buffer release
+       canvas.width = 0;
+       canvas.height = 0;
+     }
 
-    try { newDoc.setProducer('PDFMinty Compressed'); } catch (_) {}
-    try { newDoc.setModificationDate(new Date()); } catch (_) {}
+     try { newDoc.setProducer('PDFMinty Compressed'); } catch (_) {}
+     try { newDoc.setModificationDate(new Date()); } catch (_) {}
 
-    return await newDoc.save({ useObjectStreams: true });
+     return await newDoc.save({ useObjectStreams: true });
   } catch (err: any) {
     console.error("Raster compression failed, falling back to lossless structural compression:", err);
-    // Safe lossless fallback if offscreencanvas rendering is restricted
-    const pdfDoc = await loadPDF(fileBytes, { ignoreEncryption: true });
+    // Safe lossless fallback if offscreencanvas rendering is restricted, utilizing authentic backup bytes
+    const pdfDoc = await loadPDF(backupBytes, { ignoreEncryption: true });
     try { pdfDoc.setProducer('PDFMinty Fallback'); } catch (_) {}
     return await pdfDoc.save({ useObjectStreams: true });
   }
@@ -499,8 +531,20 @@ export interface UnlockPayload {
   fileBytes: Uint8Array;
   password: string;
 }
-export async function unlockPDF(_payload: UnlockPayload): Promise<Uint8Array> {
-  // ISO-32000 native encryption is sandboxed within standard browser PDF engines.
-  // Standard locked PDFs cannot be un-encrypted completely client-side.
-  throw new Error('NATIVE_ISO_ENCRYPTION_DETECTOR');
+export async function unlockPDF(payload: UnlockPayload): Promise<Uint8Array> {
+  const { fileBytes, password } = payload;
+  try {
+    const pdfDoc = await loadPDF(fileBytes, { password, ignoreEncryption: true });
+    return await pdfDoc.save();
+  } catch (err: any) {
+    const msg = err?.message || "";
+    if (
+      msg.toLowerCase().includes("password") ||
+      msg.toLowerCase().includes("decrypt") ||
+      msg.toLowerCase().includes("encrypt")
+    ) {
+      throw new Error("Incorrect password or invalid security credentials. Please verify the password and try again.");
+    }
+    throw err;
+  }
 }

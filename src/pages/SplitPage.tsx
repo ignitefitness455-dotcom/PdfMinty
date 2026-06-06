@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
 import { PdfPreview } from "../components/PdfPreview";
-import { triggerDownload, getFriendlyErrorMessage, getPdfJs } from "../core/utils";
-import { PDFSanitizer } from "../core/PDFSanitizer";
+import { triggerDownload, getFriendlyErrorMessage } from "../core/utils";
+import { preprocessAndLoadPdf, executePdfWorker } from "../core/pdfRunner";
 
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
@@ -35,7 +35,6 @@ export default function SplitPage() {
 
   useEffect(() => {
     let active = true;
-    let loadingTask: any = null;
 
     const renderPDFThumbnails = async () => {
       setIsDocumentLocked(false);
@@ -48,34 +47,12 @@ export default function SplitPage() {
       setLoading(true);
       try {
         const primaryFile = selectedFiles[0];
-        const arrayBuffer = await primaryFile.arrayBuffer();
-
-        if (!active) return;
-
-        let sanitizedBytes: any = new Uint8Array(arrayBuffer);
-        try {
-          const sanitizedResult = PDFSanitizer.sanitize(sanitizedBytes);
-          sanitizedBytes = sanitizedResult.bytes;
-        } catch (err: any) {
-          if (err?.message?.includes("SECURED_LOCKED")) {
-            setIsDocumentLocked(true);
-            setLoading(false);
-            showToast(
-              "🔒 Standard secured/locked PDF file detected. Page extraction is restricted for safety. Use the Unlock tool first.",
-              "error"
-            );
-            return;
-          }
-          throw err;
-        }
-
-        const pdfjs = await getPdfJs();
-        loadingTask = pdfjs.getDocument({
-          data: sanitizedBytes as any,
-          useSystemFonts: true,
+        const { pdf } = await preprocessAndLoadPdf(primaryFile, {
+          onEncrypted: () => setIsDocumentLocked(true),
+          showToast,
+          customLockMessage: "🔒 Standard secured/locked PDF file detected. Page extraction is restricted for safety. Use the Unlock tool first."
         });
 
-        const pdf = await loadingTask.promise;
         if (!active) return;
 
         const pageCount = pdf.numPages;
@@ -100,7 +77,7 @@ export default function SplitPage() {
         }
       } catch (err: any) {
         console.error(err);
-        if (active) {
+        if (active && !isDocumentLocked) {
           showToast("Info: Unable to render preview thumbnails for this document lock/format.", "info");
         }
       } finally {
@@ -112,11 +89,8 @@ export default function SplitPage() {
 
     return () => {
       active = false;
-      if (loadingTask && typeof loadingTask.destroy === "function") {
-        loadingTask.destroy();
-      }
     };
-  }, [selectedFiles]);
+  }, [selectedFiles, isDocumentLocked]);
 
   const handleFilesSelected = (files: File[]) => {
     const pdfs = files.filter(f => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
@@ -187,10 +161,9 @@ export default function SplitPage() {
       const primaryFile = selectedFiles[0];
       const buffer = await primaryFile.arrayBuffer();
       const fileBytes = new Uint8Array(buffer);
-      const sanitized = PDFSanitizer.sanitize(fileBytes);
 
       const { PDFDocument } = await import("pdf-lib");
-      const srcDoc = await PDFDocument.load(sanitized.bytes);
+      const srcDoc = await PDFDocument.load(fileBytes);
       const totalPages = srcDoc.getPageCount();
 
       if (splitMode === "single") {
@@ -205,39 +178,19 @@ export default function SplitPage() {
 
         setProcessingProgress(45);
 
-        const { createDedicatedWorker } = await import("../core/WorkerManager");
-        const worker = createDedicatedWorker("split");
+        const { bytes } = await executePdfWorker(
+          "split",
+          { fileBytes, targetPageIndices },
+          [fileBytes.buffer]
+        );
 
-        worker.onmessage = (e: MessageEvent) => {
-          const { success, bytes, error } = e.data;
-          if (success && bytes) {
-            setProcessingProgress(100);
-            triggerDownload(
-              bytes,
-              `${primaryFile.name.replace(/\.pdf$/i, "")}_extracted.pdf`,
-              setCompletedResult
-            );
-            showToast("Requested pages extracted and compiled offline successfully!", "success");
-          } else {
-            showToast(getFriendlyErrorMessage("Split operation failed", error), "error");
-          }
-          setLoading(false);
-          setProcessingProgress(null);
-          worker.terminate();
-        };
-
-        worker.onerror = (err) => {
-          console.error("Split Worker Error:", err);
-          showToast("Worker connection error occurred during split.", "error");
-          setLoading(false);
-          setProcessingProgress(null);
-          worker.terminate();
-        };
-
-        worker.postMessage({ type: "split", fileBytes, targetPageIndices }, [
-          fileBytes.buffer,
-        ]);
-        setProcessingProgress(75);
+        setProcessingProgress(100);
+        triggerDownload(
+          bytes,
+          `${primaryFile.name.replace(/\.pdf$/i, "")}_extracted.pdf`,
+          setCompletedResult
+        );
+        showToast("Requested pages extracted and compiled offline successfully!", "success");
       } else {
         // Multiple splits based on distinct segments
         const ranges: { start: number; end: number; name?: string }[] = [];
@@ -271,64 +224,45 @@ export default function SplitPage() {
 
         setProcessingProgress(45);
 
-        const { createDedicatedWorker } = await import("../core/WorkerManager");
-        const worker = createDedicatedWorker("split-multi");
+        const { results } = await executePdfWorker(
+          "split-multi",
+          { fileBytes, ranges },
+          [fileBytes.buffer]
+        );
 
-        worker.onmessage = async (e: MessageEvent) => {
-          const { success, results, error } = e.data;
-          if (success && results) {
-            setProcessingProgress(80);
-            try {
-              if (results.length === 1) {
-                const singleBytes = results[0].bytes;
-                triggerDownload(singleBytes, results[0].name, setCompletedResult);
-              } else {
-                const JSZip = (await import("jszip")).default;
-                const zip = new JSZip();
-                results.forEach((r: any) => {
-                  zip.file(r.name, r.bytes);
-                });
-                const zipBlob = await zip.generateAsync({ type: "blob" });
-                const url = URL.createObjectURL(zipBlob);
-                setCompletedResult({
-                  url,
-                  filename: `${primaryFile.name.replace(/\.pdf$/i, "")}_splits.zip`,
-                  type: "application/zip",
-                });
-                
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `${primaryFile.name.replace(/\.pdf$/i, "")}_splits.zip`;
-                a.click();
-              }
-              setProcessingProgress(100);
-              showToast("PDF split into separate files successfully!", "success");
-            } catch (zipErr: any) {
-              showToast(`Failed to archive split files: ${zipErr.message || zipErr}`, "error");
-            }
+        setProcessingProgress(80);
+        try {
+          if (results.length === 1) {
+            const singleBytes = results[0].bytes;
+            triggerDownload(singleBytes, results[0].name, setCompletedResult);
           } else {
-            showToast(getFriendlyErrorMessage("Multi-split operation failed", error), "error");
+            const JSZip = (await import("jszip")).default;
+            const zip = new JSZip();
+            results.forEach((r: any) => {
+              zip.file(r.name, r.bytes);
+            });
+            const zipBlob = await zip.generateAsync({ type: "blob" });
+            const url = URL.createObjectURL(zipBlob);
+            setCompletedResult({
+              url,
+              filename: `${primaryFile.name.replace(/\.pdf$/i, "")}_splits.zip`,
+              type: "application/zip",
+            });
+            
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${primaryFile.name.replace(/\.pdf$/i, "")}_splits.zip`;
+            a.click();
           }
-          setLoading(false);
-          setProcessingProgress(null);
-          worker.terminate();
-        };
-
-        worker.onerror = (err) => {
-          console.error("Multi-Split Worker Error:", err);
-          showToast("Worker connection error occurred during split.", "error");
-          setLoading(false);
-          setProcessingProgress(null);
-          worker.terminate();
-        };
-
-        worker.postMessage({ type: "split-multi", fileBytes, ranges }, [
-          fileBytes.buffer,
-        ]);
-        setProcessingProgress(75);
+          setProcessingProgress(100);
+          showToast("PDF split into separate files successfully!", "success");
+        } catch (zipErr: any) {
+          showToast(`Failed to archive split files: ${zipErr.message || zipErr}`, "error");
+        }
       }
     } catch (err: any) {
       showToast(getFriendlyErrorMessage("Split operation failed", err), "error");
+    } finally {
       setLoading(false);
       setProcessingProgress(null);
     }

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { createDedicatedWorker } from '../core/WorkerManager';
 
 interface WorkerState {
@@ -69,6 +69,15 @@ export function usePdfWorker() {
       workerRef.current = null;
       setState({ loading: false, progress: 0, error: 'Cancelled by user', result: null });
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+        workerRef.current = null;
+      }
+    };
   }, []);
 
   return { ...state, execute, cancel };

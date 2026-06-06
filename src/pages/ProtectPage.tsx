@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
 import { PdfPreview } from "../components/PdfPreview";
-import { triggerDownload, getFriendlyErrorMessage, getPdfJs } from "../core/utils";
-import { PDFSanitizer } from "../core/PDFSanitizer";
+import { triggerDownload, getFriendlyErrorMessage } from "../core/utils";
+import { preprocessAndLoadPdf, executePdfWorker } from "../core/pdfRunner";
 import ArrowLeft from "lucide-react/icons/arrow-left";
 import RefreshCw from "lucide-react/icons/refresh-cw";
 import Lock from "lucide-react/icons/lock";
@@ -40,7 +40,6 @@ export default function ProtectPage() {
 
   useEffect(() => {
     let active = true;
-    let loadingTask: any = null;
 
     const renderPDFThumbnails = async () => {
       setIsDocumentLocked(false);
@@ -53,34 +52,12 @@ export default function ProtectPage() {
       setLoading(true);
       try {
         const primaryFile = selectedFiles[0];
-        const arrayBuffer = await primaryFile.arrayBuffer();
-
-        if (!active) return;
-
-        let sanitizedBytes: any = new Uint8Array(arrayBuffer);
-        try {
-          const sanitizedResult = PDFSanitizer.sanitize(sanitizedBytes);
-          sanitizedBytes = sanitizedResult.bytes;
-        } catch (err: any) {
-          if (err?.message?.includes("SECURED_LOCKED")) {
-            setIsDocumentLocked(true);
-            setLoading(false);
-            showToast(
-              "🔒 Standard secured/locked PDF file detected. You can unlock it first inside the Unlock tool.",
-              "error"
-            );
-            return;
-          }
-          throw err;
-        }
-
-        const pdfjs = await getPdfJs();
-        loadingTask = pdfjs.getDocument({
-          data: sanitizedBytes as any,
-          useSystemFonts: true,
+        const { pdf } = await preprocessAndLoadPdf(primaryFile, {
+          onEncrypted: () => setIsDocumentLocked(true),
+          showToast,
+          customLockMessage: "🔒 Standard secured/locked PDF file detected. You can unlock it first inside the Unlock tool."
         });
 
-        const pdf = await loadingTask.promise;
         if (!active) return;
 
         const pageCount = pdf.numPages;
@@ -105,7 +82,7 @@ export default function ProtectPage() {
         }
       } catch (err: any) {
         console.error(err);
-        if (active) {
+        if (active && !isDocumentLocked) {
           showToast("Info: Unable to render preview thumbnails for this document lock/format.", "info");
         }
       } finally {
@@ -119,11 +96,8 @@ export default function ProtectPage() {
 
     return () => {
       active = false;
-      if (loadingTask && typeof loadingTask.destroy === "function") {
-        loadingTask.destroy();
-      }
     };
-  }, [selectedFiles]);
+  }, [selectedFiles, isDocumentLocked]);
 
   const handleFilesSelected = (files: File[]) => {
     const pdfs = files.filter(f => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
@@ -180,43 +154,25 @@ export default function ProtectPage() {
       const buffer = await primaryFile.arrayBuffer();
       const fileBytes = new Uint8Array(buffer);
 
-      const { createDedicatedWorker } = await import("../core/WorkerManager");
-      const worker = createDedicatedWorker("protect");
-
-      worker.onmessage = (e: MessageEvent) => {
-        const { success, bytes, error } = e.data;
-        if (success && bytes) {
-          const defaultName = primaryFile.name.toLowerCase().endsWith(".pdf")
-            ? primaryFile.name.replace(/\.pdf$/i, "_protected.pdf")
-            : `${primaryFile.name}_protected.pdf`;
-
-          triggerDownload(bytes, defaultName, setCompletedResult);
-          showToast("Offline sandbox encryption lock applied successfully!", "success");
-        } else {
-          showToast(getFriendlyErrorMessage("Security protection failed", error), "error");
-        }
-        setLoading(false);
-        worker.terminate();
-      };
-
-      worker.onerror = (err) => {
-        console.error("Protect Worker Error:", err);
-        showToast("Worker connection error occurred during protection.", "error");
-        setLoading(false);
-        worker.terminate();
-      };
-
-      worker.postMessage(
+      const { bytes } = await executePdfWorker(
+        "protect",
         {
-          type: "protect",
           fileBytes,
           userPassword: password,
           permissions,
         },
         [fileBytes.buffer]
       );
+
+      const defaultName = primaryFile.name.toLowerCase().endsWith(".pdf")
+        ? primaryFile.name.replace(/\.pdf$/i, "_protected.pdf")
+        : `${primaryFile.name}_protected.pdf`;
+
+      triggerDownload(bytes, defaultName, setCompletedResult);
+      showToast("Offline sandbox encryption lock applied successfully!", "success");
     } catch (err: any) {
       showToast(getFriendlyErrorMessage("Security protection failed", err), "error");
+    } finally {
       setLoading(false);
     }
   };
