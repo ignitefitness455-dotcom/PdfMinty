@@ -1,0 +1,22 @@
+# Dependency directory
+node_modules/
+
+# Build outputs
+dist/
+
+# Local env files
+.env
+.env*.local
+
+# IDEs and editors
+.idea/
+.vscode/
+
+# Testing
+coverage/
+
+# OS metadata
+.DS_Store
+
+# Development scratch directory — not part of the production build
+sandboxed-test-project/
