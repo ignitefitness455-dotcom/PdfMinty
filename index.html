@@ -35,27 +35,41 @@
         // Global early error handler to detect chunk load errors / script errors and force recovery reload
         window.addEventListener('error', function(event) {
           try {
-            var errorMsg = (event.message || "").toLowerCase();
-            // Catch chunk loading errors, dynamic imports, or critical loading failures
+            var msg = event.message || "";
+            var reason = (event.error && event.error.message) || "";
+            var errorMsg = (msg + " " + reason).toLowerCase();
+
+            // We should ONLY catch genuine dynamic chunk / JS module script loading failures.
+            // Avoid matching general "load" or generic assets load issues which would cause infinite reloads.
             if (
-              errorMsg.indexOf('chunk') > -1 || 
-              errorMsg.indexOf('load') > -1 || 
-              errorMsg.indexOf('dynamically imported') > -1 || 
-              errorMsg.indexOf('import') > -1 ||
-              errorMsg.indexOf('failed to fetch') > -1
+              errorMsg.indexOf('chunkloaderror') > -1 ||
+              errorMsg.indexOf('loading chunk') > -1 ||
+              (errorMsg.indexOf('dynamically imported') > -1 && errorMsg.indexOf('module') > -1) ||
+              (errorMsg.indexOf('failed to fetch') > -1 && errorMsg.indexOf('module') > -1) ||
+              (errorMsg.indexOf('import') > -1 && errorMsg.indexOf('module') > -1) ||
+              errorMsg.indexOf('failed to load module script') > -1 ||
+              errorMsg.indexOf('error loading dynamically imported module') > -1
             ) {
-              console.warn('[Failsafe] Chunk load failure detected. Clearing cache and reloading...');
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                  for (var i = 0; i < registrations.length; i++) {
-                    registrations[i].unregister();
-                  }
+              var now = Date.now();
+              var lastReload = parseInt(safeGetStorage('session', 'pdfminty-last-chunk-reload') || '0', 10);
+              // Allow reload only if it has been more than 15 seconds since the last chunk reload
+              if (now - lastReload > 15000) {
+                safeSetStorage('session', 'pdfminty-last-chunk-reload', now.toString());
+                console.warn('[Failsafe] Chunk load failure detected. Clearing cache and reloading...');
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for (var i = 0; i < registrations.length; i++) {
+                      registrations[i].unregister();
+                    }
+                    window.location.reload();
+                  }).catch(function() {
+                    window.location.reload();
+                  });
+                } else {
                   window.location.reload();
-                }).catch(function() {
-                  window.location.reload();
-                });
+                }
               } else {
-                window.location.reload();
+                console.error('[Failsafe] Chunk loading failure occurred again too soon. Reload ignored to prevent loop.');
               }
             }
           } catch (err) {}
@@ -87,36 +101,20 @@
             configureMessage();
           }
 
-          // Central Failsafe Timer to handle loading timeout
+          // Central Failsafe Timer to handle loading timeout on slow networks
+          // We increase the timer to 30 seconds and ONLY display an assistance message to the user:
+          // We DO NOT force an automatic reload, because reloading repeatedly during slow downloads creates endless loops.
           setTimeout(function() {
             try {
               if (document.getElementById('loading-skeleton')) {
-                var failsafeTriggered = safeGetStorage('session', 'pdfminty-failsafe-triggered');
-                if (!failsafeTriggered) {
-                  safeSetStorage('session', 'pdfminty-failsafe-triggered', 'true');
-                  console.warn('[Failsafe] App stuck on loading for 20s. Purging service worker cache and reloading...');
-                  if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                      for (var i = 0; i < registrations.length; i++) {
-                        registrations[i].unregister();
-                      }
-                      window.location.reload();
-                    }).catch(function() {
-                      window.location.reload();
-                    });
-                  } else {
-                    window.location.reload();
-                  }
-                } else {
-                  console.error('[Failsafe] App is still stuck after first reload recovery. Showing user assistance message...');
-                  var loadingText = document.querySelector('.loading-text');
-                  if (loadingText) {
-                    loadingText.textContent = "Taking longer than usual... Try clearing browser cache or toggle Desktop site.";
-                  }
+                console.warn('[Failsafe] App is taking some time to load on this connection.');
+                var loadingText = document.querySelector('.loading-text');
+                if (loadingText) {
+                  loadingText.textContent = "Taking longer than usual... Try clearing browser cache or toggle Desktop site.";
                 }
               }
             } catch (err) {}
-          }, 20000);
+          }, 30000);
         } catch (e) {}
       })();
     </script>
