@@ -20,10 +20,9 @@ export const onRequest: PagesFunction<any> = async (context) => {
   // Standard strict default-src 'self' with permissions for styling, fonts, and images.
   // frame-ancestors is designed to allow rendering inside trusted spaces (like AI Studio previews)
   // while preventing unauthorized malicious clickjacking.
-  // worker-src: 'self' blob: only — cdnjs.cloudflare.com removed (no worker scripts loaded from CDN)
   headers.set(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' blob: data: https://images.unsplash.com; connect-src 'self' https://*.pdfminty.pages.dev https://www.pdfminty.com https://cdnjs.cloudflare.com; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://*.google.com https://*.run.app https://*.pages.dev;"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' blob: data: https://images.unsplash.com; connect-src 'self' https://*.pdfminty.pages.dev https://www.pdfminty.com https://cdnjs.cloudflare.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://*.google.com https://*.run.app https://*.pages.dev;"
   );
 
   // 2. Prevent MIME type sniffing

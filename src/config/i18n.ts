@@ -60,7 +60,9 @@ i18n
 // Expose standard switcher callback helper, locked to English
 export const changeLanguage = (_lang?: string) => {
   i18n.changeLanguage("en");
-  localStorage.setItem("pdfminty-lang", "en");
+  try {
+    localStorage.setItem("pdfminty-lang", "en");
+  } catch (e) {}
 };
 
 export default i18n;
