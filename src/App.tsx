@@ -40,7 +40,7 @@ export default function App() {
     <HelmetProvider>
       <Router>
         <Canonical />
-        {typeof window !== "undefined" && window.self === window.top && <PWAController />}
+        {typeof window !== "undefined" && window.self === window.top && typeof navigator !== "undefined" && "serviceWorker" in navigator && <PWAController />}
         <Layout>
           <ErrorBoundary>
             <Suspense fallback={<ToolSkeleton />}>
