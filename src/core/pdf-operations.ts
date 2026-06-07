@@ -139,21 +139,47 @@ export async function watermarkPDF(payload: WatermarkPayload) {
     }
 
     const angleRad = (watermarkRotation * Math.PI) / 180;
+    const cosA = Math.cos(angleRad);
+    const sinA = Math.sin(angleRad);
+
+    // Page center
     const cx = width / 2;
     const cy = height / 2;
-    const x = cx - (textWidth / 2) * Math.cos(angleRad) + (watermarkSize / 2) * Math.sin(angleRad);
-    const y = cy - (textWidth / 2) * Math.sin(angleRad) - (watermarkSize / 2) * Math.cos(angleRad);
 
-    // Safeguard-boundaries clamping with padding
+    // pdf-lib rotates text around its bottom-left origin (x, y).
+    // To visually center the rotated text on the page, offset (x, y) so
+    // the text's visual center lands exactly on (cx, cy).
+    const x = cx - (textWidth / 2) * cosA + (watermarkSize / 2) * sinA;
+    const y = cy - (textWidth / 2) * sinA - (watermarkSize / 2) * cosA;
+
+    // Compute the rotated bounding box of the text to clamp safely.
+    // Rotate each of the 4 corners of the unrotated text rectangle around (x, y).
+    const corners = [
+      { rx: 0,         ry: 0             },
+      { rx: textWidth, ry: 0             },
+      { rx: 0,         ry: watermarkSize },
+      { rx: textWidth, ry: watermarkSize },
+    ];
+    const rotatedXs = corners.map(c => x + c.rx * cosA - c.ry * sinA);
+    const rotatedYs = corners.map(c => y + c.rx * sinA + c.ry * cosA);
+
+    const bboxMinX = Math.min(...rotatedXs);
+    const bboxMaxX = Math.max(...rotatedXs);
+    const bboxMinY = Math.min(...rotatedYs);
+    const bboxMaxY = Math.max(...rotatedYs);
+
+    // Shift origin so the rotated box stays inside the page with padding.
     const padding = WATERMARK_DEFAULTS.PADDING;
-    const maxBoundX = Math.max(padding, width - textWidth - padding);
-    const maxBoundY = Math.max(padding, height - watermarkSize - padding);
-    const clampedX = Math.max(padding, Math.min(x, maxBoundX));
-    const clampedY = Math.max(padding, Math.min(y, maxBoundY));
+    let finalX = x;
+    let finalY = y;
+    if (bboxMinX < padding)            finalX += padding - bboxMinX;
+    if (bboxMaxX > width  - padding)   finalX -= bboxMaxX - (width  - padding);
+    if (bboxMinY < padding)            finalY += padding - bboxMinY;
+    if (bboxMaxY > height - padding)   finalY -= bboxMaxY - (height - padding);
 
     page.drawText(watermarkText, {
-      x: clampedX,
-      y: clampedY,
+      x: finalX,
+      y: finalY,
       font: watermarkFont,
       size: watermarkSize,
       color: rgb(WATERMARK_DEFAULTS.COLOR.r, WATERMARK_DEFAULTS.COLOR.g, WATERMARK_DEFAULTS.COLOR.b),
