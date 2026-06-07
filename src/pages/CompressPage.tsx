@@ -301,6 +301,14 @@ export default function CompressPage() {
                         </button>
                       ))}
                     </div>
+                    {compressQuality !== "metadata" && (
+                      <div className="flex items-start gap-2.5 bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-800/40 rounded-xl p-3 mt-1">
+                        <span className="text-amber-500 text-sm shrink-0 mt-0.5">⚠️</span>
+                        <p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 leading-relaxed">
+                          <strong>Text will not be selectable</strong> in the compressed output. Raster compression converts each page into a JPEG image — text, forms, and hyperlinks will no longer be interactive. Choose <strong>Lossless Metadata Strip</strong> to preserve selectable text.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

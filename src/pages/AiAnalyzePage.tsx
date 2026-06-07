@@ -159,9 +159,13 @@ export default function AiAnalyzePage() {
           if (response?.status === 502) {
             errMsg = "Server is starting up or updating deployment. Please try again in a few seconds.";
           } else if (response?.status === 524 || response?.status === 504) {
-             errMsg = "The document was too large and the AI analysis timed out.";
+            errMsg = "The document was too large and the AI analysis timed out.";
+          } else if (response?.status === 400 || response?.status === 403) {
+            errMsg = "AI analysis is unavailable. The server API key may be missing or invalid. Please contact the site administrator.";
+          } else if (response?.status === 429) {
+            errMsg = "You have reached the AI analysis rate limit. Please wait a few minutes before trying again.";
           } else {
-             errMsg = `Server encountered an issue (Code ${response?.status || 'Unknown'})`;
+            errMsg = `Server encountered an issue (Code ${response?.status || 'Unknown'})`;
           }
         }
         throw new Error(errMsg);

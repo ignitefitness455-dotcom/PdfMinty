@@ -107,8 +107,7 @@ export default function UnlockPage() {
         {
           fileBytes,
           password: password,
-        },
-        [fileBytes.buffer]
+        }
       );
 
       const defaultName = selectedFile.name.toLowerCase().endsWith(".pdf")
