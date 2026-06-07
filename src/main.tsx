@@ -18,11 +18,10 @@ window.addEventListener('unhandledrejection', (event) => {
   event.preventDefault();
 });
 
-// FIX: The skeleton is now removed AFTER React's first render completes,
-// not before. Previously it was removed synchronously before createRoot().render(),
-// which caused a DOM flash during lazy-loaded route transitions and could
-// drop file state in tools that load PDF previews asynchronously.
-// requestAnimationFrame ensures removal happens after the browser has painted.
+// FIX: requestAnimationFrame() সরিয়ে দেওয়া হয়েছে।
+// Skeleton removal এখন App.tsx-এর useEffect()-এ হয়,
+// যা React-এর প্রথম real DOM commit-এর পরে fire করে।
+// এটি নিশ্চিত করে যে skeleton সরার আগে React content দৃশ্যমান।
 const root = createRoot(document.getElementById('root')!);
 root.render(
   <StrictMode>
@@ -33,8 +32,3 @@ root.render(
     </ErrorBoundary>
   </StrictMode>
 );
-
-requestAnimationFrame(() => {
-  const skeleton = document.getElementById('loading-skeleton');
-  if (skeleton) skeleton.remove();
-});

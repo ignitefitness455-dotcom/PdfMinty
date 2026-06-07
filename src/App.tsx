@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { Layout } from "./components/Layout";
@@ -28,6 +28,14 @@ const PdfToImgPage = lazy(() => import("./pages/PdfToImgPage"));
 const AiAnalyzePage = lazy(() => import("./pages/AiAnalyzePage"));
 
 export default function App() {
+  useEffect(() => {
+    // Remove loading-skeleton once initial paint and react mounting is done
+    const skeleton = document.getElementById("loading-skeleton");
+    if (skeleton) {
+      skeleton.remove();
+    }
+  }, []);
+
   return (
     <HelmetProvider>
       <Router>

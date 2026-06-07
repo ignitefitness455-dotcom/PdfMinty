@@ -31,8 +31,13 @@
               }
             }
 
-            // Failsafe: if the app takes more than 5 seconds to load (skeleton is still here),
-            // it means JS might have crashed. We try auto-reloading ONCE per session.
+            // FIX: Timeout 5000ms → 20000ms
+            // কারণ: slow mobile network-এ (2-5 K/s) app load করতে
+            // ১০-৩০ সেকেন্ড লাগতে পারে। 5 সেকেন্ডে trigger হলে
+            // Service Worker unregister → reload → আবার slow →
+            // আবার reload — এটি একটি infinite loop তৈরি করছিল।
+            // 20 সেকেন্ড দিলে genuine crash আর slow network
+            // আলাদা করা যাবে।
             setTimeout(function() {
               if (document.getElementById('loading-skeleton')) {
                 if (!sessionStorage.getItem('pdfminty-failsafe-triggered')) {
@@ -56,17 +61,31 @@
                   if (loadingText) loadingText.textContent = "Loading is taking longer than usual... Please check your connection.";
                 }
               }
-            }, 5000);
+            }, 20000);
           });
         } catch (e) {}
       })();
     </script>
+    <!-- FIX: Google Fonts render-blocking সরানো হয়েছে।
+         আগে: <link rel="stylesheet"> — এটি page render block করে।
+         এখন: rel="preload" + onload pattern — font async load হবে,
+         page render আটকাবে না। Font আসার আগে system font দেখাবে। -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://www.google-analytics.com" />
     <link rel="dns-prefetch" href="https://ssl.google-analytics.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
+
+    <!-- Async (non-blocking) font load -->
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
+    </noscript>
     <link rel="apple-touch-icon" href="/logo.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/logo.png" />
@@ -112,7 +131,7 @@
         align-items: center;
         justify-content: center;
         background: #f8fafc;
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       }
       html.dark .loading-root {
         background: #020617;
