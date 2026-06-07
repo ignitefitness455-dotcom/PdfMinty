@@ -70,7 +70,7 @@ export default defineConfig(({ mode }) => ({
             handler: 'NetworkFirst',
             options: {
               cacheName: 'app-html-cache',
-              networkTimeoutSeconds: 3,
+              networkTimeoutSeconds: 8,
               expiration: {
                 maxEntries: 10,
               },

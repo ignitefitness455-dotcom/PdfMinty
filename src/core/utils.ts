@@ -129,14 +129,14 @@ export const prefetchToolChunk = (slug: string) => {
 
   prefetchedSet.add(cacheKey);
 
-  // 1. Prefetch the route's lazy-loaded page component
+  // FIX: আগে hover করলেই pdf-lib এবং pdfjs-dist (মোট ~2MB+) একসাথে prefetch
+  // হতো, যার ফলে HomePage-এ প্রবেশের সাথে সাথেই initial load অনেক ভারী হয়ে যেত।
+  // এখন শুধু নির্দিষ্ট tool-এর route chunk prefetch করা হয়।
+  // pdf-lib এবং pdfjs-dist lazy load হবে শুধুমাত্র যখন user সত্যিকারের
+  // tool page-এ navigate করবে — তখন tool page নিজেই এগুলো import করবে।
   const loader = prefetchMap[cacheKey];
   if (loader) {
     loader().catch((err) => console.debug("Prefetching route chunk error:", err));
   }
-
-  // 2. Proactively prefetch full heavy processing libraries (pdf-lib and pdfjs-dist)
-  import("pdf-lib").catch((err) => console.debug("Prefetching pdf-lib error:", err));
-  getPdfJs().catch((err) => console.debug("Prefetching pdfjs-dist error:", err));
 };
 

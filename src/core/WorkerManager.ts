@@ -33,6 +33,16 @@ class VirtualWorker {
           case 'compress': bytes = await ops.compressPDF(payload); break;
           case 'protect': bytes = await ops.protectPDF(payload); break;
           case 'unlock': bytes = await ops.unlockPDF(payload); break;
+          // FIX: 'pdf-to-image' case VirtualWorker-এ missing ছিল।
+          // আসল pdf-worker.ts-এ এটা ছিল, কিন্তু এই fallback VirtualWorker-এ
+          // ছিল না। ফলে Web Worker কাজ না করলে (iframe বা old browser),
+          // PDF to Image tool সম্পূর্ণ fail করতো "Unsupported task type" error দিয়ে।
+          case 'pdf-to-image': {
+            const results = await ops.pdfToImage(payload);
+            if (this.cancelled) return;
+            if (this.onmessage) this.onmessage({ data: { id, success: true, results } } as MessageEvent);
+            return;
+          }
           default: throw new Error(`Unsupported task type: ${type}`);
         }
         if (this.cancelled) return;
