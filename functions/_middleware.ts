@@ -20,9 +20,10 @@ export const onRequest: PagesFunction<any> = async (context) => {
   // Standard strict default-src 'self' with permissions for styling, fonts, and images.
   // frame-ancestors is designed to allow rendering inside trusted spaces (like AI Studio previews)
   // while preventing unauthorized malicious clickjacking.
+  // worker-src: 'self' blob: only — cdnjs.cloudflare.com removed (no worker scripts loaded from CDN)
   headers.set(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' blob: data: https://images.unsplash.com; connect-src 'self' https://*.pdfminty.pages.dev https://www.pdfminty.com https://cdnjs.cloudflare.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://*.google.com https://*.run.app https://*.pages.dev;"
+    "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' blob: data: https://images.unsplash.com; connect-src 'self' https://*.pdfminty.pages.dev https://www.pdfminty.com https://cdnjs.cloudflare.com; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://*.google.com https://*.run.app https://*.pages.dev;"
   );
 
   // 2. Prevent MIME type sniffing
@@ -34,8 +35,8 @@ export const onRequest: PagesFunction<any> = async (context) => {
   // 4. Referrer policy to control source flow metadata
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
-  // 5. Restrict unused sensor permissions
-  headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  // 5. Restrict unused sensor and payment permissions (synced with public/_headers)
+  headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()");
 
   return new Response(response.body, {
     status: response.status,

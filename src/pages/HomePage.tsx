@@ -21,16 +21,42 @@ export default function HomePage() {
   // Debounce the search query by 300ms
   const { debouncedValue, isDebouncing } = useDebounce(searchQuery, 300);
 
+  // Popularity-ranked order of tools
+  const rankedOrder = useMemo(() => [
+    "merge",
+    "compress",
+    "split",
+    "img-to-pdf",
+    "pdf-to-img",
+    "delete-pages",
+    "rotate",
+    "watermark",
+    "page-numbers",
+    "protect",
+    "unlock",
+    "add-blank",
+    "ai-analyze"
+  ], []);
+
+  // Sorted tools list based on real-world popularity
+  const sortedTools = useMemo(() => {
+    return [...toolsList].sort((a, b) => {
+      const indexA = rankedOrder.indexOf(a.id);
+      const indexB = rankedOrder.indexOf(b.id);
+      return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+    });
+  }, [toolsList, rankedOrder]);
+
   // Memoize search query matching to prevent redundant recalculations
   const filteredTools = useMemo(() => {
     const cleanQuery = debouncedValue.toLowerCase().trim();
-    if (!cleanQuery) return toolsList;
-    return toolsList.filter(
+    if (!cleanQuery) return sortedTools;
+    return sortedTools.filter(
       (tool) =>
         tool.name.toLowerCase().includes(cleanQuery) ||
         tool.description.toLowerCase().includes(cleanQuery)
     );
-  }, [toolsList, debouncedValue]);
+  }, [sortedTools, debouncedValue]);
 
   return (
     <div className="animate-fadein relative z-10 font-sans">

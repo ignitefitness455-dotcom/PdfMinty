@@ -15,22 +15,26 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   }
 
   if (request.method === "GET") {
-    const checks: Record<string, boolean> = { kv: false };
+    const checks: Record<string, string | boolean> = { kv: false };
 
-    try {
-      if (env.RATELIMIT_KV) {
+    // KV binding present?
+    if (!env.RATELIMIT_KV) {
+      checks.kv = "binding_missing";
+    } else {
+      try {
         await env.RATELIMIT_KV.get("__health_probe__");
         checks.kv = true;
+      } catch (_) {
+        checks.kv = "unreachable";
       }
-    } catch (_) {
-      checks.kv = false;
     }
 
-    const allHealthy = Object.values(checks).every(Boolean);
+    const allHealthy = checks.kv === true;
 
     return new Response(
       JSON.stringify({
         status: allHealthy ? "ok" : "degraded",
+        version: "1.0.0",
         timestamp: new Date().toISOString(),
         checks,
       }),

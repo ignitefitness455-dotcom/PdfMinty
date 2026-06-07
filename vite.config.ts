@@ -134,6 +134,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     target: 'es2022',
     minify: 'terser',
+    sourcemap: 'hidden', // generate .map files for Cloudflare upload; hidden from browser DevTools
     terserOptions: {
       compress: {
         drop_console: true,
@@ -143,5 +144,16 @@ export default defineConfig(({ mode }) => ({
     },
     cssCodeSplit: true,
     assetsInlineLimit: 4096,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Heavy PDF libraries in their own chunks — loaded only when tool pages load
+          'pdf-lib': ['pdf-lib'],
+          'pdfjs-dist': ['pdfjs-dist'],
+          // React ecosystem in one vendor chunk
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
+    },
   },
 }));

@@ -5,7 +5,8 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
 # Keep CSP identical with functions/_middleware.ts
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' blob: data: https://images.unsplash.com; connect-src 'self' https://*.pdfminty.pages.dev https://www.pdfminty.com https://cdnjs.cloudflare.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://*.google.com https://*.run.app https://*.pages.dev;
+# worker-src: cdnjs.cloudflare.com removed — no worker scripts are loaded from CDN
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' blob: data: https://images.unsplash.com; connect-src 'self' https://*.pdfminty.pages.dev https://www.pdfminty.com https://cdnjs.cloudflare.com; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://*.google.com https://*.run.app https://*.pages.dev;
   Cache-Control: public, max-age=0, must-revalidate
   Cross-Origin-Opener-Policy: same-origin
 

@@ -222,10 +222,8 @@ export function SEO(props: SEOProps) {
       <meta name="twitter:description" content={ogDescription} />
       <meta name="twitter:image" content={ogImage} />
 
-      {/* Canonical and hreflang Alternate Tags */}
+      {/* Canonical Tag — hrefLang alternates removed: app is English-only, no alternate language routes exist */}
       <link rel="canonical" href={canonicalUrl} />
-      <link rel="alternate" hrefLang="en" href={canonicalUrl} />
-      <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
 
       {/* Dynamic JSON-LD Structured Data */}
       {schemaString && (

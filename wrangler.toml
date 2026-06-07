@@ -3,9 +3,23 @@ compatibility_date = "2026-06-06"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
 
+# Workers Observability: enables request tracing in Cloudflare dashboard
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+# Gradual rollout: new deployments roll out progressively, not instantly
+[deployment]
+gradual_rollouts = true
+
+# Source maps: minified stack traces become readable in dashboard
+[source_maps]
+upload = true
+
 [vars]
 ENVIRONMENT = "production"
 USER_AGENT = "PDFMinty-Document-Analyzer/1.0"
+GEMINI_MODEL = "gemini-2.0-flash"
 # GEMINI_API_KEY is a secure secret. Do NOT place its plaintext value here.
 # Bind it in production via standard Cloudflare command-line tools:
 # wrangler pages secret put GEMINI_API_KEY
@@ -16,6 +30,13 @@ USER_AGENT = "PDFMinty-Document-Analyzer/1.0"
 [[env.production.kv_namespaces]]
 binding = "RATELIMIT_KV"
 id = "a43016cede9e4e92bc4ee8776b952cfb"
+
+# Staging Environment Config (optional — replace id with staging KV id)
+[env.staging]
+name = "pdfminty-staging"
+[[env.staging.kv_namespaces]]
+binding = "RATELIMIT_KV"
+id = "your-staging-kv-id"
 
 # Preview Environment Config
 [env.preview]
