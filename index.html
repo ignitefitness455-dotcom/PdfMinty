@@ -4,9 +4,27 @@
     <meta charset="UTF-8" />
     <script>
       (function() {
+        // Safe storage helpers to completely prevent browser security issues inside sandboxed iframes on mobile
+        function safeGetStorage(type, key) {
+          try {
+            var storage = type === 'session' ? window.sessionStorage : window.localStorage;
+            return storage ? storage.getItem(key) : null;
+          } catch (e) {
+            return null;
+          }
+        }
+        function safeSetStorage(type, key, value) {
+          try {
+            var storage = type === 'session' ? window.sessionStorage : window.localStorage;
+            if (storage) {
+              storage.setItem(key, value);
+            }
+          } catch (e) {}
+        }
+
         // Early theme detection to avoid flashing white on mobile load
         try {
-          const saved = localStorage.getItem("pdfminty-theme");
+          var saved = safeGetStorage("local", "pdfminty-theme");
           if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
             document.documentElement.classList.add("dark");
           } else {
@@ -14,39 +32,73 @@
           }
         } catch (e) {}
 
-        // Early language detection & loading skeleton dynamic localization
-        try {
-          const savedLang = localStorage.getItem("pdfminty-lang");
-          const browserLang = navigator.language || navigator.userLanguage || "en";
-          const activeLang = savedLang || browserLang.substring(0, 2);
-          
-          // Once the DOM is ready, configure early load message
-          document.addEventListener("DOMContentLoaded", function() {
-            const loadingEl = document.querySelector(".loading-text");
-            if (loadingEl) {
-              if (activeLang === "bn") {
-                loadingEl.textContent = "পিডিএফমিন্টি লোড হচ্ছে...";
+        // Global early error handler to detect chunk load errors / script errors and force recovery reload
+        window.addEventListener('error', function(event) {
+          try {
+            var errorMsg = (event.message || "").toLowerCase();
+            // Catch chunk loading errors, dynamic imports, or critical loading failures
+            if (
+              errorMsg.indexOf('chunk') > -1 || 
+              errorMsg.indexOf('load') > -1 || 
+              errorMsg.indexOf('dynamically imported') > -1 || 
+              errorMsg.indexOf('import') > -1 ||
+              errorMsg.indexOf('failed to fetch') > -1
+            ) {
+              console.warn('[Failsafe] Chunk load failure detected. Clearing cache and reloading...');
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for (var i = 0; i < registrations.length; i++) {
+                    registrations[i].unregister();
+                  }
+                  window.location.reload();
+                }).catch(function() {
+                  window.location.reload();
+                });
               } else {
-                loadingEl.textContent = "Loading PDFMinty...";
+                window.location.reload();
               }
             }
+          } catch (err) {}
+        });
 
-            // FIX: Timeout 5000ms → 20000ms
-            // কারণ: slow mobile network-এ (2-5 K/s) app load করতে
-            // ১০-৩০ সেকেন্ড লাগতে পারে। 5 সেকেন্ডে trigger হলে
-            // Service Worker unregister → reload → আবার slow →
-            // আবার reload — এটি একটি infinite loop তৈরি করছিল।
-            // 20 সেকেন্ড দিলে genuine crash আর slow network
-            // আলাদা করা যাবে।
-            setTimeout(function() {
+        // Early language detection & loading skeleton localization
+        try {
+          var savedLang = safeGetStorage("local", "pdfminty-lang");
+          var browserLang = navigator.language || navigator.userLanguage || "en";
+          var activeLang = savedLang || browserLang.substring(0, 2);
+
+          // Configure the load message either on DOM load or immediately if DOM is ready
+          function configureMessage() {
+            try {
+              var loadingEl = document.querySelector(".loading-text");
+              if (loadingEl) {
+                if (activeLang === "bn") {
+                  loadingEl.textContent = "পিডিএফমিন্টি লোড হচ্ছে...";
+                } else {
+                  loadingEl.textContent = "Loading PDFMinty...";
+                }
+              }
+            } catch (err) {}
+          }
+
+          if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", configureMessage);
+          } else {
+            configureMessage();
+          }
+
+          // Central Failsafe Timer to handle loading timeout
+          setTimeout(function() {
+            try {
               if (document.getElementById('loading-skeleton')) {
-                if (!sessionStorage.getItem('pdfminty-failsafe-triggered')) {
-                  sessionStorage.setItem('pdfminty-failsafe-triggered', 'true');
-                  console.warn('[Failsafe] App stuck on loading. Attempting recovery reload...');
+                var failsafeTriggered = safeGetStorage('session', 'pdfminty-failsafe-triggered');
+                if (!failsafeTriggered) {
+                  safeSetStorage('session', 'pdfminty-failsafe-triggered', 'true');
+                  console.warn('[Failsafe] App stuck on loading for 20s. Purging service worker cache and reloading...');
                   if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                      for (let registration of registrations) {
-                        registration.unregister();
+                      for (var i = 0; i < registrations.length; i++) {
+                        registrations[i].unregister();
                       }
                       window.location.reload();
                     }).catch(function() {
@@ -56,13 +108,15 @@
                     window.location.reload();
                   }
                 } else {
-                  console.error('[Failsafe] App is still stuck after reload. Waiting for manual user action.');
-                  const loadingText = document.querySelector('.loading-text');
-                  if (loadingText) loadingText.textContent = "Loading is taking longer than usual... Please check your connection.";
+                  console.error('[Failsafe] App is still stuck after first reload recovery. Showing user assistance message...');
+                  var loadingText = document.querySelector('.loading-text');
+                  if (loadingText) {
+                    loadingText.textContent = "Taking longer than usual... Try clearing browser cache or toggle Desktop site.";
+                  }
                 }
               }
-            }, 20000);
-          });
+            } catch (err) {}
+          }, 20000);
         } catch (e) {}
       })();
     </script>
