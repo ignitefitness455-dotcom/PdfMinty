@@ -30,6 +30,33 @@
                 loadingEl.textContent = "Loading PDFMinty...";
               }
             }
+
+            // Failsafe: if the app takes more than 5 seconds to load (skeleton is still here),
+            // it means JS might have crashed. We try auto-reloading ONCE per session.
+            setTimeout(function() {
+              if (document.getElementById('loading-skeleton')) {
+                if (!sessionStorage.getItem('pdfminty-failsafe-triggered')) {
+                  sessionStorage.setItem('pdfminty-failsafe-triggered', 'true');
+                  console.warn('[Failsafe] App stuck on loading. Attempting recovery reload...');
+                  if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                      for (let registration of registrations) {
+                        registration.unregister();
+                      }
+                      window.location.reload();
+                    }).catch(function() {
+                      window.location.reload();
+                    });
+                  } else {
+                    window.location.reload();
+                  }
+                } else {
+                  console.error('[Failsafe] App is still stuck after reload. Waiting for manual user action.');
+                  const loadingText = document.querySelector('.loading-text');
+                  if (loadingText) loadingText.textContent = "Loading is taking longer than usual... Please check your connection.";
+                }
+              }
+            }, 5000);
           });
         } catch (e) {}
       })();

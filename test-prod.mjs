@@ -14,6 +14,13 @@ import { exec } from 'child_process';
   await page.goto('http://localhost:4000/');
   await new Promise(r => setTimeout(r, 2000));
   
+  const html = await page.evaluate(() => document.body.innerHTML);
+  if (html.includes('Loading PDFMinty...')) {
+    console.log('STUCK IN LOADING');
+  } else {
+    console.log('LOADED OK!');
+  }
+  
   await browser.close();
   server.kill();
 })();
