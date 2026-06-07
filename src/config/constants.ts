@@ -26,9 +26,9 @@ export const PAGE_NUMBER_DEFAULTS = {
 
 // File upload limits
 export const UPLOAD_LIMITS = {
-  MAX_TOTAL_SIZE: 500 * 1024 * 1024, // 500MB
-  MAX_FILES: 50,
-  MAX_SINGLE_FILE: 100 * 1024 * 1024, // 100MB
+  MAX_TOTAL_SIZE: 1000 * 1024 * 1024, // 1000MB (1 GB)
+  MAX_FILES: 100,
+  MAX_SINGLE_FILE: 250 * 1024 * 1024, // 250MB
 } as const;
 
 // AI analysis
