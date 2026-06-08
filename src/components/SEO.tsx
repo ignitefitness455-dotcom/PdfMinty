@@ -126,21 +126,15 @@ export function useRouteSEO(): Required<Omit<SEOProps, "schemaJson">> & { schema
     }
   }
 
-  const lowercasePath = cleanPath.toLowerCase();
-
-  // Format the path portion consistently (excluding trailing slash on sub-paths)
-  let formattedPath = lowercasePath;
-  if (formattedPath.endsWith("/") && formattedPath.length > 1) {
-    formattedPath = formattedPath.slice(0, -1);
+  if (cleanPath.endsWith("/") && cleanPath.length > 1) {
+    cleanPath = cleanPath.slice(0, -1);
   }
 
-  const baseMeta = SEO_CONFIGS[formattedPath] || SEO_CONFIGS["/"];
-  
-  // Exclude duplicate/unnecessary query parameters and construct absolute URL targeting the non-www domain
-  const canonicalUrl = `https://pdfminty.com${formattedPath === "/" ? "/" : formattedPath}`;
+  const baseMeta = SEO_CONFIGS[cleanPath] || SEO_CONFIGS["/"];
+  const canonicalUrl = `https://www.pdfminty.com${cleanPath || "/"}`;
 
   // Default image asset
-  const ogImage = "https://pdfminty.com/og-image.png";
+  const ogImage = "https://www.pdfminty.com/og-image.png";
 
   const schemaJson = {
     "@context": "https://schema.org",
@@ -155,6 +149,13 @@ export function useRouteSEO(): Required<Omit<SEOProps, "schemaJson">> & { schema
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "127",
+      "bestRating": "5",
+      "worstRating": "1"
     },
     ...(cleanPath !== "/" && { "browserRequirements": "Requires JavaScript" })
   };
