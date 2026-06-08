@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
 import { PdfPreview } from "../components/PdfPreview";
+import { ToolExplanation } from "../components/ToolExplanation";
 import { triggerDownload, getFriendlyErrorMessage, getPdfJs } from "../core/utils";
 import { PDFSanitizer } from "../core/PDFSanitizer";
 
@@ -439,6 +440,7 @@ export default function CompressPage() {
           </div>
         </div>
       </div>
+      <ToolExplanation />
     </div>
   );
 }

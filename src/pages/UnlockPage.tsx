@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
+import { DocumentPreview } from "../components/DocumentPreview";
 import { getFriendlyErrorMessage, triggerDownload } from "../core/utils";
 import { executePdfWorker } from "../core/pdfRunner";
 import { PDFSanitizer } from "../core/PDFSanitizer";
@@ -185,18 +186,10 @@ export default function UnlockPage() {
 
               {selectedFile && !loading && (
                 <div className="space-y-6 animate-fadein text-left">
-                  <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-150 dark:border-slate-850 text-xs">
-                    <span className="font-semibold truncate text-slate-700 dark:text-slate-300 max-w-[190px]">
-                      📂 {selectedFile.name}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={clearWorkspace}
-                      className="text-[10px] font-black text-rose-500 hover:text-rose-700 font-sans border-0 bg-transparent cursor-pointer"
-                    >
-                      Clear File
-                    </button>
-                  </div>
+                  <DocumentPreview
+                    file={selectedFile}
+                    onClear={decryptLoading ? undefined : clearWorkspace}
+                  />
 
                   {isEncryptedPDF === true ? (
                     <div className="space-y-4">

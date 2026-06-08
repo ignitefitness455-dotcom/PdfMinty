@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
 import { PdfPreview } from "../components/PdfPreview";
+import { ToolExplanation } from "../components/ToolExplanation";
 import { triggerDownload, getFriendlyErrorMessage } from "../core/utils";
 import { preprocessAndLoadPdf, executePdfWorker } from "../core/pdfRunner";
 
@@ -477,6 +478,7 @@ export default function SplitPage() {
           </div>
         </div>
       </div>
+      <ToolExplanation />
     </div>
   );
 }

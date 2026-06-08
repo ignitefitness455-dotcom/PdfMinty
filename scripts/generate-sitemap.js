@@ -23,6 +23,9 @@ const coreRoutes = [
   { path: '/unlock-pdf', priority: '0.8', freq: 'weekly' },
   { path: '/image-to-pdf', priority: '0.8', freq: 'weekly' },
   { path: '/pdf-to-image', priority: '0.8', freq: 'weekly' },
+  { path: '/delete-pages-pdf', priority: '0.8', freq: 'weekly' },
+  { path: '/extract-pages-pdf', priority: '0.8', freq: 'weekly' },
+  { path: '/reorder-pdf', priority: '0.8', freq: 'weekly' },
   { path: '/intelligence', priority: '0.8', freq: 'weekly' },
 ];
 
@@ -40,7 +43,7 @@ async function runGenerator() {
   console.log(`${Colors.blue}[DevOps Build Pipeline] Beginning automated sitemap and robots.txt lifecycle updates...${Colors.reset}`);
 
   try {
-    const siteUrl = process.env.VITE_SITE_URL || 'https://www.pdfminty.com';
+    const siteUrl = process.env.VITE_SITE_URL || 'https://pdfminty.com';
     const lastMod = new Date().toISOString(); // Accurate ISO timestamp of the current build execution
 
     // 1. Generate XML Sitemap content

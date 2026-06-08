@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
+import { DocumentPreview } from "../components/DocumentPreview";
 import { triggerDownload, getFriendlyErrorMessage } from "../core/utils";
 import { PDFSanitizer } from "../core/PDFSanitizer";
 import { executePdfWorker } from "../core/pdfRunner";
@@ -170,18 +171,10 @@ export default function PdfToImgPage() {
 
               {selectedFiles.length > 0 && !completedResult && (
                 <div className="space-y-5 animate-fadein">
-                  <div className="flex items-center justify-between bg-emerald-50/40 dark:bg-emerald-950/20 p-3.5 rounded-xl border border-emerald-100/50 dark:border-emerald-800/40 text-xs">
-                    <span className="font-semibold truncate text-slate-700 dark:text-slate-350 max-w-[240px]">
-                      📂 {selectedFiles[0].name}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={clearWorkspace}
-                      className="text-[10px] font-black text-rose-500 hover:text-rose-700 font-sans border-0 bg-transparent cursor-pointer"
-                    >
-                      Clear File
-                    </button>
-                  </div>
+                  <DocumentPreview
+                    file={selectedFiles[0]}
+                    onClear={loading ? undefined : clearWorkspace}
+                  />
 
                   {/* Settings Panel */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/60 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800/80">

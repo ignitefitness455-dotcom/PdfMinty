@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
 import { PdfPreview } from "../components/PdfPreview";
+import { ToolExplanation } from "../components/ToolExplanation";
 import { triggerDownload, getFriendlyErrorMessage } from "../core/utils";
 import { preprocessAndLoadPdf, executePdfWorker } from "../core/pdfRunner";
 import ArrowLeft from "lucide-react/icons/arrow-left";
@@ -370,6 +371,7 @@ export default function RotatePage() {
           </div>
         </div>
       </div>
+      <ToolExplanation />
     </div>
   );
 }

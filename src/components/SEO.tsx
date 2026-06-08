@@ -126,15 +126,21 @@ export function useRouteSEO(): Required<Omit<SEOProps, "schemaJson">> & { schema
     }
   }
 
-  if (cleanPath.endsWith("/") && cleanPath.length > 1) {
-    cleanPath = cleanPath.slice(0, -1);
+  const lowercasePath = cleanPath.toLowerCase();
+
+  // Format the path portion consistently (excluding trailing slash on sub-paths)
+  let formattedPath = lowercasePath;
+  if (formattedPath.endsWith("/") && formattedPath.length > 1) {
+    formattedPath = formattedPath.slice(0, -1);
   }
 
-  const baseMeta = SEO_CONFIGS[cleanPath] || SEO_CONFIGS["/"];
-  const canonicalUrl = `https://www.pdfminty.com${cleanPath || "/"}`;
+  const baseMeta = SEO_CONFIGS[formattedPath] || SEO_CONFIGS["/"];
+  
+  // Exclude duplicate/unnecessary query parameters and construct absolute URL targeting the non-www domain
+  const canonicalUrl = `https://pdfminty.com${formattedPath === "/" ? "/" : formattedPath}`;
 
   // Default image asset
-  const ogImage = "https://www.pdfminty.com/og-image.png";
+  const ogImage = "https://pdfminty.com/og-image.png";
 
   const schemaJson = {
     "@context": "https://schema.org",

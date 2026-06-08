@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
 import { PdfPreview } from "../components/PdfPreview";
+import { ToolExplanation } from "../components/ToolExplanation";
 import { triggerDownload, getPdfJs } from "../core/utils";
 import { PDFSanitizer } from "../core/PDFSanitizer";
 import ArrowLeft from "lucide-react/icons/arrow-left";
@@ -501,6 +502,7 @@ export default function DeletePagesPage() {
           </div>
         </div>
       </div>
+      <ToolExplanation />
     </div>
   );
 }

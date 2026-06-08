@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
+import { ToolExplanation } from "../components/ToolExplanation";
 import { triggerDownload, getFriendlyErrorMessage } from "../core/utils";
 import { PDFSanitizer } from "../core/PDFSanitizer";
 import ArrowLeft from "lucide-react/icons/arrow-left";
@@ -392,55 +393,7 @@ export default function MergePage() {
         </div>
       </div>
 
-      {/* SEO/Details Content */}
-      <div id="seo-merge-content" className="max-w-4xl mx-auto px-4 mt-16 pt-12 border-t border-slate-200 dark:border-slate-800 animate-fadein font-sans text-left">
-        <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-6">
-          Merge PDF Free Online - Combine PDF Files Locally
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-10 font-medium select-text">
-          Need to merge PDF without uploading sensitive documents to external servers? PDFMinty is a 100% free, private pdf editor browser only toolkit that requires no signup or registration. Work confidently knowing your files never leave your device, processed entirely locally in your web browser.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
-          <div>
-            <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
-              How to Merge PDF Files Locally
-            </h2>
-            <ol className="space-y-3.5">
-              {[
-                "Add your PDF files by dropping them into the workspace or clicking the upload area.",
-                "Arrange the sequence of files as needed in the files slot list.",
-                "Click \"Compile & Export\" to combine pages side-by-side locally.",
-                "See a celebratory confirmation when processing completes instantly.",
-                "Save your new merged PDF instantly to your computer or mobile."
-              ].map((step, idx) => (
-                <li key={idx} className="flex gap-3 text-xs font-medium text-slate-600 dark:text-slate-400 select-text">
-                  <span className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-extrabold text-[10px] shrink-0 mt-0.5">
-                    {idx + 1}
-                  </span>
-                  <span>{step}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-          <div>
-            <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4 font-sans">
-              Why use offline merging?
-            </h2>
-            <div className="space-y-4 text-xs font-medium text-slate-600 dark:text-slate-400 select-text">
-              <p>
-                <strong>Zero Upload Files:</strong> Traditional online PDF tools force you to upload documents of invoices, confidential reports, or IDs onto their remote clouds, creating serious security leaks.
-              </p>
-              <p>
-                <strong>Uncompromising Performance:</strong> By merging directly inside your local hardware resources, PDFMinty bypasses lengthy network waiting times, making merging incredibly robust and faster.
-              </p>
-              <p>
-                <strong>100% Client-Side Integrity:</strong> Enjoy limitless file merging options completely. Save files confidently offline!
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ToolExplanation />
     </div>
   );
 }

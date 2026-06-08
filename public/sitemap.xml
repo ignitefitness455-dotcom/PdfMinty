@@ -1,90 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-                            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
-    <loc>https://www.pdfminty.com</loc>
-    <lastmod>2026-06-06</lastmod>
-    <changefreq>daily</changefreq>
+    <loc>https://pdfminty.com</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/merge-pdf</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/merge-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/split-pdf</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/split-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/compress-pdf</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/compress-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/rotate-pdf</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/rotate-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/organize</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/organize</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/watermark-pdf</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/watermark-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/add-page-numbers</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/add-page-numbers</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/add-blank-page</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/add-blank-page</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/protect-pdf</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/protect-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/unlock-pdf</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/unlock-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/image-to-pdf</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/image-to-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/pdf-to-image</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/pdf-to-image</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.pdfminty.com/intelligence</loc>
-    <lastmod>2026-06-04</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://pdfminty.com/delete-pages-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/extract-pages-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/reorder-pdf</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/intelligence</loc>
+    <lastmod>2026-06-08T10:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 </urlset>

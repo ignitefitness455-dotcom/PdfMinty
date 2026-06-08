@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { FileUploader } from "../components/FileUploader";
+import { DocumentPreview } from "../components/DocumentPreview";
 import { getPdfJs, truncateTextGrapheme } from "../core/utils";
 import { PDFSanitizer } from "../core/PDFSanitizer";
 import ArrowLeft from "lucide-react/icons/arrow-left";
@@ -233,19 +234,10 @@ export default function AiAnalyzePage() {
 
             {selectedFiles.length > 0 && !aiAnalysisResult && (
               <div className="space-y-4 animate-fadein">
-                <div className="flex items-center justify-between bg-emerald-50/40 dark:bg-emerald-950/20 p-3.5 rounded-xl border border-emerald-100/50 dark:border-emerald-800/40 text-xs">
-                  <span className="font-semibold truncate text-slate-700 dark:text-slate-350 max-w-[240px]">
-                    📂 {selectedFiles[0].name}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={clearWorkspace}
-                    disabled={aiAnalyzing}
-                    className="text-[10px] font-black text-rose-500 hover:text-rose-700 disabled:opacity-45 font-sans border-0 bg-transparent"
-                  >
-                    Clear File
-                  </button>
-                </div>
+                <DocumentPreview
+                  file={selectedFiles[0]}
+                  onClear={aiAnalyzing ? undefined : clearWorkspace}
+                />
 
                 {!aiAnalyzing && (
                   <div className="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800/60 text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-semibold">

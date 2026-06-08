@@ -48,6 +48,6 @@ export const RATE_LIMITS = {
 export const APP_INFO = {
   NAME: 'PDFMinty',
   VERSION: '1.0.0',
-  URL: 'https://www.pdfminty.com',
+  URL: 'https://pdfminty.com',
   REPO_URL: 'https://github.com/ignitefitness455-dotcom/PdfMinty',
 } as const;

@@ -170,7 +170,7 @@ try {
     const outputSubDir = path.join(distDir, route.path.replace(/^\//, ''));
     fs.mkdirSync(outputSubDir, { recursive: true });
 
-    const absoluteUrl = `https://www.pdfminty.com${route.path}`;
+    const absoluteUrl = `https://pdfminty.com${route.path}`;
 
     let html = baseHTML;
 
@@ -209,9 +209,9 @@ try {
 
   // Ensure the root homepage also includes a clean index canonical link and alternates
   let homeHtml = baseHTML;
-  homeHtml = setCanonicalLink(homeHtml, "https://www.pdfminty.com/");
-  homeHtml = setAlternateLink(homeHtml, "en", "https://www.pdfminty.com/");
-  homeHtml = setAlternateLink(homeHtml, "x-default", "https://www.pdfminty.com/");
+  homeHtml = setCanonicalLink(homeHtml, "https://pdfminty.com/");
+  homeHtml = setAlternateLink(homeHtml, "en", "https://pdfminty.com/");
+  homeHtml = setAlternateLink(homeHtml, "x-default", "https://pdfminty.com/");
 
   fs.writeFileSync(templatePath, homeHtml, 'utf-8');
   console.log('✅ Updated Root Homepage: index.html with correct canonical attributes');

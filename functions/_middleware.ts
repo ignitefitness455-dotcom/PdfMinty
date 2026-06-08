@@ -3,10 +3,11 @@ export const onRequest: PagesFunction<any> = async (context) => {
   const hostname = url.hostname.toLowerCase();
 
   // 1. Server-side Canonical Domain & Typo Redirects (301 Permanent Redirect)
-  // This directs non-www and typo hostnames cleanly to www.pdfminty.com at the edge.
-  // Doing this server-side prevents Google "Redirect Notice" warnings on search results.
-  if (hostname === "pdfminty.com" || hostname === "pdfmity.com" || hostname === "www.pdfmity.com") {
-    const canonicalUrl = `https://www.pdfminty.com${url.pathname}${url.search}`;
+  // This directs www.pdfminty.com and typo hostnames cleanly to pdfminty.com at the edge.
+  // Doing this server-side prevents Google "Redirect Notice" warnings on search results
+  // and establishes a single source of truth matching our canonical link structure.
+  if (hostname === "www.pdfminty.com" || hostname === "pdfmity.com" || hostname === "www.pdfmity.com") {
+    const canonicalUrl = `https://pdfminty.com${url.pathname}${url.search}`;
     return Response.redirect(canonicalUrl, 301);
   }
 
@@ -22,7 +23,7 @@ export const onRequest: PagesFunction<any> = async (context) => {
   // while preventing unauthorized malicious clickjacking.
   headers.set(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' blob: data: https://images.unsplash.com; connect-src 'self' https://*.pdfminty.pages.dev https://www.pdfminty.com https://cdnjs.cloudflare.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://*.google.com https://*.run.app https://*.pages.dev;"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' blob: data: https://images.unsplash.com; connect-src 'self' https://*.pdfminty.pages.dev https://pdfminty.com https://www.pdfminty.com https://cdnjs.cloudflare.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://*.google.com https://*.run.app https://*.pages.dev;"
   );
 
   // 2. Prevent MIME type sniffing
