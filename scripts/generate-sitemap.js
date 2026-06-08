@@ -53,7 +53,7 @@ async function runGenerator() {
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
                             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 ${coreRoutes.map(route => {
-  const fullUrl = `${siteUrl}${route.path === '/' ? '' : route.path}`;
+  const fullUrl = `${siteUrl}${route.path === '/' ? '/' : route.path}`;
   return `  <url>
     <loc>${fullUrl}</loc>
     <lastmod>${lastMod}</lastmod>

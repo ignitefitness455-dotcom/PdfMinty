@@ -51,6 +51,9 @@ export default function App() {
                 <Route path="/compress-pdf" element={<CompressPage />} />
                 <Route path="/rotate-pdf" element={<RotatePage />} />
                 <Route path="/organize" element={<DeletePagesPage />} />
+                <Route path="/delete-pages-pdf" element={<DeletePagesPage />} />
+                <Route path="/extract-pages-pdf" element={<SplitPage />} />
+                <Route path="/reorder-pdf" element={<DeletePagesPage />} />
                 <Route path="/watermark-pdf" element={<WatermarkPage />} />
                 <Route path="/add-page-numbers" element={<PageNumbersPage />} />
                 <Route path="/add-blank-page" element={<AddBlankPage />} />

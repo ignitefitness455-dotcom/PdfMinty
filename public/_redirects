@@ -22,5 +22,39 @@
 /fonts/* /fonts/:splat 200
 /workers/* /workers/:splat 200
 
+# Explicit subpath routing for prerendered pages (SEO & Social Previews)
+/merge-pdf /merge-pdf/index.html 200
+/merge-pdf/ /merge-pdf/index.html 200
+/split-pdf /split-pdf/index.html 200
+/split-pdf/ /split-pdf/index.html 200
+/compress-pdf /compress-pdf/index.html 200
+/compress-pdf/ /compress-pdf/index.html 200
+/rotate-pdf /rotate-pdf/index.html 200
+/rotate-pdf/ /rotate-pdf/index.html 200
+/organize /organize/index.html 200
+/organize/ /organize/index.html 200
+/delete-pages-pdf /delete-pages-pdf/index.html 200
+/delete-pages-pdf/ /delete-pages-pdf/index.html 200
+/extract-pages-pdf /extract-pages-pdf/index.html 200
+/extract-pages-pdf/ /extract-pages-pdf/index.html 200
+/reorder-pdf /reorder-pdf/index.html 200
+/reorder-pdf/ /reorder-pdf/index.html 200
+/watermark-pdf /watermark-pdf/index.html 200
+/watermark-pdf/ /watermark-pdf/index.html 200
+/add-page-numbers /add-page-numbers/index.html 200
+/add-page-numbers/ /add-page-numbers/index.html 200
+/add-blank-page /add-blank-page/index.html 200
+/add-blank-page/ /add-blank-page/index.html 200
+/protect-pdf /protect-pdf/index.html 200
+/protect-pdf/ /protect-pdf/index.html 200
+/unlock-pdf /unlock-pdf/index.html 200
+/unlock-pdf/ /unlock-pdf/index.html 200
+/image-to-pdf /image-to-pdf/index.html 200
+/image-to-pdf/ /image-to-pdf/index.html 200
+/pdf-to-image /pdf-to-image/index.html 200
+/pdf-to-image/ /pdf-to-image/index.html 200
+/intelligence /intelligence/index.html 200
+/intelligence/ /intelligence/index.html 200
+
 # Client-Side routing fallback for Single Page Application (SPA)
 /* /index.html 200

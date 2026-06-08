@@ -128,7 +128,7 @@ export const SEO_CONFIGS: Record<string, { title: string; description: string; o
 /**
  * 2. useRouteSEO: A high-performance centralized custom hook to cleanly resolve route metadata for DRY code.
  */
-export function useRouteSEO(): Required<Omit<SEOProps, "schemaJson">> & { schemaJson?: Record<string, any> } {
+export function useRouteSEO(): Required<Omit<SEOProps, "schemaJson">> & { schemaJson?: Record<string, any> | Record<string, any>[] } {
   const location = useLocation();
   const isCapacitor = typeof window !== "undefined" && typeof (window as any).Capacitor !== "undefined";
 
@@ -154,29 +154,35 @@ export function useRouteSEO(): Required<Omit<SEOProps, "schemaJson">> & { schema
   // Default image asset
   const ogImage = "https://pdfminty.com/og-image.png";
 
-  const schemaJson = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": cleanPath === "/" ? "PDFMinty" : (baseMeta.title.split(" | ")[0] || "PDFMinty"),
-    "alternateName": "PDF Minty",
-    "url": canonicalUrl,
-    "description": baseMeta.description,
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "All",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "127",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    ...(cleanPath !== "/" && { "browserRequirements": "Requires JavaScript" })
-  };
+  let schemaJson: any;
+
+  if (cleanPath === "/") {
+    // Return undefined to prevent duplicating index.html pre-baked JSON-LD schemas
+    schemaJson = undefined;
+  } else {
+    schemaJson = {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": baseMeta.title.split(" | ")[0] || "PDFMinty",
+      "url": canonicalUrl,
+      "description": baseMeta.description,
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "127",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "browserRequirements": "Requires JavaScript"
+    };
+  }
 
   return {
     title: baseMeta.title,
@@ -220,7 +226,7 @@ export function SEO(props: SEOProps) {
   const ogImage = props.ogImage || routeSEO.ogImage;
   const ogType = props.ogType || routeSEO.ogType;
   const twitterCard = props.twitterCard || routeSEO.twitterCard;
-  const schemaJson = props.schemaJson || routeSEO.schemaJson;
+  const schemaJson = props.schemaJson !== undefined ? props.schemaJson : routeSEO.schemaJson;
 
   const schemaString = typeof schemaJson === "string" 
     ? schemaJson 
