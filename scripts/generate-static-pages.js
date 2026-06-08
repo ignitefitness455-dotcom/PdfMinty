@@ -79,6 +79,24 @@ const routes = [
     title: 'AI PDF Analyzer Online Free | Smart Document Analysis — PDFMinty',
     desc: 'Analyze PDF documents with AI. Extract insights, summaries, and key information.',
     name: 'AI Analyze Document'
+  },
+  {
+    path: '/delete-pages-pdf',
+    title: 'Delete PDF Pages Online Free — PDFMinty',
+    desc: 'Delete unwanted pages from PDF files for free. Privacy-first, client-side processing.',
+    name: 'Delete PDF Pages'
+  },
+  {
+    path: '/extract-pages-pdf',
+    title: 'Extract PDF Pages Online Free — PDFMinty',
+    desc: 'Extract specific pages from PDF files for free. Download selected pages as a new PDF.',
+    name: 'Extract PDF Pages'
+  },
+  {
+    path: '/reorder-pdf',
+    title: 'Reorder PDF Pages Online Free — PDFMinty',
+    desc: 'Reorder and rearrange PDF pages for free. Drag and drop pages into any order.',
+    name: 'Reorder PDF Pages'
   }
 ];
 
@@ -215,7 +233,7 @@ try {
 
   fs.writeFileSync(templatePath, homeHtml, 'utf-8');
   console.log('✅ Updated Root Homepage: index.html with correct canonical attributes');
-  console.log('🎉 Prerendering complete! 13 unique pages generated inside dist/.');
+  console.log('🎉 Prerendering complete! 16 unique pages generated inside dist/.');
 
 } catch (error) {
   console.error('❌ Static pre-rendering build failed unexpectedly:', error.message || error);

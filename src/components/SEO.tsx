@@ -104,6 +104,24 @@ export const SEO_CONFIGS: Record<string, { title: string; description: string; o
     description: "Analyze PDF documents with AI. Extract insights, summaries, and key information.",
     ogTitle: "AI PDF Analyzer Online Free | Smart Document Analysis — PDFMinty",
     ogDescription: "Analyze PDF documents with AI. Extract insights, summaries, and key information.",
+  },
+  "/delete-pages-pdf": {
+    title: "Delete PDF Pages Online Free — PDFMinty",
+    description: "Delete unwanted pages from PDF files for free. Privacy-first, client-side processing. No upload needed.",
+    ogTitle: "Delete PDF Pages Online Free — PDFMinty",
+    ogDescription: "Delete unwanted pages from PDF files for free. Privacy-first, client-side processing.",
+  },
+  "/extract-pages-pdf": {
+    title: "Extract PDF Pages Online Free — PDFMinty",
+    description: "Extract specific pages from PDF files for free. Download selected pages as a new PDF. Client-side processing.",
+    ogTitle: "Extract PDF Pages Online Free — PDFMinty",
+    ogDescription: "Extract specific pages from PDF files for free. Client-side processing.",
+  },
+  "/reorder-pdf": {
+    title: "Reorder PDF Pages Online Free — PDFMinty",
+    description: "Reorder and rearrange PDF pages for free. Drag and drop pages into any order. Privacy-first tool.",
+    ogTitle: "Reorder PDF Pages Online Free — PDFMinty",
+    ogDescription: "Reorder and rearrange PDF pages for free. Privacy-first tool.",
   }
 };
 
@@ -131,10 +149,10 @@ export function useRouteSEO(): Required<Omit<SEOProps, "schemaJson">> & { schema
   }
 
   const baseMeta = SEO_CONFIGS[cleanPath] || SEO_CONFIGS["/"];
-  const canonicalUrl = `https://www.pdfminty.com${cleanPath || "/"}`;
+  const canonicalUrl = `https://pdfminty.com${cleanPath || "/"}`;
 
   // Default image asset
-  const ogImage = "https://www.pdfminty.com/og-image.png";
+  const ogImage = "https://pdfminty.com/og-image.png";
 
   const schemaJson = {
     "@context": "https://schema.org",

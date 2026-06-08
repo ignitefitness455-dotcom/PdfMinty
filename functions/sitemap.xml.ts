@@ -30,8 +30,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     { path: "/intelligence", priority: "0.8", freq: "weekly" },
   ];
 
-  // Hardcode final publication ISO date alignment to avoid indexing shifts while maintaining accuracy
-  const buildDate = "2026-06-08T10:00:00.000Z";
+  // Dynamic ISO date alignment to avoid indexing shifts while maintaining accuracy
+  const buildDate = new Date().toISOString();
 
   // Build compliant, strict sitemap layout
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';

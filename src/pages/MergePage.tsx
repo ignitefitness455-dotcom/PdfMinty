@@ -218,9 +218,9 @@ export default function MergePage() {
           <div className="lg:col-span-12 p-6 md:p-8 flex flex-col justify-between border-slate-100 dark:border-slate-800 border-r">
             <div className="space-y-6">
               <div className="text-left">
-                <h2 className="text-lg font-black text-slate-905 dark:text-slate-50 leading-tight">
+                <h1 className="text-lg font-black text-slate-905 dark:text-slate-50 leading-tight">
                   Merge Multiple PDFs Sequentially
-                </h2>
+                </h1>
                 <p className="text-xs text-slate-500 dark:text-slate-450 mt-1 font-medium">
                   Add two or more files to combine them into one single comprehensive PDF off-the-grid.
                 </p>
