@@ -151,6 +151,30 @@ const toolsList = [
     icon: Brain,
     color: "bg-indigo-50 text-indigo-600 border-indigo-100 hover:border-indigo-300",
   },
+  {
+    id: "delete-pages-pdf" as ToolType,
+    name: "Delete PDF Pages",
+    slug: "delete-pages-pdf",
+    description: "Remove specific pages from a PDF document by index range.",
+    icon: Trash2,
+    color: "bg-rose-50 text-rose-600 border-rose-100 hover:border-rose-300",
+  },
+  {
+    id: "extract-pages-pdf" as ToolType,
+    name: "Extract PDF Pages",
+    slug: "extract-pages-pdf",
+    description: "Extract a subset of pages from a PDF into a new document.",
+    icon: Scissors,
+    color: "bg-blue-50 text-blue-600 border-blue-100 hover:border-blue-300",
+  },
+  {
+    id: "reorder-pdf" as ToolType,
+    name: "Reorder PDF Pages",
+    slug: "reorder-pdf",
+    description: "Drag and drop pages to rearrange the order of your PDF.",
+    icon: RotateCw,
+    color: "bg-amber-50 text-amber-600 border-amber-100 hover:border-amber-300",
+  },
 ];
 
 export const contactSchema = z.object({

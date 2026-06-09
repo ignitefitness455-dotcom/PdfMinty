@@ -513,6 +513,87 @@ export const ToolExplanation: React.FC = () => {
           ]
         };
 
+      case "/delete-pages-pdf":
+        return {
+          toolName: "Delete PDF Pages",
+          title: "Delete PDF Pages Online Free — Remove Unwanted Pages",
+          description: "Precisely remove unwanted pages from any PDF document. Select by index or range and prune them instantly in your browser without uploading.",
+          steps: [
+            { title: "Upload Your PDF", desc: "Load the PDF document you want to edit into the secure workspace." },
+            { title: "Select Pages to Delete", desc: "Pick individual pages or specify index ranges to remove." },
+            { title: "Download Clean PDF", desc: "Process and download the pruned document instantly." }
+          ],
+          features: defaultFeatures,
+          faqs: [
+            {
+              q: "Will the remaining pages keep their original quality?",
+              a: "Yes. Only the selected pages are removed. All other page content, fonts, and images remain unchanged."
+            },
+            {
+              q: "Can I delete multiple pages at once?",
+              a: "Yes. You can select individual pages or input ranges like '2-5, 8' to delete multiple pages in one action."
+            },
+            {
+              q: "Is my document uploaded to a server?",
+              a: "No. All processing happens entirely in your browser. Your files never leave your device."
+            }
+          ]
+        };
+
+      case "/extract-pages-pdf":
+        return {
+          toolName: "Extract PDF Pages",
+          title: "Extract PDF Pages Online Free — Save Selected Pages",
+          description: "Extract specific pages or page ranges from any PDF and save them as a new document. Fast, private, and fully offline.",
+          steps: [
+            { title: "Choose a PDF File", desc: "Upload the PDF you want to extract pages from." },
+            { title: "Specify Page Ranges", desc: "Enter the pages or ranges to extract, e.g. '1-3, 7'." },
+            { title: "Download Extracted PDF", desc: "Click extract and download your new focused document." }
+          ],
+          features: defaultFeatures,
+          faqs: [
+            {
+              q: "Can I extract non-consecutive pages?",
+              a: "Yes. Use comma-separated ranges like '1-3, 7, 10-12' to extract any combination of pages."
+            },
+            {
+              q: "Does extracting pages affect quality?",
+              a: "No. Extracted pages retain their full original resolution and formatting."
+            },
+            {
+              q: "Is there a limit on how many pages I can extract?",
+              a: "No limit. You can extract any number of pages from documents of any size within browser memory."
+            }
+          ]
+        };
+
+      case "/reorder-pdf":
+        return {
+          toolName: "Reorder PDF Pages",
+          title: "Reorder PDF Pages Online Free — Rearrange Page Order",
+          description: "Drag and drop pages to rearrange the sequence of your PDF document. Preview thumbnails and reorder with full visual control, entirely offline.",
+          steps: [
+            { title: "Upload Your Document", desc: "Load any PDF to display its pages as visual thumbnails." },
+            { title: "Drag to Reorder", desc: "Drag page thumbnails into your desired sequence order." },
+            { title: "Save Reordered PDF", desc: "Generate and download the newly ordered PDF instantly." }
+          ],
+          features: defaultFeatures,
+          faqs: [
+            {
+              q: "Can I preview pages before reordering?",
+              a: "Yes. All pages are rendered as visual thumbnails so you can confirm the correct order before saving."
+            },
+            {
+              q: "Is the original file modified?",
+              a: "No. A new PDF is generated with the new order. Your original file is never altered."
+            },
+            {
+              q: "Does reordering work on scanned PDFs?",
+              a: "Yes. Reordering works on all PDF types including scanned image-based documents."
+            }
+          ]
+        };
+
       default:
         return {
           toolName: "PDF Tools Suite",

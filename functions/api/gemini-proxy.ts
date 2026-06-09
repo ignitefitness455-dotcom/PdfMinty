@@ -134,11 +134,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   // 4. Validate Server Credentials
   const apiKey = env.GEMINI_API_KEY;
   if (!apiKey) {
-    const envKeys = Object.keys(env || {}).join(", ") || "none";
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: `Server configuration issue: Gemini API credentials are not set. Found variables: [${envKeys}]. Please ensure GEMINI_API_KEY is spelled correctly and redeploy.` 
+        error: "Server configuration issue: AI service credentials are not configured. Please contact support." 
       }),
       { 
         status: 501, 
