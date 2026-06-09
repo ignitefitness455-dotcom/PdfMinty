@@ -215,9 +215,9 @@ export default function AiAnalyzePage() {
         <div className="flex-1 p-6 md:p-8 flex flex-col justify-between">
           <div className="space-y-6">
             <div className="text-left">
-              <h1 className="text-lg font-black text-slate-905 dark:text-slate-50 leading-tight">
+              <h2 className="text-lg font-black text-slate-905 dark:text-slate-50 leading-tight">
                 AI Deep Analyze PDF Content
-              </h1>
+              </h2>
               <p className="text-xs text-slate-500 dark:text-slate-450 mt-1 font-medium">
                 Locally scan textual layouts and securely query Gemini proxy to summarize, extract details, and answer semantic metrics.
               </p>

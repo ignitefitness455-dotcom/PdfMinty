@@ -236,9 +236,9 @@ export default function AddBlankPage() {
           <div className="lg:col-span-4 p-6 md:p-8 flex flex-col justify-between border-slate-100 dark:border-slate-800 border-r">
             <div className="space-y-6">
               <div className="text-left">
-                <h1 className="text-lg font-black text-slate-905 dark:text-slate-50 leading-tight">
+                <h2 className="text-lg font-black text-slate-905 dark:text-slate-50 leading-tight">
                   Insert Empty Pages
-                </h1>
+                </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-450 mt-1 font-medium">
                   Insert clean blank white pages of custom dimenional sizing anywhere in between layouts programmatically.
                 </p>

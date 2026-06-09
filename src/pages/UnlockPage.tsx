@@ -156,9 +156,9 @@ export default function UnlockPage() {
                     <Unlock className="w-4 h-4" />
                   </div>
                   <div>
-                    <h1 className="text-base font-black text-slate-905 dark:text-slate-50 leading-none">
+                    <h2 className="text-base font-black text-slate-905 dark:text-slate-50 leading-none">
                       Decrypt & Unlock PDF
-                    </h1>
+                    </h2>
                     <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-semibold leading-relaxed">
                       Analyze document status and safely decouple security blocks.
                     </p>
