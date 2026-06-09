@@ -66,8 +66,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
     }
 
-    await kv.put(rateLimitKey, (count + 1).toString(), { expirationTtl: 3600 });
-
     // Parse the JSON body
     let payload: any;
     try {
@@ -84,6 +82,22 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         }
       );
     }
+
+    // BUG FIX: payload অবজেক্ট কিনা যাচাই করো
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Request body must be a valid JSON object." }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": corsOrigin,
+          },
+        }
+      );
+    }
+
+    await kv.put(rateLimitKey, (count + 1).toString(), { expirationTtl: 3600 });
 
     const { message, stack, timestamp, url } = payload;
 
