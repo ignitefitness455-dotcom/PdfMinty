@@ -4,6 +4,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Layout } from "./components/Layout";
 import ToolSkeleton from "./components/ToolSkeleton";
 import Canonical from "./components/Canonical";
+import HowToSchema from "./components/HowToSchema";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PWAController from "./components/PWAController";
 
@@ -26,6 +27,7 @@ const UnlockPage = lazy(() => import("./pages/UnlockPage"));
 const ImgToPdfPage = lazy(() => import("./pages/ImgToPdfPage"));
 const PdfToImgPage = lazy(() => import("./pages/PdfToImgPage"));
 const AiAnalyzePage = lazy(() => import("./pages/AiAnalyzePage"));
+const IsSafePdfArticlePage = lazy(() => import("./pages/IsSafePdfArticlePage"));
 
 export default function App() {
   useEffect(() => {
@@ -40,6 +42,7 @@ export default function App() {
     <HelmetProvider>
       <Router>
         <Canonical />
+        <HowToSchema />
         {typeof window !== "undefined" && window.self === window.top && typeof navigator !== "undefined" && "serviceWorker" in navigator && <PWAController />}
         <Layout>
           <ErrorBoundary>
@@ -62,6 +65,7 @@ export default function App() {
                 <Route path="/image-to-pdf" element={<ImgToPdfPage />} />
                 <Route path="/pdf-to-image" element={<PdfToImgPage />} />
                 <Route path="/intelligence" element={<AiAnalyzePage />} />
+                <Route path="/is-it-safe-to-upload-pdf-to-online-tools" element={<IsSafePdfArticlePage />} />
                 {/* Fallback routing */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

@@ -23,10 +23,10 @@ const coreRoutes = [
   { path: '/unlock-pdf', priority: '0.8', freq: 'weekly' },
   { path: '/image-to-pdf', priority: '0.8', freq: 'weekly' },
   { path: '/pdf-to-image', priority: '0.8', freq: 'weekly' },
-  { path: '/delete-pages-pdf', priority: '0.8', freq: 'weekly' },
-  { path: '/extract-pages-pdf', priority: '0.8', freq: 'weekly' },
-  { path: '/reorder-pdf', priority: '0.8', freq: 'weekly' },
+  { path: '/delete-pages-pdf', priority: '0.5', freq: 'weekly' },
+  { path: '/reorder-pdf', priority: '0.5', freq: 'weekly' },
   { path: '/intelligence', priority: '0.8', freq: 'weekly' },
+  { path: '/is-it-safe-to-upload-pdf-to-online-tools', priority: '0.8', freq: 'weekly' },
 ];
 
 // ANSI colors for clean, professional console logs

@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { z } from "zod";
 import Moon from "lucide-react/icons/moon";
 import Sun from "lucide-react/icons/sun";
+import ShieldAlert from "lucide-react/icons/shield-alert";
 import MessageSquare from "lucide-react/icons/message-square";
 import Mail from "lucide-react/icons/mail";
 import HelpCircle from "lucide-react/icons/help-circle";
@@ -683,6 +684,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               >
                 <HelpCircle className="w-4.5 h-4.5 text-indigo-500" /> Privacy & FAQ
               </button>
+              <Link
+                to="/is-it-safe-to-upload-pdf-to-online-tools"
+                onClick={() => window.scrollTo(0, 0)}
+                className="inline-flex items-center gap-2 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer text-slate-600 dark:text-slate-400 no-underline"
+              >
+                <ShieldAlert className="w-4.5 h-4.5 text-rose-500" /> Is It Safe?
+              </Link>
             </div>
 
             <div className="max-w-2xl text-xs text-slate-500 dark:text-slate-400 space-y-3 leading-relaxed border-t border-slate-100 dark:border-slate-900 pt-6">
@@ -696,6 +704,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 to remote servers. All calculations and file generations are
                 performed securely inside the user's browser using local Web
                 Worker technology.
+              </p>
+              <p className="font-medium text-slate-500 dark:text-slate-450">
+                As a leading browser based pdf toolkit designed entirely for online pdf tools privacy and security, PDFMinty delivers state-of-the-art document conversion, compression, and merging without any risk of metadata loss or remote exposure. If you are seeking the ultimate free pdf editor no account package on the web today, rely on PDFMinty for free pdf tools no upload required—built for safe, local document workflows under full device control.
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-500 font-semibold uppercase tracking-widest">
                 Developed by & under Proprietorship of PDFMinty. Strictly safe & distributed.

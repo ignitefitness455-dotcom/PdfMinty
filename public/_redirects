@@ -33,12 +33,15 @@
 /rotate-pdf/ /rotate-pdf/index.html 200
 /organize /organize/index.html 200
 /organize/ /organize/index.html 200
-/delete-pages-pdf /delete-pages-pdf/index.html 200
-/delete-pages-pdf/ /delete-pages-pdf/index.html 200
-/extract-pages-pdf /extract-pages-pdf/index.html 200
-/extract-pages-pdf/ /extract-pages-pdf/index.html 200
-/reorder-pdf /reorder-pdf/index.html 200
-/reorder-pdf/ /reorder-pdf/index.html 200
+
+# Canonical Redirects for duplicate routes (301)
+/delete-pages-pdf /organize 301
+/delete-pages-pdf/ /organize 301
+/reorder-pdf /organize 301
+/reorder-pdf/ /organize 301
+/extract-pages-pdf /split-pdf 301
+/extract-pages-pdf/ /split-pdf 301
+
 /watermark-pdf /watermark-pdf/index.html 200
 /watermark-pdf/ /watermark-pdf/index.html 200
 /add-page-numbers /add-page-numbers/index.html 200

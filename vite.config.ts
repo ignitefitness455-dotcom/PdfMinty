@@ -36,9 +36,10 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: 'PdfMinty — Secure Offline PDF Studio',
         short_name: 'PdfMinty',
-        description: 'Client-side PDF toolkit. Prune, merge, protect, number, compress, and sign secure documents offline.',
-        theme_color: '#020617',
-        background_color: '#020617',
+        description: 'Free browser-based PDF tools. Merge, split, compress PDFs privately — no upload needed.',
+        theme_color: '#10b981',
+        background_color: '#f8fafc',
+        categories: ["utilities", "productivity"],
         start_url: '/',
         display: 'standalone',
         orientation: 'portrait',
@@ -62,7 +63,7 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg,woff,woff2,ico}'],
+        globPatterns: ['**/*.{js,css,html,png,svg,woff,woff2,ico,wasm}'],
         runtimeCaching: [
           {
             // App shell / Navigation: NetworkFirst triggers fallback to cache when offline
@@ -88,6 +89,21 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'static-assets-cache',
               expiration: {
                 maxEntries: 100,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // WASM files: CacheFirst and hold for 30 days
+            urlPattern: ({ url }) => url.pathname.endsWith('.wasm'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'wasm-cache',
+              expiration: {
+                maxEntries: 10,
                 maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
               },
               cacheableResponse: {
@@ -127,6 +143,7 @@ export default defineConfig(({ mode }) => ({
     strictPort: true,
   },
   optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],
     esbuildOptions: {
       target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
     },
@@ -144,6 +161,7 @@ export default defineConfig(({ mode }) => ({
     },
     cssCodeSplit: true,
     assetsInlineLimit: 4096,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -152,6 +170,11 @@ export default defineConfig(({ mode }) => ({
           'pdfjs-dist': ['pdfjs-dist'],
           // React ecosystem in one vendor chunk
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'canvas-confetti': ['canvas-confetti'],
+          'jszip': ['jszip'],
+          'react-markdown': ['react-markdown'],
+          'i18n': ['i18next', 'react-i18next'],
+          'react-helmet-async': ['react-helmet-async'],
         },
       },
     },

@@ -6,6 +6,11 @@ import Sparkles from "lucide-react/icons/sparkles";
 import Shield from "lucide-react/icons/shield";
 import ChevronUp from "lucide-react/icons/chevron-up";
 import ChevronDown from "lucide-react/icons/chevron-down";
+import UserX from "lucide-react/icons/user-x";
+import Gift from "lucide-react/icons/gift";
+import Layers from "lucide-react/icons/layers";
+import WifiOff from "lucide-react/icons/wifi-off";
+import Zap from "lucide-react/icons/zap";
 import { prefetchToolChunk } from "../core/utils";
 import { useDebounce } from "../hooks/useDebounce";
 import { SearchComponent } from "../components/SearchComponent";
@@ -66,13 +71,13 @@ export default function HomePage() {
           WebAssembly & Client-Side Sandbox Active
         </div>
         <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-4 font-sans">
-          Full-Featured Professional{" "}
+          Free PDF Tools{" "}
           <span className="bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent font-extrabold">
-            PDF Studio
+            No Upload
           </span>
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base font-medium max-w-xl mx-auto leading-relaxed">
-          Modify, protect, transform, and number your confidential papers with professional visual previews completely in-browser. Zero servers. Zero CORS/CSP timeouts. Complete offline independence.
+          PDFMinty is a browser based pdf toolkit that lets you merge, split, and compress files locally inside your device's memory for maximum privacy. Our free online pdf tools that don't upload files keep your highly confidential worksheets and contracts 100% secure with no accounts required.
         </p>
       </div>
 
@@ -278,58 +283,118 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Why Choose PDFMinty? */}
+      {/* Why Choose PDFMinty? - Features Grid and Trust Section */}
       <div className="mt-20 relative z-20">
         <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-slate-50 text-center tracking-tight mb-2">
-          {t("why_title")}
+          Why Choose PDFMinty?
         </h2>
         <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">
-          {t("why_desc")}
+          Professional grade tools without the premium price tag.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div
-            id="why-card-1"
+            id="why-card-privacy"
             className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
           >
             <div className="w-16 h-16 rounded-full bg-sky-50 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-900/40 flex items-center justify-center mb-5 shadow-sm">
               <Shield className="w-6 h-6 text-sky-500 dark:text-sky-400 fill-sky-500/10" />
             </div>
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
-              100% Offline Privacy
+              Privacy First
             </h3>
             <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed font-semibold">
-              No files are ever uploaded or transmitted across wire connections. Everything stays completely bounded on-device.
+              All calculations run inside your browser cache so that none of your personal information, corporate ledgers, or private documents are leaked.
             </p>
           </div>
 
           <div
-            id="why-card-2"
+            id="why-card-account"
             className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
           >
-            <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 flex items-center justify-center mb-5 shadow-sm">
-              <Sparkles className="w-6 h-6 text-emerald-500 dark:text-emerald-400 fill-emerald-500/10" />
+            <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/40 flex items-center justify-center mb-5 shadow-sm">
+              <UserX className="w-6 h-6 text-rose-500 dark:text-rose-400 fill-rose-500/10" />
             </div>
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
-              High-Performance Rendering
+              No Account
             </h3>
             <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed font-semibold">
-              Blazing fast WebAssembly file stitching allows page scaling and transformations within a single hardware step.
+              Skip tedious signup screens and subscriptions—enjoy our full-featured toolkit with absolutely no email addresses, logins, or accounts needed.
             </p>
           </div>
 
           <div
-            id="why-card-3"
+            id="why-card-free"
+            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
+          >
+            <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/40 flex items-center justify-center mb-5 shadow-sm">
+              <Gift className="w-6 h-6 text-amber-500 dark:text-amber-400 fill-amber-500/10" />
+            </div>
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
+              Completely Free
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed font-semibold">
+              Enjoy unlimited editing, compression, and division with no paywalls, hidden monthly fees, restricted trial counts, or watermarks.
+            </p>
+          </div>
+
+          <div
+            id="why-card-tools"
             className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
           >
             <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-center mb-5 shadow-sm">
-              <span className="text-xl font-bold">💎</span>
+              <Layers className="w-6 h-6 text-indigo-500 dark:text-indigo-400 fill-indigo-500/10" />
             </div>
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
-              100% Free Lifetime
+              13 Tools
             </h3>
             <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed font-semibold">
-              No premium lockers, no mandatory user accounts, and zero watermarks embedded on outputs.
+              Get complete document coverage with 13 local tools including Merge, Split, Compress, Rotate, Watermark, and even private AI PDF Analysis.
+            </p>
+          </div>
+
+          <div
+            id="why-card-offline"
+            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
+          >
+            <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 flex items-center justify-center mb-5 shadow-sm">
+              <WifiOff className="w-6 h-6 text-emerald-500 dark:text-emerald-400 fill-emerald-500/10" />
+            </div>
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
+              Works Offline
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed font-semibold">
+              Once loaded, our WebAssembly-powered engines operate without internet capability, enabling complete workflow independence on the go.
+            </p>
+          </div>
+
+          <div
+            id="why-card-processing"
+            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
+          >
+            <div className="w-16 h-16 rounded-full bg-violet-50 dark:bg-violet-950/40 border border-violet-100 dark:border-violet-950/40 flex items-center justify-center mb-5 shadow-sm">
+              <Zap className="w-6 h-6 text-violet-500 dark:text-violet-400 fill-violet-500/10" />
+            </div>
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
+              Fast Processing
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed font-semibold">
+              Decode and compile large documents in milliseconds utilizing your native device's CPU instead of waiting for slow network queues.
+            </p>
+          </div>
+        </div>
+
+        {/* Privacy and Trust Section */}
+        <div className="mt-14 bg-slate-100/60 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-800 p-8 md:p-10 rounded-3xl relative overflow-hidden text-center z-20">
+          <div className="max-w-3xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-black tracking-widest uppercase">
+              🛡️ Air-Gapped Sandbox Integrity
+            </div>
+            <h2 className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
+              Why PDFMinty Is 100% Safe For Your Sensitive Data
+            </h2>
+            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
+              PDFMinty is built on cutting-edge WebAssembly (Wasm) and local browser-side libraries to decode and construct PDFs directly in your device's memory. When you choose our online pdf tools privacy is guaranteed because your sensitive files never travel across the internet or touch remote servers. All text extractions, coordinate translations, and cryptographic protections run locally, delivering a seamless and 100% airtight document workspace on your native browser sandbox.
             </p>
           </div>
         </div>
@@ -347,24 +412,28 @@ export default function HomePage() {
         <div className="space-y-4">
           {[
             {
-              q: "Privacy & Security: Are my files safe?",
-              a: "Yes, completely! PDFMinty operates 100% client-side. Your files are processed local to your browser using safe WebAssembly and JavaScript compilation. They are never transmitted to any external server or stored anywhere online.",
+              q: "Are online PDF tools safe to use?",
+              a: "Most cloud services require you to upload personal worksheets, financial invoices, or legal contracts to remote databases, exposing you to dangerous hacks and corporate data leaks. PDFMinty entirely redefines this model by processing files locally inside your browser sandbox. Your data remains fully encapsulated inside your personal device, making it the safest document utility online.",
             },
             {
-              q: "Accessibility: How accessible is PDFMinty?",
-              a: "PDFMinty values inclusion. Our framework implements a robust PDF Accessibility Checklist:\n- Skip Link: An active 'Skip to Content' bypass link allows voice & keyboard users to skip immediately to active tool workspaces.\n- Accessible File Uploads: Uploaders support full focus, Space/Enter keys, dragover notifications, and status announcements via aria-live regions.\n- Keyboard Focus Rings: Custom high-contrast outline highlights enable exact visual focus in both light and dark themes.\n- Screen Readers: Elements are formatted with strict semantic headings, associated input labels, and svg 'aria-hidden' locks to cancel read-out clutter.",
+              q: "Does PdfMinty upload my files?",
+              a: "Never. PDFMinty operates 100% offline-first. When you compile, organize, compress, or crop pages, our client-side Web Workers execute every calculation directly in your browser cache. We do not host server storage or upload pathways for your raw files, guaranteeing absolute data confidentiality.",
             },
             {
-              q: "Is it really free?",
-              a: "Yes, PDFMinty is 100% free with no premium subscriptions, no lockouts, and no watermarks. We believe professional formatting utilities should be accessible to everyone.",
+              q: "Is PdfMinty completely free?",
+              a: "Yes. Every single tool—including our state-of-the-art AI PDF Analyzer—is 100% free with no premium gatekeepers, mandatory subscription cycles, trial volume limits, or watermarks embedded on your outputs.",
             },
             {
-              q: "Do I need to install anything?",
-              a: "No installation is required. PDFMinty runs directly in any modern device browser (Chrome, Safari, Firefox, Edge) both on desktop and mobile platforms.",
+              q: "Do I need to create an account?",
+              a: "No. Since no processing takes place on external cloud servers, there is never a need to register, verify email addresses, or log into user accounts. You can access all professional features instantly from any device.",
             },
             {
-              q: "Does it work offline?",
-              a: "Yes! Because the application uses persistent client-side caching of workers and libraries, you can continue loading and processing your documents even without an active internet connection.",
+              q: "Does PdfMinty work without internet?",
+              a: "Yes, absolutely! Thanks to browser-level Service Workers and local script caching, you can open, reload, and fully operate all our offline tools even when disconnected from cellular or Wi-Fi network systems.",
+            },
+            {
+              q: "What PDF tools does PdfMinty offer?",
+              a: "PDFMinty is a comprehensive, client-side suite hosting 13 advanced tools. This includes PDF Merging, Page Extraction (Split), Smart Compression, Rotation, Deleting Pages, Watermarking, Adding Blank Pages, Password Protection, Password Removal (Unlock), Image-to-PDF Conversion, PDF-to-Image Extraction, and our secure, local AI PDF Document Analyzer.",
             },
           ].map((faq, idx) => {
             const isOpen = openFaqIndex === idx;
