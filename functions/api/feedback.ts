@@ -20,7 +20,43 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
-  // Reject anything that is not POST
+  // GET /api/feedback — Public testimonials endpoint
+  if (request.method === "GET") {
+    const kv = context.env.RATELIMIT_KV;
+    if (!kv) {
+      return new Response(JSON.stringify({ success: false, reviews: [] }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": corsOrigin,
+          "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+        },
+      });
+    }
+
+    try {
+      const indexRaw = await kv.get("feedback_index");
+      const reviews = indexRaw ? JSON.parse(indexRaw) : [];
+      return new Response(JSON.stringify({ success: true, reviews }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": corsOrigin,
+          "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+        },
+      });
+    } catch {
+      return new Response(JSON.stringify({ success: true, reviews: [] }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": corsOrigin,
+        },
+      });
+    }
+  }
+
+  // Reject anything that is not POST or GET
   if (request.method !== "POST") {
     return new Response(
       JSON.stringify({ success: false, error: "Method Not Allowed" }),
@@ -86,7 +122,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
     }
 
-    // BUG FIX: payload অবজেক্ট কিনা কঠোরভাবে যাচাই করো
+    // payload must be a valid object
     if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
       return new Response(
         JSON.stringify({ success: false, error: "Request body must be a valid JSON object." }),
@@ -163,6 +199,44 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     await kv.put(storageKey, storageValue);
 
+    // Update feedback_index if this is a high-quality review (rating >= 4, comment >= 6 words)
+    const wordCount = comment.trim().split(/\s+/).filter(Boolean).length;
+    if (parsedRating >= 4 && wordCount >= 6) {
+      try {
+        const indexRaw = await kv.get("feedback_index");
+        const existingIndex: any[] = indexRaw ? JSON.parse(indexRaw) : [];
+
+        // Mask email for public display
+        let displayEmail: string | undefined = undefined;
+        if (email) {
+          const emailParts = email.split("@");
+          if (emailParts.length === 2) {
+            const [localPart, domain] = emailParts;
+            const maskedLocal = localPart.length > 2
+              ? localPart[0] + "***" + localPart[localPart.length - 1]
+              : "***";
+            displayEmail = `${maskedLocal}@${domain}`;
+          } else {
+            displayEmail = "***";
+          }
+        }
+
+        const newEntry = {
+          rating: parsedRating,
+          comment,
+          displayEmail: displayEmail || null,
+          timestamp: cleanTimestamp,
+        };
+
+        // Keep only the latest 15 high-quality reviews
+        const updatedIndex = [newEntry, ...existingIndex].slice(0, 15);
+        await kv.put("feedback_index", JSON.stringify(updatedIndex));
+      } catch (indexErr: any) {
+        console.error("Failed to update feedback_index:", indexErr);
+        // Non-fatal — main feedback was already saved
+      }
+    }
+
     // Send email notification via Resend if API key is present
     const resendApiKey = context.env.RESEND_API_KEY;
     if (resendApiKey) {
@@ -218,7 +292,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         console.error("Error sending Admin feedback email via Resend:", err);
       }
 
-      // Try sending a confirmation to the user if they provided an email (optional setup, handles sandbox limitations)
+      // Try sending a confirmation to the user if they provided an email
       if (email) {
         try {
           const userEmailResponse = await fetch("https://api.resend.com/emails", {
@@ -252,7 +326,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
           if (!userEmailResponse.ok) {
             const errMsg = await userEmailResponse.text();
-            console.warn("Resend User feedback confirmation skipped or rejected (This matches expectation if domain is unverified on sandbox):", userEmailResponse.status, errMsg);
+            console.warn("Resend User feedback confirmation skipped or rejected:", userEmailResponse.status, errMsg);
           }
         } catch (err: any) {
           console.warn("Error sending User feedback confirmation email via Resend:", err);

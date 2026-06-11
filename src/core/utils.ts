@@ -91,9 +91,15 @@ export const triggerDownload = (
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;
+  link.style.display = "none";
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  // Delay removal to allow mobile browsers time to process the download trigger
+  setTimeout(() => {
+    if (document.body.contains(link)) {
+      document.body.removeChild(link);
+    }
+  }, 300);
 
   try {
     confetti({

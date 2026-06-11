@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLayout } from "../components/Layout";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,8 @@ import Gift from "lucide-react/icons/gift";
 import Layers from "lucide-react/icons/layers";
 import WifiOff from "lucide-react/icons/wifi-off";
 import Zap from "lucide-react/icons/zap";
+import Star from "lucide-react/icons/star";
+import MessageSquare from "lucide-react/icons/message-square";
 import { prefetchToolChunk } from "../core/utils";
 import { useDebounce } from "../hooks/useDebounce";
 import { SearchComponent } from "../components/SearchComponent";
@@ -22,6 +24,65 @@ export default function HomePage() {
   const { t } = useTranslation();
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Testimonials state
+  const [testimonials, setTestimonials] = useState<Array<{
+    rating: number;
+    comment: string;
+    displayEmail: string | null;
+    timestamp: string;
+  }>>([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+
+  // Fetch public testimonials on mount
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/feedback")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && data.success && Array.isArray(data.reviews)) {
+          setTestimonials(data.reviews);
+        }
+      })
+      .catch(() => {
+        // Silently fail — section just won't render
+      })
+      .finally(() => {
+        if (!cancelled) setTestimonialsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Generate a consistent pastel avatar color based on first letter
+  const getAvatarColor = (char: string): string => {
+    const colors = [
+      "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
+      "bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300",
+      "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300",
+      "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300",
+      "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300",
+      "bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300",
+    ];
+    const code = char.toUpperCase().charCodeAt(0) || 65;
+    return colors[code % colors.length];
+  };
+
+  // Format relative time
+  const formatRelativeTime = (isoString: string): string => {
+    try {
+      const date = new Date(isoString);
+      const now = new Date();
+      const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffDays === 0) return "Today";
+      if (diffDays === 1) return "Yesterday";
+      if (diffDays < 7) return `${diffDays} days ago`;
+      if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+      if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+      return `${Math.floor(diffDays / 365)} years ago`;
+    } catch {
+      return "";
+    }
+  };
 
   // Debounce the search query by 300ms
   const { debouncedValue, isDebouncing } = useDebounce(searchQuery, 300);
@@ -183,7 +244,7 @@ export default function HomePage() {
                   <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 leading-snug mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                     {tool.name}
                   </h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed font-semibold">
                     {tool.description}
                   </p>
                 </div>
@@ -246,7 +307,7 @@ export default function HomePage() {
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2">
               {t("step_1_title")}
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-xs font-medium">
+            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-xs font-semibold">
               {t("step_1_desc")}
             </p>
           </div>
@@ -261,7 +322,7 @@ export default function HomePage() {
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2">
               {t("step_2_title")}
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-xs font-medium">
+            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-xs font-semibold">
               {t("step_2_desc")}
             </p>
           </div>
@@ -276,7 +337,7 @@ export default function HomePage() {
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2">
               {t("step_3_title")}
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-xs font-medium">
+            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-xs font-semibold">
               {t("step_3_desc")}
             </p>
           </div>
@@ -399,6 +460,83 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* What Our Users Say — Public Testimonials Wall */}
+      {!testimonialsLoading && testimonials.length > 0 && (
+        <div className="mt-20 relative z-20">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-800/40 rounded-full text-amber-600 dark:text-amber-400 text-xs font-semibold mb-4 leading-none">
+              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+              Real User Reviews
+            </div>
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tight mb-2">
+              What Our Users Say
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm max-w-md mx-auto font-medium">
+              Genuine feedback from people who use PDFMinty every day.
+            </p>
+          </div>
+
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-5 space-y-5">
+            {testimonials.map((review, idx) => {
+              const displayName = review.displayEmail
+                ? review.displayEmail.split("@")[0]
+                : "Anonymous";
+              const avatarChar = displayName[0]?.toUpperCase() || "A";
+              const avatarColor = getAvatarColor(avatarChar);
+              const relativeTime = formatRelativeTime(review.timestamp);
+
+              return (
+                <div
+                  key={idx}
+                  className="break-inside-avoid bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all duration-300"
+                >
+                  {/* Star Rating */}
+                  <div className="flex items-center gap-0.5 mb-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-3.5 h-3.5 ${
+                          i < review.rating
+                            ? "fill-amber-400 text-amber-400"
+                            : "fill-slate-100 text-slate-200 dark:fill-slate-800 dark:text-slate-700"
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Comment */}
+                  <div className="flex items-start gap-2 mb-4">
+                    <MessageSquare className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 mt-0.5 shrink-0" />
+                    <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed font-semibold">
+                      {review.comment}
+                    </p>
+                  </div>
+
+                  {/* User info */}
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${avatarColor}`}
+                    >
+                      {avatarChar}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-slate-700 dark:text-slate-200 text-xs font-semibold truncate">
+                        {review.displayEmail || "Anonymous User"}
+                      </p>
+                      {relativeTime && (
+                        <p className="text-slate-400 dark:text-slate-500 text-[10px] font-semibold">
+                          {relativeTime}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Frequently Asked Questions */}
       <div

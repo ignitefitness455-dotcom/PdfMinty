@@ -16,53 +16,87 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
   const [imgUrl, setImgUrl] = useState<string>("");
   const [rendering, setRendering] = useState<boolean>(false);
 
+  // Use refs to track current state inside the observer callback
+  // This avoids stale closures without adding them to the dependency array
+  const imgUrlRef = useRef(imgUrl);
+  const renderingRef = useRef(rendering);
+
   useEffect(() => {
+    imgUrlRef.current = imgUrl;
+  }, [imgUrl]);
+
+  useEffect(() => {
+    renderingRef.current = rendering;
+  }, [rendering]);
+
+  useEffect(() => {
+    // Reset on new document/page
+    setImgUrl("");
+    setRendering(false);
+    imgUrlRef.current = "";
+    renderingRef.current = false;
+
+    if (!pdfDoc) return;
+
     let active = true;
     let canvasElement: HTMLCanvasElement | null = null;
 
+    const renderPage = async () => {
+      if (renderingRef.current || imgUrlRef.current) return;
+
+      setRendering(true);
+      renderingRef.current = true;
+
+      try {
+        const page = await pdfDoc.getPage(pageIndex + 1);
+        if (!active) return;
+
+        const viewport = page.getViewport({ scale: 0.4 });
+        const canvas = document.createElement("canvas");
+        canvasElement = canvas;
+        const context = canvas.getContext("2d");
+
+        if (!context) return;
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({
+          canvasContext: context,
+          viewport,
+          canvas,
+        }).promise;
+
+        if (!active) return;
+
+        const localUrl = canvas.toDataURL("image/jpeg", 0.85);
+        setImgUrl(localUrl);
+        imgUrlRef.current = localUrl;
+      } catch (err) {
+        console.error("LazyPDFPage render failed:", err);
+      } finally {
+        if (active) {
+          setRendering(false);
+          renderingRef.current = false;
+        }
+        if (canvasElement) {
+          canvasElement.width = 0;
+          canvasElement.height = 0;
+        }
+      }
+    };
+
+    // Observer fires once when element enters viewport
+    // Dependencies do NOT include imgUrl/rendering — use refs instead
     const observer = new IntersectionObserver(
       ([entry]) => {
-        console.debug(`[PDFMINTY-DEBUG] LazyPDFPage: observer fired. pageIndex=${pageIndex}, isIntersecting=${entry.isIntersecting}, hasImgUrl=${!!imgUrl}, isRendering=${rendering}, hasPdfDoc=${!!pdfDoc}`);
-        if (entry.isIntersecting && !imgUrl && !rendering && pdfDoc) {
-          setRendering(true);
-          console.debug(`[PDFMINTY-DEBUG] LazyPDFPage: page render start for pageIndex=${pageIndex}`);
-          pdfDoc.getPage(pageIndex + 1).then(async (page: any) => {
-            if (!active) return;
-            const viewport = page.getViewport({ scale: 0.4 });
-            const canvas = document.createElement("canvas");
-            canvasElement = canvas;
-            const context = canvas.getContext("2d");
-
-            if (context) {
-              canvas.width = viewport.width;
-              canvas.height = viewport.height;
-              console.debug(`[PDFMINTY-DEBUG] LazyPDFPage: canvas dimensions designed for pageIndex=${pageIndex}: width=${canvas.width}, height=${canvas.height}`);
-              try {
-                await page.render({
-                  canvasContext: context,
-                  viewport: viewport,
-                  canvas: canvas,
-                }).promise;
-
-                if (!active) return;
-                const localUrl = canvas.toDataURL("image/jpeg", 0.85);
-                setImgUrl(localUrl);
-                console.debug(`[PDFMINTY-DEBUG] LazyPDFPage: render successful & imgUrl set for pageIndex=${pageIndex}, urlLength=${localUrl.length}`);
-              } catch (err) {
-                console.error("Lazy render page failed:", err);
-                console.debug(`[PDFMINTY-DEBUG] LazyPDFPage: render failure for pageIndex=${pageIndex}. Error:`, err);
-              } finally {
-                if (active) setRendering(false);
-                canvas.width = 0;
-                canvas.height = 0;
-              }
-            }
-          });
+        if (entry.isIntersecting) {
+          // Disconnect immediately — we only need to trigger once
+          observer.disconnect();
+          renderPage();
         }
       },
-      {
-        rootMargin: "120px",
-      },
+      { rootMargin: "120px" }
     );
 
     if (containerRef.current) {
@@ -77,7 +111,7 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
         canvasElement.height = 0;
       }
     };
-  }, [pdfDoc, pageIndex, imgUrl, rendering]);
+  }, [pdfDoc, pageIndex]); // ← Only pdfDoc and pageIndex — NOT imgUrl or rendering
 
   return (
     <div
@@ -87,7 +121,15 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
       {imgUrl ? (
         <img
           src={imgUrl}
-          className={`max-h-full max-w-full object-contain shadow-sm rounded transition-all duration-300 ${rotation === 90 ? "rotate-90" : rotation === 180 ? "rotate-180" : rotation === 270 ? "-rotate-90" : ""}`}
+          className={`max-h-full max-w-full object-contain shadow-sm rounded transition-all duration-300 ${
+            rotation === 90
+              ? "rotate-90"
+              : rotation === 180
+              ? "rotate-180"
+              : rotation === 270
+              ? "-rotate-90"
+              : ""
+          }`}
           alt={`page ${pageIndex}`}
           referrerPolicy="no-referrer"
           loading={pageIndex < 2 ? "eager" : "lazy"}
