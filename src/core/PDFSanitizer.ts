@@ -7,6 +7,13 @@
  * client-side to prevent parser crashes on corrupted headers, trailing junk, or encrypted payloads.
  */
 
+// Safe development-only logger — stripped in production by Vite's tree-shaker
+const IS_DEV = typeof import.meta !== "undefined" &&
+  (import.meta as any).env?.DEV === true;
+const debugLog = IS_DEV
+  ? (...args: unknown[]) => console.debug(...args)
+  : (..._args: unknown[]) => { /* noop in production */ };
+
 export interface SanitizationResult {
   /** The sanitized and normalized stream of PDF bytes */
   bytes: Uint8Array;
@@ -28,7 +35,8 @@ export class PDFSanitizer {
    * corruption of incremental updates or digital signatures.
    */
   public static sanitize(inputBytes: Uint8Array, options?: { skipEncryptionCheck?: boolean }): SanitizationResult {
-    console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): starting. Input size=${inputBytes ? inputBytes.length : 0} bytes`);
+    // SECURITY FIX: Replaced console.debug with development-only logger to prevent info disclosure in prod consoles
+    debugLog(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): starting. Input size=${inputBytes ? inputBytes.length : 0} bytes`);
     if (!inputBytes || inputBytes.length < 5) {
       throw new Error("Invalid PDF stream: Input buffer is empty or structurally too small.");
     }
@@ -38,7 +46,8 @@ export class PDFSanitizer {
 
     // 1. Viewport & Heuristic Magic Header Scanner
     const headerOffset = this.findHeaderOffset(bytes);
-    console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): findHeaderOffset result index=${headerOffset}. Header found=${headerOffset !== -1}`);
+    // SECURITY FIX: Replaced console.debug with development-only logger
+    debugLog(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): findHeaderOffset result index=${headerOffset}. Header found=${headerOffset !== -1}`);
     if (headerOffset === -1) {
       throw new Error(
         "Fatal Parser Exception: No compliant PDF header magic ('%PDF-') found within the first 1024 bytes."
@@ -62,7 +71,8 @@ export class PDFSanitizer {
       isEncrypted = this.checkEncryptionBinary(bytes);
     }
 
-    console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): encryption detected=${isEncrypted}`);
+    // SECURITY FIX: Replaced console.debug with development-only logger
+    debugLog(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): encryption detected=${isEncrypted}`);
 
     if (isEncrypted && !options?.skipEncryptionCheck) {
       throw new Error(
@@ -72,7 +82,8 @@ export class PDFSanitizer {
 
     // 4. Do NOT truncate at %%EOF — return the full buffer
     // Only sanitize via pdf-lib's downstream load and re-save pipelines
-    console.debug(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): complete. Output size=${bytes.length} bytes`);
+    // SECURITY FIX: Replaced console.debug with development-only logger
+    debugLog(`[PDFMINTY-DEBUG] PDFSanitizer.sanitize(): complete. Output size=${bytes.length} bytes`);
     return {
       bytes,
       headerRecovered,

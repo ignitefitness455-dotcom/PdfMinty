@@ -36,9 +36,15 @@ self.onmessage = async (e: MessageEvent) => {
       case 'add-blank':
         bytes = await ops.addBlankPagePDF(payload);
         break;
-      case 'img-to-pdf':
-        bytes = await ops.imagesToPDF(payload);
-        break;
+      case 'img-to-pdf': {
+        // FIXED: Integrate with the new ImgToPdfResult return schema ({ bytes, warnings })
+        const result = await ops.imagesToPDF(payload);
+        self.postMessage(
+          { id, success: true, bytes: result.bytes, warnings: result.warnings },
+          [result.bytes.buffer] as any
+        );
+        return;
+      }
       case 'compress':
         bytes = await ops.compressPDF(payload);
         break;

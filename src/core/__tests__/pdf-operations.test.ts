@@ -205,9 +205,9 @@ describe('PDF Operations — Expanded Test Suite', () => {
 
       // In JSDOM test suite environments, full OffscreenCanvas is stubbed or missing,
       // which verifies the native "lossless structural fallback" code path in compressPDF
-      const compressedHigh = await compressPDF({ fileBytes: pdfBytes, quality: 'high' });
-      const compressedMed = await compressPDF({ fileBytes: pdfBytes, quality: 'medium' });
-      const compressedLow = await compressPDF({ fileBytes: pdfBytes, quality: 'low' });
+      const compressedHigh = await compressPDF({ fileBytes: pdfBytes, quality: 'maximum-compression' });
+      const compressedMed = await compressPDF({ fileBytes: pdfBytes, quality: 'balanced' });
+      const compressedLow = await compressPDF({ fileBytes: pdfBytes, quality: 'high-quality' });
 
       const docHigh = await loadPDF(compressedHigh);
       const docMed = await loadPDF(compressedMed);
@@ -439,7 +439,7 @@ describe('PDF Operations — Expanded Test Suite', () => {
         96, 130
       ]);
 
-      const pdf = await imagesToPDF({
+      const { bytes: pdf } = await imagesToPDF({
         imageFilesData: [
           { bytes: tinyPngBytes, type: 'image/png', name: 'pixel.png' }
         ],

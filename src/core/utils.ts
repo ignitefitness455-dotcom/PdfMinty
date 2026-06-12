@@ -2,6 +2,14 @@ import confetti from "canvas-confetti";
 
 let cachedPdfJs: any = null;
 
+// Vite HMR: clear PDF.js cache on hot reload so dev changes take effect immediately
+// This code is stripped by Vite in production builds (import.meta.hot is undefined)
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    cachedPdfJs = null;
+  });
+}
+
 export const getPdfJs = async () => {
   if (cachedPdfJs) return cachedPdfJs;
 
@@ -95,11 +103,14 @@ export const triggerDownload = (
   document.body.appendChild(link);
   link.click();
   // Delay removal to allow mobile browsers time to process the download trigger
+  // PERFORMANCE & SECURITY FIX: Increased timeout to 1000ms for slower systems/mobile browsers,
+  // and called URL.revokeObjectURL(url) to prevent massive memory leaks retainment of generated Blobs.
   setTimeout(() => {
     if (document.body.contains(link)) {
       document.body.removeChild(link);
     }
-  }, 300);
+    URL.revokeObjectURL(url);
+  }, 1000);
 
   try {
     confetti({
@@ -145,4 +156,3 @@ export const prefetchToolChunk = (slug: string) => {
     loader().catch((err) => console.debug("Prefetching route chunk error:", err));
   }
 };
-

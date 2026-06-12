@@ -1,4 +1,10 @@
-import { sanitizeString } from "../utils/validation";
+import { 
+  sanitizeForStorage, 
+  isValidUrl, 
+  MAX_MESSAGE_LENGTH, 
+  MAX_STACK_LENGTH, 
+  MAX_URL_LENGTH 
+} from "../utils/validation";
 import { getCorsOrigin, getCorsHeaders } from "../utils/cors";
 
 interface Env {
@@ -35,10 +41,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         JSON.stringify({ success: false, error: "RATELIMIT_KV namespace binding is missing or configure error" }),
         {
           status: 500,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": corsOrigin,
-          },
+          // SECURITY FIX: Replaced inconsistent manual headers with getCorsHeaders to prevent leaks or bypasses
+          headers: getCorsHeaders(corsOrigin),
         }
       );
     }
@@ -58,10 +62,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         JSON.stringify({ success: false, error: "Rate limit exceeded" }),
         {
           status: 429,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": corsOrigin,
-          },
+          // SECURITY FIX: Avoid manual cors declarations. Standardize via getCorsHeaders
+          headers: getCorsHeaders(corsOrigin),
         }
       );
     }
@@ -75,24 +77,20 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         JSON.stringify({ success: false, error: "Invalid JSON payload" }),
         {
           status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": corsOrigin,
-          },
+          // SECURITY FIX: Standardize headers across all error responses
+          headers: getCorsHeaders(corsOrigin),
         }
       );
     }
 
-    // BUG FIX: payload অবজেক্ট কিনা যাচাই করো
+    // Validate payload is a valid object
     if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
       return new Response(
         JSON.stringify({ success: false, error: "Request body must be a valid JSON object." }),
         {
           status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": corsOrigin,
-          },
+          // SECURITY FIX: Avoid manual cors declarations. Standardize via getCorsHeaders
+          headers: getCorsHeaders(corsOrigin),
         }
       );
     }
@@ -101,19 +99,31 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     const { message, stack, timestamp, url } = payload;
 
-    const cleanMessage = sanitizeString(message?.trim());
-    const cleanStack = sanitizeString(stack?.trim());
-    const cleanUrl = sanitizeString(url?.trim());
+    // SECURITY FIX: Switched from sanitizeString to sanitizeForStorage to stop HTML entity conversion before database ingestion
+    const cleanMessage = sanitizeForStorage(message?.trim(), MAX_MESSAGE_LENGTH);
+    
+    // SECURITY FIX: Enforce size limit on stack parameter to avoid silent KV write failures or memory exhaustion
+    const cleanStack = sanitizeForStorage(stack?.trim(), MAX_STACK_LENGTH);
+    
+    // SECURITY FIX: Resiliently validate url to ensure it holds a proper HTTP/HTTPS format, replacing with clean indicator if invalid
+    const rawUrl = url?.trim() || "";
+    const cleanUrl = sanitizeForStorage(rawUrl, MAX_URL_LENGTH);
+    const validatedUrl = rawUrl !== "" && !isValidUrl(rawUrl) ? "[invalid url]" : cleanUrl;
 
-    // Store in KV
-    const cleanTimestamp = timestamp ? String(timestamp) : new Date().toISOString();
-    const randomHex = crypto.randomUUID().substring(0, 6);
-    const storageKey = `error:${cleanTimestamp}:${randomHex}`;
+    // SECURITY FIX: Generate keys completely server-side. Do not trust client timestamps which can pollute or corrupt KV namespaces
+    const serverTimestamp = new Date().toISOString();
+    const randomHex = crypto.randomUUID().substring(0, 8);
+    const storageKey = `error:${serverTimestamp}:${randomHex}`;
+    
+    // SECURITY FIX: Limit client-supplied timestamp string parameter to avoid buffer bloating or injection
+    const clientTimestamp = sanitizeForStorage(String(timestamp || ""), 50);
+
     const storageValue = JSON.stringify({
       message: cleanMessage,
       stack: cleanStack,
-      url: cleanUrl,
-      timestamp: cleanTimestamp,
+      url: validatedUrl,
+      clientTimestamp,
+      timestamp: serverTimestamp,
       ip,
     });
 
@@ -123,10 +133,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       JSON.stringify({ success: true }),
       {
         status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": corsOrigin,
-        },
+        // SECURITY FIX: Direct unified header deployment via getCorsHeaders helper
+        headers: getCorsHeaders(corsOrigin),
       }
     );
   } catch (err: any) {
@@ -134,10 +142,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       JSON.stringify({ success: false, error: err.message || "An unexpected error occurred" }),
       {
         status: 500,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": corsOrigin,
-        },
+        // SECURITY FIX: Standardize catch block response headers
+        headers: getCorsHeaders(corsOrigin),
       }
     );
   }

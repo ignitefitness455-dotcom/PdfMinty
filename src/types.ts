@@ -17,10 +17,7 @@ export type ToolType =
   | "img-to-pdf"
   | "pdf-to-img"
   | "compress"
-  | "ai-analyze"
-  | "delete-pages-pdf"
-  | "extract-pages-pdf"
-  | "reorder-pdf";
+  | "ai-analyze";
 
 export interface PDFPageInfo {
   index: number;

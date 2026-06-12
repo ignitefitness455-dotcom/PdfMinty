@@ -16,9 +16,11 @@ const Router = isCapacitor ? HashRouter : BrowserRouter;
 const HomePage = lazy(() => import("./pages/HomePage"));
 const MergePage = lazy(() => import("./pages/MergePage"));
 const SplitPage = lazy(() => import("./pages/SplitPage"));
+const ExtractPagesPdfPage = lazy(() => import("./pages/ExtractPagesPdfPage"));
 const CompressPage = lazy(() => import("./pages/CompressPage"));
 const RotatePage = lazy(() => import("./pages/RotatePage"));
 const DeletePagesPage = lazy(() => import("./pages/DeletePagesPage"));
+const ReorderPdfPage = lazy(() => import("./pages/ReorderPdfPage"));
 const WatermarkPage = lazy(() => import("./pages/WatermarkPage"));
 const PageNumbersPage = lazy(() => import("./pages/PageNumbersPage"));
 const AddBlankPage = lazy(() => import("./pages/AddBlankPage"));
@@ -55,8 +57,8 @@ export default function App() {
                 <Route path="/rotate-pdf" element={<RotatePage />} />
                 <Route path="/organize" element={<DeletePagesPage />} />
                 <Route path="/delete-pages-pdf" element={<DeletePagesPage />} />
-                <Route path="/extract-pages-pdf" element={<SplitPage />} />
-                <Route path="/reorder-pdf" element={<DeletePagesPage />} />
+                <Route path="/extract-pages-pdf" element={<ExtractPagesPdfPage />} />
+                <Route path="/reorder-pdf" element={<ReorderPdfPage />} />
                 <Route path="/watermark-pdf" element={<WatermarkPage />} />
                 <Route path="/add-page-numbers" element={<PageNumbersPage />} />
                 <Route path="/add-blank-page" element={<AddBlankPage />} />

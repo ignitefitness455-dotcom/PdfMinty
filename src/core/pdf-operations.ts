@@ -2,6 +2,10 @@ import { PDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib';
 import { PDFSanitizer } from './PDFSanitizer';
 import { PDF_PAGE_SIZES, WATERMARK_DEFAULTS, PAGE_NUMBER_DEFAULTS } from '../config/constants';
 
+/**
+ * Cleanly wraps downstream PDF load requests, passing options through
+ * low-level sanitization filters first.
+ */
 export async function loadPDF(bytes: Uint8Array, options?: any) {
   const skipEncryptionCheck = options?.ignoreEncryption === true;
   const sanitized = PDFSanitizer.sanitize(bytes, { skipEncryptionCheck });
@@ -11,6 +15,10 @@ export async function loadPDF(bytes: Uint8Array, options?: any) {
 export interface MergePayload {
   files: Uint8Array[];
 }
+
+/**
+ * Merges several Uint8Array PDF representations into a single contiguous document buffer.
+ */
 export async function mergePDFs({ files }: MergePayload) {
   const mergedPdf = await PDFDocument.create();
   for (const fileBytes of files) {
@@ -25,6 +33,10 @@ export interface SplitPayload {
   fileBytes: Uint8Array;
   targetPageIndices: number[];
 }
+
+/**
+ * Splits a PDF document returning only target indices.
+ */
 export async function splitPDF({ fileBytes, targetPageIndices }: SplitPayload) {
   const srcDoc = await loadPDF(fileBytes);
   const splitPdf = await PDFDocument.create();
@@ -37,6 +49,10 @@ export interface SplitMultiPayload {
   fileBytes: Uint8Array;
   ranges: { start: number; end: number; name?: string }[];
 }
+
+/**
+ * Splits a single high-length document into multiple split parts based on given ranges.
+ */
 export async function splitPDFMulti({ fileBytes, ranges }: SplitMultiPayload) {
   const srcDoc = await loadPDF(fileBytes);
   const totalPages = srcDoc.getPageCount();
@@ -60,6 +76,10 @@ export interface RotatePayload {
   fileBytes: Uint8Array;
   pageRotations: { index: number; rotation: 0 | 90 | 180 | 270 }[];
 }
+
+/**
+ * Rotates specific targeted page indices in a given document.
+ */
 export async function rotatePDF({ fileBytes, pageRotations }: RotatePayload) {
   const pdfDoc = await loadPDF(fileBytes);
   const pages = pdfDoc.getPages();
@@ -82,6 +102,10 @@ export interface DeletePagesPayload {
   fileBytes: Uint8Array;
   pagesToDelete: number[];
 }
+
+/**
+ * Deletes targeted pages from a PDF.
+ */
 export async function deletePagesPDF({ fileBytes, pagesToDelete }: DeletePagesPayload) {
   const pdfDoc = await loadPDF(fileBytes);
   const currentPages = pdfDoc.getPageCount();
@@ -103,13 +127,25 @@ export interface WatermarkPayload {
 
 const hasNonLatin = (text: string) => /[^\u0000-\u007F]/.test(text);
 
+/**
+ * Retrieves the required watermark font. 
+ * Supports Bengali embedding dynamically with fallback options.
+ */
 async function getWatermarkFont(pdfDoc: PDFDocument, text: string) {
   if (hasNonLatin(text)) {
     try {
-      // Load Noto Sans subset (Bengali + Latin) — ~150KB
-      // Host this in your /public folder
-      const fontBytes = await fetch('/fonts/NotoSans-subset.ttf')
-        .then(r => r.arrayBuffer());
+      // FIXED: Construct absolute URL using self.location.origin to ensure 
+      // resolving correctly under both the main thread and inline Worker environments.
+      const fontBaseUrl = (typeof self !== "undefined" && self.location?.origin)
+        ? self.location.origin
+        : "";
+      const fontUrl = `${fontBaseUrl}/fonts/NotoSans-subset.ttf`;
+      const fontBytes = await fetch(fontUrl).then(r => {
+        if (!r.ok) {
+          throw new Error(`Font fetch failed: ${r.status} ${fontUrl}`);
+        }
+        return r.arrayBuffer();
+      });
       return await pdfDoc.embedFont(fontBytes);
     } catch (e) {
       console.error("Failed to fetch NotoSans Unicode font, falling back to HelveticaBold:", e);
@@ -118,6 +154,9 @@ async function getWatermarkFont(pdfDoc: PDFDocument, text: string) {
   return await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 }
 
+/**
+ * Burn translucent text-based watermark patterns beautifully across all document pages.
+ */
 export async function watermarkPDF(payload: WatermarkPayload) {
   const { fileBytes, watermarkText, watermarkOpacity, watermarkSize, watermarkRotation } = payload;
   if (!watermarkText || watermarkText.trim() === '') {
@@ -146,14 +185,10 @@ export async function watermarkPDF(payload: WatermarkPayload) {
     const cx = width / 2;
     const cy = height / 2;
 
-    // pdf-lib rotates text around its bottom-left origin (x, y).
-    // To visually center the rotated text on the page, offset (x, y) so
-    // the text's visual center lands exactly on (cx, cy).
     const x = cx - (textWidth / 2) * cosA + (watermarkSize / 2) * sinA;
     const y = cy - (textWidth / 2) * sinA - (watermarkSize / 2) * cosA;
 
     // Compute the rotated bounding box of the text to clamp safely.
-    // Rotate each of the 4 corners of the unrotated text rectangle around (x, y).
     const corners = [
       { rx: 0,         ry: 0             },
       { rx: textWidth, ry: 0             },
@@ -195,6 +230,10 @@ export interface PageNumbersPayload {
   pageNumberFormat: 'simple' | 'page-of' | 'page-x-of-y' | 'page-x' | 'x';
   pageNumberPosition: 'bottom-center' | 'top-center' | 'bottom-right' | 'bottom-left' | 'top-left' | 'top-right';
 }
+
+/**
+ * Programmatically stamps sequential running sheet markers under multiple layout formats onto PDF pages.
+ */
 export async function addPageNumbersPDF(payload: PageNumbersPayload) {
   const { fileBytes, pageNumberFormat, pageNumberPosition } = payload;
   const pdfDoc = await loadPDF(fileBytes);
@@ -257,6 +296,7 @@ export interface AddBlankPayload {
   blankPagePos: 'start' | 'end' | 'custom' | 'after';
   blankPageAt?: string | number;
 }
+
 function resolveInsertIndex(
   position: 'start' | 'end' | 'after' | 'custom',
   customPage: number,  // 1-based, user-provided
@@ -271,6 +311,9 @@ function resolveInsertIndex(
   }
 }
 
+/**
+ * Inserts pristine blank sheets in compliant ISO-standard sizes inside an existing file.
+ */
 export async function addBlankPagePDF(payload: AddBlankPayload) {
   const { fileBytes, blankPageSize, customWidth, customHeight, blankPagePos, blankPageAt } = payload;
   const pdfDoc = await loadPDF(fileBytes);
@@ -364,7 +407,17 @@ export interface ImgToPdfPayload {
   imageFilesData: { bytes: Uint8Array; type: string; name: string }[];
   pageSize?: 'fit' | 'A4' | 'Letter';
 }
-export async function imagesToPDF(payload: ImgToPdfPayload) {
+
+export interface ImgToPdfResult {
+  bytes: Uint8Array;
+  warnings: string[];
+}
+
+/**
+ * Programmatically binds several graphic elements into a ready-to-view PDF.
+ * Warns users if animated GIFs are loaded since standard canvas representations only capture frame 1.
+ */
+export async function imagesToPDF(payload: ImgToPdfPayload): Promise<ImgToPdfResult> {
   const { imageFilesData, pageSize = 'fit' } = payload;
   if (!imageFilesData || imageFilesData.length === 0) {
     throw new Error('No images provided.');
@@ -375,7 +428,15 @@ export async function imagesToPDF(payload: ImgToPdfPayload) {
     Letter: PDF_PAGE_SIZES.LETTER,
   };
 
+  const warnings: string[] = [];
+
   for (const item of imageFilesData) {
+    // SECURITY & QUALITY FIX: Warn users if attempting to embed animated GIFs (which truncate to frame 1)
+    const isGif = item.type === 'image/gif' || item.name.toLowerCase().endsWith('.gif');
+    if (isGif) {
+      warnings.push(`"${item.name}" is an animated GIF — only the first frame was included in the PDF.`);
+    }
+
     let embeddedImage;
     const { bytes, type } = await normalizeImageToPng(item.bytes, item.type, item.name);
     const nameLower = item.name.toLowerCase();
@@ -410,14 +471,20 @@ export async function imagesToPDF(payload: ImgToPdfPayload) {
     const page = pdfDoc.addPage([pageWidth, pageHeight]);
     page.drawImage(embeddedImage, { x: imgX, y: imgY, width: imgW, height: imgH });
   }
-  return pdfDoc.save();
+  
+  return {
+    bytes: await pdfDoc.save(),
+    warnings
+  };
 }
 
+// INTUITION FIX: Re-labeled internal properties to match user perspective layout choices.
+// "high-quality" translates to lighter loss compression settings, whereas "maximum-compression" maximizes scale Reduction metrics.
 const QUALITY_SETTINGS = {
-  high:   { scale: 0.5, jpegQuality: 0.6, dpi: 96  },
-  medium: { scale: 0.7, jpegQuality: 0.8, dpi: 150 },
-  low:    { scale: 0.9, jpegQuality: 0.92, dpi: 200 },
-};
+  "high-quality":          { scale: 0.9, jpegQuality: 0.92, dpi: 200 }, // was: "low"
+  "balanced":              { scale: 0.7, jpegQuality: 0.8,  dpi: 150 }, // was: "medium"
+  "maximum-compression":   { scale: 0.5, jpegQuality: 0.6,  dpi: 96  }, // was: "high"
+} as const;
 
 let cachedPdfJs: any = null;
 async function getPdfJsLibrary() {
@@ -439,15 +506,35 @@ async function getPdfJsLibrary() {
 
 export interface CompressPayload {
   fileBytes: Uint8Array;
-  quality: 'low' | 'medium' | 'high' | 'metadata';
+  // INTUITION FIX: Updated types to utilize the new quality designations
+  quality: 'high-quality' | 'balanced' | 'maximum-compression' | 'metadata';
 }
+
+/**
+ * Backward compatibility quality value mapper mapping older legacy strings 
+ * ("high"/"medium"/"low") seamlessly to their respective renamed settings indices.
+ */
+function normalizeQuality(q: string): keyof typeof QUALITY_SETTINGS | 'metadata' {
+  const compat: Record<string, string> = {
+    high: "maximum-compression",
+    medium: "balanced",
+    low: "high-quality",
+  };
+  return (compat[q] || q) as keyof typeof QUALITY_SETTINGS | 'metadata';
+}
+
+/**
+ * Scales and recompress page canvas bitmaps to optimize file storage sizes.
+ */
 export async function compressPDF(payload: CompressPayload): Promise<Uint8Array> {
   const { fileBytes, quality } = payload;
 
   // Clone the bytes to a pristine array to ensure fallback works even if PDF.js detaches/transfers the original buffer
   const backupBytes = fileBytes.slice(0);
 
-  if (quality === 'metadata') {
+  const normalized = normalizeQuality(quality);
+
+  if (normalized === 'metadata') {
     const pdfDoc = await loadPDF(backupBytes, { ignoreEncryption: true });
     try { pdfDoc.setTitle(''); } catch (_) {}
     try { pdfDoc.setAuthor(''); } catch (_) {}
@@ -459,7 +546,7 @@ export async function compressPDF(payload: CompressPayload): Promise<Uint8Array>
     return await pdfDoc.save({ useObjectStreams: true });
   }
 
-  const settings = QUALITY_SETTINGS[quality] || QUALITY_SETTINGS.medium;
+  const settings = QUALITY_SETTINGS[normalized] || QUALITY_SETTINGS.balanced;
 
   try {
     const pdfjsLib = await getPdfJsLibrary();
@@ -503,10 +590,10 @@ export async function compressPDF(payload: CompressPayload): Promise<Uint8Array>
        canvas.height = 0;
      }
 
-     try { newDoc.setProducer('PDFMinty Compressed'); } catch (_) {}
-     try { newDoc.setModificationDate(new Date()); } catch (_) {}
+      try { newDoc.setProducer('PDFMinty Compressed'); } catch (_) {}
+      try { newDoc.setModificationDate(new Date()); } catch (_) {}
 
-     return await newDoc.save({ useObjectStreams: true });
+      return await newDoc.save({ useObjectStreams: true });
   } catch (err: any) {
     console.error("Raster compression failed, falling back to lossless structural compression:", err);
     // Safe lossless fallback if offscreencanvas rendering is restricted, utilizing authentic backup bytes
@@ -527,6 +614,10 @@ export interface ProtectPayload {
     annotating?: boolean;
   };
 }
+
+/**
+ * Encrypts and locks a document with user-supplied credentials.
+ */
 export async function protectPDF(payload: ProtectPayload): Promise<Uint8Array> {
   const { fileBytes, userPassword, ownerPassword } = payload;
   if (!userPassword || userPassword.length < 1) {
@@ -557,6 +648,10 @@ export interface UnlockPayload {
   fileBytes: Uint8Array;
   password: string;
 }
+
+/**
+ * Decrypts a previously locked/secured file buffer.
+ */
 export async function unlockPDF(payload: UnlockPayload): Promise<Uint8Array> {
   const { fileBytes, password } = payload;
   try {
@@ -586,6 +681,9 @@ export interface PdfToImgPageResult {
   bytes: Uint8Array;
 }
 
+/**
+ * Disassembles pages from a PDF and returns individual raster files.
+ */
 export async function pdfToImage(payload: PdfToImagePayload): Promise<PdfToImgPageResult[]> {
   const { fileBytes, scale, format } = payload;
   const pdfjsLib = await getPdfJsLibrary();
