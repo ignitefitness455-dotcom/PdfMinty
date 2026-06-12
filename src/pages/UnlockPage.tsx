@@ -41,6 +41,14 @@ export default function UnlockPage() {
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (completedResult?.url) {
+        URL.revokeObjectURL(completedResult.url);
+      }
+    };
+  }, [completedResult]);
+
   const handleFilesSelected = async (files: File[]) => {
     const pdfs = files.filter(f => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
     if (pdfs.length === 0) {

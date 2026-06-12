@@ -1,4 +1,5 @@
 import { PDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib';
+import { PDFDocument as PDFDocumentEncrypt } from '@cantoo/pdf-lib';
 import { PDFSanitizer } from './PDFSanitizer';
 import { PDF_PAGE_SIZES, WATERMARK_DEFAULTS, PAGE_NUMBER_DEFAULTS } from '../config/constants';
 
@@ -624,11 +625,11 @@ export async function protectPDF(payload: ProtectPayload): Promise<Uint8Array> {
     throw new Error('Password cannot be empty.');
   }
 
-  const pdfDoc = await loadPDF(fileBytes, { ignoreEncryption: true });
+  const sanitized = PDFSanitizer.sanitize(fileBytes, { skipEncryptionCheck: true });
+  const pdfDoc = await PDFDocumentEncrypt.load(sanitized.bytes, { ignoreEncryption: true });
 
-  // pdf-lib native encryption (ISO 32000 compliant)
-  const savedBytes = await pdfDoc.save({
-    userPassword: userPassword,
+  pdfDoc.encrypt({
+    userPassword,
     ownerPassword: ownerPassword ?? userPassword + '_owner',
     permissions: {
       printing: 'lowResolution',
@@ -639,9 +640,9 @@ export async function protectPDF(payload: ProtectPayload): Promise<Uint8Array> {
       contentAccessibility: true,
       documentAssembly: false,
     },
-  } as any);
+  });
 
-  return savedBytes;
+  return await pdfDoc.save();
 }
 
 export interface UnlockPayload {
@@ -655,7 +656,8 @@ export interface UnlockPayload {
 export async function unlockPDF(payload: UnlockPayload): Promise<Uint8Array> {
   const { fileBytes, password } = payload;
   try {
-    const pdfDoc = await loadPDF(fileBytes, { password, ignoreEncryption: true });
+    const sanitized = PDFSanitizer.sanitize(fileBytes, { skipEncryptionCheck: true });
+    const pdfDoc = await PDFDocument.load(sanitized.bytes, { password });
     return await pdfDoc.save();
   } catch (err: any) {
     const msg = err?.message || "";

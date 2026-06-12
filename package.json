@@ -25,6 +25,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@cantoo/pdf-lib": "^2.7.1",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@google/genai": "^2.6.0",
