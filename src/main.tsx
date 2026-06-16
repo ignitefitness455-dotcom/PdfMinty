@@ -11,20 +11,36 @@ import "./index.css";
 // Senior Engineer Fix: Force unregister potential stale service workers and clear local cache
 // to solve persistent 'ok' responses cached in strict browsers like Brave.
 if (typeof window !== "undefined") {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      for (const registration of registrations) {
-        registration.unregister();
+  const forceClear = async () => {
+    let unregistrationsPerformed = false;
+    if ("serviceWorker" in navigator) {
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+          unregistrationsPerformed = true;
+        }
+      } catch (err) {
+        console.error("Failed to unregister SW:", err);
       }
-    });
-  }
-  if ("caches" in window) {
-    caches.keys().then((keys) => {
-      keys.forEach((key) => {
-        caches.delete(key);
-      });
-    });
-  }
+    }
+    if ("caches" in window) {
+      try {
+        const keys = await caches.keys();
+        for (const key of keys) {
+          await caches.delete(key);
+          unregistrationsPerformed = true;
+        }
+      } catch (err) {
+        console.error("Failed to clear caches:", err);
+      }
+    }
+    if (unregistrationsPerformed) {
+      // Reload the page once to retrieve fresh, non-intercepted assets from the network.
+      window.location.reload();
+    }
+  };
+  forceClear();
 }
 
 // Initialize multilingual translations
