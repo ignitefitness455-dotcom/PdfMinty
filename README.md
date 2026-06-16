@@ -21,10 +21,10 @@ This project is built as a single-page application (SPA) focused on security and
 Cloudflare edge computing is utilized for lightweight helper APIs without storing user data:
 - **Cloudflare Pages:** Globally distributed SPA asset hosting.
 - **Cloudflare Workers:** Serverless functions under `functions/api/*` handling tasks like feedback submission, rate-limiting, and proxying AI analysis requests (Gemini).
-- **Cloudflare KV:** Used by Workers for state management like request rate-limiting hashes (Note: `wrangler.toml` configuration is currently absent from this repo and must be configured for target deployment).
+- **Cloudflare KV:** Used by Workers for state management like request rate-limiting hashes. 
 
 ## Key Patterns
-- **Tool Workspace UI (`src/components/ToolWorkspace.tsx`):** A shared layout structure for almost all 15+ PDF tools.
+- **Tool Workspace UI (`src/components/ToolWorkspace.tsx`):** A shared layout structure for all 15 offline PDF tools.
 - **Progressive Web App (PWA):** Features a service worker designed for offline capability and rapid loading, with built-in stale-cache mitigation.
 - **RTL & i18n:** Supports multiple languages including Arabic (RTL) via `i18next`.
 
@@ -57,4 +57,4 @@ PDFMinty is optimized for Cloudflare Pages.
 2. Set the build command to `npm run build`.
 3. Set the build output directory to `dist`.
 4. Ensure environment variables (e.g., Gemini API keys for the `functions/api/gemini-proxy.ts` worker) are configured.
-5. Create a KV Namespace for rate-limiting and bind it to the Pages Functions environment. *(Note: You will need to add a `wrangler.toml` file to define these bindings explicitly for local testing or CI/CD pipelines if not using the Cloudflare Dashboard.)*
+5. Run `wrangler kv:namespace create PDFMINTY_KV` to create your KV Namespace for rate-limiting, and paste the generated ID into `wrangler.toml`.

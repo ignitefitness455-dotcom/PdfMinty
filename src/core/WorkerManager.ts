@@ -81,7 +81,7 @@ export const createDedicatedWorker = (): Worker => {
           }
           
           // Apply metadata standards & object stream compaction
-          mergedPdf.setProducer("PDFMinty Enterprise Client Engine");
+          mergedPdf.setProducer("PDFMinty");
           mergedPdf.setCreator("PDFMinty Client-Side Sandbox");
           const mergedBytes = await mergedPdf.save({ useObjectStreams: true });
           
@@ -99,7 +99,7 @@ export const createDedicatedWorker = (): Worker => {
             subPdf.addPage(copiedPages[i]);
           }
           
-          subPdf.setProducer("PDFMinty Enterprise Client Engine");
+          subPdf.setProducer("PDFMinty");
           const subPdfBytes = await subPdf.save({ useObjectStreams: true });
           
           // Memory Cleanup
@@ -117,7 +117,7 @@ export const createDedicatedWorker = (): Worker => {
             subPdf.addPage(copiedPages[i]);
           }
           
-          subPdf.setProducer("PDFMinty Enterprise Client Engine");
+          subPdf.setProducer("PDFMinty");
           const subPdfBytes = await subPdf.save({ useObjectStreams: true });
           
           // Memory Cleanup
@@ -135,7 +135,7 @@ export const createDedicatedWorker = (): Worker => {
             subPdf.addPage(copiedPages[i]);
           }
           
-          subPdf.setProducer("PDFMinty Enterprise Client Engine");
+          subPdf.setProducer("PDFMinty");
           const subPdfBytes = await subPdf.save({ useObjectStreams: true });
           
           // Memory Cleanup
@@ -160,7 +160,7 @@ export const createDedicatedWorker = (): Worker => {
             for (let i = 0; i < copiedPages.length; i++) {
               subPdf.addPage(copiedPages[i]);
             }
-            subPdf.setProducer("PDFMinty Enterprise Client Engine");
+            subPdf.setProducer("PDFMinty");
             const subPdfBytes = await subPdf.save({ useObjectStreams: true });
             results.push({ name: range.name, bytes: subPdfBytes });
             subPdf = null;
@@ -177,7 +177,7 @@ export const createDedicatedWorker = (): Worker => {
           for (let i = 0; i < copiedPages.length; i++) {
             newPdfDoc.addPage(copiedPages[i]);
           }
-          newPdfDoc.setProducer("PDFMinty Enterprise Client Engine");
+          newPdfDoc.setProducer("PDFMinty");
           const compressedBytes = await newPdfDoc.save({ 
             useObjectStreams: true,
             addDefaultPage: false
@@ -197,7 +197,7 @@ export const createDedicatedWorker = (): Worker => {
               page.setRotation(degrees(item.rotation % 360));
             }
           }
-          pdfDoc.setProducer("PDFMinty Enterprise Client Engine");
+          pdfDoc.setProducer("PDFMinty");
           const rotatedBytes = await pdfDoc.save({ useObjectStreams: true });
           pdfDoc = null;
           
@@ -227,7 +227,7 @@ export const createDedicatedWorker = (): Worker => {
               rotate: degrees(rotation ?? -45),
             });
           }
-          pdfDoc.setProducer("PDFMinty Enterprise Client Engine");
+          pdfDoc.setProducer("PDFMinty");
           const watermarkedBytes = await pdfDoc.save({ useObjectStreams: true });
           pdfDoc = null;
           
@@ -262,7 +262,7 @@ export const createDedicatedWorker = (): Worker => {
               color: rgb(0.2, 0.2, 0.2),
             });
           }
-          pdfDoc.setProducer("PDFMinty Enterprise Client Engine");
+          pdfDoc.setProducer("PDFMinty");
           const numberedBytes = await pdfDoc.save({ useObjectStreams: true });
           pdfDoc = null;
           
@@ -276,7 +276,7 @@ export const createDedicatedWorker = (): Worker => {
           const pages = pdfDoc.getPages();
           const index = Math.min(Math.max(0, positionIndex), pages.length);
           pdfDoc.insertPage(index, [width, height]);
-          pdfDoc.setProducer("PDFMinty Enterprise Client Engine");
+          pdfDoc.setProducer("PDFMinty");
           const blankBytes = await pdfDoc.save({ useObjectStreams: true });
           pdfDoc = null;
           
@@ -285,7 +285,7 @@ export const createDedicatedWorker = (): Worker => {
         } else if (type === "protect") {
           const { fileBytes } = e.data;
           let pdfDoc = await PDFDocument.load(fileBytes);
-          pdfDoc.setProducer("PDFMinty Enterprise Client Engine");
+          pdfDoc.setProducer("PDFMinty");
           const bytes = await pdfDoc.save({ useObjectStreams: true });
           pdfDoc = null;
           self.postMessage({ success: true, bytes }, [bytes.buffer]);
@@ -293,7 +293,7 @@ export const createDedicatedWorker = (): Worker => {
         } else if (type === "unlock") {
           const { fileBytes } = e.data;
           let pdfDoc = await PDFDocument.load(fileBytes);
-          pdfDoc.setProducer("PDFMinty Enterprise Client Engine");
+          pdfDoc.setProducer("PDFMinty");
           const bytes = await pdfDoc.save({ useObjectStreams: true });
           pdfDoc = null;
           self.postMessage({ success: true, bytes }, [bytes.buffer]);
@@ -328,7 +328,7 @@ export const createDedicatedWorker = (): Worker => {
               height: dHeight,
             });
           }
-          pdfDoc.setProducer("PDFMinty Enterprise Client Engine");
+          pdfDoc.setProducer("PDFMinty");
           const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
           pdfDoc = null;
           

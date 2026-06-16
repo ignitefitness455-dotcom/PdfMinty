@@ -115,7 +115,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
     const acceptedFiles = files.filter(file => {
       const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
       if (isImageOnly) {
-        return file.type.startsWith("image/") || [".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif"].includes(ext);
+        return (file.type === "image/png" || file.type === "image/jpeg" || file.type === "image/jpg") || [".png", ".jpg", ".jpeg"].includes(ext);
       } else {
         return file.type === "application/pdf" || ext === ".pdf";
       }
@@ -597,7 +597,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
             ref={fileInputRef}
             type="file"
             multiple={tool.id === "merge" || tool.id === "img-to-pdf"}
-            accept={tool.id === "img-to-pdf" ? "image/png,image/jpeg,image/webp,image/svg+xml" : "application/pdf"}
+            accept={tool.id === "img-to-pdf" ? "image/png,image/jpeg" : "application/pdf"}
             onChange={onFileInputChange}
             onClick={e => e.stopPropagation()}
             className="hidden"

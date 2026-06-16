@@ -1,6 +1,6 @@
 # Security Policy
 
-At PDFMinty, the security and privacy of our users are extremely important. Since our application focuses on absolute privacy by processing high-value enterprise PDF applications directly inside the browser sandbox, any potential security vulnerability is treated with the highest priority.
+At PDFMinty, the security and privacy of our users are extremely important. Since our application focuses on absolute privacy by processing sensitive PDF documents directly inside the browser sandbox, any potential security vulnerability is treated with the highest priority.
 
 ## Reporting a Vulnerability
 
