@@ -21,7 +21,7 @@ This project is built as a single-page application (SPA) focused on security and
 Cloudflare edge computing is utilized for lightweight helper APIs without storing user data:
 - **Cloudflare Pages:** Globally distributed SPA asset hosting.
 - **Cloudflare Workers:** Serverless functions under `functions/api/*` handling tasks like feedback submission, rate-limiting, and proxying AI analysis requests (Gemini).
-- **Cloudflare KV:** Used by Workers for state management like request rate-limiting hashes. 
+- **Cloudflare KV:** Used by Workers for state management like request rate-limiting hashes (`wrangler.toml` now exists and the one remaining manual step is pasting the real namespace ID into it).
 
 ## Key Patterns
 - **Tool Workspace UI (`src/components/ToolWorkspace.tsx`):** A shared layout structure for all 15 offline PDF tools.
