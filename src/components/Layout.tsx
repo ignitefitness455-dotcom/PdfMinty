@@ -595,9 +595,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           id="main-content"
           className="flex-1 max-w-7xl w-full mx-auto px-4 py-10 relative overflow-x-hidden min-h-[60vh]"
         >
-          <div className="absolute top-0 left-10 w-96 h-96 bg-emerald-100/30 dark:bg-emerald-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] pointer-events-none z-0" />
-          <div className="absolute top-20 right-10 w-80 h-80 bg-teal-100/20 dark:bg-teal-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[80px] pointer-events-none z-0 animate-pulse duration-10000" />
-          <div className="absolute bottom-40 left-1/3 w-96 h-96 bg-indigo-100/10 dark:bg-indigo-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[120px] pointer-events-none z-0" />
+          <div className="absolute top-0 start-10 w-96 h-96 bg-emerald-100/30 dark:bg-emerald-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] pointer-events-none z-0" />
+          <div className="absolute top-20 end-10 w-80 h-80 bg-teal-100/20 dark:bg-teal-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[80px] pointer-events-none z-0 animate-pulse duration-10000" />
+          <div className="absolute bottom-40 start-1/3 w-96 h-96 bg-indigo-100/10 dark:bg-indigo-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[120px] pointer-events-none z-0" />
 
           <div className="container-pdfminty py-2 sm:py-4 lg:py-6 relative z-10">
             <Breadcrumbs />
@@ -609,7 +609,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 rounded-2xl p-4 flex items-center justify-center gap-3 max-w-2xl mx-auto shadow-sm text-center">
               <span className="text-lg">🔒</span>
               <p className="text-xs font-bold text-slate-700 dark:text-slate-300 leading-snug">
-                <span className="text-emerald-600 dark:text-emerald-400 mr-1 font-extrabold">
+                <span className="text-emerald-600 dark:text-emerald-400 me-1 font-extrabold">
                   100% Secure & Private.
                 </span>{" "}
                 All files are processed locally on your device. No data is ever
@@ -697,7 +697,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         {showFeedbackModal && (
           <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadein">
             <div
-              className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl p-6 md:p-8 border border-slate-100 dark:border-slate-800 animate-slideup relative text-left"
+              className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl p-6 md:p-8 border border-slate-100 dark:border-slate-800 animate-slideup relative text-start"
               id="feedback-modal-content"
               role="dialog"
               aria-modal="true"
@@ -706,7 +706,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <button
                 aria-label="Close dialog"
                 onClick={() => setShowFeedbackModal(false)}
-                className="absolute top-4 right-4 text-slate-505 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 transition-colors text-xl font-bold cursor-pointer bg-transparent border-0"
+                className="absolute top-4 end-4 text-slate-505 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 transition-colors text-xl font-bold cursor-pointer bg-transparent border-0"
               >
                 ✕
               </button>
@@ -721,7 +721,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 Let us know your thoughts or any issues you have faced with our browser tools.
               </p>
 
-              <form onSubmit={submitFeedback} className="space-y-5 text-left">
+              <form onSubmit={submitFeedback} className="space-y-5 text-start">
                 <div>
                   <div className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-2">
                     Rate your experience *
@@ -823,7 +823,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         {showContactModal && (
           <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadein">
             <div
-              className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl p-6 md:p-8 border border-slate-100 dark:border-slate-800 animate-slideup relative text-left"
+              className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl p-6 md:p-8 border border-slate-100 dark:border-slate-800 animate-slideup relative text-start"
               id="contact-modal-content"
               role="dialog"
               aria-modal="true"
@@ -832,7 +832,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <button
                 aria-label="Close dialog"
                 onClick={() => setShowContactModal(false)}
-                className="absolute top-4 right-4 text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 transition-colors text-xl font-bold cursor-pointer bg-transparent border-0"
+                className="absolute top-4 end-4 text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 transition-colors text-xl font-bold cursor-pointer bg-transparent border-0"
               >
                 ✕
               </button>
@@ -846,7 +846,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
               <form
                 onSubmit={submitContactUs}
-                className="space-y-4 text-left font-sans"
+                className="space-y-4 text-start font-sans"
               >
                 {/* Honeypot field for bot spam detection */}
                 <input
@@ -999,7 +999,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         {showScrollTop && (
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 right-6 p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl hover:translate-y-[-2px] hover:scale-105 active:scale-95 transition-all cursor-pointer z-50 group border-0 animate-fadein"
+            className="fixed bottom-6 end-6 p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl hover:translate-y-[-2px] hover:scale-105 active:scale-95 transition-all cursor-pointer z-50 group border-0 animate-fadein"
             title="Scroll to Top"
             aria-label="Scroll to top"
           >

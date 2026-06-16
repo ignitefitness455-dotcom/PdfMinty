@@ -245,7 +245,7 @@ export default function HomePage() {
                 }}
                 onMouseEnter={() => prefetchToolChunk(tool.slug)}
                 onFocus={() => prefetchToolChunk(tool.slug)}
-                className="p-6 rounded-3xl border border-slate-200/70 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:border-emerald-500/30 dark:hover:border-emerald-500/50 hover:ring-4 hover:ring-emerald-500/5 dark:hover:ring-emerald-500/10 cursor-pointer hover:shadow-[0_12px_30px_rgba(16,185,129,0.06)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.2)] hover:-translate-y-1 transition-all duration-300 group text-left relative overflow-hidden flex flex-col justify-between animate-fadein focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500"
+                className="p-6 rounded-3xl border border-slate-200/70 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:border-emerald-500/30 dark:hover:border-emerald-500/50 hover:ring-4 hover:ring-emerald-500/5 dark:hover:ring-emerald-500/10 cursor-pointer hover:shadow-[0_12px_30px_rgba(16,185,129,0.06)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.2)] hover:-translate-y-1 transition-all duration-300 group text-start relative overflow-hidden flex flex-col justify-between animate-fadein focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500"
               >
                 <div>
                   <div className="flex items-center justify-between mb-5">
@@ -311,7 +311,7 @@ export default function HomePage() {
           {/* Main workspace container */}
           <div className="flex-1 grid grid-cols-12 gap-2 overflow-hidden mb-2">
             {/* Mock Sidebar */}
-            <div className="col-span-3 border-r border-slate-900 pr-1 flex flex-col gap-1.5 opacity-80 pt-1">
+            <div className="col-span-3 border-e border-slate-900 pe-1 flex flex-col gap-1.5 opacity-80 pt-1">
               <div className="h-1.5 bg-slate-800 rounded w-full"></div>
               <div className="h-1.5 bg-slate-800/60 rounded w-5/6"></div>
               <div className="h-1.5 bg-slate-800/60 rounded w-3/4"></div>
@@ -658,13 +658,13 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer text-slate-705 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-emerald-400 font-sans border-0 font-bold bg-transparent focus:outline-none"
+                  className="w-full px-6 py-4 flex items-center justify-between text-start hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer text-slate-705 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-emerald-400 font-sans border-0 font-bold bg-transparent focus:outline-none"
                 >
                   <span>{faq.q}</span>
                   {isOpen ? (
-                    <ChevronUp className="w-4 h-4 text-slate-400 shrink-0 ml-4" />
+                    <ChevronUp className="w-4 h-4 text-slate-400 shrink-0 ms-4" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-4" />
+                    <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ms-4" />
                   )}
                 </button>
 

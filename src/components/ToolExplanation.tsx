@@ -679,7 +679,7 @@ export const ToolExplanation: React.FC = () => {
   return (
     <div
       id="tool-explanatory-section"
-      className="max-w-4xl mx-auto px-4 mt-20 pt-16 border-t border-slate-250 dark:border-slate-800/80 animate-fadein font-sans text-left"
+      className="max-w-4xl mx-auto px-4 mt-20 pt-16 border-t border-slate-250 dark:border-slate-800/80 animate-fadein font-sans text-start"
     >
       <script type="application/ld+json">
         {JSON.stringify(howToSchema)}
@@ -771,7 +771,7 @@ export const ToolExplanation: React.FC = () => {
               className="group border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/30 dark:bg-slate-950/10 transition-colors duration-250 open:bg-white dark:open:bg-slate-900 open:border-emerald-305 dark:open:border-emerald-900/60"
             >
               <summary className="p-5 flex items-center justify-between text-xs font-bold text-slate-750 dark:text-slate-200 cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden">
-                <div className="flex items-center gap-3 pr-4">
+                <div className="flex items-center gap-3 pe-4">
                   <HelpCircle className="w-4 h-4 text-emerald-500 shrink-0" />
                   <span className="leading-snug">{faq.q}</span>
                 </div>

@@ -12,8 +12,7 @@ export default tseslint.config(
       "dist",
       "node_modules",
       "coverage",
-      "scripts",
-      "restore_all.js"
+      "scripts"
     ],
   },
   js.configs.recommended,

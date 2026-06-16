@@ -550,8 +550,8 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-[#0b0f19] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 md:p-8 relative overflow-hidden z-20 shadow-[0_15px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] text-left font-sans">
-      <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-505"></div>
+    <div className="bg-white dark:bg-[#0b0f19] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 md:p-8 relative overflow-hidden z-20 shadow-[0_15px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] text-start font-sans">
+      <div className="absolute top-0 start-0 w-full h-[3px] bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-505"></div>
       
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/50 pb-6 mb-8">
         <div>
@@ -637,7 +637,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
             <h3 className="text-xs font-extrabold text-slate-400 dark:text-slate-550 uppercase tracking-widest">
               Selected Files ({uploadedFiles.length})
             </h3>
-            <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+            <div className="space-y-2 max-h-96 overflow-y-auto pe-2">
               {uploadedFiles.map((uf, idx) => (
                 <div
                   key={uf.id}
@@ -648,7 +648,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
                       <FileIcon className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate pr-4">
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate pe-4">
                         {uf.name}
                       </p>
                       <p className="text-[10px] text-slate-500 dark:text-slate-500 mt-1 font-semibold">
@@ -1125,12 +1125,12 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
             </h4>
 
             {/* Chat list */}
-            <div className="flex-1 overflow-y-auto space-y-3.5 my-4 px-1 pr-2">
+            <div className="flex-1 overflow-y-auto space-y-3.5 my-4 px-1 pe-2">
               {aiChatMessages.map((msg, idx) => (
                 <div
                   key={idx}
                   className={`flex flex-col max-w-[85%] ${
-                    msg.sender === "user" ? "ml-auto items-end" : "mr-auto items-start"
+                    msg.sender === "user" ? "ms-auto items-end" : "me-auto items-start"
                   }`}
                 >
                   <span className="text-[8px] text-slate-400 uppercase tracking-wider mb-1 font-mono">
