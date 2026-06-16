@@ -172,15 +172,18 @@ export const createDedicatedWorker = (): Worker => {
         } else if (type === "compress") {
           const { fileBytes, level } = e.data;
           let pdfDoc = await PDFDocument.load(fileBytes);
-          
-          // Apply standard object stream & stream data compression
-          pdfDoc.setProducer("PDFMinty Enterprise Client Engine");
-          const compressedBytes = await pdfDoc.save({ 
+          let newPdfDoc = await PDFDocument.create();
+          const copiedPages = await newPdfDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
+          for (let i = 0; i < copiedPages.length; i++) {
+            newPdfDoc.addPage(copiedPages[i]);
+          }
+          newPdfDoc.setProducer("PDFMinty Enterprise Client Engine");
+          const compressedBytes = await newPdfDoc.save({ 
             useObjectStreams: true,
             addDefaultPage: false
           });
-          
           pdfDoc = null;
+          newPdfDoc = null;
           self.postMessage({ success: true, bytes: compressedBytes }, [compressedBytes.buffer]);
 
         } else if (type === "rotate") {

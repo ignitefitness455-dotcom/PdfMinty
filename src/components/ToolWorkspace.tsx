@@ -207,8 +207,56 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
         showToast("PDFs merged successfully!", "success");
 
       } else if (tool.id === "compress") {
-        const fileBytes = new Uint8Array(await uploadedFiles[0].file.arrayBuffer());
-        const result = await executePdfWorker("compress", { fileBytes, level: compressionLevel });
+        let result;
+        if (compressionLevel === "high") {
+          // Standard vector-safe stream cleaning & rebuilding is used for "high" quality setting
+          const fileBytes = new Uint8Array(await uploadedFiles[0].file.arrayBuffer());
+          result = await executePdfWorker("compress", { fileBytes, level: "high" });
+        } else {
+          // Rasterized-JPEG downscaling is used for "medium" and "low" quality settings to yield huge size reduction
+          const pdfjs = await import("pdfjs-dist");
+          pdfjs.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_SRC;
+
+          const arrayBuffer = await uploadedFiles[0].file.arrayBuffer();
+          const loadingTask = pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) });
+          const pdf = await loadingTask.promise;
+
+          let scale = 1.3;
+          let quality = 0.55;
+
+          if (compressionLevel === "low") {
+            scale = 0.95;
+            quality = 0.35;
+          } else { // medium
+            scale = 1.35;
+            quality = 0.60;
+          }
+
+          const images: { bytes: Uint8Array; type: string }[] = [];
+
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale });
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            if (!ctx) continue;
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            await page.render({ canvasContext: ctx, viewport }).promise;
+
+            const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/jpeg", quality));
+            if (blob) {
+              const bytes = new Uint8Array(await blob.arrayBuffer());
+              images.push({ bytes, type: "image/jpeg" });
+            }
+          }
+
+          result = await executePdfWorker("image-to-pdf", { images, pageSize: "A4" });
+        }
+
         triggerDownload(result.bytes, `compressed_${uploadedFiles[0].name}`);
         showToast("PDF file compressed successfully!", "success");
 
