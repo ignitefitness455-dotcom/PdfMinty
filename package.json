@@ -8,7 +8,7 @@
     "dev": "vite",
     "optimize-images": "node scripts/optimize-images.js",
     "gen-favicons": "node scripts/gen-favicons.js",
-    "build": "node restore_all.js && vite build && node scripts/generate-static-pages.js && node scripts/generate-sitemap.js",
+    "build": "vite build && node scripts/generate-static-pages.js && node scripts/generate-sitemap.js",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
@@ -20,6 +20,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:ci": "vitest run --coverage",
+    "test:smoke": "node scripts/smoke-test.mjs",
     "ci": "npm run typecheck && npm run lint && npm run format:check && npm run build",
     "preview": "vite preview",
     "prepare": "husky"

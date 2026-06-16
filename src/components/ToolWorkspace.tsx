@@ -573,11 +573,20 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
       {/* File inputs / Dropzone */}
       {uploadedFiles.length === 0 ? (
         <div
+          role="button"
+          tabIndex={0}
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
           onClick={triggerInput}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              triggerInput();
+            }
+          }}
+          aria-label="Upload PDF or Image files. Drag &amp; drop files here, or click to browse."
           className={`border-2 border-dashed rounded-3xl p-12 md:p-18 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-4 group relative ${
             dragActive
               ? "border-emerald-500 bg-emerald-500/10 dark:bg-emerald-950/20"
@@ -705,9 +714,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
             {/* Custom inputs per tool */}
             {tool.id === "compress" && (
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                   Select Output Quality
-                </label>
+                </div>
                 <div className="grid grid-cols-3 gap-2">
                   {(["low", "medium", "high"] as const).map(lev => (
                     <button
@@ -732,10 +741,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
 
             {tool.id === "split" && (
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                <label htmlFor="settings-split-range" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                   Select Pages to Split
                 </label>
                 <input
+                  id="settings-split-range"
                   aria-label="Input split ranges"
                   type="text"
                   value={splitRanges}
@@ -751,10 +761,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
 
             {tool.id === "reorder" && (
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                <label htmlFor="settings-reorder-string" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                   Arrange Page Order
                 </label>
                 <input
+                  id="settings-reorder-string"
                   aria-label="Page order indices"
                   type="text"
                   value={reorderString}
@@ -770,10 +781,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
 
             {tool.id === "extract" && (
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                <label htmlFor="settings-extract-pages" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                   Pages to Extract
                 </label>
                 <input
+                  id="settings-extract-pages"
                   aria-label="Target page indexes"
                   type="text"
                   value={extractPagesString}
@@ -789,10 +801,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
 
             {tool.id === "delete-pages" && (
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                <label htmlFor="settings-delete-pages" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                   Pages to Remove
                 </label>
                 <input
+                  id="settings-delete-pages"
                   aria-label="Delete page numbers list"
                   type="text"
                   value={deletePagesString}
@@ -808,9 +821,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
 
             {tool.id === "rotate" && (
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                   Rotate Pages
-                </label>
+                </div>
                 <div className="grid grid-cols-3 gap-2">
                   {[90, 180, 270].map(deg => (
                     <button
@@ -833,10 +846,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
             {tool.id === "watermark" && (
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                  <label htmlFor="settings-watermark-text" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                     Watermark Text
                   </label>
                   <input
+                    id="settings-watermark-text"
                     aria-label="Watermark overlay text"
                     type="text"
                     value={watermarkText}
@@ -846,10 +860,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide block mb-1">
+                    <label htmlFor="settings-watermark-angle" className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide block mb-1">
                       Angle ({watermarkAngle}°)
                     </label>
                     <input
+                      id="settings-watermark-angle"
                       aria-label="Watermark angle"
                       type="range"
                       min="-90"
@@ -860,10 +875,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide block mb-1">
+                    <label htmlFor="settings-watermark-opacity" className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide block mb-1">
                       Opacity ({(watermarkOpacity * 100).toFixed(0)}%)
                     </label>
                     <input
+                      id="settings-watermark-opacity"
                       aria-label="Watermark opacity"
                       type="range"
                       min="10"
@@ -875,10 +891,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wide block">
+                  <label htmlFor="settings-watermark-color" className="text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wide block">
                     Text Color
                   </label>
                   <input
+                    id="settings-watermark-color"
                     aria-label="Watermark color picker"
                     type="color"
                     value={watermarkColor}
@@ -892,10 +909,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
             {tool.id === "page-numbers" && (
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                  <label htmlFor="settings-page-position" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                     Page Number Placement
                   </label>
                   <select
+                    id="settings-page-position"
                     aria-label="Select placement position"
                     value={pageNumberPosition}
                     onChange={e => setPageNumberPosition(e.target.value as any)}
@@ -908,10 +926,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase block">
+                    <label htmlFor="settings-page-start" className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase block">
                       Number Format Starts At
                     </label>
                     <input
+                      id="settings-page-start"
                       aria-label="Page number start sequence"
                       type="number"
                       min="1"
@@ -938,10 +957,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
 
             {tool.id === "protect" && (
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                <label htmlFor="settings-protect-password" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                   Password
                 </label>
                 <input
+                  id="settings-protect-password"
                   aria-label="Vault password"
                   type="password"
                   value={vaultPassword}
@@ -954,10 +974,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
 
             {tool.id === "unlock" && (
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                <label htmlFor="settings-unlock-password" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                   Current Password
                 </label>
                 <input
+                  id="settings-unlock-password"
                   aria-label="Vault open password"
                   type="password"
                   value={vaultPassword}
@@ -971,25 +992,26 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
             {tool.id === "add-blank" && (
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                  <label htmlFor="settings-blank-insert" className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                     Insert After Page Number
                   </label>
                   <input
+                    id="settings-blank-insert"
                     aria-label="Blank sheet offset position"
                     type="number"
                     min="0"
                     value={blankPageAfterIdx}
                     onChange={e => setBlankPageAfterIdx(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="w-full text-xs font-medium px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-900 text-slate-805 dark:text-white"
+                    className="w-full text-xs font-medium px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-900 text-slate-850 dark:text-white"
                   />
                   <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold font-sans">
                     Choose the page number to insert a blank page after.
                   </p>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                  <div className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                     Blank Page Dimension Type
-                  </label>
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     {["LETTER", "A4"].map(sz => (
                       <button
@@ -1012,9 +1034,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
 
             {tool.id === "img-to-pdf" && (
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
                   Blank Page Dimension Type
-                </label>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   {["LETTER", "A4"].map(sz => (
                     <button

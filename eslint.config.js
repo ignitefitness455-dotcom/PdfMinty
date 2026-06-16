@@ -4,6 +4,7 @@ import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
+import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
 
 export default tseslint.config(
   {
@@ -29,9 +30,11 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooksPlugin,
       react: reactPlugin,
+      "jsx-a11y": jsxA11yPlugin,
     },
     rules: {
       ...reactHooksPlugin.configs.recommended.rules,
+      ...jsxA11yPlugin.flatConfigs.recommended.rules,
       "react/jsx-uses-react": "off",
       "react/react-in-jsx-scope": "off",
       "@typescript-eslint/no-explicit-any": "off",

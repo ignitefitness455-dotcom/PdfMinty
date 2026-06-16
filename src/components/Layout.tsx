@@ -723,9 +723,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
               <form onSubmit={submitFeedback} className="space-y-5 text-left">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-2">
+                  <div className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-2">
                     Rate your experience *
-                  </label>
+                  </div>
                   <div className="flex justify-between items-center gap-2 py-2">
                     {[
                       { val: 1, label: "😩", name: "Very Bad" },
@@ -765,10 +765,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                   style={{ display: "none" }}
                 />
                 <div>
-                  <label className="text-xs font-bold text-slate-705 dark:text-slate-300 block mb-1.5 flex align-center">
+                  <label htmlFor="feedback-comment-input" className="text-xs font-bold text-slate-705 dark:text-slate-300 block mb-1.5 flex align-center">
                     Feedback Message *
                   </label>
                   <textarea
+                    id="feedback-comment-input"
                     aria-label="Text area"
                     required
                     rows={4}
@@ -780,10 +781,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-705 dark:text-slate-300 block mb-1.5">
+                  <label htmlFor="feedback-email-input" className="text-xs font-bold text-slate-705 dark:text-slate-300 block mb-1.5">
                     Email Address (Optional)
                   </label>
                   <input
+                    id="feedback-email-input"
                     aria-label="Input field"
                     type="email"
                     value={feedbackEmail}
@@ -859,13 +861,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    <label htmlFor="contact-name-input" className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
                       Your Name *
                     </label>
                     <input
+                      id="contact-name-input"
                       aria-label="Input field"
                       required
-                      autoFocus
                       type="text"
                       value={contactName}
                       onChange={(e) => {
@@ -878,7 +880,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                       className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-850 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
                         contactErrors.name
                           ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                          : "border-slate-200 dark:border-slate-850 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
+                          : "border-slate-200 dark:border-slate-855 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
                       }`}
                     />
                     {contactErrors.name && (
@@ -886,10 +888,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     )}
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    <label htmlFor="contact-email-input" className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
                       Your Email *
                     </label>
                     <input
+                      id="contact-email-input"
                       aria-label="Input field"
                       required
                       type="email"
@@ -901,10 +904,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                         }
                       }}
                       placeholder="john@example.com"
-                      className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-850 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
+                      className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-855 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
                         contactErrors.email
                           ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                          : "border-slate-200 dark:border-slate-850 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
+                          : "border-slate-200 dark:border-slate-855 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
                       }`}
                     />
                     {contactErrors.email && (
@@ -914,10 +917,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-707 dark:text-slate-300 block mb-1">
+                  <label htmlFor="contact-subject-input" className="text-xs font-bold text-slate-707 dark:text-slate-300 block mb-1">
                     Subject *
                   </label>
                   <input
+                    id="contact-subject-input"
                     aria-label="Input field"
                     required
                     type="text"
@@ -941,10 +945,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-707 dark:text-slate-300 block mb-1">
+                  <label htmlFor="contact-message-input" className="text-xs font-bold text-slate-707 dark:text-slate-300 block mb-1">
                     Message *
                   </label>
                   <textarea
+                    id="contact-message-input"
                     aria-label="Message text"
                     required
                     rows={4}
