@@ -9,9 +9,11 @@ import HomePage from "./pages/HomePage";
 import "./index.css";
 
 // Senior Engineer Fix: Force unregister potential stale service workers and clear local cache
-// to solve persistent 'ok' responses cached in strict browsers like Brave.
+// to solve persistent stale responses. We use sessionStorage as a guard to prevent infinite reloads.
 if (typeof window !== "undefined") {
   const forceClear = async () => {
+    if (sessionStorage.getItem("pdfminty_sw_cleared")) return;
+    
     let unregistrationsPerformed = false;
     if ("serviceWorker" in navigator) {
       try {
@@ -36,6 +38,7 @@ if (typeof window !== "undefined") {
       }
     }
     if (unregistrationsPerformed) {
+      sessionStorage.setItem("pdfminty_sw_cleared", "true");
       // Reload the page once to retrieve fresh, non-intercepted assets from the network.
       window.location.reload();
     }
