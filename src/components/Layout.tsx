@@ -196,7 +196,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       if (legacySaved === "light" || legacySaved === "dark") {
         return legacySaved;
       }
-    } catch (e) {}
+    } catch {
+      // ignore
+    }
     return "system";
   });
 
@@ -234,7 +236,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     try {
       localStorage.setItem("pdfminty-theme-setting", themeSetting);
       localStorage.setItem("pdfminty-theme", themeSetting);
-    } catch (e) {}
+    } catch {
+      // ignore
+    }
 
     const root = document.documentElement;
     if (theme === "dark") {
@@ -325,7 +329,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             spread: 80,
             origin: { y: 0.6 },
           });
-        } catch (_) {}
+        } catch {
+          // ignore
+        }
       } else {
         const errTxt = await response.text();
         console.error("Cloudflare API feedback submission error:", response.status, errTxt);

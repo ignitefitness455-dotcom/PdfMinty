@@ -1,4 +1,4 @@
-export const createDedicatedWorker = (name: string): Worker => {
+export const createDedicatedWorker = (): Worker => {
   // We construct a local inline blob URL containing optimized sub-engines, memory release triggers, and cached loader.
   const workerCode = `
     let pdfLibLoaded = false;

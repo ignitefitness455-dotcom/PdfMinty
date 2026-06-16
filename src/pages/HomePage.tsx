@@ -18,7 +18,6 @@ import {
 import { prefetchToolChunk } from "../core/utils";
 import { useDebounce } from "../hooks/useDebounce";
 import { SearchComponent } from "../components/SearchComponent";
-import { OptimizedImage } from "../components/OptimizedImage";
 import { ToolWorkspace } from "../components/ToolWorkspace";
 import { ToolExplanation } from "../components/ToolExplanation";
 import { RelatedTools } from "../components/RelatedTools";

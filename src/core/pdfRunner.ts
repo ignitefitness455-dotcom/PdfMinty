@@ -80,7 +80,7 @@ const runActualWorker = (
   transferables?: Transferable[]
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
-    const worker = createDedicatedWorker("pdf-run");
+    const worker = createDedicatedWorker();
 
     worker.onmessage = (e: MessageEvent) => {
       const { success, error, ...data } = e.data;

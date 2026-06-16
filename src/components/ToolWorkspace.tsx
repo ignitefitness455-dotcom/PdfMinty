@@ -10,16 +10,6 @@ import {
   ArrowDown,
   Download,
   Settings,
-  Shuffle,
-  Eye,
-  Scissors,
-  Minimize2,
-  Trash2,
-  RotateCw,
-  Stamp,
-  Hash,
-  Lock,
-  Unlock,
   Plus,
   Brain,
   FileImage,
@@ -458,8 +448,6 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
 
       } else if (tool.id === "ai-analyze") {
         // Run smart text block analysis and local summaries
-        const fileBytes = new Uint8Array(await uploadedFiles[0].file.arrayBuffer());
-        
         const summaryText = `📄 **PDF Document Insights (Client-Side Parsing)**\n\n` +
           `• **File Name**: ${uploadedFiles[0].name}\n` +
           `• **Total Metadata Pages**: ${uploadedFiles[0].pagesCount || "Unavailable"}\n` +
