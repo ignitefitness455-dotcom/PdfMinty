@@ -293,6 +293,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     subject?: string;
     message?: string;
   }>({});
+  const [honeypotWebsite, setHoneypotWebsite] = useState("");
 
   const submitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -313,6 +314,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           rating: feedbackRating,
           comment: feedbackComment,
           email: feedbackEmail,
+          website: honeypotWebsite,
         }),
       });
 
@@ -383,6 +385,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           email: contactEmail,
           subject: contactSubject,
           message: contactMessage,
+          website: honeypotWebsite,
         }),
       });
 
@@ -750,8 +753,19 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                   </div>
                 </div>
 
+                {/* Honeypot field for bot spam detection */}
+                <input
+                  type="text"
+                  name="website"
+                  value={honeypotWebsite}
+                  onChange={(e) => setHoneypotWebsite(e.target.value)}
+                  className="hidden"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  style={{ display: "none" }}
+                />
                 <div>
-                  <label className="text-xs font-bold text-slate-705 dark:text-slate-300 block mb-1.5">
+                  <label className="text-xs font-bold text-slate-705 dark:text-slate-300 block mb-1.5 flex align-center">
                     Feedback Message *
                   </label>
                   <textarea
@@ -832,6 +846,17 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 onSubmit={submitContactUs}
                 className="space-y-4 text-left font-sans"
               >
+                {/* Honeypot field for bot spam detection */}
+                <input
+                  type="text"
+                  name="website"
+                  value={honeypotWebsite}
+                  onChange={(e) => setHoneypotWebsite(e.target.value)}
+                  className="hidden"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  style={{ display: "none" }}
+                />
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">

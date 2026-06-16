@@ -6,6 +6,22 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastProvider } from "./contexts/ToastContext";
 import { Layout } from "./components/Layout";
 import HomePage from "./pages/HomePage";
+import MergePage from "./pages/MergePage";
+import SplitPage from "./pages/SplitPage";
+import CompressPage from "./pages/CompressPage";
+import RotatePage from "./pages/RotatePage";
+import DeletePagesPage from "./pages/DeletePagesPage";
+import ExtractPagesPdfPage from "./pages/ExtractPagesPdfPage";
+import ReorderPdfPage from "./pages/ReorderPdfPage";
+import WatermarkPage from "./pages/WatermarkPage";
+import PageNumbersPage from "./pages/PageNumbersPage";
+import AddBlankPage from "./pages/AddBlankPage";
+import ProtectPage from "./pages/ProtectPage";
+import UnlockPage from "./pages/UnlockPage";
+import ImgToPdfPage from "./pages/ImgToPdfPage";
+import PdfToImgPage from "./pages/PdfToImgPage";
+import AiAnalyzePage from "./pages/AiAnalyzePage";
+import IsSafePdfArticlePage from "./pages/IsSafePdfArticlePage";
 import "./index.css";
 
 // Senior Engineer Fix: Force unregister potential stale service workers and clear local cache
@@ -56,6 +72,23 @@ const App = () => {
         <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/merge-pdf" element={<MergePage />} />
+            <Route path="/split-pdf" element={<SplitPage />} />
+            <Route path="/compress-pdf" element={<CompressPage />} />
+            <Route path="/rotate-pdf" element={<RotatePage />} />
+            <Route path="/organize" element={<DeletePagesPage />} />
+            <Route path="/delete-pages-pdf" element={<DeletePagesPage />} />
+            <Route path="/extract-pages-pdf" element={<ExtractPagesPdfPage />} />
+            <Route path="/reorder-pdf" element={<ReorderPdfPage />} />
+            <Route path="/watermark-pdf" element={<WatermarkPage />} />
+            <Route path="/add-page-numbers" element={<PageNumbersPage />} />
+            <Route path="/add-blank-page" element={<AddBlankPage />} />
+            <Route path="/protect-pdf" element={<ProtectPage />} />
+            <Route path="/unlock-pdf" element={<UnlockPage />} />
+            <Route path="/image-to-pdf" element={<ImgToPdfPage />} />
+            <Route path="/pdf-to-image" element={<PdfToImgPage />} />
+            <Route path="/intelligence" element={<AiAnalyzePage />} />
+            <Route path="/is-it-safe-to-upload-pdf-to-online-tools" element={<IsSafePdfArticlePage />} />
             <Route path="*" element={<HomePage />} />
           </Routes>
         </Layout>
@@ -63,6 +96,7 @@ const App = () => {
     </ToastProvider>
   );
 };
+
 
 const container = document.getElementById("root");
 if (container) {

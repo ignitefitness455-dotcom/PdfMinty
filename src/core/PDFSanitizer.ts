@@ -1,4 +1,13 @@
 export class PDFSanitizer {
+  /**
+   * PDFSanitizer strips and obfuscates active/executable structures directly in incoming files:
+   * 1. JavaScript actions: Obfuscates both "/JavaScript" and short-form "/JS" keys.
+   * 2. Additional Actions (auto-run scripts): Obfuscates "/AA" keys.
+   * 3. External Executables & OS Command Launchers: Obfuscates "/Launch" elements.
+   * 4. External Data submissions: Obfuscates "/SubmitForm" and "/ImportData" endpoints.
+   * 5. Embedded Malware attachments: Obfuscates "/EmbeddedFiles" and "/EmbeddedFile" collections.
+   * All replacements perfectly match the original character length to protect internal PDF object offsets.
+   */
   static sanitize(bytes: Uint8Array): { bytes: Uint8Array; wasSanitized: boolean } {
     let wasSanitized = false;
     let workingBytes = bytes;
@@ -25,7 +34,6 @@ export class PDFSanitizer {
     }
 
     // 2. Trailing Garbage Trim: Trim any trailing garbage bytes after the last '%%EOF'
-    // Standard '%%EOF' in ASCII code is [37, 37, 69, 79, 70]
     const eofPattern = [37, 37, 69, 79, 70];
     let lastEofIndex = -1;
     const maxLookback = Math.max(0, workingBytes.length - 8192);
@@ -47,33 +55,66 @@ export class PDFSanitizer {
       wasSanitized = true;
     }
 
-    // 3. Document Action Sanitization: Clean up active scripting entries (/JavaScript nodes)
+    // PDF Delimiters: Name characters in PDF terminate at standard delimiter characters
+    const isDelimiter = (byte: number): boolean => {
+      return [
+        0x00, 0x09, 0x0a, 0x0c, 0x0d, 0x20, // white space
+        40, 41,   // '(', ')'
+        60, 62,   // '<', '>'
+        91, 93,   // '[', ']'
+        123, 125, // '{', '}'
+        47, 37    // '/', '%'
+      ].includes(byte);
+    };
+
+    // 3. Document Action & Active Content Sanitization
     let changed = false;
     const len = workingBytes.length;
-    for (let i = 0; i < len - 11; i++) {
-      if (
-        workingBytes[i] === 47 &&      // '/'
-        workingBytes[i + 1] === 74 &&  // 'J'
-        workingBytes[i + 2] === 97 &&  // 'a'
-        workingBytes[i + 3] === 118    // 'v'
-      ) {
-        const hasJavaScript =
-          workingBytes[i + 4] === 97 &&  // 'a'
-          workingBytes[i + 5] === 83 &&  // 'S'
-          workingBytes[i + 6] === 99 &&  // 'c'
-          workingBytes[i + 7] === 114 && // 'r'
-          workingBytes[i + 8] === 105 && // 'i'
-          workingBytes[i + 9] === 112 && // 'p'
-          workingBytes[i + 10] === 116;  // 't'
 
-        if (hasJavaScript) {
-          // Obfuscate with inert data keeping exact byte length (/__NoScript_) to not corrupt offsets
-          const replacement = "/__NoScript_";
-          for (let k = 0; k < replacement.length; k++) {
-            workingBytes[i + k] = replacement.charCodeAt(k);
+    // Define search terms and their replacement arrays. Each mapping has identical character lengths.
+    const targets = [
+      { term: "/JavaScript", repl: "/__NoScript", limitCheck: false },
+      { term: "/JS", repl: "/_JS", limitCheck: true },
+      { term: "/AA", repl: "/_AA", limitCheck: true },
+      { term: "/Launch", repl: "/_Laun_h", limitCheck: true },
+      { term: "/EmbeddedFiles", repl: "/_EmbeddedInrt", limitCheck: false },
+      { term: "/EmbeddedFile", repl: "/_EmbeddedInr", limitCheck: false },
+      { term: "/SubmitForm", repl: "/_InertForm", limitCheck: false },
+      { term: "/ImportData", repl: "/_InertData", limitCheck: false }
+    ];
+
+    for (let i = 0; i < len - 3; i++) {
+      if (workingBytes[i] === 47) { // '/'
+        for (const target of targets) {
+          const termLen = target.term.length;
+          if (i + termLen > len) continue;
+
+          // Perform exact match verification
+          let match = true;
+          for (let k = 0; k < termLen; k++) {
+            if (workingBytes[i + k] !== target.term.charCodeAt(k)) {
+              match = false;
+              break;
+            }
           }
-          changed = true;
-          i += replacement.length - 1;
+
+          if (match) {
+            // For brief patterns, apply the delimiter check to prevent middle-of-word corruption
+            if (target.limitCheck && i + termLen < len) {
+              const nextByte = workingBytes[i + termLen];
+              if (!isDelimiter(nextByte)) {
+                continue; // Not a logical name token endpoint, skip
+              }
+            }
+
+            // Perform in-place obfuscation
+            for (let k = 0; k < termLen; k++) {
+              workingBytes[i + k] = target.repl.charCodeAt(k);
+            }
+            changed = true;
+            i += termLen - 1;
+            break;
+          }
         }
       }
     }
@@ -85,3 +126,4 @@ export class PDFSanitizer {
     return { bytes: workingBytes, wasSanitized };
   }
 }
+
