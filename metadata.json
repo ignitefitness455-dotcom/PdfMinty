@@ -1,6 +1,0 @@
-{
-  "name": "PDFMinty",
-  "description": "A fully polished client-side, offline-capable PDF toolkit for merging, splitting, rotating, password-protecting, and watermarking documents securely without any server uploads.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

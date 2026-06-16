@@ -7,6 +7,8 @@ export interface Toast {
 export type ToolType =
   | "merge"
   | "split"
+  | "reorder"
+  | "extract"
   | "rotate"
   | "protect"
   | "unlock"

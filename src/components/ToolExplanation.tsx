@@ -1,13 +1,15 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import ShieldCheck from "lucide-react/icons/shield-check";
-import Cpu from "lucide-react/icons/cpu";
-import Zap from "lucide-react/icons/zap";
-import UserCheck from "lucide-react/icons/user-check";
-import Lock from "lucide-react/icons/lock";
-import FileCheck from "lucide-react/icons/file-check";
-import HelpCircle from "lucide-react/icons/help-circle";
-import ChevronDown from "lucide-react/icons/chevron-down";
+import {
+  ShieldCheck,
+  Cpu,
+  Zap,
+  UserCheck,
+  Lock,
+  FileCheck,
+  HelpCircle,
+  ChevronDown,
+} from "lucide-react";
 
 interface Step {
   title: string;
@@ -38,7 +40,6 @@ export const ToolExplanation: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname.toLowerCase().replace(/\/$/, "");
 
-  // Generate dynamic tailored content configurations based on the URL path
   const getConfigForRoute = (path: string): ToolConfig => {
     const defaultFeatures = [
       {
@@ -451,7 +452,7 @@ export const ToolExplanation: React.FC = () => {
         return {
           toolName: "Unlock PDF",
           title: "Unlock PDF Free Online — 100% Private & Local",
-          description: "Need a safe way to unlock pdf free online without uploading sensitive legal papers, bank reports, or invoices to remote servers? PDFMinty is a premium, offline-first tool built to remove pdf password free and unlock pdf without uploading any documents. Our in-browser sandbox lets you remove pdf password protection online free using highly secure local client-side processing. Please note: This tool is designed to strip editing, printing, or copying constraints and save unprotected files instantly. While it can bypass standard owner restrictions, we do not support how to unlock pdf without password free if a strong user-open password is required to decrypt the contents—you must enter the authorized opening password to perform local decryption. If you need other secure tools, feel free to <a href=\"/compress-pdf\" class=\"text-emerald-500 hover:underline font-bold\">Compress PDF in browser</a>, use <a href=\"/merge-pdf\" class=\"text-emerald-500 hover:underline font-bold\">Merge PDF without uploading</a>, or securely <a href=\"/split-pdf\" class=\"text-emerald-500 hover:underline font-bold\">Split PDF online free</a> on your device.",
+          description: "Need a safe way to unlock pdf free online without uploading sensitive legal papers, bank reports, or invoices to remote servers? PDFMinty is a premium, offline-first tool built to remove pdf password free and unlock pdf without uploading any documents. Our in-browser sandbox lets you remove pdf password protection online free using highly secure local client-side processing. Please note: This tool is designed to strip editing, printing, or copying constraints and save unprotected files instantly. While it can bypass standard owner restrictions, we do not support how to unlock pdf without password free if a strong user-open password is required to decrypt the contents—you must enter the authorized opening password to perform local decryption.",
           steps: [
             { title: "Deposit Secure PDF", desc: "Drag or select your password-locked PDF document directly into our local web panel workflow." },
             { title: "Input Clearance Key", desc: "Enter the authorized opening password if prompted. PDFMinty handles decryption calculations deep in your local CPU." },
@@ -511,7 +512,7 @@ export const ToolExplanation: React.FC = () => {
           faqs: [
             {
               q: "How do I combine multiple images into one PDF?",
-              a: "Simply drag and drop your image files into our workspace window, arrange them using intuitive controls, and configure custom page sizes or margins. Click compile to convert your images into a single professional PDF directly on your local CPU. Up to 50 photos can be bound sequentially in a single click."
+              a: "Simply drag and drop your image files into our workspace window, arrange them using intuitive controls, and configure custom page sizes or margins. Click compile to convert your images into a single professional PDF directly on your local CPU."
             },
             {
               q: "Can I convert PNG to PDF for free?",
@@ -527,7 +528,7 @@ export const ToolExplanation: React.FC = () => {
             },
             {
               q: "Does this work with photos from my phone?",
-              a: "Absolutely. Our responsive applet is designed for desktop and mobile, so you can upload snapshots directly from your iPhone or Android camera roll. Convert receipts, paper bills, or notes into private PDF attachments instantly while on the go."
+              a: "Absolutely. Our responsive applet is designed for desktop and mobile, so you can upload snapshots directly from your iPhone or Android camera roll."
             }
           ]
         };
@@ -536,7 +537,7 @@ export const ToolExplanation: React.FC = () => {
         return {
           toolName: "PDF to Image",
           title: "Convert PDF to Image Online Free — 100% Private & Local",
-          description: "Need a safe way to convert PDF to image online free without sending bank statements, IDs, or confidential contracts over the web? PDFMinty lets you convert PDF to image in browser using highly performant client-side Web Workers, ensuring all file processing is kept strictly local on your CPU. Easily extract your pages as clear transparent PNGs or compact JPG formats without registering an account or facing hidden payment limits. Try our ultra-secure, offline-first media toolkit today and experience private document conversion.",
+          description: "Need a safe way to convert PDF to image online free without sending bank statements, IDs, or confidential contracts over the web? PDFMinty lets you convert PDF to image in browser using highly performant client-side Web Workers, ensuring all file processing is kept strictly local on your CPU. Easily extract your pages as clear transparent PNGs or compact JPG formats without registering an account or facing hidden payment limits.",
           steps: [
             { title: "Load Primary Document", desc: "Choose your PDF document from local storage or deposit it straight into our sandboxed window in the browser." },
             { title: "Select Formats & DPI", desc: "Choose your target format (JPEG/PNG) and resolution output (standard 150 DPI or professional 300 DPI)." },
@@ -569,7 +570,7 @@ export const ToolExplanation: React.FC = () => {
             },
             {
               q: "Is it free to convert PDF to JPG online?",
-              a: "Yes, you can convert any PDF file size completely free with PDFMinty without creating an account or running into daily usage gates. Since we use your native browser CPU instead of expensive cloud servers, we keep this tool 100% free and open-access."
+              a: "Yes, you can convert any PDF file size completely free with PDFMinty without creating an account or running into daily usage gates."
             }
           ]
         };
@@ -578,11 +579,11 @@ export const ToolExplanation: React.FC = () => {
         return {
           toolName: "AI PDF Analyzer",
           title: "AI PDF Analyzer Free — 100% Secure & Local Extraction",
-          description: "Need a secure, private way to analyze pdf with ai free without uploading your sensitive files to remote cloud storage? PDFMinty's offline-extracted AI PDF analyzer free tool parses your documents directly inside your local browser sandbox. It utilizes high-performance browser-side parsing to extract text blocks locally and safely send only encrypted text segments to our protected Gemini proxy. This makes it a highly private pdf summarizer ai free online tool with no logins required. Whether you need a powerful ai tool to analyze pdf documents free or want to summarize pdf with ai no account, PDFMinty handles your requests seamlessly. If you need other PDF optimizations, feel free to use our platform to <a href=\"/compress-pdf\" class=\"text-emerald-500 hover:underline font-bold\">Compress PDF in browser</a>, <a href=\"/merge-pdf\" class=\"text-emerald-500 hover:underline font-bold\">Merge PDF without uploading</a> to combine files, or securely <a href=\"/split-pdf\" class=\"text-emerald-500 hover:underline font-bold\">Split PDF online free</a> on your device.",
+          description: "Need a secure, private way to analyze pdf with ai free without uploading your sensitive files to remote cloud storage? PDFMinty's offline-extracted AI PDF analyzer free tool parses your documents directly inside your local browser sandbox. It utilizes high-performance browser-side parsing to extract text blocks locally and safely send only encrypted text segments to our protected Gemini proxy. This makes it a highly private pdf summarizer ai free online tool with no logins required.",
           steps: [
             { title: "Select or Drag PDF", desc: "Choose your study materials, business briefs, or legal papers to load into our secure, sandboxed client-side browser space." },
             { title: "Review Page Preview", desc: "Our engine performs lightning-fast client-side page layout detection, extracting text blocks directly within browser memory." },
-            { title: "Ask Questions & Summarize", desc: "Instantly prompt the model for key summaries or custom questions. Emailed or cached PDF bytes never touch our backend databases." }
+            { title: "Ask Questions & Summarize", desc: "Instantly prompt the model for key summaries or custom questions." }
           ],
           features: [
             ...defaultFeatures.slice(0, 2),
@@ -596,120 +597,23 @@ export const ToolExplanation: React.FC = () => {
           faqs: [
             {
               q: "How does AI PDF analysis work?",
-              a: "To analyze a document, PDFMinty reads and parses the raw text and visual layout structures directly inside your browser cache. It then securely transcribes and formats only the text coordinates before sending the payload dynamically to our secure, server-side Gemini API proxy. The AI processes the prompt in real-time, instantly delivering highly accurate outlines, interactive search results, and contextual answers without ever copying or storing your actual file."
+              a: "To analyze a document, PDFMinty reads and parses the raw text and visual layout structures directly inside your browser cache. It then securely transcribes and formats only the text coordinates before sending the payload dynamically to our secure, server-side Gemini API proxy."
             },
             {
               q: "Is my PDF content safe with AI analysis?",
-              a: "Yes, completely. Unlike other cloud repositories that save your raw documents, PDFMinty executes all document rendering and text extraction in your local browser sandbox. Only the abstracted text content is transmitted to the server via SSL encryption to communicate with the Gemini API. Neither PDFMinty nor Gemini retains or uses your private text for AI training or permanent data storage."
+              a: "Yes, completely. Unlike other cloud repositories that save your raw documents, PDFMinty executes all document rendering and text extraction in your local browser sandbox. Only the abstracted text content is transmitted to the server via SSL encryption to communicate with the Gemini API."
             },
             {
               q: "What can AI tell me about my PDF?",
-              a: "Our smart analyzer can instantly summarize lengthy books, extract structured key points, highlight project goals, identify action items inside business reports, or answer custom conversational questions. It can also translate paragraphs, explain complex mathematical formulas, and outline logical structure patterns in seconds."
+              a: "Our smart analyzer can instantly summarize lengthy books, extract structured key points, highlight project goals, identify action items inside business reports, or answer custom conversational questions."
             },
             {
               q: "How accurate is AI PDF summarization?",
-              a: "It is exceptionally accurate. By utilizing Gemini's advanced natural language understanding and large context window, our tool can read and synthesize deep cross-page correlations. Because our local parser extracts text cleanly with precise character coordinates, the model avoids hallucinating or misreading formatting structures."
+              a: "It is exceptionally accurate. By utilizing Gemini's advanced natural language understanding and large context window, our tool can read and synthesize deep cross-page correlations."
             },
             {
               q: "Does AI analysis work on scanned PDFs?",
-              a: "Yes! PDFMinty includes a responsive browser-side parser that reads text layers. For scanned PDFs or images that don't have built-in selectable text, our system automatically runs secure text recognition algorithms locally in your browser memory to prepare clean text layers before initiating the AI analysis."
-            }
-          ]
-        };
-
-      case "/delete-pages-pdf":
-        return {
-          toolName: "Delete PDF Pages",
-          title: "Delete PDF Pages Free Online — 100% Private & Local",
-          description: "Need a secure, hassle-free way to delete pages from pdf free online without uploading sensitive files to cloud servers? PDFMinty is a premium, offline-first tool designed to remove pages from pdf without uploading files, allowing you to delete pdf pages in browser privately. Whether you are wondering how to delete pages from pdf for free or need to remove specific pages from pdf online, our responsive utility runs 100% locally on your computer's browser using in-browser processing. If you need further optimizations, you can easily use our other tools to <a href=\"/compress-pdf\" class=\"text-emerald-500 hover:underline font-bold\">Compress PDF in browser</a>, <a href=\"/merge-pdf\" class=\"text-emerald-500 hover:underline font-bold\">Merge PDF without uploading</a> to combine files, or <a href=\"/split-pdf\" class=\"text-emerald-500 hover:underline font-bold\">Split PDF online free</a> to separate pages securely.",
-          steps: [
-            { title: "Select or Drag PDF", desc: "Choose the PDF document containing pages you want to delete directly within our secure client-side sandbox." },
-            { title: "Click Delete on Thumbnails", desc: "Review the visually rendered page thumbnails and click the trash/delete icon on any slides you wish to remove." },
-            { title: "Save Clean Document", desc: "Save the permanently pruned document instantly with full visual formatting and text layers intact." }
-          ],
-          features: [
-            ...defaultFeatures.slice(0, 2),
-            {
-              icon: <Zap className="w-5 h-5 text-amber-500" />,
-              title: "Instant Live Undo",
-              desc: "Made an accidental page deletion? Instantly restore any deleted page or reset the canvas array before compiling your document."
-            },
-            defaultFeatures[3]
-          ],
-          faqs: [
-            {
-              q: "How do I delete a page from a PDF?",
-              a: "To delete a page from a PDF, simply drop your document into PDFMinty's secure local editor. Once the layout is parsed, click the trash or delete icon on any unwanted page preview, and then compile. Your updated PDF file will be generated instantly and can be saved directly to your computer."
-            },
-            {
-              q: "Can I delete multiple pages at once?",
-              a: "Yes, you can easily delete multiple pages at once. Our interactive browser workspace allows you to visually inspect each page in order and click 'Delete' on several pages simultaneously or specify high-level index deletion commands before compiling."
-            },
-            {
-              q: "Will deleting pages affect other content?",
-              a: "No. Deleting pages with PDFMinty only omits the selected page structural objects from the compiled output file. The formatting, high-resolution imagery, text layers, vector assets, and embedded fonts of all remaining pages are preserved in their exact original form with zero quality loss."
-            },
-            {
-              q: "How do I remove a blank page from PDF?",
-              a: "To remove a blank page, select your PDF file in the editor to load the page thumbnails. Find the empty or blank page preview card, click the delete/trash icon on that page card, and tap download. The blank page is completely expunged from the file structure."
-            },
-            {
-              q: "Is there a free way to delete PDF pages?",
-              a: "Yes, PDFMinty offers a completely free way to delete PDF pages offline without account signups, subscriptions, or intrusive watermarks. All operations occur on your CPU via secure Web Workers, eliminating server fees and keeping your private documents perfectly safe."
-            }
-          ]
-        };
-
-      case "/extract-pages-pdf":
-        return {
-          toolName: "Extract PDF Pages",
-          title: "Extract PDF Pages Online Free — Save Selected Pages",
-          description: "Extract specific pages or page ranges from any PDF and save them as a new document. Fast, private, and fully offline.",
-          steps: [
-            { title: "Choose a PDF File", desc: "Upload the PDF you want to extract pages from." },
-            { title: "Specify Page Ranges", desc: "Enter the pages or ranges to extract, e.g. '1-3, 7'." },
-            { title: "Download Extracted PDF", desc: "Click extract and download your new focused document." }
-          ],
-          features: defaultFeatures,
-          faqs: [
-            {
-              q: "Can I extract non-consecutive pages?",
-              a: "Yes. Use comma-separated ranges like '1-3, 7, 10-12' to extract any combination of pages."
-            },
-            {
-              q: "Does extracting pages affect quality?",
-              a: "No. Extracted pages retain their full original resolution and formatting."
-            },
-            {
-              q: "Is there a limit on how many pages I can extract?",
-              a: "No limit. You can extract any number of pages from documents of any size within browser memory."
-            }
-          ]
-        };
-
-      case "/reorder-pdf":
-        return {
-          toolName: "Reorder PDF Pages",
-          title: "Reorder PDF Pages Online Free — Rearrange Page Order",
-          description: "Drag and drop pages to rearrange the sequence of your PDF document. Preview thumbnails and reorder with full visual control, entirely offline.",
-          steps: [
-            { title: "Upload Your Document", desc: "Load any PDF to display its pages as visual thumbnails." },
-            { title: "Drag to Reorder", desc: "Drag page thumbnails into your desired sequence order." },
-            { title: "Save Reordered PDF", desc: "Generate and download the newly ordered PDF instantly." }
-          ],
-          features: defaultFeatures,
-          faqs: [
-            {
-              q: "Can I preview pages before reordering?",
-              a: "Yes. All pages are rendered as visual thumbnails so you can confirm the correct order before saving."
-            },
-            {
-              q: "Is the original file modified?",
-              a: "No. A new PDF is generated with the new order. Your original file is never altered."
-            },
-            {
-              q: "Does reordering work on scanned PDFs?",
-              a: "Yes. Reordering works on all PDF types including scanned image-based documents."
+              a: "Yes! PDFMinty includes a responsive browser-side parser that reads text layers. For scanned PDFs or images that don't have built-in selectable text, our system automatically runs secure text recognition "
             }
           ]
         };
@@ -745,7 +649,6 @@ export const ToolExplanation: React.FC = () => {
 
   const config = getConfigForRoute(currentPath);
 
-  // Generate Google Structured Sitemaps/Rich Snippets schema markup in headers
   const howToSchema = {
     "@context": "https://schema.org",
     "@type": "HowTo",
@@ -778,7 +681,6 @@ export const ToolExplanation: React.FC = () => {
       id="tool-explanatory-section"
       className="max-w-4xl mx-auto px-4 mt-20 pt-16 border-t border-slate-250 dark:border-slate-800/80 animate-fadein font-sans text-left"
     >
-      {/* Generate dynamic JSON-LD scripts inside DOM for SEO crawls */}
       <script type="application/ld+json">
         {JSON.stringify(howToSchema)}
       </script>
@@ -786,7 +688,6 @@ export const ToolExplanation: React.FC = () => {
         {JSON.stringify(faqSchema)}
       </script>
 
-      {/* Hero Headline Box with subtle structural contrast */}
       <div className="mb-14">
         <span className="text-[10px] font-black tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-full border border-emerald-100/50 dark:border-emerald-900/30 uppercase">
           Client-Side Security Guide
@@ -800,7 +701,6 @@ export const ToolExplanation: React.FC = () => {
         />
       </div>
 
-      {/* Grid: 1. How to Use Step-by-Step UI Layout */}
       <section className="mb-16">
         <h3 className="text-lg font-black text-slate-850 dark:text-slate-100 mb-6 flex items-center gap-2">
           <span className="w-1.5 h-6 bg-emerald-500 rounded-full"></span>
@@ -817,10 +717,10 @@ export const ToolExplanation: React.FC = () => {
                 <span className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-350 flex items-center justify-center font-black text-xs shadow-sm mb-4">
                   0{idx + 1}
                 </span>
-                <h4 className="text-xs font-black text-slate-900 dark:text-slate-200 uppercase tracking-wider mb-2">
+                <h4 className="text-xs font-black text-slate-905 dark:text-slate-200 uppercase tracking-wider mb-2">
                   {step.title}
                 </h4>
-                <p className="text-[12px] text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
+                <p className="text-[12px] text-slate-505 dark:text-slate-400 leading-relaxed font-semibold">
                   {step.desc}
                 </p>
               </div>
@@ -829,9 +729,8 @@ export const ToolExplanation: React.FC = () => {
         </div>
       </section>
 
-      {/* Grid: 2. Features & Benefits layout with dynamic hover effects */}
       <section className="mb-16">
-        <h3 className="text-lg font-black text-slate-850 dark:text-slate-100 mb-6 flex items-center gap-2">
+        <h3 className="text-lg font-black text-slate-855 dark:text-slate-100 mb-6 flex items-center gap-2">
           <span className="w-1.5 h-6 bg-emerald-500 rounded-full"></span>
           <span>Privacy & Security Advantages</span>
         </h3>
@@ -842,14 +741,14 @@ export const ToolExplanation: React.FC = () => {
               className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 shadow-[0_4px_12px_rgba(0,0,0,0.01)] dark:shadow-none hover:shadow-md transition-all duration-350"
             >
               <div className="flex items-start gap-4">
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 shrink-0">
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-955 border border-slate-100 dark:border-slate-850 shrink-0">
                   {feat.icon}
                 </div>
                 <div>
                   <h4 className="text-xs font-black text-slate-900 dark:text-slate-200 uppercase tracking-wider mb-1.5">
                     {feat.title}
                   </h4>
-                  <p className="text-[12px] text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
+                  <p className="text-[12px] text-slate-505 dark:text-slate-400 leading-relaxed font-semibold">
                     {feat.desc}
                   </p>
                 </div>
@@ -859,9 +758,8 @@ export const ToolExplanation: React.FC = () => {
         </div>
       </section>
 
-      {/* Layout: 3. FAQ Section with Standard details & summary semantic components */}
       <section className="mb-12">
-        <h3 className="text-lg font-black text-slate-850 dark:text-slate-100 mb-6 flex items-center gap-2">
+        <h3 className="text-lg font-black text-slate-855 dark:text-slate-100 mb-6 flex items-center gap-2">
           <span className="w-1.5 h-6 bg-emerald-500 rounded-full"></span>
           <span>Frequently Answered Queries</span>
         </h3>
@@ -870,7 +768,7 @@ export const ToolExplanation: React.FC = () => {
             <details
               key={idx}
               id={`faq-accordion-${idx + 1}`}
-              className="group border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/30 dark:bg-slate-950/10 transition-colors duration-250 open:bg-white dark:open:bg-slate-900 open:border-emerald-300 dark:open:border-emerald-900/60"
+              className="group border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/30 dark:bg-slate-950/10 transition-colors duration-250 open:bg-white dark:open:bg-slate-900 open:border-emerald-305 dark:open:border-emerald-900/60"
             >
               <summary className="p-5 flex items-center justify-between text-xs font-bold text-slate-750 dark:text-slate-200 cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden">
                 <div className="flex items-center gap-3 pr-4">
@@ -879,7 +777,7 @@ export const ToolExplanation: React.FC = () => {
                 </div>
                 <ChevronDown className="w-4 h-4 text-slate-400 transition-transform duration-300 group-open:rotate-180 shrink-0" />
               </summary>
-              <div className="px-5 pb-5 pt-1 text-xs text-slate-500 dark:text-slate-400 font-semibold border-t border-slate-100/50 dark:border-slate-850/50 leading-relaxed max-w-3xl">
+              <div className="px-5 pb-5 pt-1 text-xs text-slate-505 dark:text-slate-400 font-semibold border-t border-slate-100/50 dark:border-slate-850/50 leading-relaxed max-w-3xl">
                 {faq.a}
               </div>
             </details>

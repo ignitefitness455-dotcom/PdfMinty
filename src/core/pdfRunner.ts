@@ -1,100 +1,119 @@
-import { getPdfJs } from "./utils";
-import { PDFSanitizer } from "./PDFSanitizer";
+import { PDFJS_WORKER_SRC } from "../config/constants";
 import { createDedicatedWorker } from "./WorkerManager";
+import { PDFSanitizer } from "./PDFSanitizer";
 
-export interface PreprocessResult {
+export interface PDFLoadResult {
   pdf: any;
-  sanitizedBytes: Uint8Array;
 }
 
-export interface PreprocessOptions {
-  skipEncryptionCheck?: boolean;
-  onEncrypted?: () => void;
-  showToast?: (message: string, type: "success" | "error" | "info") => void;
-  customLockMessage?: string;
-}
-
-/**
- * Preprocesses a selected file by reading its binary array,
- * feeding it through client-side PDFSanitizer, performing standard encryption
- * warning checks, and loading it with PDF.js for preview thumbnail layouts.
- */
-export async function preprocessAndLoadPdf(
+export const preprocessAndLoadPdf = async (
   file: File,
-  options?: PreprocessOptions
-): Promise<PreprocessResult> {
-  const arrayBuffer = await file.arrayBuffer();
-  let sanitizedBytes: any = new Uint8Array(arrayBuffer);
-
-  try {
-    const sanResult = PDFSanitizer.sanitize(sanitizedBytes, {
-      skipEncryptionCheck: options?.skipEncryptionCheck,
-    });
-    sanitizedBytes = sanResult.bytes;
-  } catch (err: any) {
-    if (err?.message?.includes("SECURED_LOCKED")) {
-      if (options?.onEncrypted) {
-        options.onEncrypted();
-      }
-      if (options?.showToast) {
-        options.showToast(
-          options.customLockMessage ||
-            "🔒 Standard secured/locked PDF file detected. Action restricted. Please use the Unlock tool first.",
-          "error"
-        );
-      }
-    }
-    throw err;
+  options: {
+    onEncrypted?: () => void;
+    showToast: (msg: string, type: "success" | "error" | "info") => void;
+    customLockMessage?: string;
   }
+): Promise<PDFLoadResult> => {
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_SRC;
 
-  const pdfjs = await getPdfJs();
+  const arrayBuffer = await file.arrayBuffer();
+  
+  // Clean, repair, and sanitize the document streams locally before running previews or extraction
+  const rawBytes = new Uint8Array(arrayBuffer);
+  const { bytes: sanitizedBytes } = PDFSanitizer.sanitize(rawBytes);
+
   const loadingTask = pdfjs.getDocument({
     data: sanitizedBytes,
+    useWorkerFetch: false,
+    isEvalSupported: false,
     useSystemFonts: true,
   });
 
-  const pdf = await loadingTask.promise;
-  return { pdf, sanitizedBytes };
-}
-
-/**
- * Executes a PDF task (e.g. merge, split, rotate, watermark) inside a
- * Dedicated HTML5 Web Worker or elegant VirtualWorker fallback.
- */
-export function executePdfWorker(
-  taskType: string,
-  payload: any,
-  transferables?: Transferable[]
-): Promise<any> {
-  return new Promise((resolve, reject) => {
-    try {
-      const worker = createDedicatedWorker(taskType);
-
-      worker.onmessage = (e: MessageEvent) => {
-        const { success, bytes, results, error } = e.data;
-        worker.terminate();
-        if (success) {
-          resolve({ bytes, results });
-        } else {
-          reject(new Error(error || "Worker operation failed"));
-        }
-      };
-
-      worker.onerror = (err) => {
-        console.error(`[PDFMINTY-DEBUG] Worker connection error during taskType=${taskType}:`, err);
-        worker.terminate();
-        reject(new Error("Worker connection error occurred during processing."));
-      };
-
-      worker.postMessage(
-        {
-          type: taskType,
-          ...payload,
-        },
-        transferables || []
-      );
-    } catch (err) {
-      reject(err);
+  loadingTask.onPassword = (updatePassword: any, reason: number) => {
+    if (options.onEncrypted) {
+      options.onEncrypted();
     }
-  });
+    if (reason === 1) {
+      options.showToast(options.customLockMessage || "🔒 Password protected PDF document.", "info");
+    }
+    updatePassword("");
+  };
+
+  const pdf = await loadingTask.promise;
+  return { pdf };
+};
+
+// Concurrency pool and task scheduling queue to prevent browser hangs
+interface Task {
+  type: string;
+  args: any;
+  transferables?: Transferable[];
+  resolve: (value: any) => void;
+  reject: (reason: any) => void;
 }
+
+const workerQueue: Task[] = [];
+let activeWorkerCount = 0;
+const MAX_CONCURRENT_TASKS = Math.min(2, typeof navigator !== "undefined" && navigator.hardwareConcurrency ? navigator.hardwareConcurrency : 2);
+
+const processQueue = async (): Promise<void> => {
+  if (workerQueue.length === 0 || activeWorkerCount >= MAX_CONCURRENT_TASKS) return;
+
+  const task = workerQueue.shift()!;
+  activeWorkerCount++;
+
+  try {
+    const res = await runActualWorker(task.type, task.args, task.transferables);
+    task.resolve(res);
+  } catch (err) {
+    task.reject(err);
+  } finally {
+    activeWorkerCount--;
+    setTimeout(processQueue, 0);
+  }
+};
+
+const runActualWorker = (
+  type: string,
+  args: any,
+  transferables?: Transferable[]
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const worker = createDedicatedWorker("pdf-run");
+
+    worker.onmessage = (e: MessageEvent) => {
+      const { success, error, ...data } = e.data;
+      if (success) {
+        resolve(data);
+      } else {
+        reject(new Error(error || "Worker operation failed"));
+      }
+      worker.terminate();
+    };
+
+    worker.onerror = (err) => {
+      reject(err);
+      worker.terminate();
+    };
+
+    worker.postMessage({ type, ...args }, transferables || []);
+  });
+};
+
+export const executePdfWorker = async (
+  type: string,
+  args: any,
+  transferables?: Transferable[]
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    workerQueue.push({
+      type,
+      args,
+      transferables,
+      resolve,
+      reject,
+    });
+    processQueue();
+  });
+};

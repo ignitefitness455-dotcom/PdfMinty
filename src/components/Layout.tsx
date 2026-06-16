@@ -1,27 +1,29 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { z } from "zod";
-import Moon from "lucide-react/icons/moon";
-import Sun from "lucide-react/icons/sun";
-import ShieldAlert from "lucide-react/icons/shield-alert";
-import MessageSquare from "lucide-react/icons/message-square";
-import Mail from "lucide-react/icons/mail";
-import HelpCircle from "lucide-react/icons/help-circle";
-import RefreshCw from "lucide-react/icons/refresh-cw";
-import ArrowUp from "lucide-react/icons/arrow-up";
-import Merge from "lucide-react/icons/merge";
-import Scissors from "lucide-react/icons/scissors";
-import RotateCw from "lucide-react/icons/rotate-cw";
-import Trash2 from "lucide-react/icons/trash-2";
-import Stamp from "lucide-react/icons/stamp";
-import Hash from "lucide-react/icons/hash";
-import Plus from "lucide-react/icons/plus";
-import Lock from "lucide-react/icons/lock";
-import Unlock from "lucide-react/icons/unlock";
-import ImageIcon from "lucide-react/icons/image";
-import Layers from "lucide-react/icons/layers";
-import Minimize2 from "lucide-react/icons/minimize-2";
-import Brain from "lucide-react/icons/brain";
+import {
+  Moon,
+  Sun,
+  ShieldAlert,
+  MessageSquare,
+  Mail,
+  HelpCircle,
+  RefreshCw,
+  ArrowUp,
+  Merge,
+  Scissors,
+  RotateCw,
+  Trash2,
+  Stamp,
+  Hash,
+  Plus,
+  Lock,
+  Unlock,
+  Image as ImageIcon,
+  Layers,
+  Minimize2,
+  Brain,
+} from "lucide-react";
 import { ToolType } from "../types";
 import { useToast } from "../contexts/ToastContext";
 import confetti from "canvas-confetti";
@@ -50,107 +52,123 @@ export const useLayout = () => {
 const toolsList = [
   {
     id: "merge" as ToolType,
-    name: "Merge PDFs",
+    name: "Merge PDF",
     slug: "merge-pdf",
-    description: "Combine multiple PDF files into a single master document sequentially.",
+    description: "Combine multiple PDF files into one single PDF easily.",
     icon: Merge,
-    color: "bg-emerald-50 text-emerald-600 border-emerald-100 hover:border-emerald-300",
+    color: "bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:border-emerald-500/50",
   },
   {
     id: "compress" as ToolType,
     name: "Compress PDF",
     slug: "compress-pdf",
-    description: "Perform advanced, non-destructive file size reductions completely offline.",
+    description: "Reduce PDF file size without losing premium quality.",
     icon: Minimize2,
-    color: "bg-pink-50 text-pink-600 border-pink-100 hover:border-pink-300",
+    color: "bg-pink-500/5 hover:bg-pink-500/10 text-pink-500 border-pink-500/20 hover:border-pink-500/50",
   },
   {
     id: "split" as ToolType,
-    name: "Extract Pages",
+    name: "Split PDF",
     slug: "split-pdf",
-    description: "Extract specific page ranges to form a brand new light document.",
+    description: "Split PDF pages into separate documents by page range.",
     icon: Scissors,
-    color: "bg-blue-50 text-blue-600 border-blue-100 hover:border-blue-300",
+    color: "bg-blue-500/5 hover:bg-blue-500/10 text-blue-500 border-blue-500/20 hover:border-blue-500/50",
+  },
+  {
+    id: "reorder" as ToolType,
+    name: "Organize PDF",
+    slug: "reorder-pdf",
+    description: "Rearrange, sort, and organize the pages of your PDF file.",
+    icon: ArrowUp,
+    color: "bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:border-indigo-500/50",
+  },
+  {
+    id: "extract" as ToolType,
+    name: "Extract Pages",
+    slug: "extract-pages-pdf",
+    description: "Extract specific pages from your PDF file into a new document.",
+    icon: Layers,
+    color: "bg-teal-500/5 hover:bg-teal-500/10 text-teal-500 border-teal-500/20 hover:border-teal-500/50",
   },
   {
     id: "img-to-pdf" as ToolType,
     name: "Image to PDF",
     slug: "image-to-pdf",
-    description: "Stitch standard images (JPG/PNG) into beautiful, page-synchronized PDFs.",
+    description: "Convert JPG, PNG, and other images to PDF in seconds.",
     icon: ImageIcon,
-    color: "bg-fuchsia-50 text-fuchsia-600 border-fuchsia-100 hover:border-fuchsia-300",
+    color: "bg-fuchsia-500/5 hover:bg-fuchsia-500/10 text-fuchsia-500 border-fuchsia-500/20 hover:border-fuchsia-500/50",
   },
   {
     id: "pdf-to-img" as ToolType,
     name: "PDF to Image",
     slug: "pdf-to-image",
-    description: "Render PDF page content client-side to export individual sharp JPEGs in ZIP.",
+    description: "Convert PDF pages into high-quality companion images.",
     icon: Layers,
-    color: "bg-sky-50 text-sky-600 border-sky-100 hover:border-sky-300",
+    color: "bg-sky-500/5 hover:bg-sky-500/10 text-sky-500 border-sky-500/20 hover:border-sky-500/50",
   },
   {
     id: "delete-pages" as ToolType,
     name: "Delete Pages",
     slug: "organize",
-    description: "Review rendered page previews and prune unneeded pages interactively.",
+    description: "Remove unwanted pages from your PDF file easily.",
     icon: Trash2,
-    color: "bg-rose-50 text-rose-600 border-rose-100 hover:border-rose-300",
+    color: "bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 border-rose-500/20 hover:border-rose-500/50",
   },
   {
     id: "rotate" as ToolType,
-    name: "Rotate Pages",
+    name: "Rotate PDF",
     slug: "rotate-pdf",
-    description: "Rotate individual or all pages of your PDF document physically.",
+    description: "Rotate one or all pages of your PDF document easily.",
     icon: RotateCw,
-    color: "bg-amber-50 text-amber-600 border-amber-100 hover:border-amber-300",
+    color: "bg-amber-500/5 hover:bg-amber-500/10 text-amber-500 border-amber-500/20 hover:border-amber-500/50",
   },
   {
     id: "watermark" as ToolType,
     name: "Add Watermark",
     slug: "watermark-pdf",
-    description: "Stamp customized overlay text with precision tilt and opacity control.",
+    description: "Add a custom text watermark seal over your PDF pages.",
     icon: Stamp,
-    color: "bg-teal-50 text-teal-600 border-teal-100 hover:border-teal-300",
+    color: "bg-teal-500/5 hover:bg-teal-500/10 text-teal-500 border-teal-500/20 hover:border-teal-500/50",
   },
   {
     id: "page-numbers" as ToolType,
     name: "Page Numbers",
     slug: "add-page-numbers",
-    description: "Stamp sequential page count strings cleanly atop or below pages.",
+    description: "Add clean, structured page numbers to your PDF pages.",
     icon: Hash,
-    color: "bg-indigo-50 text-indigo-600 border-indigo-100 hover:border-indigo-300",
+    color: "bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-505 border-indigo-500/20 hover:border-indigo-500/50",
   },
   {
     id: "protect" as ToolType,
-    name: "Secure Private Vault",
+    name: "Protect PDF",
     slug: "protect-pdf",
-    description: "Encrypt document bytes client-side with a strong secret offline key derived from password using AES-GCM.",
+    description: "Encrypt and lock your PDF document with a strong password.",
     icon: Lock,
-    color: "bg-cyan-50 text-cyan-600 border-cyan-100 hover:border-cyan-300",
+    color: "bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-500 border-cyan-500/20 hover:border-cyan-500/50",
   },
   {
     id: "unlock" as ToolType,
-    name: "Unlock Private Vault",
+    name: "Unlock PDF",
     slug: "unlock-pdf",
-    description: "Decrypt and restore AES-GCM encrypted documents locally inside your browser cache.",
+    description: "Decouple and remove passwords from secure incoming PDFs.",
     icon: Unlock,
-    color: "bg-orange-50 text-orange-600 border-orange-100 hover:border-orange-300",
+    color: "bg-orange-500/5 hover:bg-orange-500/10 text-orange-500 border-orange-500/20 hover:border-orange-500/50",
   },
   {
     id: "add-blank" as ToolType,
     name: "Add Blank Page",
     slug: "add-blank-page",
-    description: "Insert standard blank empty canvas sheets anywhere in the document.",
+    description: "Insert empty blank spaces anywhere inside your PDF.",
     icon: Plus,
-    color: "bg-violet-50 text-violet-600 border-violet-100 hover:border-violet-300",
+    color: "bg-violet-500/5 hover:bg-violet-500/10 text-violet-500 border-violet-500/20 hover:border-violet-500/50",
   },
   {
     id: "ai-analyze" as ToolType,
-    name: "AI Analyze Document",
+    name: "AI PDF Summary",
     slug: "intelligence",
-    description: "Generate high-fidelity executive summaries, key action points, tags using Gemini.",
+    description: "Summarize and extract key insights from your PDF using AI.",
     icon: Brain,
-    color: "bg-indigo-50 text-indigo-600 border-indigo-100 hover:border-indigo-300",
+    color: "bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:border-indigo-500/50",
   },
 ];
 
@@ -168,23 +186,20 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const location = useLocation();
   const { showToast } = useToast();
 
-  // Theme Setting State (can be "light", "dark", or "system")
   const [themeSetting, setThemeSetting] = useState<"light" | "dark" | "system">(() => {
     try {
       const saved = localStorage.getItem("pdfminty-theme-setting");
       if (saved === "light" || saved === "dark" || saved === "system") {
         return saved;
       }
-      // Check legacy setting
       const legacySaved = localStorage.getItem("pdfminty-theme");
       if (legacySaved === "light" || legacySaved === "dark") {
         return legacySaved;
       }
     } catch (e) {}
-    return "system"; // Default is to automatically follow system preference
+    return "system";
   });
 
-  // Calculate current system theme match
   const [systemTheme, setSystemTheme] = useState<"light" | "dark">(() => {
     if (
       typeof window !== "undefined" &&
@@ -196,7 +211,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     return "light";
   });
 
-  // Listen for system theme media query changes dynamically
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
 
@@ -205,7 +219,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       setSystemTheme(e.matches ? "dark" : "light");
     };
 
-    // Modern browsers support addEventListener
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener("change", handleMediaQueryChange);
       return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
@@ -215,14 +228,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     }
   }, []);
 
-  // Compute resolved active theme ("light" or "dark")
   const theme: "light" | "dark" = themeSetting === "system" ? systemTheme : themeSetting;
 
-  // Apply resolved theme classes to root document
   useEffect(() => {
     try {
       localStorage.setItem("pdfminty-theme-setting", themeSetting);
-      localStorage.setItem("pdfminty-theme", themeSetting); // backward compatibility
+      localStorage.setItem("pdfminty-theme", themeSetting);
     } catch (e) {}
 
     const root = document.documentElement;
@@ -233,7 +244,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     }
   }, [theme, themeSetting]);
 
-  // Backward-compatible setTheme handler
   const setThemeLegacy = (val: "light" | "dark" | ((prev: "light" | "dark") => "light" | "dark")) => {
     if (typeof val === "function") {
       setThemeSetting((prevSetting) => {
@@ -245,7 +255,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     }
   };
 
-  // Scroll to Top state
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -262,7 +271,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     };
   }, []);
 
-  // Modals
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState<number | null>(null);
   const [feedbackComment, setFeedbackComment] = useState("");
@@ -281,8 +289,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     subject?: string;
     message?: string;
   }>({});
-
-  // Note: showToast now uses the global ToastContext provider via useToast.
 
   const submitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -336,7 +342,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const submitContactUs = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate using Zod
     const validation = contactSchema.safeParse({
       name: contactName,
       email: contactEmail,
@@ -410,10 +415,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         id="pdfminty-root"
         className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200 antialiased overflow-x-hidden w-full"
       >
-        {/* Skip to Content Link for Keyboard Accessibility */}
         <SkipToContent />
 
-        {/* Header */}
         <header
           id="header-bar"
           className="sticky top-0 bg-white/80 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-900/80 z-20 transition-all shadow-[0_2px_15px_-4px_rgba(0,0,0,0.02)]"
@@ -551,7 +554,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <span className="text-slate-200 dark:text-slate-800">|</span>
               </div>
 
-              {/* Pulsing Sandbox Integrity Indicator */}
               <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900 dark:bg-slate-800 text-white rounded-full text-xs font-bold tracking-wide border border-slate-800 dark:border-slate-700 shadow-lg shadow-slate-950/10">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -561,14 +563,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <span className="sm:hidden">🔒 Secure</span>
               </span>
 
-              {/* Single Theme Toggle Option */}
               <button
                 type="button"
                 id="theme-toggler"
                 onClick={() => {
                   setThemeSetting(theme === "light" ? "dark" : "light");
                 }}
-                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/60 dark:border-slate-800/80 transition-all cursor-pointer shadow-sm flex items-center justify-center font-bold focus:outline-none"
+                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-805 text-slate-705 dark:text-slate-200 border border-slate-200/60 dark:border-slate-800/80 transition-all cursor-pointer shadow-sm flex items-center justify-center font-bold focus:outline-none"
                 aria-label="Toggle Dark Mode"
               >
                 {theme === "light" ? (
@@ -581,12 +582,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </div>
         </header>
 
-        {/* Primary Workspace Space with Floating Background Glows */}
         <main
           id="main-content"
           className="flex-1 max-w-7xl w-full mx-auto px-4 py-10 relative overflow-x-hidden min-h-[60vh]"
         >
-          {/* Decorative Ambient Glows */}
           <div className="absolute top-0 left-10 w-96 h-96 bg-emerald-100/30 dark:bg-emerald-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] pointer-events-none z-0" />
           <div className="absolute top-20 right-10 w-80 h-80 bg-teal-100/20 dark:bg-teal-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[80px] pointer-events-none z-0 animate-pulse duration-10000" />
           <div className="absolute bottom-40 left-1/3 w-96 h-96 bg-indigo-100/10 dark:bg-indigo-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[120px] pointer-events-none z-0" />
@@ -597,7 +596,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <RelatedTools />
           </div>
 
-          {/* Secure lock alert footer block */}
           <div className="max-w-7xl mx-auto px-4 mt-12 mb-2 font-sans relative z-10">
             <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 rounded-2xl p-4 flex items-center justify-center gap-3 max-w-2xl mx-auto shadow-sm text-center">
               <span className="text-lg">🔒</span>
@@ -612,7 +610,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </div>
         </main>
 
-        {/* Footer */}
         <footer
           id="footer-menu"
           className="border-t border-slate-200/60 dark:border-slate-900/60 bg-white dark:bg-slate-950/40 py-12 transition-colors font-sans"
@@ -622,10 +619,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 rounded-full border border-emerald-100 dark:border-emerald-800/50 flex items-center gap-1.5 shadow-sm">
                 🛡️ Privacy Secure
               </span>
-              <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-full border border-indigo-100 dark:border-indigo-800/50 flex items-center gap-1.5 shadow-sm">
+              <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-455 rounded-full border border-indigo-100 dark:border-indigo-805/50 flex items-center gap-1.5 shadow-sm">
                 📂 100% Offline Core
               </span>
-              <span className="px-3 py-1 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 rounded-full border border-amber-100 dark:border-amber-800/50 flex items-center gap-1.5 shadow-sm">
+              <span className="px-3 py-1 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-450 rounded-full border border-amber-100 dark:border-amber-800/50 flex items-center gap-1.5 shadow-sm">
                 ✨ Free Forever
               </span>
             </div>
@@ -681,9 +678,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 performed securely inside the user's browser using local Web
                 Worker technology.
               </p>
-              <p className="font-medium text-slate-500 dark:text-slate-450">
-                As a leading browser based pdf toolkit designed entirely for online pdf tools privacy and security, PDFMinty delivers state-of-the-art document conversion, compression, and merging without any risk of metadata loss or remote exposure. If you are seeking the ultimate free pdf editor no account package on the web today, rely on PDFMinty for free pdf tools no upload required—built for safe, local document workflows under full device control.
-              </p>
               <p className="text-xs text-slate-500 dark:text-slate-500 font-semibold uppercase tracking-widest">
                 Developed by & under Proprietorship of PDFMinty. Strictly safe & distributed.
               </p>
@@ -691,7 +685,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </div>
         </footer>
 
-        {/* Feedback Modal */}
         {showFeedbackModal && (
           <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadein">
             <div
@@ -704,7 +697,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <button
                 aria-label="Close dialog"
                 onClick={() => setShowFeedbackModal(false)}
-                className="absolute top-4 right-4 text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 transition-colors text-xl font-bold cursor-pointer bg-transparent border-0"
+                className="absolute top-4 right-4 text-slate-505 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 transition-colors text-xl font-bold cursor-pointer bg-transparent border-0"
               >
                 ✕
               </button>
@@ -743,7 +736,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                         }`}
                       >
                         <span className="text-2xl mb-1">{r.label}</span>
-                        <span className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400">
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-505 dark:text-slate-400">
                           {r.name}
                         </span>
                       </button>
@@ -752,7 +745,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
+                  <label className="text-xs font-bold text-slate-705 dark:text-slate-300 block mb-1.5">
                     Feedback Message *
                   </label>
                   <textarea
@@ -762,12 +755,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     value={feedbackComment}
                     onChange={(e) => setFeedbackComment(e.target.value)}
                     placeholder="Share details about what you liked, or where we can improve..."
-                    className="w-full text-xs font-medium p-3 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
+                    className="w-full text-xs font-medium p-3 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:border-indigo-505 dark:focus:border-indigo-505 focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
+                  <label className="text-xs font-bold text-slate-705 dark:text-slate-300 block mb-1.5">
                     Email Address (Optional)
                   </label>
                   <input
@@ -776,7 +769,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     value={feedbackEmail}
                     onChange={(e) => setFeedbackEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full text-xs font-medium px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-sans"
+                    className="w-full text-xs font-medium px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:border-indigo-505 dark:focus:border-indigo-505 focus:ring-1 focus:ring-indigo-505 transition-all font-sans"
                   />
                 </div>
 
@@ -791,7 +784,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                   <button
                     type="submit"
                     disabled={feedbackSubmitting}
-                    className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 min-h-[48px] min-w-[48px] p-2"
+                    className="flex-1 py-3 bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 min-h-[48px] min-w-[48px] p-2"
+                    style={{ backgroundColor: "#4f46e5" }}
                   >
                     {feedbackSubmitting && (
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -804,7 +798,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </div>
         )}
 
-        {/* Contact Modal */}
         {showContactModal && (
           <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadein">
             <div
@@ -851,10 +844,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                         }
                       }}
                       placeholder="John Doe"
-                      className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
+                      className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-850 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
                         contactErrors.name
                           ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                          : "border-slate-200 dark:border-slate-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
+                          : "border-slate-200 dark:border-slate-850 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
                       }`}
                     />
                     {contactErrors.name && (
@@ -877,10 +870,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                         }
                       }}
                       placeholder="john@example.com"
-                      className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
+                      className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-850 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
                         contactErrors.email
                           ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                          : "border-slate-200 dark:border-slate-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
+                          : "border-slate-200 dark:border-slate-850 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
                       }`}
                     />
                     {contactErrors.email && (
@@ -890,7 +883,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-bold text-slate-707 dark:text-slate-300 block mb-1">
                     Subject *
                   </label>
                   <input
@@ -905,10 +898,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                       }
                     }}
                     placeholder="Inquiry or partnership topic"
-                    className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
+                    className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-850 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
                       contactErrors.subject
                         ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                        : "border-slate-200 dark:border-slate-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
+                        : "border-slate-200 dark:border-slate-855 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
                     }`}
                   />
                   {contactErrors.subject && (
@@ -917,7 +910,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-bold text-slate-707 dark:text-slate-300 block mb-1">
                     Message *
                   </label>
                   <textarea
@@ -935,7 +928,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     className={`w-full text-xs font-medium p-3 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:ring-1 transition-all resize-none font-sans ${
                       contactErrors.message
                         ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                        : "border-slate-200 dark:border-slate-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
+                        : "border-slate-200 dark:border-slate-850 focus:border-indigo-500 dark:focus:border-indigo-505 focus:ring-indigo-500"
                     }`}
                   />
                   {contactErrors.message && (
@@ -967,7 +960,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </div>
         )}
 
-        {/* Back scroll */}
         {showScrollTop && (
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}

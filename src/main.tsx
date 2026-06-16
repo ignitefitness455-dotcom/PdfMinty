@@ -1,34 +1,37 @@
-import './polyfill.ts';
-import './error-handler.ts';
-import './config/i18n.ts';
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
-import ErrorBoundary from './components/ErrorBoundary.tsx';
-import { ToastProvider } from './contexts/ToastContext.tsx';
-import './index.css';
+import "@fontsource/inter";
+import "@fontsource/jetbrains-mono";
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastProvider } from "./contexts/ToastContext";
+import { Layout } from "./components/Layout";
+import HomePage from "./pages/HomePage";
+import "./index.css";
 
-window.addEventListener('error', (event) => {
-  console.error('Global error:', event.error);
-  event.preventDefault();
-});
+// Initialize multilingual translations
+import "./config/i18n";
 
-window.addEventListener('unhandledrejection', (event) => {
-  console.error('Unhandled rejection:', event.reason);
-  event.preventDefault();
-});
+const App = () => {
+  return (
+    <ToastProvider>
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="*" element={<HomePage />} />
+          </Routes>
+        </Layout>
+      </BrowserRouter>
+    </ToastProvider>
+  );
+};
 
-// FIX: requestAnimationFrame() সরিয়ে দেওয়া হয়েছে।
-// Skeleton removal এখন App.tsx-এর useEffect()-এ হয়,
-// যা React-এর প্রথম real DOM commit-এর পরে fire করে।
-// এটি নিশ্চিত করে যে skeleton সরার আগে React content দৃশ্যমান।
-const root = createRoot(document.getElementById('root')!);
-root.render(
-  <StrictMode>
-    <ErrorBoundary>
-      <ToastProvider>
-        <App />
-      </ToastProvider>
-    </ErrorBoundary>
-  </StrictMode>
-);
+const container = document.getElementById("root");
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}
