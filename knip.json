@@ -1,0 +1,7 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/main.tsx", "functions/**/*.ts", "scripts/*.js", "scripts/*.mjs"],
+  "project": ["src/**/*.{ts,tsx}", "functions/**/*.ts", "scripts/*.js", "scripts/*.mjs"],
+  "ignore": ["src/vite-env.d.ts", "src/lucide.d.ts"],
+  "ignoreDependencies": ["@cloudflare/workers-types", "husky"]
+}

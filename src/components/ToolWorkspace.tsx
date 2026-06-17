@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useToast } from "../contexts/ToastContext";
 import { executePdfWorker, preprocessAndLoadPdf } from "../core/pdfRunner";
 import {
-  Upload,
   File as FileIcon,
   X,
   ArrowUp,
@@ -12,13 +11,14 @@ import {
   Settings,
   Plus,
   Brain,
-  FileImage,
   Loader2,
   RefreshCw,
   Send,
 } from "lucide-react";
 import JSZip from "jszip";
 import { PDFJS_WORKER_SRC } from "../config/constants";
+import FileUploader from "./FileUploader";
+import DocumentPreview from "./DocumentPreview";
 
 interface ToolConfig {
   id: string;
@@ -46,7 +46,6 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
   // States
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [processing, setProcessing] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
 
   // Tool settings
   const [compressionLevel, setCompressionLevel] = useState<"low" | "medium" | "high">("medium");
@@ -80,34 +79,8 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  // Drag and drop handlers
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleSelectedFiles(Array.from(e.dataTransfer.files));
-    }
-  };
-
   const triggerInput = () => {
     fileInputRef.current?.click();
-  };
-
-  const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleSelectedFiles(Array.from(e.target.files));
-    }
   };
 
   const handleSelectedFiles = async (files: File[]) => {
@@ -576,136 +549,84 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
 
       {/* File inputs / Dropzone */}
       {uploadedFiles.length === 0 ? (
-        <div
-          role="button"
-          tabIndex={0}
-          onDragEnter={handleDrag}
-          onDragOver={handleDrag}
-          onDragLeave={handleDrag}
-          onDrop={handleDrop}
-          onClick={triggerInput}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              triggerInput();
-            }
-          }}
-          aria-label="Upload PDF or Image files. Drag &amp; drop files here, or click to browse."
-          className={`border-2 border-dashed rounded-3xl p-12 md:p-18 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-4 group relative ${
-            dragActive
-              ? "border-emerald-500 bg-emerald-500/10 dark:bg-emerald-950/20"
-              : "border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30 hover:border-emerald-500/50 hover:bg-slate-100/50 dark:hover:bg-slate-900/20"
-          }`}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple={tool.id === "merge" || tool.id === "img-to-pdf"}
-            accept={tool.id === "img-to-pdf" ? "image/png,image/jpeg" : "application/pdf"}
-            onChange={onFileInputChange}
-            onClick={e => e.stopPropagation()}
-            className="hidden"
-          />
-          <div className="w-20 h-20 rounded-2xl bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 flex items-center justify-center transition-all group-hover:scale-110 shadow-lg">
-            {tool.id === "img-to-pdf" ? (
-              <FileImage className="w-8 h-8 text-emerald-500 dark:text-emerald-400" />
-            ) : (
-              <Upload className="w-8 h-8 text-emerald-500 dark:text-emerald-400" />
-            )}
-          </div>
-          <div className="space-y-1">
-            <p className="text-base font-extrabold text-slate-705 dark:text-slate-250">
-              Drop files here or <span className="text-emerald-500 dark:text-emerald-400 underline">click to choose</span>
-            </p>
-            <p className="text-xs text-slate-400 dark:text-slate-500">
-              Drag & drop anywhere in this card, or click to select files.
-            </p>
-          </div>
-          <div className="mt-2">
-            <button
-              type="button"
-              onClick={e => {
-                e.stopPropagation();
-                triggerInput();
-              }}
-              className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs rounded-full transition-all flex items-center gap-1.5 shadow-[0_4px_25px_rgba(16,185,129,0.3)] hover:scale-105 cursor-pointer"
-            >
-              Choose File(s)
-            </button>
-          </div>
-        </div>
+        <FileUploader onSelectedFiles={handleSelectedFiles} toolId={tool.id} />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* File Lists & Sequence */}
-          <div className="lg:col-span-12 xl:col-span-7 space-y-4">
-            <h3 className="text-xs font-extrabold text-slate-400 dark:text-slate-550 uppercase tracking-widest">
-              Selected Files ({uploadedFiles.length})
-            </h3>
-            <div className="space-y-2 max-h-96 overflow-y-auto pe-2">
-              {uploadedFiles.map((uf, idx) => (
-                <div
-                  key={uf.id}
-                  className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-150 dark:border-slate-800/80 rounded-2xl gap-4 select-none animate-fadein"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-xl">
-                      <FileIcon className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+          <div className="lg:col-span-12 xl:col-span-7 space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-xs font-extrabold text-slate-400 dark:text-slate-550 uppercase tracking-widest">
+                Selected Files ({uploadedFiles.length})
+              </h3>
+              <div className="space-y-2 max-h-96 overflow-y-auto pe-2">
+                {uploadedFiles.map((uf, idx) => (
+                  <div
+                    key={uf.id}
+                    className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-150 dark:border-slate-800/80 rounded-2xl gap-4 select-none animate-fadein"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-xl">
+                        <FileIcon className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate pe-4">
+                          {uf.name}
+                        </p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-500 mt-1 font-semibold">
+                          {uf.size} {uf.pagesCount && `• ${uf.pagesCount} Pages`}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate pe-4">
-                        {uf.name}
-                      </p>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-500 mt-1 font-semibold">
-                        {uf.size} {uf.pagesCount && `• ${uf.pagesCount} Pages`}
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {tool.id === "merge" && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => moveFile(idx, "up")}
-                          disabled={idx === 0}
-                          className="p-1 rounded bg-white dark:bg-slate-900 hover:bg-slate-55 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 disabled:opacity-30 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
-                        >
-                          <ArrowUp className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveFile(idx, "down")}
-                          disabled={idx === uploadedFiles.length - 1}
-                          className="p-1 rounded bg-white dark:bg-slate-900 hover:bg-slate-55 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 disabled:opacity-30 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
-                        >
-                          <ArrowDown className="w-3.5 h-3.5" />
-                        </button>
-                      </>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removeFile(uf.id)}
-                      className="p-1.5 hover:bg-rose-55 dark:hover:bg-rose-950/50 hover:text-rose-500 text-slate-450 dark:text-slate-500 rounded-lg transition-transform cursor-pointer border-0 bg-transparent"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {tool.id === "merge" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => moveFile(idx, "up")}
+                            disabled={idx === 0}
+                            className="p-1 rounded bg-white dark:bg-slate-900 hover:bg-slate-55 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 disabled:opacity-30 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveFile(idx, "down")}
+                            disabled={idx === uploadedFiles.length - 1}
+                            className="p-1 rounded bg-white dark:bg-slate-900 hover:bg-slate-55 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 disabled:opacity-30 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeFile(uf.id)}
+                        className="p-1.5 hover:bg-rose-55 dark:hover:bg-rose-950/50 hover:text-rose-500 text-slate-450 dark:text-slate-500 rounded-lg transition-transform cursor-pointer border-0 bg-transparent"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+
+              <button
+                onClick={() => {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
+                  triggerInput();
+                }}
+                className="py-3.5 px-4 border border-dashed border-slate-200 dark:border-slate-800 hover:border-emerald-555 rounded-2xl text-slate-505 dark:text-slate-400 hover:text-emerald-500 text-xs font-bold w-full transition-colors flex items-center justify-center gap-2 cursor-pointer bg-slate-50/50 dark:bg-slate-950/20"
+              >
+                <Plus className="w-4 h-4 text-emerald-500" />
+                Add More Files
+              </button>
             </div>
 
-            <button
-              onClick={() => {
-                if (fileInputRef.current) {
-                  fileInputRef.current.value = "";
-                }
-                triggerInput();
-              }}
-              className="py-3.5 px-4 border border-dashed border-slate-200 dark:border-slate-800 hover:border-emerald-555 rounded-2xl text-slate-505 dark:text-slate-400 hover:text-emerald-500 text-xs font-bold w-full transition-colors flex items-center justify-center gap-2 cursor-pointer bg-slate-50/50 dark:bg-slate-950/20"
-            >
-              <Plus className="w-4 h-4 text-emerald-500" />
-              Add More Files
-            </button>
+            {/* Document Previews (PDF/Image) Render Section */}
+            <DocumentPreview files={uploadedFiles.map(uf => uf.file)} toolId={tool.id} />
           </div>
 
           {/* Configuration Box & Actions */}
