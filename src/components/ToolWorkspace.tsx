@@ -218,7 +218,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
-            await page.render({ canvasContext: ctx, viewport }).promise;
+            await page.render({ canvasContext: ctx, viewport } as any).promise;
 
             const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/jpeg", quality));
             if (blob) {
@@ -343,7 +343,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
           canvas.width = viewport.width;
           canvas.height = viewport.height;
           
-          await page.render({ canvasContext: ctx, viewport }).promise;
+          await page.render({ canvasContext: ctx, viewport } as any).promise;
           
           const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/jpeg", 0.9));
           if (blob) {
@@ -448,13 +448,26 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
         }
 
         const fileBytes = new Uint8Array(await uploadedFiles[0].file.arrayBuffer());
-        const result = await executePdfWorker("protect", { fileBytes });
+        const result = await executePdfWorker("protect", { 
+          fileBytes, 
+          userPassword: vaultPassword,
+          ownerPassword: vaultPassword + '_owner'
+        });
         triggerDownload(result.bytes, `protected_${uploadedFiles[0].name}`);
         showToast("Document bytes compiled in standard vault!", "success");
 
       } else if (tool.id === "unlock") {
+        if (!vaultPassword.trim()) {
+          showToast("Please enter the PDF password.", "error");
+          setProcessing(false);
+          return;
+        }
+
         const fileBytes = new Uint8Array(await uploadedFiles[0].file.arrayBuffer());
-        const result = await executePdfWorker("unlock", { fileBytes });
+        const result = await executePdfWorker("unlock", { 
+          fileBytes, 
+          password: vaultPassword 
+        });
         triggerDownload(result.bytes, `unlocked_${uploadedFiles[0].name}`);
         showToast("Encryption layers cleared offline!", "success");
 
@@ -496,7 +509,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
   };
 
   const triggerDownload = (bytes: Uint8Array, filename: string) => {
-    const blob = new Blob([bytes], { type: "application/pdf" });
+    const blob = new Blob([bytes as any], { type: "application/pdf" });
     const link = document.createElement("a");
     const downloadUrl = URL.createObjectURL(blob);
     link.href = downloadUrl;
@@ -504,7 +517,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(downloadUrl);
+    setTimeout(() => URL.revokeObjectURL(downloadUrl), 100);
   };
 
   const submitAiChat = (e: React.FormEvent) => {

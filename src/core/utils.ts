@@ -36,7 +36,7 @@ export function triggerDownload(
   filename: string,
   mimeType: string = "application/pdf"
 ): void {
-  const blob = new Blob([bytes], { type: mimeType });
+  const blob = new Blob([bytes as any], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

@@ -48,7 +48,8 @@ export const HowToSchema: React.FC = () => {
       };
     }
 
-    if (!activeTool || !activeTool.steps || activeTool.steps.length === 0) {
+    const toolAny = activeTool as any;
+    if (!toolAny || !toolAny.steps || toolAny.steps.length === 0) {
       return null;
     }
 
@@ -59,9 +60,9 @@ export const HowToSchema: React.FC = () => {
     return {
       "@context": "https://schema.org",
       "@type": "HowTo",
-      "name": `How to use ${activeTool.name} - PDFMinty`,
-      "description": cleanDescription(activeTool.description),
-      "step": activeTool.steps.map((step: { title: string; desc: string }, index: number) => ({
+      "name": `How to use ${toolAny.name} - PDFMinty`,
+      "description": cleanDescription(toolAny.description),
+      "step": toolAny.steps.map((step: { title: string; desc: string }, index: number) => ({
         "@type": "HowToStep",
         "position": index + 1,
         "name": step.title,

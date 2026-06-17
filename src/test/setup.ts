@@ -34,4 +34,11 @@ if (typeof window !== "undefined") {
     configurable: true,
     value: MockIntersectionObserver,
   });
+
+  if (!window.URL.createObjectURL) {
+    window.URL.createObjectURL = vi.fn().mockReturnValue("mock-url");
+  }
+  if (!window.URL.revokeObjectURL) {
+    window.URL.revokeObjectURL = vi.fn();
+  }
 }

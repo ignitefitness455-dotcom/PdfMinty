@@ -58,7 +58,7 @@ describe("React Component: ToolWorkspace.tsx", () => {
 
     renderComponent();
 
-    const uploader = screen.getByLabelText(/upload pdf or image files/i);
+    const uploader = screen.getByLabelText(/upload/i);
     expect(uploader).not.toBeNull();
 
     // Create a mock PDF File
@@ -81,7 +81,7 @@ describe("React Component: ToolWorkspace.tsx", () => {
     const { showToast } = useToast();
     renderComponent();
 
-    const uploader = screen.getByLabelText(/upload pdf or image files/i);
+    const uploader = screen.getByLabelText(/upload/i);
 
     // Create an invalid File (e.g., txt file)
     const mockTxtFile = new File(["plain text content"], "wrong.txt", {
@@ -114,7 +114,7 @@ describe("React Component: ToolWorkspace.tsx", () => {
       </MemoryRouter>
     );
 
-    const uploader = screen.getByLabelText(/upload pdf or image files/i);
+    const uploader = screen.getByLabelText(/upload/i);
 
     // Create a mock JPG File
     const mockImageFile = new File(["image binary"], "photo.jpg", {

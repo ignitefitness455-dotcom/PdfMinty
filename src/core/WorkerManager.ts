@@ -1,354 +1,167 @@
-export const createDedicatedWorker = (): Worker => {
-  // We construct a local inline blob URL containing optimized sub-engines, memory release triggers, and cached loader.
-  const workerCode = `
-    let pdfLibLoaded = false;
+import PDFWorker from "../workers/pdf-worker.ts?worker&inline";
+import * as ops from "./pdf-operations";
 
-    async function loadLibrary() {
-      if (typeof PDFLib !== 'undefined') {
-        pdfLibLoaded = true;
-        return;
-      }
+/**
+ * Dev-only sandbox debugger stripped during production build optimization passes.
+ */
+const debugLog = (msg: string, ...args: any[]) => {
+  if (import.meta.env.DEV) {
+    console.debug(`[PDFWorker-Debug] ${msg}`, ...args);
+  }
+};
 
-      const cdnUrl = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+/**
+ * Main-thread VirtualWorker representing a fully compliant fallback container
+ * executing heavy PDF tasks synchronously inside sandbox contexts where Web Workers
+ * are blocked by tight iFrame sandboxing or CORS/CSP limitations.
+ */
+export class VirtualWorker implements EventTarget {
+  onmessage: ((this: Worker, ev: MessageEvent) => any) | null = null;
+  onerror: ((this: AbstractWorker, ev: ErrorEvent) => any) | null = null;
 
-      // 1. Cache Storage Check (For Offline Reliability)
+  addEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    _options?: boolean | AddEventListenerOptions
+  ): void {
+    debugLog("VirtualWorker added event listener for:", type, callback, _options);
+  }
+
+  removeEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    _options?: boolean | EventListenerOptions
+  ): void {
+    debugLog("VirtualWorker removed event listener for:", type, callback, _options);
+  }
+
+  dispatchEvent(event: Event): boolean {
+    debugLog("VirtualWorker dispatching event:", event);
+    return true;
+  }
+
+  async postMessage(message: any) {
+    const { type, ...args } = message;
+    debugLog(`VirtualWorker executing task: ${type} synchronously in main thread.`);
+
+    // Defer slightly using setTimeout to simulate browser environment task scheduler
+    setTimeout(async () => {
       try {
-        if (typeof caches !== 'undefined') {
-          const cache = await caches.open('pdfminty-engine-cache');
-          const cachedResponse = await cache.match(cdnUrl);
-          if (cachedResponse) {
-            const scriptContent = await cachedResponse.text();
-            (1, eval)(scriptContent);
-            if (typeof PDFLib !== 'undefined') {
-              pdfLibLoaded = true;
-              return;
-            }
-          }
+        let result: any = null;
+        if (type === "merge") {
+          const bytes = await ops.mergePDFs(args.files);
+          result = { success: true, bytes };
+        } else if (type === "split") {
+          const bytes = await ops.splitPDF(args.fileBytes, args.targetPageIndices);
+          result = { success: true, bytes };
+        } else if (type === "reorder") {
+          const bytes = await ops.reorderPDF(args.fileBytes, args.pageOrderIndices);
+          result = { success: true, bytes };
+        } else if (type === "extract") {
+          const bytes = await ops.extractPDFPages(args.fileBytes, args.targetPageIndices);
+          result = { success: true, bytes };
+        } else if (type === "split-multi") {
+          const results = await ops.splitMultiPDF(args.fileBytes, args.ranges);
+          result = { success: true, results };
+        } else if (type === "compress") {
+          const bytes = await ops.compressPDF(args.fileBytes, args.level);
+          result = { success: true, bytes };
+        } else if (type === "rotate") {
+          const bytes = await ops.rotatePDF(args.fileBytes, args.rotations);
+          result = { success: true, bytes };
+        } else if (type === "watermark") {
+          const bytes = await ops.watermarkPDF(args.fileBytes, args.text, args.rotation, args.opacity, args.color);
+          result = { success: true, bytes };
+        } else if (type === "add-page-numbers") {
+          const bytes = await ops.addPageNumbers(args.fileBytes, args.position, args.startNumber, args.skipFirst);
+          result = { success: true, bytes };
+        } else if (type === "add-blank-page") {
+          const bytes = await ops.addBlankPage(args.fileBytes, args.positionIndex, args.pageSize);
+          result = { success: true, bytes };
+        } else if (type === "protect") {
+          const bytes = await ops.protectPDF(args.fileBytes);
+          result = { success: true, bytes };
+        } else if (type === "unlock") {
+          const bytes = await ops.unlockPDF(args.fileBytes);
+          result = { success: true, bytes };
+        } else if (type === "image-to-pdf") {
+          const bytes = await ops.imageToPdf(args.images, args.pageSize);
+          result = { success: true, bytes };
+        } else if (type === "pdf-to-image") {
+          const results = await ops.pdfToImage(args);
+          result = { success: true, results };
+        } else {
+          result = { success: false, error: "Unsupported worker operation code: " + type };
         }
-      } catch (e) {
-        // Proceed silently to network fetch
-      }
 
-      // 2. Fetch and Cache the Library Code
-      try {
-        const response = await fetch(cdnUrl);
-        if (response.ok) {
-          const scriptContent = await response.text();
-          try {
-            if (typeof caches !== 'undefined') {
-              const cache = await caches.open('pdfminty-engine-cache');
-              await cache.put(cdnUrl, new Response(scriptContent, {
-                headers: { 'Content-Type': 'application/javascript' }
-              }));
-            }
-          } catch (err) {}
-          (1, eval)(scriptContent);
-          if (typeof PDFLib !== 'undefined') {
-            pdfLibLoaded = true;
-            return;
-          }
+        if (this.onmessage) {
+          this.onmessage.call(this as unknown as Worker, { data: result } as MessageEvent);
         }
-      } catch (err) {
-        // Offline or Network down
+      } catch (err: any) {
+        if (this.onmessage) {
+          this.onmessage.call(this as unknown as Worker, {
+            data: {
+              success: false,
+              error: err.message || "An error occurred during synchronous PDF processing.",
+            },
+          } as MessageEvent);
+        }
       }
+    }, 0);
+  }
 
-      // 3. Native importScripts Fallback
-      try {
-        importScripts(cdnUrl);
-        pdfLibLoaded = true;
-      } catch (err) {
-        throw new Error("PDF processing engine failed to load in offline sandbox. Please connect to the internet once to resolve assets.");
+  terminate() {
+    debugLog("VirtualWorker terminated.");
+  }
+}
+
+/**
+ * Assesses whether the browser context supports standard Web Workers
+ * using non-sniffing real capabilities feature tests.
+ */
+export function canUseWebWorker(): boolean {
+  if (typeof window === "undefined" || typeof Worker === "undefined") {
+    return false;
+  }
+
+  if (window.self !== window.top) {
+    let testWorker: Worker | null = null;
+    let url: string | null = null;
+    try {
+      const blob = new Blob(["self.onmessage = () => {}"], { type: "application/javascript" });
+      url = URL.createObjectURL(blob);
+      testWorker = new Worker(url);
+      testWorker.terminate();
+      return true;
+    } catch {
+      return false;
+    } finally {
+      if (url) {
+        URL.revokeObjectURL(url);
       }
     }
+  }
 
-    self.onmessage = async (e) => {
-      const { type } = e.data;
-      
-      try {
-        await loadLibrary();
-        const { PDFDocument, rgb, degrees, StandardFonts } = PDFLib;
+  return true;
+}
 
-        if (type === "merge") {
-          const { files } = e.data;
-          let mergedPdf = await PDFDocument.create();
-          
-          for (let i = 0; i < files.length; i++) {
-            const pdf = await PDFDocument.load(files[i]);
-            const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-            for (let j = 0; j < copiedPages.length; j++) {
-              mergedPdf.addPage(copiedPages[j]);
-            }
-          }
-          
-          // Apply metadata standards & object stream compaction
-          mergedPdf.setProducer("PDFMinty");
-          mergedPdf.setCreator("PDFMinty Client-Side Sandbox");
-          const mergedBytes = await mergedPdf.save({ useObjectStreams: true });
-          
-          // Memory Cleanup
-          mergedPdf = null;
-          
-          self.postMessage({ success: true, bytes: mergedBytes }, [mergedBytes.buffer]);
+/**
+ * Prepares and instantiates a high-confidence Worker processor.
+ * Automatically cascades to a resilient VirtualWorker fallback execution path
+ * if browser Sandboxing prevents spawning distinct client threads.
+ */
+export const createDedicatedWorker = (taskName?: string): Worker => {
+  debugLog(`Spawning dedicated pipeline task thread block for: ${taskName || "generic"}`);
 
-        } else if (type === "split") {
-          const { fileBytes, targetPageIndices } = e.data;
-          let srcDoc = await PDFDocument.load(fileBytes);
-          let subPdf = await PDFDocument.create();
-          const copiedPages = await subPdf.copyPages(srcDoc, targetPageIndices);
-          for (let i = 0; i < copiedPages.length; i++) {
-            subPdf.addPage(copiedPages[i]);
-          }
-          
-          subPdf.setProducer("PDFMinty");
-          const subPdfBytes = await subPdf.save({ useObjectStreams: true });
-          
-          // Memory Cleanup
-          srcDoc = null;
-          subPdf = null;
-          
-          self.postMessage({ success: true, bytes: subPdfBytes }, [subPdfBytes.buffer]);
+  if (!canUseWebWorker()) {
+    debugLog("Web Worker support unsupported or blocked in frame. Returning synchronous VirtualWorker.");
+    return new VirtualWorker() as unknown as Worker;
+  }
 
-        } else if (type === "reorder") {
-          const { fileBytes, pageOrderIndices } = e.data;
-          let srcDoc = await PDFDocument.load(fileBytes);
-          let subPdf = await PDFDocument.create();
-          const copiedPages = await subPdf.copyPages(srcDoc, pageOrderIndices);
-          for (let i = 0; i < copiedPages.length; i++) {
-            subPdf.addPage(copiedPages[i]);
-          }
-          
-          subPdf.setProducer("PDFMinty");
-          const subPdfBytes = await subPdf.save({ useObjectStreams: true });
-          
-          // Memory Cleanup
-          srcDoc = null;
-          subPdf = null;
-          
-          self.postMessage({ success: true, bytes: subPdfBytes }, [subPdfBytes.buffer]);
-
-        } else if (type === "extract") {
-          const { fileBytes, targetPageIndices } = e.data;
-          let srcDoc = await PDFDocument.load(fileBytes);
-          let subPdf = await PDFDocument.create();
-          const copiedPages = await subPdf.copyPages(srcDoc, targetPageIndices);
-          for (let i = 0; i < copiedPages.length; i++) {
-            subPdf.addPage(copiedPages[i]);
-          }
-          
-          subPdf.setProducer("PDFMinty");
-          const subPdfBytes = await subPdf.save({ useObjectStreams: true });
-          
-          // Memory Cleanup
-          srcDoc = null;
-          subPdf = null;
-          
-          self.postMessage({ success: true, bytes: subPdfBytes }, [subPdfBytes.buffer]);
-
-        } else if (type === "split-multi") {
-          const { fileBytes, ranges } = e.data;
-          let srcDoc = await PDFDocument.load(fileBytes);
-          const results = [];
-          
-          for (let r = 0; r < ranges.length; r++) {
-            const range = ranges[r];
-            let subPdf = await PDFDocument.create();
-            const pageIndices = [];
-            for (let i = range.start; i <= range.end; i++) {
-              pageIndices.push(i);
-            }
-            const copiedPages = await subPdf.copyPages(srcDoc, pageIndices);
-            for (let i = 0; i < copiedPages.length; i++) {
-              subPdf.addPage(copiedPages[i]);
-            }
-            subPdf.setProducer("PDFMinty");
-            const subPdfBytes = await subPdf.save({ useObjectStreams: true });
-            results.push({ name: range.name, bytes: subPdfBytes });
-            subPdf = null;
-          }
-          
-          srcDoc = null;
-          self.postMessage({ success: true, results });
-
-        } else if (type === "compress") {
-          const { fileBytes, level } = e.data;
-          let pdfDoc = await PDFDocument.load(fileBytes);
-          let newPdfDoc = await PDFDocument.create();
-          const copiedPages = await newPdfDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
-          for (let i = 0; i < copiedPages.length; i++) {
-            newPdfDoc.addPage(copiedPages[i]);
-          }
-          newPdfDoc.setProducer("PDFMinty");
-          const compressedBytes = await newPdfDoc.save({ 
-            useObjectStreams: true,
-            addDefaultPage: false
-          });
-          pdfDoc = null;
-          newPdfDoc = null;
-          self.postMessage({ success: true, bytes: compressedBytes }, [compressedBytes.buffer]);
-
-        } else if (type === "rotate") {
-          const { fileBytes, rotations } = e.data;
-          let pdfDoc = await PDFDocument.load(fileBytes);
-          const pages = pdfDoc.getPages();
-          for (let i = 0; i < rotations.length; i++) {
-            const item = rotations[i];
-            if (item.index >= 0 && item.index < pages.length) {
-              const page = pages[item.index];
-              page.setRotation(degrees(item.rotation % 360));
-            }
-          }
-          pdfDoc.setProducer("PDFMinty");
-          const rotatedBytes = await pdfDoc.save({ useObjectStreams: true });
-          pdfDoc = null;
-          
-          self.postMessage({ success: true, bytes: rotatedBytes }, [rotatedBytes.buffer]);
-
-        } else if (type === "watermark") {
-          const { fileBytes, text, rotation, opacity, color } = e.data;
-          let pdfDoc = await PDFDocument.load(fileBytes);
-          const pages = pdfDoc.getPages();
-          const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-          for (let i = 0; i < pages.length; i++) {
-            const page = pages[i];
-            const width = page.getWidth();
-            const height = page.getHeight();
-            const fontSize = 42;
-            const textWidth = font.widthOfTextAtSize(text, fontSize);
-            const textHeight = font.heightAtSize(fontSize);
-            const x = (width - textWidth) / 2;
-            const y = (height - textHeight) / 2;
-            page.drawText(text, {
-              x,
-              y,
-              size: fontSize,
-              font,
-              color: rgb(color[0] ?? 0, color[1] ?? 0, color[2] ?? 0),
-              opacity: opacity ?? 0.3,
-              rotate: degrees(rotation ?? -45),
-            });
-          }
-          pdfDoc.setProducer("PDFMinty");
-          const watermarkedBytes = await pdfDoc.save({ useObjectStreams: true });
-          pdfDoc = null;
-          
-          self.postMessage({ success: true, bytes: watermarkedBytes }, [watermarkedBytes.buffer]);
-
-        } else if (type === "add-page-numbers") {
-          const { fileBytes, position, startNumber, skipFirst } = e.data;
-          let pdfDoc = await PDFDocument.load(fileBytes);
-          const pages = pdfDoc.getPages();
-          const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-          for (let i = 0; i < pages.length; i++) {
-            if (skipFirst && i === 0) continue;
-            const page = pages[i];
-            const pageNum = i + startNumber - (skipFirst ? 1 : 0);
-            const text = "" + pageNum;
-            const fontSize = 10;
-            const textWidth = font.widthOfTextAtSize(text, fontSize);
-            const width = page.getWidth();
-            const height = page.getHeight();
-            let x = width - 40;
-            if (position === "bottom-center") {
-              x = (width - textWidth) / 2;
-            } else if (position === "bottom-left") {
-              x = 40;
-            }
-            const y = 30;
-            page.drawText(text, {
-              x,
-              y,
-              size: fontSize,
-              font,
-              color: rgb(0.2, 0.2, 0.2),
-            });
-          }
-          pdfDoc.setProducer("PDFMinty");
-          const numberedBytes = await pdfDoc.save({ useObjectStreams: true });
-          pdfDoc = null;
-          
-          self.postMessage({ success: true, bytes: numberedBytes }, [numberedBytes.buffer]);
-
-        } else if (type === "add-blank-page") {
-          const { fileBytes, positionIndex, pageSize } = e.data;
-          let pdfDoc = await PDFDocument.load(fileBytes);
-          const width = pageSize === "LETTER" ? 612 : 595.27;
-          const height = pageSize === "LETTER" ? 792 : 841.89;
-          const pages = pdfDoc.getPages();
-          const index = Math.min(Math.max(0, positionIndex), pages.length);
-          pdfDoc.insertPage(index, [width, height]);
-          pdfDoc.setProducer("PDFMinty");
-          const blankBytes = await pdfDoc.save({ useObjectStreams: true });
-          pdfDoc = null;
-          
-          self.postMessage({ success: true, bytes: blankBytes }, [blankBytes.buffer]);
-
-        } else if (type === "protect") {
-          const { fileBytes } = e.data;
-          let pdfDoc = await PDFDocument.load(fileBytes);
-          pdfDoc.setProducer("PDFMinty");
-          const bytes = await pdfDoc.save({ useObjectStreams: true });
-          pdfDoc = null;
-          self.postMessage({ success: true, bytes }, [bytes.buffer]);
-
-        } else if (type === "unlock") {
-          const { fileBytes } = e.data;
-          let pdfDoc = await PDFDocument.load(fileBytes);
-          pdfDoc.setProducer("PDFMinty");
-          const bytes = await pdfDoc.save({ useObjectStreams: true });
-          pdfDoc = null;
-          self.postMessage({ success: true, bytes }, [bytes.buffer]);
-
-        } else if (type === "image-to-pdf") {
-          const { images, pageSize } = e.data;
-          let pdfDoc = await PDFDocument.create();
-          for (let i = 0; i < images.length; i++) {
-            const img = images[i];
-            let embeddedImg;
-            if (img.type === "image/png") {
-              embeddedImg = await pdfDoc.embedPng(img.bytes);
-            } else {
-              embeddedImg = await pdfDoc.embedJpg(img.bytes);
-            }
-            const width = pageSize === "LETTER" ? 612 : 595.27;
-            const height = pageSize === "LETTER" ? 792 : 841.89;
-            const page = pdfDoc.addPage([width, height]);
-            
-            let dWidth = embeddedImg.width;
-            let dHeight = embeddedImg.height;
-            const ratio = Math.min(width / dWidth, height / dHeight, 1);
-            dWidth *= ratio;
-            dHeight *= ratio;
-            const x = (width - dWidth) / 2;
-            const y = (height - dHeight) / 2;
-
-            page.drawImage(embeddedImg, {
-              x,
-              y,
-              width: dWidth,
-              height: dHeight,
-            });
-          }
-          pdfDoc.setProducer("PDFMinty");
-          const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
-          pdfDoc = null;
-          
-          self.postMessage({ success: true, bytes: pdfBytes }, [pdfBytes.buffer]);
-
-        } else {
-          self.postMessage({ success: false, error: "Unsupported worker operation code: " + type });
-        }
-      } catch (err) {
-        self.postMessage({ success: false, error: err.message });
-      }
-    };
-  `;
-
-  const blob = new Blob([workerCode], { type: "application/javascript" });
-  const workerUrl = URL.createObjectURL(blob);
-  const worker = new Worker(workerUrl);
-  
-  // Revoke object URL to prevent memory leaks (it is already loaded by the Worker constructor)
-  URL.revokeObjectURL(workerUrl);
-  
-  return worker;
+  try {
+    return new PDFWorker();
+  } catch (err) {
+    debugLog("Failed to construct bundled PDFWorker. Cascading to robust main-thread representation.", err);
+    return new VirtualWorker() as unknown as Worker;
+  }
 };

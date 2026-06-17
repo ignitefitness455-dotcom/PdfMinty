@@ -38,7 +38,7 @@ export const preprocessAndLoadPdf = async (
     useWorkerFetch: false,
     isEvalSupported: false,
     useSystemFonts: true,
-  });
+  } as any);
 
   loadingTask.onPassword = (updatePassword: any, reason: number) => {
     if (options.onEncrypted) {

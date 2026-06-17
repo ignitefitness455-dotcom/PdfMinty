@@ -19,6 +19,20 @@ export const COMPRESS_QUALITY = {
 export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 export const MAX_FILES = 20;
 
+export const WATERMARK_DEFAULTS = {
+  text: "CONFIDENTIAL",
+  rotation: -45,
+  opacity: 0.3,
+  color: [0.7, 0.7, 0.7] as [number, number, number],
+  fontSize: 42,
+};
+
+export const PAGE_NUMBER_DEFAULTS = {
+  position: "bottom-center" as const,
+  startNumber: 1,
+  skipFirst: false,
+};
+
 export const AI_ANALYSIS = {
   MAX_PAGES: 50,
   MAX_TEXT_LENGTH: 10000,
