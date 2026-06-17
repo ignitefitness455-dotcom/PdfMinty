@@ -337,7 +337,7 @@ export async function addBlankPagePDF(
 export const addBlankPage = addBlankPagePDF;
 
 /**
- * 9. Compresses a PDF document by rebuilding page structures.
+ * 9. Compresses a PDF document by rebuilding page structures (High) or rasterizing pages (Medium, Low).
  * compressPDF({ fileBytes, level: 'low'|'medium'|'high' })
  */
 export async function compressPDF(
@@ -348,24 +348,98 @@ export async function compressPDF(
     ? { fileBytes: arg1, level: arg2! }
     : arg1;
 
-  if (level !== "high") {
-    throw new Error(
-      "For low and medium compression, please use our Canvas Rasterization feature to redraw high-density pages."
-    );
+  if (level === "high") {
+    // High → lightweight optimization using object streams
+    const pdfDoc = await loadPDF(fileBytes);
+    const newPdfDoc = await PDFDocument.create();
+    const copiedPages = await newPdfDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
+    for (const page of copiedPages) {
+      newPdfDoc.addPage(page);
+    }
+    newPdfDoc.setProducer("PDFMinty (Highly Compressed)");
+    return await newPdfDoc.save({
+      useObjectStreams: true,
+      addDefaultPage: false,
+    });
   }
 
-  const pdfDoc = await loadPDF(fileBytes);
+  // Medium & Low → actual canvas rasterization with JPEG quality and scaling to meaningfully reduce file size.
+  const scale = level === "low" ? 1.2 : 0.8;
+  const quality = level === "low" ? 0.75 : 0.55;
+
+  const { bytes: sanitizedBytes } = PDFSanitizer.sanitize(fileBytes);
+  PDFSanitizer.validate(sanitizedBytes);
+
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_SRC;
+
+  const loadingTask = pdfjs.getDocument({
+    data: sanitizedBytes,
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
+  } as any);
+
+  const pdf = await loadingTask.promise;
+  const numPages = pdf.numPages;
+
   const newPdfDoc = await PDFDocument.create();
-  const copiedPages = await newPdfDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
-  for (const page of copiedPages) {
-    newPdfDoc.addPage(page);
+
+  for (let i = 1; i <= numPages; i++) {
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale });
+
+    let canvas: any;
+    let context: any;
+
+    if (typeof document !== "undefined" && typeof document.createElement === "function") {
+      canvas = document.createElement("canvas");
+      context = canvas.getContext("2d");
+    } else if (typeof OffscreenCanvas !== "undefined") {
+      canvas = new OffscreenCanvas(viewport.width, viewport.height);
+      context = canvas.getContext("2d");
+    }
+
+    if (!context) {
+      throw new Error(`Failed to initialize 2D canvas context for compressing page ${i}.`);
+    }
+
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    await page.render({
+      canvasContext: context,
+      viewport,
+    } as any).promise;
+
+    let imgBytes: Uint8Array;
+    if (typeof canvas.convertToBlob === "function") {
+      const blob = await canvas.convertToBlob({ type: "image/jpeg", quality });
+      imgBytes = new Uint8Array(await blob.arrayBuffer());
+    } else if (typeof canvas.toBlob === "function") {
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, "image/jpeg", quality);
+      });
+      if (!blob) {
+        throw new Error(`Failed to rasterize page ${i} for compression`);
+      }
+      imgBytes = new Uint8Array(await blob.arrayBuffer());
+    } else {
+      throw new Error("Canvas is unable to convert page to jpeg for compression.");
+    }
+
+    const embeddedImg = await newPdfDoc.embedJpg(imgBytes);
+    const newPage = newPdfDoc.addPage([viewport.width, viewport.height]);
+    newPage.drawImage(embeddedImg, {
+      x: 0,
+      y: 0,
+      width: viewport.width,
+      height: viewport.height,
+    });
   }
 
-  newPdfDoc.setProducer("PDFMinty (Highly Compressed)");
-  return await newPdfDoc.save({
-    useObjectStreams: true,
-    addDefaultPage: false,
-  });
+  newPdfDoc.setProducer(`PDFMinty (${level} Compressed via Rasterization)`);
+  return await newPdfDoc.save({ useObjectStreams: true });
 }
 
 /**
@@ -509,10 +583,10 @@ export async function imagesToPDF(
 }
 
 export async function imageToPdf(
-  images: Array<{ bytes: Uint8Array; type: string }>,
-  pageSize: "LETTER" | "A4" | "Letter"
+  arg1: { images: Array<{ bytes: Uint8Array; type: string }>; pageSize: "LETTER" | "A4" | "Letter" } | Array<{ bytes: Uint8Array; type: string }>,
+  arg2?: "LETTER" | "A4" | "Letter"
 ): Promise<Uint8Array> {
-  const result = await imagesToPDF({ images, pageSize });
+  const result = await imagesToPDF(arg1 as any, arg2 as any);
   return result.bytes;
 }
 
@@ -554,32 +628,46 @@ export async function pdfToImage(
     const page = await pdf.getPage(i);
     const viewport = page.getViewport({ scale: scale ?? 1.5 });
 
+    let canvas: any;
+    let context: any;
+
     if (typeof document !== "undefined" && typeof document.createElement === "function") {
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-      if (context) {
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({
-          canvasContext: context,
-          viewport,
-        } as any).promise;
-
-        const dataUrl = canvas.toDataURL(format === "jpeg" ? "image/jpeg" : "image/png");
-        const base64 = dataUrl.split(",")[1];
-        const binaryString = atob(base64);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let k = 0; k < binaryString.length; k++) {
-          bytes[k] = binaryString.charCodeAt(k);
-        }
-
-        results.push({ pageNum: i, bytes });
-        continue;
-      }
+      canvas = document.createElement("canvas");
+      context = canvas.getContext("2d");
+    } else if (typeof OffscreenCanvas !== "undefined") {
+      canvas = new OffscreenCanvas(viewport.width, viewport.height);
+      context = canvas.getContext("2d");
     }
 
-    results.push({ pageNum: i, bytes: new Uint8Array() });
+    if (!context) {
+      throw new Error(`Failed to initialize 2D canvas context for rendering PDF page ${i}.`);
+    }
+
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    await page.render({
+      canvasContext: context,
+      viewport,
+    } as any).promise;
+
+    let bytes: Uint8Array;
+    if (typeof canvas.convertToBlob === "function") {
+      const blob = await canvas.convertToBlob({ type: format === "jpeg" ? "image/jpeg" : "image/png" });
+      bytes = new Uint8Array(await blob.arrayBuffer());
+    } else if (typeof canvas.toBlob === "function") {
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, format === "jpeg" ? "image/jpeg" : "image/png");
+      });
+      if (!blob) {
+        throw new Error(`Failed to generate blob image for page ${i}`);
+      }
+      bytes = new Uint8Array(await blob.arrayBuffer());
+    } else {
+      throw new Error("Canvas is unable to convert page to image/blob in this context.");
+    }
+
+    results.push({ pageNum: i, bytes });
   }
 
   return results;
@@ -596,7 +684,36 @@ export async function reorderPDF(
   const { fileBytes, pageOrderIndices } = (arg1 instanceof Uint8Array)
     ? { fileBytes: arg1, pageOrderIndices: arg2! }
     : arg1;
-  return splitPDF({ fileBytes, targetPageIndices: pageOrderIndices });
+
+  if (!pageOrderIndices || pageOrderIndices.length === 0) {
+    throw new Error("Page order indices cannot be empty.");
+  }
+
+  const pdfDoc = await loadPDF(fileBytes);
+  const totalPages = pdfDoc.getPageCount();
+
+  if (pageOrderIndices.length !== totalPages) {
+    throw new Error(`Invalid page order: expected ${totalPages} pages, but got ${pageOrderIndices.length}.`);
+  }
+
+  const indexSet = new Set(pageOrderIndices);
+  if (indexSet.size !== totalPages) {
+    throw new Error("Invalid page order: duplicate pages or missing page indices detected.");
+  }
+
+  for (const idx of pageOrderIndices) {
+    if (idx < 0 || idx >= totalPages) {
+      throw new Error(`Invalid page index: ${idx} is out of bounds (0 to ${totalPages - 1}).`);
+    }
+  }
+
+  const reorderedPdf = await PDFDocument.create();
+  const copiedPages = await reorderedPdf.copyPages(pdfDoc, pageOrderIndices);
+  for (const page of copiedPages) {
+    reorderedPdf.addPage(page);
+  }
+  reorderedPdf.setProducer("PDFMinty");
+  return await reorderedPdf.save({ useObjectStreams: true });
 }
 
 // Named exports map

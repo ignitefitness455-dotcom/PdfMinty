@@ -19,8 +19,8 @@ self.onmessage = async (e: MessageEvent) => {
         return;
       }
       case "reorder":
-        bytes = await ops.splitPDF(payload);
-        break; // reorder uses same extract logic
+        bytes = await ops.reorderPDF(payload);
+        break;
       case "extract":
         bytes = await ops.splitPDF(payload);
         break;

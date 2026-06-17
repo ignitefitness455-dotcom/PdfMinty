@@ -49,44 +49,44 @@ export class VirtualWorker implements EventTarget {
       try {
         let result: any = null;
         if (type === "merge") {
-          const bytes = await ops.mergePDFs(args.files);
+          const bytes = await ops.mergePDFs(args);
           result = { success: true, bytes };
         } else if (type === "split") {
-          const bytes = await ops.splitPDF(args.fileBytes, args.targetPageIndices);
+          const bytes = await ops.splitPDF(args);
           result = { success: true, bytes };
         } else if (type === "reorder") {
-          const bytes = await ops.reorderPDF(args.fileBytes, args.pageOrderIndices);
+          const bytes = await ops.reorderPDF(args);
           result = { success: true, bytes };
         } else if (type === "extract") {
-          const bytes = await ops.extractPDFPages(args.fileBytes, args.targetPageIndices);
+          const bytes = await ops.splitPDF(args);
           result = { success: true, bytes };
         } else if (type === "split-multi") {
-          const results = await ops.splitMultiPDF(args.fileBytes, args.ranges);
+          const results = await ops.splitPDFMulti(args);
           result = { success: true, results };
         } else if (type === "compress") {
-          const bytes = await ops.compressPDF(args.fileBytes, args.level);
+          const bytes = await ops.compressPDF(args);
           result = { success: true, bytes };
         } else if (type === "rotate") {
-          const bytes = await ops.rotatePDF(args.fileBytes, args.rotations);
+          const bytes = await ops.rotatePDF(args);
           result = { success: true, bytes };
         } else if (type === "watermark") {
-          const bytes = await ops.watermarkPDF(args.fileBytes, args.text, args.rotation, args.opacity, args.color);
+          const bytes = await ops.watermarkPDF(args);
           result = { success: true, bytes };
-        } else if (type === "add-page-numbers") {
-          const bytes = await ops.addPageNumbers(args.fileBytes, args.position, args.startNumber, args.skipFirst);
+        } else if (type === "add-page-numbers" || type === "page-numbers") {
+          const bytes = await ops.addPageNumbersPDF(args);
           result = { success: true, bytes };
-        } else if (type === "add-blank-page") {
-          const bytes = await ops.addBlankPage(args.fileBytes, args.positionIndex, args.pageSize);
+        } else if (type === "add-blank-page" || type === "add-blank") {
+          const bytes = await ops.addBlankPagePDF(args);
           result = { success: true, bytes };
         } else if (type === "protect") {
-          const bytes = await ops.protectPDF(args.fileBytes);
+          const bytes = await ops.protectPDF(args);
           result = { success: true, bytes };
         } else if (type === "unlock") {
-          const bytes = await ops.unlockPDF(args.fileBytes);
+          const bytes = await ops.unlockPDF(args);
           result = { success: true, bytes };
         } else if (type === "image-to-pdf") {
-          const bytes = await ops.imageToPdf(args.images, args.pageSize);
-          result = { success: true, bytes };
+          const resultData = await ops.imagesToPDF(args);
+          result = { success: true, bytes: resultData.bytes, warnings: resultData.warnings };
         } else if (type === "pdf-to-image") {
           const results = await ops.pdfToImage(args);
           result = { success: true, results };
