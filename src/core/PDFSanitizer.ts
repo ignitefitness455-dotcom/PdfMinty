@@ -1,3 +1,8 @@
+export interface ValidationResult {
+  valid: boolean;
+  version?: string;
+}
+
 export class PDFSanitizer {
   /**
    * PDFSanitizer strips and obfuscates active/executable structures directly in incoming files:
@@ -125,5 +130,61 @@ export class PDFSanitizer {
 
     return { bytes: workingBytes, wasSanitized };
   }
-}
 
+  /**
+   * PDFSanitizer.validate performs binary-level structural security & format validation.
+   */
+  static validate(bytes: Uint8Array): ValidationResult {
+    // Check 1: PDF header magic bytes (%PDF-1.x)
+    if (bytes.length < 5) {
+      throw new Error("Invalid PDF file: missing PDF header");
+    }
+    const header = new TextDecoder().decode(bytes.slice(0, 5));
+    if (!header.startsWith("%PDF-")) {
+      throw new Error("Invalid PDF file: missing PDF header");
+    }
+
+    // Check 2: Minimum file size (empty PDF ~300 bytes)
+    if (bytes.length < 100) {
+      throw new Error("File too small to be a valid PDF");
+    }
+
+    // Decode to text for structure checks (very fast with modern JS engines)
+    const text = new TextDecoder().decode(bytes);
+
+    // Check 3: Encryption detection (/Encrypt dictionary)
+    if (/\/Encrypt\b/.test(text) && !text.includes("/Encrypt null") && !text.includes("/Encrypt  null")) {
+      const error = new Error("SECURED_LOCKED");
+      error.name = "EncryptedPDFError";
+      throw error;
+    }
+
+    // Check 4: EOF marker (%%EOF)
+    const eofPattern = [0x25, 0x25, 0x45, 0x4F, 0x46]; // %%EOF
+    let foundEof = false;
+    const searchLen = Math.min(bytes.length, 1024);
+    for (let i = bytes.length - searchLen; i <= bytes.length - 5; i++) {
+      if (
+        bytes[i] === eofPattern[0] &&
+        bytes[i + 1] === eofPattern[1] &&
+        bytes[i + 2] === eofPattern[2] &&
+        bytes[i + 3] === eofPattern[3] &&
+        bytes[i + 4] === eofPattern[4]
+      ) {
+        foundEof = true;
+        break;
+      }
+    }
+
+    if (!foundEof) {
+      throw new Error("Invalid PDF file: missing EOF marker");
+    }
+
+    // Check 5: Cross-reference table or stream
+    if (!text.includes("startxref") && !text.includes("xref") && !text.includes("obj")) {
+      throw new Error("Invalid PDF file: missing cross-reference or objects");
+    }
+
+    return { valid: true, version: header.slice(5, 8) };
+  }
+}

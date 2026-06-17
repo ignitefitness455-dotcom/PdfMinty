@@ -380,11 +380,13 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
         
         const zipBlob = await zip.generateAsync({ type: "blob" });
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(zipBlob);
+        const downloadUrl = URL.createObjectURL(zipBlob);
+        link.href = downloadUrl;
         link.download = `pages_${uploadedFiles[0].name.replace(/\.pdf$/i, "")}_images.zip`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl);
         showToast("Converted all PDF pages to JPEG images archive!", "success");
 
       } else if (tool.id === "delete-pages") {
@@ -523,11 +525,13 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
   const triggerDownload = (bytes: Uint8Array, filename: string) => {
     const blob = new Blob([bytes], { type: "application/pdf" });
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
+    const downloadUrl = URL.createObjectURL(blob);
+    link.href = downloadUrl;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(downloadUrl);
   };
 
   const submitAiChat = (e: React.FormEvent) => {

@@ -21,6 +21,16 @@ export const preprocessAndLoadPdf = async (
   
   // Clean, repair, and sanitize the document streams locally before running previews or extraction
   const rawBytes = new Uint8Array(arrayBuffer);
+  
+  // Validate before loading
+  try {
+    PDFSanitizer.validate(rawBytes);
+  } catch (err: any) {
+    if (err.message === "SECURED_LOCKED" && options.onEncrypted) {
+      options.onEncrypted();
+    }
+  }
+
   const { bytes: sanitizedBytes } = PDFSanitizer.sanitize(rawBytes);
 
   const loadingTask = pdfjs.getDocument({
@@ -48,7 +58,6 @@ export const preprocessAndLoadPdf = async (
 interface Task {
   type: string;
   args: any;
-  transferables?: Transferable[];
   resolve: (value: any) => void;
   reject: (reason: any) => void;
 }
@@ -64,7 +73,7 @@ const processQueue = async (): Promise<void> => {
   activeWorkerCount++;
 
   try {
-    const res = await runActualWorker(task.type, task.args, task.transferables);
+    const res = await runActualWorker(task.type, task.args);
     task.resolve(res);
   } catch (err) {
     task.reject(err);
@@ -76,41 +85,91 @@ const processQueue = async (): Promise<void> => {
 
 const runActualWorker = (
   type: string,
-  args: any,
-  transferables?: Transferable[]
+  args: any
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
-    const worker = createDedicatedWorker();
+    let worker: Worker;
+    try {
+      worker = createDedicatedWorker();
+    } catch {
+      reject(new Error("Failed to initialize PDF processing worker sandbox."));
+      return;
+    }
+
+    // 5-minute timeout to prevent hung workers
+    const timeoutSeconds = 5 * 60;
+    const timeoutId = setTimeout(() => {
+      worker.terminate();
+      reject(new Error("Worker sandbox computation timed out after 5 minutes."));
+    }, timeoutSeconds * 1000);
+
+    const cleanup = () => {
+      clearTimeout(timeoutId);
+      worker.terminate();
+    };
 
     worker.onmessage = (e: MessageEvent) => {
-      const { success, error, ...data } = e.data;
-      if (success) {
-        resolve(data);
+      if (e.data.type === "progress") {
+        if (args.onProgress && typeof args.onProgress === "function") {
+          args.onProgress(e.data.progress);
+        }
       } else {
-        reject(new Error(error || "Worker operation failed"));
+        const { success, error, ...data } = e.data;
+        cleanup();
+        if (success) {
+          resolve(data);
+        } else {
+          reject(new Error(error || "Worker operation failed"));
+        }
       }
-      worker.terminate();
     };
 
     worker.onerror = (err) => {
+      cleanup();
       reject(err);
-      worker.terminate();
     };
 
-    worker.postMessage({ type, ...args }, transferables || []);
+    // Auto-detect Transferables for high-speed zero-copy operations
+    const transferables: Transferable[] = [];
+    if (args.fileBytes instanceof Uint8Array) {
+      transferables.push(args.fileBytes.buffer);
+    }
+    if (Array.isArray(args.files)) {
+      for (const f of args.files) {
+        if (f instanceof Uint8Array) {
+          transferables.push(f.buffer);
+        }
+      }
+    }
+    if (Array.isArray(args.images)) {
+      for (const f of args.images) {
+        if (f.bytes instanceof Uint8Array) {
+          transferables.push(f.bytes.buffer);
+        }
+      }
+    }
+
+    worker.postMessage({ type, ...args }, transferables);
   });
 };
 
 export const executePdfWorker = async (
   type: string,
-  args: any,
-  transferables?: Transferable[]
+  args: any
 ): Promise<any> => {
+  // Check and validate incoming bytes before passing to Worker execution pipeline
+  if (args && args.fileBytes instanceof Uint8Array) {
+    try {
+      PDFSanitizer.validate(args.fileBytes);
+    } catch (err: any) {
+      return Promise.reject(err);
+    }
+  }
+
   return new Promise((resolve, reject) => {
     workerQueue.push({
       type,
       args,
-      transferables,
       resolve,
       reject,
     });

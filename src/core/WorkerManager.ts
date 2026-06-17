@@ -344,5 +344,11 @@ export const createDedicatedWorker = (): Worker => {
   `;
 
   const blob = new Blob([workerCode], { type: "application/javascript" });
-  return new Worker(URL.createObjectURL(blob));
+  const workerUrl = URL.createObjectURL(blob);
+  const worker = new Worker(workerUrl);
+  
+  // Revoke object URL to prevent memory leaks (it is already loaded by the Worker constructor)
+  URL.revokeObjectURL(workerUrl);
+  
+  return worker;
 };
