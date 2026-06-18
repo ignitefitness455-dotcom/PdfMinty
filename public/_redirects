@@ -1,27 +1,4 @@
-# Static file passthrough
-/robots.txt /robots.txt 200
-/sitemap.xml /sitemap.xml 200
-/manifest.json /manifest.json 200
-/favicon.ico /favicon.ico 200
-/favicon.svg /favicon.svg 200
-/logo.png /logo.png 200
-/logo.webp /logo.webp 200
-/og-image.png /og-image.png 200
-/og-image.webp /og-image.webp 200
-/favicon-16x16.png /favicon-16x16.png 200
-/favicon-32x32.png /favicon-32x32.png 200
-/mstile-150x150.png /mstile-150x150.png 200
-/apple-touch-icon.png /apple-touch-icon.png 200
-/android-chrome-192x192.png /android-chrome-192x192.png 200
-/android-chrome-512x512.png /android-chrome-512x512.png 200
-/early-init.js /early-init.js 200
-
-# Vite assets
-/assets/* /assets/:splat 200
-/fonts/* /fonts/:splat 200
-/workers/* /workers/:splat 200
-
-# Canonical redirects
+# 1. Canonical 301 Redirects (MUST be at the absolute top, before any splats or placeholders)
 /delete-pages-pdf /organize 301
 /delete-pages-pdf/ /organize 301
 /reorder-pdf /organize 301
@@ -29,32 +6,23 @@
 /extract-pages-pdf /split-pdf 301
 /extract-pages-pdf/ /split-pdf 301
 
-# SPA dynamic route rewrites to prevent loops
+# 2. Static File Passthrough and Asset Wildcards
+/assets/* /assets/:splat 200
+/fonts/* /fonts/:splat 200
+/workers/* /workers/:splat 200
+
+# 3. SPA Client-Side Routes (Mapped non-trailing-slash only, to prevent Cloudflare Pages' index / .html strip redirections loops)
 /merge-pdf /index.html 200
-/merge-pdf/ /index.html 200
 /split-pdf /index.html 200
-/split-pdf/ /index.html 200
 /compress-pdf /index.html 200
-/compress-pdf/ /index.html 200
 /rotate-pdf /index.html 200
-/rotate-pdf/ /index.html 200
 /organize /index.html 200
-/organize/ /index.html 200
 /watermark-pdf /index.html 200
-/watermark-pdf/ /index.html 200
 /add-page-numbers /index.html 200
-/add-page-numbers/ /index.html 200
 /add-blank-page /index.html 200
-/add-blank-page/ /index.html 200
 /protect-pdf /index.html 200
-/protect-pdf/ /index.html 200
 /unlock-pdf /index.html 200
-/unlock-pdf/ /index.html 200
 /image-to-pdf /index.html 200
-/image-to-pdf/ /index.html 200
 /pdf-to-image /index.html 200
-/pdf-to-image/ /index.html 200
 /intelligence /index.html 200
-/intelligence/ /index.html 200
 /is-it-safe-to-upload-pdf-to-online-tools /index.html 200
-/is-it-safe-to-upload-pdf-to-online-tools/ /index.html 200
