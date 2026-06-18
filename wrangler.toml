@@ -5,6 +5,10 @@ pages_build_output_dir = "./dist"
 [vars]
 ENVIRONMENT = "production"
 
-[[kv_namespaces]]
-binding = "RATELIMIT_KV"
-id = "your_kv_namespace_id"
+# For Cloudflare Pages, configure KV bindings directly in the Cloudflare Dashboard under:
+# Settings > Functions > KV namespace bindings
+#
+# [[kv_namespaces]]
+# binding = "RATELIMIT_KV"
+# id = "your_kv_namespace_id"
+
