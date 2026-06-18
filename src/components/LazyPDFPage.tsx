@@ -1,17 +1,52 @@
-import React, { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
+import ToolSkeleton from "./ToolSkeleton";
 
-interface LazyPDFPageProps {
+interface ClassicLazyPDFPageProps {
   pageNumber: number;
   pdfDocument: any;
   scale?: number;
 }
 
-export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
-  pageNumber,
-  pdfDocument,
-  scale = 1.0,
-}) => {
+interface NewLazyPDFPageProps {
+  page: string;
+}
+
+type DualLazyPDFPageProps = Partial<ClassicLazyPDFPageProps> & Partial<NewLazyPDFPageProps>;
+
+const pageComponents: Record<string, React.LazyExoticComponent<any>> = {
+  merge: lazy(() => import("@/pages/MergePage")),
+  split: lazy(() => import("@/pages/SplitPage")),
+  compress: lazy(() => import("@/pages/CompressPage")),
+  rotate: lazy(() => import("@/pages/RotatePage")),
+  watermark: lazy(() => import("@/pages/WatermarkPage")),
+  pageNumbers: lazy(() => import("@/pages/PageNumbersPage")),
+  addBlank: lazy(() => import("@/pages/AddBlankPage")),
+  protect: lazy(() => import("@/pages/ProtectPage")),
+  unlock: lazy(() => import("@/pages/UnlockPage")),
+  imgToPdf: lazy(() => import("@/pages/ImgToPdfPage")),
+  pdfToImg: lazy(() => import("@/pages/PdfToImgPage")),
+  aiAnalyze: lazy(() => import("@/pages/AiAnalyzePage")),
+};
+
+export function LazyPDFPage(props: DualLazyPDFPageProps) {
+  // 1. If "page" prop is passed, render the tool loader component:
+  if (props.page) {
+    const Component = pageComponents[props.page];
+    if (!Component) return <div>Tool not found</div>;
+
+    return (
+      <Suspense fallback={<ToolSkeleton />}>
+        <Component />
+      </Suspense>
+    );
+  }
+
+  // 2. Otherwise, treat it as the classic page-renderer Scroll-to-view PDF canvas thumbnail component:
+  const pageNumber = props.pageNumber || 1;
+  const pdfDocument = props.pdfDocument;
+  const scale = props.scale ?? 1.0;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [rendered, setRendered] = useState(false);
@@ -30,8 +65,9 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
       { rootMargin: "200px" }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    const currentContainer = containerRef.current;
+    if (currentContainer) {
+      observer.observe(currentContainer);
     }
 
     async function renderPage(pdf: any, num: number) {
@@ -62,8 +98,8 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
 
     return () => {
       active = false;
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
+      if (currentContainer) {
+        observer.unobserve(currentContainer);
       }
     };
   }, [pageNumber, pdfDocument, scale, rendered, loading]);
@@ -87,6 +123,6 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
       )}
     </div>
   );
-};
+}
 
 export default LazyPDFPage;

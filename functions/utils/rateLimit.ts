@@ -1,93 +1,114 @@
-export interface RateLimitResult {
-  allowed: boolean;
-  remaining: number;
-  limit: number;
-  resetSeconds: number;
+import { getCorsHeaders } from "./cors";
+
+interface RateLimitEntry {
+  count: number;
+  timestamp: number;
+}
+
+// Global in-memory fallback map
+const inMemoryFallback = new Map<string, RateLimitEntry>();
+
+// Periodic cleanup every 5 minutes to prevent memory leaks / exhaustion
+if (typeof setInterval !== "undefined") {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of inMemoryFallback) {
+      if (now - entry.timestamp > 10 * 60 * 1000) { // 10 minutes stale
+        inMemoryFallback.delete(key);
+      }
+    }
+  }, 5 * 60 * 1000);
 }
 
 /**
- * KV-backed sliding window rate limiter.
- * Tracks client IP requests within a sliding timeline window.
+ * Checks rate limiting via atomic hourly blocks. Falls back to in-memory TTL map if KV is unavailable.
  */
 export async function checkRateLimit(
   request: Request,
-  env: any,
+  kv: KVNamespace | undefined,
   endpoint: string,
-  limit: number,
-  windowSeconds: number
-): Promise<RateLimitResult> {
-  const ip = request.headers.get("CF-Connecting-IP") || "local-ip";
-  const key = `ratelimit:${endpoint}:${ip}`;
+  limit: number
+): Promise<{ allowed: boolean; retryAfter: number; currentCount: number }> {
+  const ip = request.headers.get("cf-connecting-ip") || "127.0.0.1";
+  const now = Math.floor(Date.now() / 1000);
+  const hourBlock = now - (now % 3600);
+  const rateLimitKey = `rate_limit:${endpoint}:${ip}:${hourBlock}`;
 
-  // Dynamically resolve bound KV namespace (usually named PDFMINTY_KV or KV)
-  const kv = env?.PDFMINTY_KV || env?.KV;
+  const retryAfter = 3600 - (now % 3600);
 
-  const now = Date.now();
-  const windowMs = windowSeconds * 1000;
-
+  // If KV is missing or can't be reached, fall-safe fallback to in-memory
   if (!kv) {
-    // Graceful in-memory fallback for local dev where KV is unbound
-    if (!(globalThis as any)._rateLimitStore) {
-      (globalThis as any)._rateLimitStore = new Map<string, number[]>();
-    }
-    const store = (globalThis as any)._rateLimitStore;
-    let timestamps: number[] = store.get(key) || [];
-    timestamps = timestamps.filter((t: number) => now - t < windowMs);
-
-    if (timestamps.length >= limit) {
-      const oldest = timestamps[0];
-      const resetIn = Math.ceil((oldest + windowMs - now) / 1000);
-      return { allowed: false, remaining: 0, limit, resetSeconds: Math.max(1, resetIn) };
-    }
-
-    timestamps.push(now);
-    store.set(key, timestamps);
-    const oldest = timestamps[0];
-    const resetIn = Math.ceil((oldest + windowMs - now) / 1000);
+    const fallbackKey = `${endpoint}:${ip}`;
+    const allowed = checkInMemoryFallback(fallbackKey, limit, 3600 * 1000);
+    const entry = inMemoryFallback.get(fallbackKey);
     return {
-      allowed: true,
-      remaining: limit - timestamps.length,
-      limit,
-      resetSeconds: Math.max(1, resetIn),
+      allowed,
+      retryAfter,
+      currentCount: entry ? entry.count : 0
     };
   }
 
-  // Real KV storage sliding window processing
-  let timestamps: number[] = [];
   try {
-    const raw = await kv.get(key);
-    if (raw) {
-      timestamps = JSON.parse(raw);
+    const countStr = await kv.get(rateLimitKey);
+    const count = countStr ? parseInt(countStr, 10) : 0;
+
+    if (count >= limit) {
+      return { allowed: false, retryAfter, currentCount: count };
     }
+
+    return { allowed: true, retryAfter, currentCount: count };
   } catch (err) {
-    console.error(`KV Read Error for rate limiting client ${ip}:`, err);
+    console.error(`KV rate limit lookup failed for ${rateLimitKey}, using in-memory fallback:`, err);
+    const fallbackKey = `${endpoint}:${ip}`;
+    const allowed = checkInMemoryFallback(fallbackKey, limit, 3600 * 1000);
+    const entry = inMemoryFallback.get(fallbackKey);
+    return {
+      allowed,
+      retryAfter,
+      currentCount: entry ? entry.count : 0
+    };
   }
+}
 
-  // Prune any timestamps outside our active sliding window threshold
-  timestamps = timestamps.filter((t: number) => now - t < windowMs);
+/**
+ * Increments the rate limit key. To be called AFTER all other validations succeed,
+ * following the A2 pattern: "Increment ONLY after all validation passes"
+ */
+export async function incrementRateLimit(
+  request: Request,
+  kv: KVNamespace | undefined,
+  endpoint: string,
+  currentCount: number
+): Promise<void> {
+  const ip = request.headers.get("cf-connecting-ip") || "127.0.0.1";
+  const now = Math.floor(Date.now() / 1000);
+  const hourBlock = now - (now % 3600);
+  const rateLimitKey = `rate_limit:${endpoint}:${ip}:${hourBlock}`;
 
-  if (timestamps.length >= limit) {
-    const oldest = timestamps[0];
-    const resetIn = Math.ceil((oldest + windowMs - now) / 1000);
-    return { allowed: false, remaining: 0, limit, resetSeconds: Math.max(1, resetIn) };
+  if (!kv) {
+    // In-memory increment has already occurred during checkInMemoryFallback, so no-op
+    return;
   }
-
-  timestamps.push(now);
 
   try {
-    // ExpirationTTL must be at least 60 seconds on CF KV
-    const expirationTtl = Math.max(60, windowSeconds);
-    await kv.put(key, JSON.stringify(timestamps), { expirationTtl });
+    await kv.put(rateLimitKey, (currentCount + 1).toString(), { expirationTtl: 3600 });
   } catch (err) {
-    console.error(`KV Write Error for rate limiting client ${ip}:`, err);
+    console.error(`Failed to increment KV rate limit key ${rateLimitKey}`, err);
   }
+}
 
-  const oldest = timestamps[0];
-  const resetIn = Math.ceil((oldest + windowMs - now) / 1000);
-  return {
-    allowed: true,
-    remaining: limit - timestamps.length,
-    limit,
-    resetSeconds: Math.max(1, resetIn),
-  };
+function checkInMemoryFallback(key: string, limit: number, windowMs: number): boolean {
+  const now = Date.now();
+  const entry = inMemoryFallback.get(key);
+  if (!entry) {
+    inMemoryFallback.set(key, { count: 1, timestamp: now });
+    return true;
+  }
+  if (now - entry.timestamp > windowMs) {
+    inMemoryFallback.set(key, { count: 1, timestamp: now }); // Window expired, reset
+    return true;
+  }
+  if (entry.count >= limit) return false;
+  entry.count++;
+  return true;
 }

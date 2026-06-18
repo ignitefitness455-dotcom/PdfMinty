@@ -88,7 +88,8 @@ export default function HomePage() {
     }
   };
 
-  const { debouncedValue, isDebouncing } = useDebounce(searchQuery, 300);
+  const debouncedValue = useDebounce(searchQuery, 300);
+  const isDebouncing = false;
 
   const rankedOrder = useMemo(() => [
     "merge",

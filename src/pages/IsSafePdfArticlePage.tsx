@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
-import { ShieldCheck, Lock, Cpu, ServerCrash, ExternalLink, ArrowLeft, BookmarkCheck } from "lucide-react";
+import { ShieldCheck, ArrowLeft, Cpu, Lock, Network, Play } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SEO } from "../components/SEO";
 
 export default function IsSafePdfArticlePage() {
   useEffect(() => {
@@ -8,130 +9,123 @@ export default function IsSafePdfArticlePage() {
   }, []);
 
   return (
-    <article className="max-w-4xl mx-auto px-4 py-8 sm:py-12 md:py-16 text-slate-800 dark:text-slate-100 font-sans" id="safe-article-container">
-      <header className="mb-10 text-center sm:text-left">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 transition-colors mb-6 text-sm font-semibold no-underline group"
-          id="back-home-link"
-        >
-          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          Back to Tool Dashboard
-        </Link>
-        <span className="inline-block px-3 py-1 bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/40 rounded-full text-rose-500 dark:text-rose-400 text-xs font-semibold mb-4 leading-none">
-          Security & Engineering Analysis
-        </span>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight" id="article-title">
-          Is It Safe to Upload PDFs to Online Tools?
-        </h1>
-        <p className="text-lg text-slate-500 dark:text-slate-400 mt-4 font-medium">
-          An engineering deep dive into browser-side sandboxing, data sovereignty, and WebAssembly cryptography.
-        </p>
-      </header>
+    <>
+      <SEO 
+        title="Is It Safe to Upload PDF to Online Tools?" 
+        description="Learn why PDFMinty is different — your files never leave your browser." 
+        canonical="https://pdfminty.com/is-it-safe-to-upload-pdf-to-online-tools" 
+      />
+      <main id="main-content" className="container mx-auto max-w-4xl px-4 py-12 text-slate-800 dark:text-slate-100 font-sans animate-fadein">
+        <header className="mb-10">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 transition-colors mb-6 text-sm font-semibold group no-underline"
+            id="back-home-link"
+          >
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+            Back to Dashboard
+          </Link>
+          <span className="inline-block px-3 py-1 bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/40 rounded-full text-rose-500 dark:text-rose-400 text-xs font-semibold mb-4 leading-none">
+            Privacy & Security Deep-Dive
+          </span>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+            Is It Safe to Upload PDFs to Online Tools?
+          </h1>
+          <p className="text-lg text-slate-500 dark:text-slate-400 mt-4 leading-relaxed font-medium">
+            Learn why PDFMinty is structurally different — your files never leave your desktop environment.
+          </p>
+        </header>
 
-      {/* Hero Visual Card */}
-      <div className="bg-gradient-to-br from-emerald-555/5 via-teal-500/5 to-indigo-500/5 border border-slate-200/60 dark:border-slate-850/65 rounded-3xl p-6 sm:p-8 mb-12 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
-        <div className="flex flex-col sm:flex-row gap-6 items-center">
-          <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl shrink-0">
-            <ShieldCheck className="w-12 h-12" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-              Guaranteed Zero-Server Processing
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Unlike legacy PDF engines which silently upload your business logs, proprietary financial ledgers, and government templates to external database nodes, <strong>PDFMinty executes 100% of all processing directly inside your browser</strong>. Your documents never leave your physical device.
-            </p>
+        {/* Hero Visual Block */}
+        <div className="bg-gradient-to-br from-emerald-500/5 via-teal-500/5 to-indigo-500/5 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 mb-12 shadow-[0_4px_25px_rgba(0,0,0,0.015)]">
+          <div className="flex flex-col sm:flex-row gap-6 items-center">
+            <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl shrink-0">
+              <ShieldCheck className="w-12 h-12" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+                Zero-Trust File Security Architecture
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Most online PDF services silently transfer your sensitive personal data, tax files, and medical forms to distant backend clouds. PDFMinty guarantees absolute local confidentiality by processing everything solely inside your browser's virtual runtime thread.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Core Body Content */}
-      <div className="space-y-10 prose prose-slate dark:prose-invert max-w-none text-base sm:text-lg leading-relaxed text-slate-650 dark:text-slate-300">
-        <section className="space-y-4">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
-            <Cpu className="w-6 h-6 text-emerald-500 shrink-0" />
-            1. Client-Side Sandboxing (WebAssembly)
-          </h2>
-          <p>
-            PDFMinty employs modern **WebAssembly (Wasm)** binaries and client-only compiled javascript structures (via <code>@cantoo/pdf-lib</code> and <code>pdfjs-dist</code>) to rebuild your PDFs right in the context of your browser's execution stack. This is the exact same secure execution sandbox that powers browser tabs, isolated from your native file system and computer processes.
+        <article className="prose dark:prose-invert max-w-none text-base sm:text-lg leading-relaxed text-slate-650 dark:text-slate-300 space-y-8">
+          <p className="text-xl text-slate-600 dark:text-slate-400 font-light italic border-l-4 border-emerald-500 pl-4 py-1">
+            "Most online PDF tools upload your files to their servers for processing. This creates significant privacy and security risks."
           </p>
-          <p>
-            When you load a file:
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-sm sm:text-base">
-            <li>The files are processed as fully local <code>ArrayBuffers</code>, existing only in your device's random access memory (RAM).</li>
-            <li>No cloud network upload socket is ever open for your assets. You can literally disconnect your Wi-Fi router entirely, and PDFMinty will compile, merge, split, watermark, and lock your files completely offline.</li>
-            <li>Your sensitive business variables, digital signatures, and metadata remain uncompromised.</li>
-          </ul>
-        </section>
 
-        <section className="space-y-4">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
-            <Lock className="w-6 h-6 text-indigo-500 shrink-0" />
-            2. The In-Browser PDF Sanitization Layer
-          </h2>
-          <p>
-            Malicious PDFs can carry harmful payloads, including embedded attachments, external command launch triggers, and executable JavaScript macros that start running upon open in reader software. PDFMinty addresses this with our built-in <strong>PDFSanitizer</strong>.
-          </p>
-          <p>
-            Every document loaded into PDFMinty undergoes an automated security clean sequence that strips:
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div className="bg-slate-100/50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-800">
-              <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mb-1">Active Scripts (/JavaScript, /JS)</span>
-              <p className="text-xs text-slate-550 dark:text-slate-400">
-                Prunes any embedded automatic JS files and macro actions to prevent active scripting from launching.
-              </p>
-            </div>
-            <div className="bg-slate-100/50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-800">
-              <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mb-1">OS Launch Commands (/Launch)</span>
-              <p className="text-xs text-slate-550 dark:text-slate-400">
-                Neutralizes instructions that try to force external client applications, attachments, or scripts to start.
-              </p>
-            </div>
-            <div className="bg-slate-100/50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-800">
-              <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mb-1">Hidden Malware Nodes (/EmbeddedFiles)</span>
-              <p className="text-xs text-slate-550 dark:text-slate-400">
-                Locks out and strips remote file nodes nestled inside secondary document collections.
-              </p>
-            </div>
-            <div className="bg-slate-100/50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-800">
-              <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mb-1">Form Data Leaks (/SubmitForm)</span>
-              <p className="text-xs text-slate-550 dark:text-slate-400">
-                Inerts form endpoints that might silently ping data back to a tracking service.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
-            <ServerCrash className="w-6 h-6 text-rose-500 shrink-0" />
-            3. Verification & Compliance
-          </h2>
-          <p>
-            PDFMinty aligns with the most stringent data-sovereignty regulations worldwide, such as **GDPR (EU)**, **CCPA (CA)**, and **HIPAA (USA)**. Because we do not upload, gather, inspect, index, database, serialize, or transmit any documents to any database, there is zero risk of third-party data breaches, compliance violations, or leakage of personal identifiable information (PII).
-          </p>
-          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex gap-3 text-sm text-emerald-800 dark:text-emerald-300 mt-4">
-            <BookmarkCheck className="w-5 h-5 shrink-0 text-emerald-500 mt-0.5" />
-            <p className="margin-0 leading-relaxed">
-              <strong>Compliance Verdict:</strong> Fullycompliant. Since no asset files leave your device, there is literally no data processor transfer vector to compile, report, audit, or fail security thresholds on.
+          <section className="space-y-4">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Cpu className="w-6 h-6 text-emerald-500" />
+              The Problem with Server-Side Processing
+            </h2>
+            <p>
+              When files are sent out to cloud engines, several vulnerability layers are opened:
             </p>
-          </div>
-        </section>
-      </div>
+            <ul className="list-disc pl-6 space-y-2 text-sm sm:text-base">
+              <li><strong>Data Exposure:</strong> Your files sit on someone else's server, vulnerable to leaks and exposure.</li>
+              <li><strong>Retention:</strong> Many services keep your documents for hours or days, even when claiming to delete them.</li>
+              <li><strong>Third-Party Access:</strong> Cloud host providers, CDNs, databases, and logging pipelines can all touch your plain content.</li>
+              <li><strong>Compliance Issues:</strong> Violations of HIPAA, GDPR, SOC2 regulations can happen if private documents are processed externally.</li>
+            </ul>
+          </section>
 
-      <footer className="mt-16 border-t border-slate-200 dark:border-slate-900 pt-8 flex justify-center">
-        <Link
-          to="/"
-          className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold rounded-2xl hover:bg-emerald-600 dark:hover:bg-emerald-500 dark:hover:text-white hover:text-white transition-all shadow-md select-none no-underline flex items-center gap-2 group"
-          id="go-back-btn"
-        >
-          Explore Web Tools
-          <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
-      </footer>
-    </article>
+          <section className="space-y-4">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Lock className="w-6 h-6 text-indigo-500" />
+              How PDFMinty is Different
+            </h2>
+            <p>
+              PDFMinty is a <strong>client-side application</strong>. All PDF processing happens directly in your web browser using isolated Web Workers. Your files:
+            </p>
+            <ul className="list-disc pl-6 space-y-2 text-sm sm:text-base">
+              <li>Never leave your local computer environment.</li>
+              <li>Never touch our servers.</li>
+              <li>Are parsed and compiled directly in RAM and immediately discarded.</li>
+              <li>Cannot be accessed by us or any third party under any circumstances.</li>
+            </ul>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Play className="w-6 h-6 text-teal-500" />
+              Technical Verification
+            </h2>
+            <p>
+              You can audit and verify this yourself. Open your browser's Developer Tools (F12 or alternate shortcuts), locate the <strong>Network tab</strong>, and perform any PDF action with our tools. You will observe absolute silence across the network wire — zero upload request packets — because all compilation blocks execute locally on your physical processor.
+            </p>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Network className="w-6 h-6 text-sky-500" />
+              When You Might See Network Requests
+            </h2>
+            <p>
+              The only standard scenarios where secure HTTPS requests occur include:
+            </p>
+            <ul className="list-disc pl-6 space-y-2 text-sm sm:text-base">
+              <li><strong>AI Analysis (/intelligence):</strong> Only the extracted raw text layer is routed via secure TLS proxy tunnels, never the original PDF itself.</li>
+              <li><strong>Feedback/Contact Form:</strong> Transmission of custom bug reports or ratings optionally inputted.</li>
+              <li><strong>Static Assets:</strong> Fetching HTML, style definitions, and JS client files required to display the UI locally (no document transmission).</li>
+            </ul>
+          </section>
+        </article>
+
+        <footer className="mt-16 border-t border-slate-200 dark:border-slate-800 pt-8 flex justify-center">
+          <Link
+            to="/"
+            className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold rounded-2xl hover:bg-emerald-600 dark:hover:bg-emerald-500 dark:hover:text-white hover:text-white transition-all shadow-md select-none no-underline flex items-center gap-2 group"
+          >
+            Explore Free Offline Tools
+            <ArrowLeft className="w-4 h-4 rotate-180 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </footer>
+      </main>
+    </>
   );
 }

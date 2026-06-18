@@ -27,6 +27,12 @@ interface FAQ {
   a: string;
 }
 
+interface ToolExplanationProps {
+  title?: string;
+  description?: string;
+  steps?: string[];
+}
+
 interface ToolConfig {
   toolName: string;
   title: string;
@@ -36,9 +42,24 @@ interface ToolConfig {
   faqs: FAQ[];
 }
 
-export const ToolExplanation: React.FC = () => {
+export const ToolExplanation: React.FC<ToolExplanationProps> = ({ title, description, steps }) => {
   const location = useLocation();
   const currentPath = location.pathname.toLowerCase().replace(/\/$/, "");
+
+  if (title && description && steps) {
+    return (
+      <section className="mt-12 rounded-xl border bg-white p-6 dark:border-slate-700 dark:bg-slate-900">
+        <h2 className="mb-2 text-xl font-bold">How to {title}</h2>
+        <p className="mb-4 text-slate-600 dark:text-slate-400">{description}</p>
+        <ol className="list-inside list-decimal space-y-2 text-sm text-slate-700 dark:text-slate-300">
+          {steps.map((step, i) => (
+            <li key={i}>{step}</li>
+          ))}
+        </ol>
+      </section>
+    );
+  }
+
 
   const getConfigForRoute = (path: string): ToolConfig => {
     const defaultFeatures = [
@@ -787,3 +808,5 @@ export const ToolExplanation: React.FC = () => {
     </div>
   );
 };
+
+export default ToolExplanation;

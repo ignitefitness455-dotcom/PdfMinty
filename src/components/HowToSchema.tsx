@@ -3,7 +3,18 @@ import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
 import { useLayout } from "./Layout";
 
-export const HowToSchema: React.FC = () => {
+interface HowToStep {
+  name: string;
+  text: string;
+}
+
+interface HowToSchemaProps {
+  title?: string;
+  description?: string;
+  steps?: HowToStep[];
+}
+
+export const HowToSchema: React.FC<HowToSchemaProps> = ({ title, description, steps }) => {
   const { pathname } = useLocation();
   const { toolsList } = useLayout();
 
@@ -15,6 +26,22 @@ export const HowToSchema: React.FC = () => {
   const isFAQPage = pathname === "/is-it-safe-to-upload-pdf-to-online-tools";
 
   const schema = useMemo(() => {
+    // If explicit steps are provided by the caller, use them
+    if (steps && title && description) {
+      return {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        name: title,
+        description: description,
+        step: steps.map((step, i) => ({
+          "@type": "HowToStep",
+          position: i + 1,
+          name: step.name,
+          text: step.text,
+        })),
+      };
+    }
+
     if (isFAQPage) {
       return {
         "@context": "https://schema.org",
@@ -70,7 +97,7 @@ export const HowToSchema: React.FC = () => {
         "url": `https://pdfminty.com${pathname}`
       }))
     };
-  }, [activeTool, isFAQPage, pathname]);
+  }, [activeTool, isFAQPage, pathname, title, description, steps]);
 
   if (!schema) {
     return null;

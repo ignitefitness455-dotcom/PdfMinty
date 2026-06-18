@@ -1,22 +1,53 @@
-import React from "react";
-import { ToolWorkspace } from "../components/ToolWorkspace";
-import { useLayout } from "../components/Layout";
-import { RelatedTools } from "../components/RelatedTools";
-import { ToolExplanation } from "../components/ToolExplanation";
+import ToolWorkspace from "../components/ToolWorkspace";
+import { SEO } from "../components/SEO";
+import { PDFJS_WORKER_SRC } from "../config/constants";
 
 export default function PdfToImgPage() {
-  const { toolsList } = useLayout();
-  const currentTool = toolsList.find((t) => t.id === "pdf-to-img");
-
-  if (!currentTool) return null;
+  const handleConvert = async (files: File[]): Promise<Blob> => {
+    // Use pdf.js to render pages to canvas, then export as images
+    const file = files[0];
+    const arrayBuffer = await file.arrayBuffer();
+    
+    // Dynamic import pdfjs to avoid SSR issues
+    const pdfjsLib = await import("pdfjs-dist");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_SRC;
+    
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    if (pdf.numPages < 1) {
+      throw new Error("The PDF has no pages to convert.");
+    }
+    const page = await pdf.getPage(1);
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) {
+      throw new Error("Could not create canvas context.");
+    }
+    const viewport = page.getViewport({ scale: 2 });
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: context, viewport } as any).promise;
+    
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Failed to convert page to PNG image"));
+        }
+      }, "image/png");
+    });
+  };
 
   return (
-    <div className="space-y-12" id="pdf-to-image-container">
-      <ToolWorkspace tool={currentTool} />
-      <div className="max-w-4xl mx-auto w-full px-4 sm:px-6">
-        <RelatedTools />
-      </div>
-      <ToolExplanation />
-    </div>
+    <>
+      <SEO title="PDF to Image" description="Convert PDF pages to images" canonical="https://pdfminty.com/pdf-to-image" />
+      <ToolWorkspace
+        title="PDF to Image"
+        description="Convert the first page of a PDF to a PNG image."
+        onProcess={handleConvert}
+        multiple={false}
+        downloadFileName="page.png"
+      />
+    </>
   );
 }

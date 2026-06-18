@@ -176,3 +176,17 @@ export const executePdfWorker = async (
     processQueue();
   });
 };
+
+export const getPageCount = async (arrayBuffer: ArrayBuffer): Promise<number> => {
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_SRC;
+  const loadingTask = pdfjs.getDocument({
+    data: new Uint8Array(arrayBuffer),
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
+  } as any);
+  const pdf = await loadingTask.promise;
+  return pdf.numPages;
+};
+

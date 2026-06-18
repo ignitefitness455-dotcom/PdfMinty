@@ -1,22 +1,27 @@
-import React from "react";
-import { ToolWorkspace } from "../components/ToolWorkspace";
-import { useLayout } from "../components/Layout";
-import { RelatedTools } from "../components/RelatedTools";
-import { ToolExplanation } from "../components/ToolExplanation";
+import ToolWorkspace from "@/components/ToolWorkspace";
+import { SEO } from "@/components/SEO";
+import { PDFDocument } from "pdf-lib";
 
 export default function CompressPage() {
-  const { toolsList } = useLayout();
-  const currentTool = toolsList.find((t) => t.id === "compress");
-
-  if (!currentTool) return null;
+  const handleCompress = async (files: File[]): Promise<Blob> => {
+    const file = files[0];
+    const bytes = await file.arrayBuffer();
+    const pdf = await PDFDocument.load(bytes);
+    // pdf-lib doesn't have built-in compression — use object stream optimization
+    const compressed = await pdf.save({ useObjectStreams: true });
+    return new Blob([compressed as any], { type: "application/pdf" });
+  };
 
   return (
-    <div className="space-y-12" id="compress-page-container">
-      <ToolWorkspace tool={currentTool} />
-      <div className="max-w-4xl mx-auto w-full px-4 sm:px-6">
-        <RelatedTools />
-      </div>
-      <ToolExplanation />
-    </div>
+    <>
+      <SEO title="Compress PDF" description="Reduce PDF file size" canonical="https://pdfminty.com/compress-pdf" />
+      <ToolWorkspace
+        title="Compress PDF"
+        description="Optimize and reduce your PDF file size."
+        onProcess={handleCompress}
+        multiple={false}
+        downloadFileName="compressed.pdf"
+      />
+    </>
   );
 }

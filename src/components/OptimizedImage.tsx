@@ -1,33 +1,24 @@
-import React from "react";
+import { useState } from "react";
 
 interface OptimizedImageProps {
   src: string;
-  srcWebp?: string;
   alt: string;
   className?: string;
-  sizes?: string;
-  lazy?: boolean;
+  loading?: "lazy" | "eager";
 }
 
-export const OptimizedImage: React.FC<OptimizedImageProps> = ({
-  src,
-  srcWebp,
-  alt,
-  className = "",
-  sizes,
-  lazy = true,
-}) => {
+export function OptimizedImage({ src, alt, className = "", loading = "lazy" }: OptimizedImageProps) {
+  const [loaded, setLoaded] = useState(false);
+
   return (
-    <picture>
-      {srcWebp && <source srcSet={srcWebp} type="image/webp" />}
-      <img
-        src={src}
-        alt={alt}
-        className={className}
-        sizes={sizes}
-        loading={lazy ? "lazy" : "eager"}
-        referrerPolicy="no-referrer"
-      />
-    </picture>
+    <img
+      src={src}
+      alt={alt}
+      loading={loading}
+      onLoad={() => setLoaded(true)}
+      className={`transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"} ${className}`}
+    />
   );
-};
+}
+
+export default OptimizedImage;

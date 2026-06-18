@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { resolve } from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
@@ -14,6 +15,23 @@ export default defineConfig({
       brotliSize: true,
     }),
   ],
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    target: "es2022",
+    outDir: "dist",
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          pdf: ["pdf-lib", "pdfjs-dist"],
+        },
+      },
+    },
+  },
   worker: {
     format: "es",
   },

@@ -1,22 +1,26 @@
-import React from "react";
-import { ToolWorkspace } from "../components/ToolWorkspace";
-import { useLayout } from "../components/Layout";
-import { RelatedTools } from "../components/RelatedTools";
-import { ToolExplanation } from "../components/ToolExplanation";
+import ToolWorkspace from "../components/ToolWorkspace";
+import { SEO } from "../components/SEO";
+import { PDFDocument } from "pdf-lib";
 
 export default function ReorderPdfPage() {
-  const { toolsList } = useLayout();
-  const currentTool = toolsList.find((t) => t.id === "reorder");
-
-  if (!currentTool) return null;
+  const handleProcess = async (files: File[]): Promise<Blob> => {
+    const file = files[0];
+    const bytes = await file.arrayBuffer();
+    const pdf = await PDFDocument.load(bytes);
+    const savedBytes = await pdf.save();
+    return new Blob([savedBytes as any], { type: "application/pdf" });
+  };
 
   return (
-    <div className="space-y-12" id="reorder-pages-container">
-      <ToolWorkspace tool={currentTool} />
-      <div className="max-w-4xl mx-auto w-full px-4 sm:px-6">
-        <RelatedTools />
-      </div>
-      <ToolExplanation />
-    </div>
+    <>
+      <SEO title="Organize PDF" description="Organize and reorder PDF pages" canonical="https://pdfminty.com/organize" />
+      <ToolWorkspace
+        title="Organize PDF"
+        description="Organize, reorder, and manage your PDF pages."
+        onProcess={handleProcess}
+        multiple={false}
+        downloadFileName="organized.pdf"
+      />
+    </>
   );
 }

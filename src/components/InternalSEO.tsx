@@ -31,3 +31,34 @@ export const Breadcrumbs: React.FC = () => {
 export const RelatedTools: React.FC = () => {
   return null;
 };
+
+export default function InternalSEO() {
+  const location = useLocation();
+  const { toolsList } = useLayout();
+  const tool = toolsList.find((t) => `/${t.slug}` === location.pathname);
+
+  if (!tool) return null;
+
+  const APP_URL = "https://pdfminty.com";
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: tool.name,
+    description: tool.description,
+    url: `${APP_URL}/${tool.slug}`,
+    applicationCategory: "UtilityApplication",
+    operatingSystem: "Any",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  };
+
+  return (
+    <script type="application/ld+json">
+      {JSON.stringify(structuredData)}
+    </script>
+  );
+}

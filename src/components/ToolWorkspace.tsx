@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "../contexts/ToastContext";
 import { executePdfWorker, preprocessAndLoadPdf } from "../core/pdfRunner";
@@ -19,6 +19,7 @@ import JSZip from "jszip";
 import { PDFJS_WORKER_SRC } from "../config/constants";
 import FileUploader from "./FileUploader";
 import DocumentPreview from "./DocumentPreview";
+import LoadingButton from "./LoadingButton";
 
 interface ToolConfig {
   id: string;
@@ -27,8 +28,128 @@ interface ToolConfig {
 }
 
 interface ToolWorkspaceProps {
-  tool: ToolConfig;
+  tool?: ToolConfig;
+  title?: string;
+  description?: string;
+  acceptedTypes?: string[];
+  multiple?: boolean;
+  onProcess?: (files: File[], options?: any) => Promise<Blob | void>;
+  renderOptions?: (options: any, setOptions: (o: any) => void) => React.ReactNode;
+  downloadFileName?: string;
 }
+
+interface SimpleToolWorkspaceProps {
+  title: string;
+  description: string;
+  acceptedTypes?: string[];
+  multiple?: boolean;
+  onProcess: (files: File[], options?: any) => Promise<Blob | void>;
+  renderOptions?: (options: any, setOptions: (o: any) => void) => React.ReactNode;
+  downloadFileName?: string;
+  showToast: (message: string, type?: "success" | "error" | "info") => void;
+}
+
+const SimpleToolWorkspace: React.FC<SimpleToolWorkspaceProps> = ({
+  title,
+  description,
+  multiple = true,
+  onProcess,
+  renderOptions,
+  downloadFileName = "output.pdf",
+  showToast,
+}) => {
+  const [files, setFiles] = useState<File[]>([]);
+  const [options, setOptions] = useState({});
+  const [processing, setProcessing] = useState(false);
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
+
+  const handleFiles = useCallback((newFiles: File[]) => {
+    setFiles((prev) => (multiple ? [...prev, ...newFiles] : newFiles));
+    setResultUrl(null);
+  }, [multiple]);
+
+  const removeFile = useCallback((index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setResultUrl(null);
+  }, []);
+
+  const handleProcess = useCallback(async () => {
+    if (!files.length) {
+      showToast("Please select at least one file", "error");
+      return;
+    }
+    setProcessing(true);
+    try {
+      const result = await onProcess(files, options);
+      if (result) {
+        const url = URL.createObjectURL(result);
+        setResultUrl(url);
+        showToast("Processing complete!", "success");
+
+        // Auto-download
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = downloadFileName;
+        a.click();
+      }
+    } catch (err: any) {
+      showToast(err.message || "Processing failed", "error");
+    } finally {
+      setProcessing(false);
+    }
+  }, [files, options, onProcess, downloadFileName, showToast]);
+
+  return (
+    <main id="main-content" className="container mx-auto max-w-4xl px-4 py-8">
+      <h1 className="mb-2 text-3xl font-bold tracking-tight">{title}</h1>
+      <p className="mb-6 text-slate-600 dark:text-slate-400">{description}</p>
+
+      <FileUploader
+        onSelectedFiles={handleFiles}
+        toolId={multiple ? "merge" : "split"}
+      />
+
+      {files.length > 0 && (
+        <div className="mt-6 space-y-2">
+          {files.map((file, i) => (
+            <div key={`${file.name}-${i}`} className="flex items-center justify-between rounded-lg border bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+              <span className="truncate text-sm">{file.name}</span>
+              <button onClick={() => removeFile(i)} className="rounded p-1 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Remove file">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {renderOptions && (
+        <div className="mt-6 rounded-lg border bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+          {renderOptions(options, setOptions)}
+        </div>
+      )}
+
+      <div className="mt-6 flex gap-3">
+        <LoadingButton
+          onClick={handleProcess}
+          loading={processing}
+          disabled={!files.length}
+          className="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition cursor-pointer flex items-center justify-center gap-2"
+        >
+          {processing ? "Processing..." : title}
+        </LoadingButton>
+        {resultUrl && (
+          <a
+            href={resultUrl}
+            download={downloadFileName}
+            className="rounded-lg bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 flex items-center justify-center cursor-pointer"
+          >
+            Download Again
+          </a>
+        )}
+      </div>
+    </main>
+  );
+};
 
 interface UploadedFile {
   id: string;
@@ -39,8 +160,18 @@ interface UploadedFile {
   rotation?: number; // default rotation for entire file
 }
 
-export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
+export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
+  tool,
+  title,
+  description,
+  acceptedTypes,
+  multiple = true,
+  onProcess,
+  renderOptions,
+  downloadFileName = "output.pdf",
+}) => {
   const { showToast } = useToast();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // States
@@ -70,6 +201,24 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
   const [aiChatMessages, setAiChatMessages] = useState<Array<{ sender: "user" | "ai"; text: string }>>([]);
   const [aiInputMessage, setAiInputMessage] = useState("");
+
+  if (onProcess) {
+    return (
+      <SimpleToolWorkspace
+        title={title || ""}
+        description={description || ""}
+        acceptedTypes={acceptedTypes}
+        multiple={multiple}
+        onProcess={onProcess}
+        renderOptions={renderOptions}
+        downloadFileName={downloadFileName}
+        showToast={showToast}
+      />
+    );
+  }
+
+  // Fallback to legacy ToolWorkspace when tool prop is passed
+  if (!tool) return null;
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
@@ -1111,3 +1260,6 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({ tool }) => {
     </div>
   );
 };
+
+export default ToolWorkspace;
+

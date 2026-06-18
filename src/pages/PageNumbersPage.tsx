@@ -1,22 +1,43 @@
-import React from "react";
-import { ToolWorkspace } from "../components/ToolWorkspace";
-import { useLayout } from "../components/Layout";
-import { RelatedTools } from "../components/RelatedTools";
-import { ToolExplanation } from "../components/ToolExplanation";
+import ToolWorkspace from "@/components/ToolWorkspace";
+import { SEO } from "@/components/SEO";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 export default function PageNumbersPage() {
-  const { toolsList } = useLayout();
-  const currentTool = toolsList.find((t) => t.id === "page-numbers");
+  const handleAddPageNumbers = async (files: File[]): Promise<Blob> => {
+    const file = files[0];
+    const bytes = await file.arrayBuffer();
+    const pdf = await PDFDocument.load(bytes);
+    const font = await pdf.embedFont(StandardFonts.Helvetica);
 
-  if (!currentTool) return null;
+    const pages = pdf.getPages();
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      const { width } = page.getSize();
+      const pageNum = String(i + 1);
+      const fontSize = 12;
+      const textWidth = font.widthOfTextAtSize(pageNum, fontSize);
+      page.drawText(pageNum, {
+        x: width / 2 - textWidth / 2,
+        y: 20,
+        size: fontSize,
+        font,
+        color: rgb(0.3, 0.3, 0.3),
+      });
+    }
+    const savedBytes = await pdf.save();
+    return new Blob([savedBytes as any], { type: "application/pdf" });
+  };
 
   return (
-    <div className="space-y-12" id="page-numbers-container">
-      <ToolWorkspace tool={currentTool} />
-      <div className="max-w-4xl mx-auto w-full px-4 sm:px-6">
-        <RelatedTools />
-      </div>
-      <ToolExplanation />
-    </div>
+    <>
+      <SEO title="Add Page Numbers" description="Add page numbers to PDF" canonical="https://pdfminty.com/add-page-numbers" />
+      <ToolWorkspace
+        title="Add Page Numbers"
+        description="Add page numbers to the bottom of every page."
+        onProcess={handleAddPageNumbers}
+        multiple={false}
+        downloadFileName="numbered.pdf"
+      />
+    </>
   );
 }

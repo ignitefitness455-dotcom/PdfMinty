@@ -1,8 +1,10 @@
 name = "pdfminty"
-compatibility_date = "2025-09-01"
-pages_build_output_dir = "dist"
+compatibility_date = "2024-06-01"
+pages_build_output_dir = "./dist"
+
+[vars]
+ENVIRONMENT = "production"
 
 [[kv_namespaces]]
-binding = "PDFMINTY_KV"
-# Toraf: run `npx wrangler kv namespace create pdfminty-kv` and paste the real ID below
-id = "REPLACE_WITH_YOUR_REAL_KV_NAMESPACE_ID"
+binding = "RATELIMIT_KV"
+id = "your_kv_namespace_id"

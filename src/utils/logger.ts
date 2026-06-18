@@ -1,19 +1,28 @@
-// Sanitizing Offline-Friendly Logger
+/**
+ * Structured logger — console in dev, no-op in production.
+ * Never logs PII or file content.
+ */
+
+const IS_DEV = import.meta.env.DEV;
 
 export const logger = {
-  info: (message: string, ...args: any[]) => {
-    console.info(`[PDFMinty-Info] ${message}`, ...args);
+  info: (msg: string, meta?: Record<string, any>) => {
+    if (IS_DEV) console.log(`[INFO] ${msg}`, meta || "");
   },
-  warn: (message: string, ...args: any[]) => {
-    console.warn(`[PDFMinty-Warn] ${message}`, ...args);
+  warn: (msg: string, meta?: Record<string, any>) => {
+    if (IS_DEV) console.warn(`[WARN] ${msg}`, meta || "");
   },
-  error: (message: string, error?: any, ...args: any[]) => {
-    const rawMsg = error instanceof Error ? error.message : String(error || "");
-    const sanitizedMsg = rawMsg
-      .replace(/[\w.-]+@[\w.-]+\.\w+/g, "[EMAIL_REDACTED]")
-      .replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, "[IP_REDACTED]")
-      .replace(/\/home\/[^\s]+/g, "[PATH_REDACTED]");
-    console.error(`[PDFMinty-Error] ${message} - Details: ${sanitizedMsg}`, ...args);
-  }
+  error: (msg: string, meta?: Record<string, any>) => {
+    // Always log errors, but never include PII
+    const safeMeta = meta ? Object.fromEntries(
+      Object.entries(meta).filter(([k]) =>
+        !["email", "password", "ip", "fileContent", "text"].some((p) =>
+          k.toLowerCase().includes(p)
+        )
+      )
+    ) : undefined;
+    if (IS_DEV) console.error(`[ERROR] ${msg}`, safeMeta || "");
+  },
 };
+
 export default logger;

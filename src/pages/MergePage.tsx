@@ -1,22 +1,30 @@
-import React from "react";
-import { ToolWorkspace } from "../components/ToolWorkspace";
-import { useLayout } from "../components/Layout";
-import { RelatedTools } from "../components/RelatedTools";
-import { ToolExplanation } from "../components/ToolExplanation";
+import ToolWorkspace from "@/components/ToolWorkspace";
+import { SEO } from "@/components/SEO";
+import { PDFDocument } from "pdf-lib";
 
 export default function MergePage() {
-  const { toolsList } = useLayout();
-  const currentTool = toolsList.find((t) => t.id === "merge");
-
-  if (!currentTool) return null;
+  const handleMerge = async (files: File[]): Promise<Blob> => {
+    const mergedPdf = await PDFDocument.create();
+    for (const file of files) {
+      const bytes = await file.arrayBuffer();
+      const pdf = await PDFDocument.load(bytes);
+      const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+      pages.forEach((page) => mergedPdf.addPage(page));
+    }
+    const mergedBytes = await mergedPdf.save();
+    return new Blob([mergedBytes as any], { type: "application/pdf" });
+  };
 
   return (
-    <div className="space-y-12" id="merge-page-container">
-      <ToolWorkspace tool={currentTool} />
-      <div className="max-w-4xl mx-auto w-full px-4 sm:px-6">
-        <RelatedTools />
-      </div>
-      <ToolExplanation />
-    </div>
+    <>
+      <SEO title="Merge PDF" description="Combine multiple PDF files into one document" canonical="https://pdfminty.com/merge-pdf" />
+      <ToolWorkspace
+        title="Merge PDF"
+        description="Combine multiple PDF files into a single document. Drag and drop files in your preferred order."
+        onProcess={handleMerge}
+        multiple={true}
+        downloadFileName="merged.pdf"
+      />
+    </>
   );
 }

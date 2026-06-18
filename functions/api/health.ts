@@ -1,4 +1,4 @@
-import { handleCors, createPreflightResponse } from "../utils/cors";
+import { getCorsOrigin, getCorsHeaders } from "../utils/cors";
 
 interface HealthResponse {
   status: "healthy" | "unhealthy" | "degraded";
@@ -9,25 +9,34 @@ interface HealthResponse {
   };
 }
 
-export const onRequest: PagesFunction<any> = async (context) => {
-  if (context.request.method === "OPTIONS") {
-    return createPreflightResponse(context.request);
+interface Env {
+  RATELIMIT_KV: KVNamespace;
+  PDFMINTY_KV?: KVNamespace;
+}
+
+export const onRequest: PagesFunction<Env> = async (context) => {
+  const request = context.request;
+  const corsOrigin = getCorsOrigin(request);
+
+  // OPTIONS preflight check
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: getCorsHeaders(corsOrigin) });
   }
 
-  const responseHeaders = handleCors(context.request, new Headers({
-    "Content-Type": "application/json",
-    "Cache-Control": "no-cache, no-store, must-revalidate",
-  }));
+  // Reject wrong methods (accept GET/HEAD for healthcheck)
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return new Response(JSON.stringify({ success: false, error: "Method Not Allowed" }), {
+      status: 405, headers: getCorsHeaders(corsOrigin),
+    });
+  }
 
   const services: HealthResponse["services"] = {
     kv: "not_bound",
     gemini_api: "unhealthy",
   };
 
-  let isHealthy = true;
-
-  // 1. Check KV Connectivity
-  const kv = context.env?.PDFMINTY_KV || context.env?.KV;
+  // 1. Check KV Connectivity (fail-closed if not healthy)
+  const kv = context.env.RATELIMIT_KV || context.env.PDFMINTY_KV;
   if (kv) {
     try {
       const testKey = "healthcheck:probe";
@@ -38,21 +47,19 @@ export const onRequest: PagesFunction<any> = async (context) => {
         services.kv = "healthy";
       } else {
         services.kv = "unhealthy";
-        isHealthy = false;
       }
     } catch (err) {
       console.error("Health check KV connection error:", err);
       services.kv = "unhealthy";
-      isHealthy = false;
     }
   }
 
-  // 2. Check Gemini Upstream reachability
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2500);
+  // 2. Check Gemini Upstream reachability (2.5s timeout)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 2500);
 
-    // Make an unauthenticated model metadata check to authenticate DNS resolution and upstream reachability
+  try {
+    // Make an unauthenticated model metadata check to verify DNS resolution and upstream reachability
     const response = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models?key=DUMMY_KEY_FOR_HEALTH_PROBE",
       {
@@ -61,8 +68,6 @@ export const onRequest: PagesFunction<any> = async (context) => {
       }
     );
 
-    clearTimeout(timeoutId);
-
     // If Gemini responds with ANY HTTP code (like 400 due to bad key), it is reachability confirmed
     if (response.status === 400 || response.ok) {
       services.gemini_api = "healthy";
@@ -70,14 +75,18 @@ export const onRequest: PagesFunction<any> = async (context) => {
       services.gemini_api = "unhealthy";
     }
   } catch (err: any) {
-    if (err.name === "AbortError") {
+    if (err.name === "AbortError" || err.message?.includes("abort")) {
       services.gemini_api = "timeout";
     } else {
       console.error("Health check Gemini reaching failed:", err);
       services.gemini_api = "unhealthy";
     }
+  } finally {
+    // CRITICAL: clearTimeout MUST be in finally block to prevent resource leaks
+    clearTimeout(timeoutId);
   }
 
+  // Degraded if KV is missing (not bound), Unhealthy if either KV or Gemini is offline
   const finalStatus: HealthResponse["status"] =
     services.kv === "healthy" && services.gemini_api === "healthy"
       ? "healthy"
@@ -86,6 +95,14 @@ export const onRequest: PagesFunction<any> = async (context) => {
       : "degraded";
 
   const statusCode = finalStatus === "unhealthy" ? 503 : 200;
+
+  const responseHeaders = {
+    ...getCorsHeaders(corsOrigin),
+    "Content-Type": "application/json",
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0",
+  };
 
   return new Response(
     JSON.stringify({
