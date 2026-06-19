@@ -26,25 +26,8 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("pdf-lib") || id.includes("@cantoo/pdf-lib") || id.includes("pdfjs-dist")) {
-              return "pdf";
-            }
-            if (id.includes("lucide-react")) {
-              return "lucide";
-            }
-            if (id.includes("jszip")) {
-              return "jszip";
-            }
-            if (id.includes("react-router") || id.includes("react-dom") || id.includes("react/")) {
-              return "react";
-            }
-            if (id.includes("@google/genai") || id.includes("react-markdown")) {
-              return "ai";
-            }
-            return "vendor";
-          }
+        manualChunks: {
+          pdf: ["pdf-lib", "pdfjs-dist"],
         },
       },
     },

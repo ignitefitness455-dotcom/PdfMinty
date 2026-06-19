@@ -55,13 +55,42 @@ export function triggerDownload(
 }
 
 // Tool chunk prefetching for faster navigation
-const prefetchMap: Record<string, () => Promise<void>> = {};
+const chunkImports: Record<string, () => Promise<any>> = {
+  "merge":             () => import("../pages/MergePage"),
+  "merge-pdf":         () => import("../pages/MergePage"),
+  "compress":          () => import("../pages/CompressPage"),
+  "compress-pdf":      () => import("../pages/CompressPage"),
+  "split":             () => import("../pages/SplitPage"),
+  "split-pdf":         () => import("../pages/SplitPage"),
+  "reorder":           () => import("../pages/ReorderPdfPage"),
+  "reorder-pdf":       () => import("../pages/ReorderPdfPage"),
+  "extract":           () => import("../pages/ExtractPagesPdfPage"),
+  "extract-pages-pdf": () => import("../pages/ExtractPagesPdfPage"),
+  "img-to-pdf":        () => import("../pages/ImgToPdfPage"),
+  "image-to-pdf":      () => import("../pages/ImgToPdfPage"),
+  "pdf-to-img":        () => import("../pages/PdfToImgPage"),
+  "pdf-to-image":      () => import("../pages/PdfToImgPage"),
+  "delete-pages":      () => import("../pages/DeletePagesPage"),
+  "organize":          () => import("../pages/DeletePagesPage"),
+  "rotate":            () => import("../pages/RotatePage"),
+  "rotate-pdf":        () => import("../pages/RotatePage"),
+  "watermark":         () => import("../pages/WatermarkPage"),
+  "watermark-pdf":     () => import("../pages/WatermarkPage"),
+  "page-numbers":      () => import("../pages/PageNumbersPage"),
+  "add-page-numbers":  () => import("../pages/PageNumbersPage"),
+  "protect":           () => import("../pages/ProtectPage"),
+  "protect-pdf":       () => import("../pages/ProtectPage"),
+  "unlock":            () => import("../pages/UnlockPage"),
+  "unlock-pdf":        () => import("../pages/UnlockPage"),
+  "add-blank":         () => import("../pages/AddBlankPage"),
+  "add-blank-page":    () => import("../pages/AddBlankPage"),
+  "ai-analyze":        () => import("../pages/AiAnalyzePage"),
+  "intelligence":      () => import("../pages/AiAnalyzePage"),
+};
+
 export function prefetchToolChunk(toolId: string): void {
-  if (!prefetchMap[toolId]) {
-    prefetchMap[toolId] = () => import(`../pages/${toolId}Page.tsx`);
-  }
-  // Use requestIdleCallback for non-critical prefetching
-  if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-    (window as any).requestIdleCallback(() => prefetchMap[toolId](), { timeout: 2000 });
+  const importFn = chunkImports[toolId];
+  if (importFn && typeof window !== "undefined" && "requestIdleCallback" in window) {
+    (window as any).requestIdleCallback(() => importFn(), { timeout: 2000 });
   }
 }
