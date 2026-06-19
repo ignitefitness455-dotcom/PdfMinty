@@ -44,7 +44,7 @@ export default function ExtractPagesPdfPage() {
 
   return (
     <>
-      <SEO title="Extract PDF Pages" description="Extract pages from PDF" canonical="https://pdfminty.com/extract-pages-pdf" />
+      <SEO title="Extract PDF Pages" description="Extract pages from PDF" />
       <ToolWorkspace
         title="Extract PDF Pages"
         description="Extract specific pages or page ranges from a PDF document."

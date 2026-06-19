@@ -50,7 +50,7 @@ export default function DeletePagesPage() {
 
   return (
     <>
-      <SEO title="Delete PDF Pages" description="Remove pages from PDF" canonical="https://pdfminty.com/delete-pages-pdf" />
+      <SEO title="Delete PDF Pages" description="Remove pages from PDF" />
       <ToolWorkspace
         title="Delete PDF Pages"
         description="Remove specific pages from your PDF document."

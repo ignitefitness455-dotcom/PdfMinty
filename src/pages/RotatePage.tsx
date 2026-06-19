@@ -35,7 +35,7 @@ export default function RotatePage() {
 
   return (
     <>
-      <SEO title="Rotate PDF" description="Rotate PDF pages" canonical="https://pdfminty.com/rotate-pdf" />
+      <SEO title="Rotate PDF" description="Rotate PDF pages" />
       <ToolWorkspace
         title="Rotate PDF"
         description="Rotate all pages in your PDF document."

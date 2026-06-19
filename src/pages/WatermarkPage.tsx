@@ -61,7 +61,7 @@ export default function WatermarkPage() {
 
   return (
     <>
-      <SEO title="Watermark PDF" description="Add watermarks to PDF pages" canonical="https://pdfminty.com/watermark-pdf" />
+      <SEO title="Watermark PDF" description="Add watermarks to PDF pages" />
       <ToolWorkspace
         title="Watermark PDF"
         description="Add text watermarks to every page of your PDF."

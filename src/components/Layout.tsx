@@ -27,7 +27,8 @@ import {
 import { ToolType } from "../types";
 import { useToast } from "../contexts/ToastContext";
 import confetti from "canvas-confetti";
-import { Breadcrumbs, RelatedTools } from "./InternalSEO";
+import { Breadcrumbs } from "./InternalSEO";
+import { RelatedTools } from "./RelatedTools";
 import { SkipToContent } from "./SkipToContent";
 
 interface LayoutContextType {

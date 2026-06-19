@@ -673,14 +673,14 @@ export const ToolExplanation: React.FC<ToolExplanationProps> = ({ title, descrip
   const howToSchema = {
     "@context": "https://schema.org",
     "@type": "HowTo",
-    "name": `How to use ${config.toolName} - PDFMinty`,
+    "name": `How to use ${config.toolName} - PDFAid`,
     "description": config.description.replace(/<[^>]*>/g, ""),
     "step": config.steps.map((step, idx) => ({
       "@type": "HowToStep",
       "position": idx + 1,
       "name": step.title,
       "text": step.desc,
-      "url": `https://pdfminty.com${currentPath || "/"}`
+      "url": `https://pdfaid.com${currentPath || "/"}`
     }))
   };
 

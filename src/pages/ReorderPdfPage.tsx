@@ -13,7 +13,7 @@ export default function ReorderPdfPage() {
 
   return (
     <>
-      <SEO title="Organize PDF" description="Organize and reorder PDF pages" canonical="https://pdfminty.com/organize" />
+      <SEO title="Organize PDF" description="Organize and reorder PDF pages" />
       <ToolWorkspace
         title="Organize PDF"
         description="Organize, reorder, and manage your PDF pages."

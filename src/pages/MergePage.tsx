@@ -17,7 +17,7 @@ export default function MergePage() {
 
   return (
     <>
-      <SEO title="Merge PDF" description="Combine multiple PDF files into one document" canonical="https://pdfminty.com/merge-pdf" />
+      <SEO title="Merge PDF" description="Combine multiple PDF files into one document" />
       <ToolWorkspace
         title="Merge PDF"
         description="Combine multiple PDF files into a single document. Drag and drop files in your preferred order."

@@ -1,111 +1,26 @@
-export const onRequest: PagesFunction = async () => {
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://pdfminty.com/</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/merge-pdf</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/split-pdf</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/compress-pdf</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/pdf-to-jpg</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/jpg-to-pdf</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/rotate-pdf</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/delete-pages</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/reorder-pdf</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/extract-pdf-pages</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/add-blank-page</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/page-numbers</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/watermark-pdf</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/protect-pdf</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/unlock-pdf</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/ai-analyze</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/is-pdf-safe</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-</urlset>`;
+import { SITE_ROUTES, SITE_URL } from "../src/config/routes";
 
-  return new Response(sitemap, {
+export const onRequest: PagesFunction = async () => {
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+  for (const entry of SITE_ROUTES) {
+    const relativePath = entry.path === "/" ? "" : (entry.path.startsWith("/") ? entry.path : `/${entry.path}`);
+    const fullUrl = `${SITE_URL}${relativePath}`;
+    
+    xml += `  <url>\n`;
+    xml += `    <loc>${fullUrl}</loc>\n`;
+    if (entry.lastmod) {
+      xml += `    <lastmod>${entry.lastmod}</lastmod>\n`;
+    }
+    xml += `    <changefreq>${entry.changefreq}</changefreq>\n`;
+    xml += `    <priority>${entry.priority.toFixed(1)}</priority>\n`;
+    xml += `  </url>\n`;
+  }
+
+  xml += `</urlset>`;
+
+  return new Response(xml, {
     headers: {
       "Content-Type": "application/xml",
       "Cache-Control": "public, max-age=86400",

@@ -20,7 +20,6 @@ import { useDebounce } from "../hooks/useDebounce";
 import { SearchComponent } from "../components/SearchComponent";
 import { ToolWorkspace } from "../components/ToolWorkspace";
 import { ToolExplanation } from "../components/ToolExplanation";
-import { RelatedTools } from "../components/RelatedTools";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -131,9 +130,6 @@ export default function HomePage() {
     return (
       <div className="space-y-12">
         <ToolWorkspace tool={currentTool} />
-        <div className="max-w-4xl mx-auto w-full px-4 sm:px-6">
-          <RelatedTools />
-        </div>
         <ToolExplanation />
       </div>
     );

@@ -39,7 +39,7 @@ export default function UnlockPage() {
 
   return (
     <>
-      <SEO title="Unlock PDF" description="Remove password protection from PDF" canonical="https://pdfminty.com/unlock-pdf" />
+      <SEO title="Unlock PDF" description="Remove password protection from PDF" />
       <ToolWorkspace
         title="Unlock PDF"
         description="Remove password protection from your PDF."

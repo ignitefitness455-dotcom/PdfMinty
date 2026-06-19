@@ -10,6 +10,8 @@ interface RelatedToolsProps {
 export function RelatedTools({ currentToolId, category }: RelatedToolsProps) {
   const { pathname } = useLocation();
 
+  if (pathname === "/") return null;
+
   // If parameters are not explicitly passed, automatically determine them from current route
   const activeToolId = currentToolId || tools.find((t) => pathname.includes(t.path))?.id;
   const activeCategory = category || tools.find((t) => t.id === activeToolId)?.category || "organize";

@@ -39,7 +39,7 @@ export default function InternalSEO() {
 
   if (!tool) return null;
 
-  const APP_URL = "https://pdfminty.com";
+  const APP_URL = "https://pdfaid.com";
 
   const structuredData = {
     "@context": "https://schema.org",

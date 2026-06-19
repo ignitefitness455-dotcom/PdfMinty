@@ -44,7 +44,7 @@ export default function AddBlankPage() {
 
   return (
     <>
-      <SEO title="Add Blank Page" description="Insert blank pages into PDF" canonical="https://pdfminty.com/add-blank-page" />
+      <SEO title="Add Blank Page" description="Insert blank pages into PDF" />
       <ToolWorkspace
         title="Add Blank Page"
         description="Insert blank pages into your PDF document."

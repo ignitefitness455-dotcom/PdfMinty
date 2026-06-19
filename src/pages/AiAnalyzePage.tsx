@@ -59,7 +59,7 @@ export default function AiAnalyzePage() {
 
   return (
     <>
-      <SEO title="AI PDF Analysis" description="Analyze PDF content with AI" canonical="https://pdfminty.com/intelligence" />
+      <SEO title="AI PDF Analysis" description="Analyze PDF content with AI" />
       <main id="main-content" className="container mx-auto max-w-4xl px-4 py-8">
         <h1 className="mb-2 text-3xl font-bold">AI PDF Analysis</h1>
         <p className="mb-6 text-slate-600 dark:text-slate-400">

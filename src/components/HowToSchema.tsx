@@ -87,14 +87,14 @@ export const HowToSchema: React.FC<HowToSchemaProps> = ({ title, description, st
     return {
       "@context": "https://schema.org",
       "@type": "HowTo",
-      "name": `How to use ${toolAny.name} - PDFMinty`,
+      "name": `How to use ${toolAny.name} - PDFAid`,
       "description": cleanDescription(toolAny.description),
       "step": toolAny.steps.map((step: { title: string; desc: string }, index: number) => ({
         "@type": "HowToStep",
         "position": index + 1,
         "name": step.title,
         "text": step.desc,
-        "url": `https://pdfminty.com${pathname}`
+        "url": `https://pdfaid.com${pathname}`
       }))
     };
   }, [activeTool, isFAQPage, pathname, title, description, steps]);

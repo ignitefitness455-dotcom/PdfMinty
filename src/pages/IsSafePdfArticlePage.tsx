@@ -13,7 +13,6 @@ export default function IsSafePdfArticlePage() {
       <SEO 
         title="Is It Safe to Upload PDF to Online Tools?" 
         description="Learn why PDFMinty is different — your files never leave your browser." 
-        canonical="https://pdfminty.com/is-it-safe-to-upload-pdf-to-online-tools" 
       />
       <main id="main-content" className="container mx-auto max-w-4xl px-4 py-12 text-slate-800 dark:text-slate-100 font-sans animate-fadein">
         <header className="mb-10">

@@ -30,7 +30,7 @@ export default function PageNumbersPage() {
 
   return (
     <>
-      <SEO title="Add Page Numbers" description="Add page numbers to PDF" canonical="https://pdfminty.com/add-page-numbers" />
+      <SEO title="Add Page Numbers" description="Add page numbers to PDF" />
       <ToolWorkspace
         title="Add Page Numbers"
         description="Add page numbers to the bottom of every page."

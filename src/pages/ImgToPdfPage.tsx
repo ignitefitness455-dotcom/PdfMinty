@@ -29,7 +29,7 @@ export default function ImgToPdfPage() {
 
   return (
     <>
-      <SEO title="Image to PDF" description="Convert images to PDF" canonical="https://pdfminty.com/image-to-pdf" />
+      <SEO title="Image to PDF" description="Convert images to PDF" />
       <ToolWorkspace
         title="Image to PDF"
         description="Convert images to a PDF document. Supports JPG, PNG, WebP."

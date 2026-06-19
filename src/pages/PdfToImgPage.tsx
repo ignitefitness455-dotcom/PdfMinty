@@ -40,7 +40,7 @@ export default function PdfToImgPage() {
 
   return (
     <>
-      <SEO title="PDF to Image" description="Convert PDF pages to images" canonical="https://pdfminty.com/pdf-to-image" />
+      <SEO title="PDF to Image" description="Convert PDF pages to images" />
       <ToolWorkspace
         title="PDF to Image"
         description="Convert the first page of a PDF to a PNG image."

@@ -15,17 +15,16 @@ export const SEO: React.FC<SEOProps> = ({
   description,
   canonical,
   ogType = "website",
-  ogImage = "https://pdfminty.com/og-image.jpg",
+  ogImage = "https://pdfaid.com/og-image.png",
   schemaMarkup,
 }) => {
-  const currentUrl = canonical || (typeof window !== "undefined" ? window.location.href : "https://pdfminty.com");
+  const currentUrl = canonical || (typeof window !== "undefined" ? window.location.href : "https://pdfaid.com");
 
   return (
     <Helmet>
       {/* Primary meta tags */}
       <title>{title}</title>
       <meta name="description" content={description} />
-      <link rel="canonical" href={currentUrl} />
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={ogType} />

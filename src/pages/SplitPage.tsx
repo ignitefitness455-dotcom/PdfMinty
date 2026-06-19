@@ -44,7 +44,7 @@ export default function SplitPage() {
 
   return (
     <>
-      <SEO title="Split PDF" description="Extract specific pages from a PDF" canonical="https://pdfminty.com/split-pdf" />
+      <SEO title="Split PDF" description="Extract specific pages from a PDF" />
       <ToolWorkspace
         title="Split PDF"
         description="Extract specific pages or ranges from a PDF document."

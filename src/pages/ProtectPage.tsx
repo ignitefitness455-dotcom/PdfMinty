@@ -38,7 +38,7 @@ export default function ProtectPage() {
 
   return (
     <>
-      <SEO title="Protect PDF" description="Password protect your PDF" canonical="https://pdfminty.com/protect-pdf" />
+      <SEO title="Protect PDF" description="Password protect your PDF" />
       <ToolWorkspace
         title="Protect PDF"
         description="Add password protection to your PDF."

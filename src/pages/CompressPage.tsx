@@ -14,7 +14,7 @@ export default function CompressPage() {
 
   return (
     <>
-      <SEO title="Compress PDF" description="Reduce PDF file size" canonical="https://pdfminty.com/compress-pdf" />
+      <SEO title="Compress PDF" description="Reduce PDF file size" />
       <ToolWorkspace
         title="Compress PDF"
         description="Optimize and reduce your PDF file size."
