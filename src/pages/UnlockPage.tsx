@@ -1,20 +1,17 @@
 import { useState } from "react";
 import ToolWorkspace from "@/components/ToolWorkspace";
 import { SEO } from "@/components/SEO";
-import { PDFDocument as PDFDocumentEncrypt } from "@cantoo/pdf-lib";
+import { executePdfWorker } from "@/core/pdfRunner";
 
 export default function UnlockPage() {
   const [password, setPassword] = useState("");
 
   const handleUnlock = async (files: File[]): Promise<Blob> => {
     const file = files[0];
-    const bytes = await file.arrayBuffer();
+    const fileBytes = new Uint8Array(await file.arrayBuffer());
     try {
-      const pdf = password
-        ? await PDFDocumentEncrypt.load(bytes, { password })
-        : await PDFDocumentEncrypt.load(bytes);
-      const unlocked = await pdf.save();
-      return new Blob([unlocked as any], { type: "application/pdf" });
+      const result = await executePdfWorker("unlock", { fileBytes, password });
+      return new Blob([result.bytes as any], { type: "application/pdf" });
     } catch (err: any) {
       if (err.message?.includes("password") || err.message?.includes("Password") || err.message?.includes("decrypt")) {
         throw new Error("Incorrect password. Please try again.");
