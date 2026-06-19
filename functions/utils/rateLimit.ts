@@ -8,16 +8,19 @@ interface RateLimitEntry {
 // Global in-memory fallback map
 const inMemoryFallback = new Map<string, RateLimitEntry>();
 
-// Periodic cleanup every 5 minutes to prevent memory leaks / exhaustion
-if (typeof setInterval !== "undefined") {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, entry] of inMemoryFallback) {
-      if (now - entry.timestamp > 10 * 60 * 1000) { // 10 minutes stale
-        inMemoryFallback.delete(key);
-      }
+// Lazy cleanup state — no global-scope timers allowed in Workers
+let lastCleanupAt = 0;
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+const STALE_MS = 10 * 60 * 1000; // 10 minutes
+
+function pruneStaleEntries(now: number): void {
+  if (now - lastCleanupAt < CLEANUP_INTERVAL_MS) return;
+  lastCleanupAt = now;
+  for (const [key, entry] of inMemoryFallback) {
+    if (now - entry.timestamp > STALE_MS) {
+      inMemoryFallback.delete(key);
     }
-  }, 5 * 60 * 1000);
+  }
 }
 
 /**
@@ -36,7 +39,6 @@ export async function checkRateLimit(
 
   const retryAfter = 3600 - (now % 3600);
 
-  // If KV is missing or can't be reached, fall-safe fallback to in-memory
   if (!kv) {
     const fallbackKey = `${endpoint}:${ip}`;
     const allowed = checkInMemoryFallback(fallbackKey, limit, 3600 * 1000);
@@ -86,7 +88,6 @@ export async function incrementRateLimit(
   const rateLimitKey = `rate_limit:${endpoint}:${ip}:${hourBlock}`;
 
   if (!kv) {
-    // In-memory increment has already occurred during checkInMemoryFallback, so no-op
     return;
   }
 
@@ -99,13 +100,14 @@ export async function incrementRateLimit(
 
 function checkInMemoryFallback(key: string, limit: number, windowMs: number): boolean {
   const now = Date.now();
+  pruneStaleEntries(now);
   const entry = inMemoryFallback.get(key);
   if (!entry) {
     inMemoryFallback.set(key, { count: 1, timestamp: now });
     return true;
   }
   if (now - entry.timestamp > windowMs) {
-    inMemoryFallback.set(key, { count: 1, timestamp: now }); // Window expired, reset
+    inMemoryFallback.set(key, { count: 1, timestamp: now });
     return true;
   }
   if (entry.count >= limit) return false;
