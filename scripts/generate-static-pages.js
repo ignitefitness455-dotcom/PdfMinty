@@ -125,11 +125,18 @@ const tools = [
   }
 ];
 
-// Load base index.html template from root
+// Load base index.html template from dist (built by Vite) or fallback to root index.html
+const distIndexHtmlPath = path.join(__dirname, "../dist/index.html");
 const rootIndexHtmlPath = path.join(__dirname, "../index.html");
 let baseHtml = "";
 try {
-  baseHtml = fs.readFileSync(rootIndexHtmlPath, "utf8");
+  if (fs.existsSync(distIndexHtmlPath)) {
+    baseHtml = fs.readFileSync(distIndexHtmlPath, "utf8");
+    console.log("Reading template from compiled dist/index.html");
+  } else {
+    baseHtml = fs.readFileSync(rootIndexHtmlPath, "utf8");
+    console.log("Reading template from root index.html");
+  }
 } catch (e) {
   baseHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -148,9 +155,18 @@ try {
 function generateHtmlContent(title, description, toolPath) {
   const canonicalUrl = `${SITE_URL}${toolPath}`;
   
-  // Clean preexisting titles/metas if any
+  // Clean preexisting titles/metas to prevent duplicates
   let html = baseHtml;
-  html = html.replace(/<title>[^<]*<\/title>/i, `<title>${title} — Privacy-First PDF Toolkit | PDFMinty</title>`);
+  html = html.replace(/<title>[^<]*<\/title>/gi, "");
+  html = html.replace(/<meta\s+name="description"[^>]*>/gi, "");
+  html = html.replace(/<link\s+rel="canonical"[^>]*>/gi, "");
+  html = html.replace(/<meta\s+property="og:title"[^>]*>/gi, "");
+  html = html.replace(/<meta\s+property="og:description"[^>]*>/gi, "");
+  html = html.replace(/<meta\s+property="og:url"[^>]*>/gi, "");
+  html = html.replace(/<meta\s+property="og:type"[^>]*>/gi, "");
+  html = html.replace(/<meta\s+name="twitter:title"[^>]*>/gi, "");
+  html = html.replace(/<meta\s+name="twitter:description"[^>]*>/gi, "");
+  html = html.replace(/<meta\s+name="twitter:url"[^>]*>/gi, "");
   
   const metaTags = `
   <title>${title} — Privacy-First PDF Toolkit | PDFMinty</title>

@@ -6,7 +6,7 @@
   "main": "server.ts",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-static-pages.js && node scripts/generate-sitemap.js",
     "start": "node --import tsx server.ts"
   },
   "dependencies": {
