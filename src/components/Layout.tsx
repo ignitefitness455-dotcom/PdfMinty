@@ -94,7 +94,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <LayoutContext.Provider value={{ toolsList }}>
-      <div className="min-h-screen flex flex-col bg-background text-on-background font-sans transition-colors duration-200 selection:bg-primary-fixed/30" id="app_shell">
+      <div className="min-h-screen flex flex-col bg-background text-on-background font-sans transition-colors duration-200 selection:bg-primary-fixed/30 overflow-x-hidden w-full" id="app_shell">
         
         {/* Upper Navigation Header */}
         <header

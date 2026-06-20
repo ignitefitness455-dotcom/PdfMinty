@@ -122,59 +122,6 @@ export const HomePage: React.FC = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [testimonials, setTestimonials] = useState<Array<{
-    rating: number;
-    comment: string;
-    displayEmail: string | null;
-    timestamp: string;
-  }>>([]);
-  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/feedback")
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled && data.success && Array.isArray(data.reviews)) {
-          setTestimonials(data.reviews);
-        }
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setTestimonialsLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, []);
-
-  const getAvatarColor = (char: string): string => {
-    const colors = [
-      "bg-emerald-900/40 text-[#00FFC2] border border-border-muted",
-      "bg-sky-900/40 text-sky-400 border border-border-muted",
-      "bg-violet-900/40 text-violet-400 border border-border-muted",
-      "bg-amber-900/40 text-amber-400 border border-border-muted",
-      "bg-rose-900/40 text-rose-400 border border-border-muted",
-      "bg-teal-900/40 text-teal-400 border border-border-muted",
-    ];
-    const code = char.toUpperCase().charCodeAt(0) || 65;
-    return colors[code % colors.length];
-  };
-
-  const formatRelativeTime = (isoString: string): string => {
-    try {
-      const date = new Date(isoString);
-      const now = new Date();
-      const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays === 0) return "Today";
-      if (diffDays === 1) return "Yesterday";
-      if (diffDays < 7) return `${diffDays} days ago`;
-      if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-      if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-      return `${Math.floor(diffDays / 365)} years ago`;
-    } catch {
-      return "";
-    }
-  };
-
   const { debouncedValue, isDebouncing } = useDebounce(searchQuery, 300);
 
   const rankedOrder = useMemo(() => [
@@ -214,7 +161,7 @@ export const HomePage: React.FC = () => {
   }, [sortedTools, debouncedValue]);
 
   return (
-    <div className="animate-fadein relative z-10 font-sans text-on-background bg-background pb-12 select-none">
+    <div className="animate-fadein relative z-10 font-sans text-on-background bg-background pb-12 select-none overflow-x-hidden">
       
       {/* Decorative Glow Elements */}
       <div className="absolute top-[-150px] left-1/2 -translate-x-1/2 -z-10 w-[800px] h-[450px] bg-gradient-to-r from-security-green/10 via-primary-fixed/5 to-tertiary-fixed-dim/5 rounded-full blur-[120px] pointer-events-none" />
@@ -459,124 +406,7 @@ export const HomePage: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-20 relative z-20">
-        <h2 className="text-2xl md:text-3xl font-black text-primary text-center tracking-tight mb-2">
-          User Feedback Wall
-        </h2>
-        <p className="text-on-surface-variant text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">
-          See what our privacy-conscious visitors say about PDFMinty.
-        </p>
 
-        {testimonialsLoading ? (
-          <div className="flex justify-center py-8">
-            <svg className="animate-spin h-8 w-8 text-security-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </div>
-        ) : testimonials.length === 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-surface-container-low border border-border-muted p-6 rounded-2xl shadow-md flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-1 text-security-green mb-3">
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                </div>
-                <p className="text-xs text-on-surface-variant font-medium leading-relaxed mb-4">
-                  "I was skeptical about a completely free browser-based PDF merger with no limits, but PDFMinty exceeded all my expectations. Extremely fast and respects my documents' privacy!"
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-3 border-t border-border-muted">
-                <div className="w-10 h-10 rounded-full bg-surface-container-high text-security-green border border-border-muted flex items-center justify-center font-bold text-sm">
-                  S
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-primary">Sarah K.</h4>
-                  <span className="text-[10px] text-on-surface-variant/70">Verified User</span>
-                </div>
-              </div>
-            </div>
-            <div className="bg-surface-container-low border border-border-muted p-6 rounded-2xl shadow-md flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-1 text-security-green mb-3">
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                </div>
-                <p className="text-xs text-on-surface-variant font-medium leading-relaxed mb-4">
-                  "Finally a tool where I don't need to sign up or input my email to download my compiled file. I split my 40-page contract in less than 2 seconds. Highly secure design!"
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-3 border-t border-border-muted">
-                <div className="w-10 h-10 rounded-full bg-surface-container-high text-security-green border border-border-muted flex items-center justify-center font-bold text-sm">
-                  M
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-primary">Mark T.</h4>
-                  <span className="text-[10px] text-on-surface-variant/70">Lead Architect</span>
-                </div>
-              </div>
-            </div>
-            <div className="bg-surface-container-low border border-border-muted p-6 rounded-2xl shadow-md flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-1 text-security-green mb-3">
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                  <Star className="w-4 h-4 fill-security-green text-security-green" />
-                </div>
-                <p className="text-xs text-on-surface-variant font-medium leading-relaxed mb-4">
-                  "The compression is truly magical! My 15MB graphic pdf reduced down to 3MB completely within my device. I couldn't be happier with PDFMinty."
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-3 border-t border-border-muted">
-                <div className="w-10 h-10 rounded-full bg-surface-container-high text-security-green border border-border-muted flex items-center justify-center font-bold text-sm">
-                  D
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-primary">David L.</h4>
-                  <span className="text-[10px] text-on-surface-variant/70">Content Creator</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((review, i) => {
-              const char = review.displayEmail ? review.displayEmail[0] : "U";
-              return (
-                <div key={i} className="bg-surface-container-low border border-border-muted p-6 rounded-2xl shadow-md flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center gap-1 text-security-green mb-3">
-                      {Array.from({ length: review.rating || 5 }).map((_, idx) => (
-                        <Star key={idx} className="w-4 h-4 fill-security-green text-security-green" />
-                      ))}
-                    </div>
-                    <p className="text-xs text-on-surface-variant font-medium leading-relaxed mb-4">
-                      "{review.comment}"
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 pt-3 border-t border-border-muted">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold ${getAvatarColor(char)}`}>
-                      {char.toUpperCase()}
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-primary">{review.displayEmail || "Anonymous"}</h4>
-                      <span className="text-[10px] text-on-surface-variant/70">{formatRelativeTime(review.timestamp)}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
 
       <div className="mt-24 relative z-20" id="faq-section">
         <h2 className="text-2xl md:text-3xl font-black text-primary text-center tracking-tight mb-2">
@@ -633,7 +463,7 @@ export const HomePage: React.FC = () => {
         <div className="absolute top-0 right-0 w-80 h-80 bg-security-green/10 rounded-full filter blur-[80px] pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-tertiary-fixed-dim/5 rounded-full filter blur-[80px] pointer-events-none"></div>
         <div className="relative z-10 max-w-xl mx-auto space-y-5">
-          <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-1 font-sans">
+          <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-tight font-sans">
             Ready to secure your PDF workflow?
           </h2>
           <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed font-semibold">
