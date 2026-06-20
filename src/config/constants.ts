@@ -1,44 +1,4 @@
-import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-export const PDFJS_WORKER_SRC = pdfjsWorker;
-
-export const PDF_PAGE_SIZES = {
-  A4: [595.28, 841.89] as const,
-  Letter: [612, 792] as const,
-  Legal: [612, 1008] as const,
-  A3: [841.89, 1190.55] as const,
-};
-
-export const COMPRESS_QUALITY = {
-  low: { dpi: 72, jpegQuality: 0.6 },
-  medium: { dpi: 96, jpegQuality: 0.75 },
-  high: { dpi: 150, jpegQuality: 0.85 },
-  metadata: null, // strip metadata only
-};
-
-export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
-export const MAX_FILES = 20;
-
-export const WATERMARK_DEFAULTS = {
-  text: "CONFIDENTIAL",
-  rotation: -45,
-  opacity: 0.3,
-  color: [0.7, 0.7, 0.7] as [number, number, number],
-  fontSize: 42,
-};
-
-export const PAGE_NUMBER_DEFAULTS = {
-  position: "bottom-center" as const,
-  startNumber: 1,
-  skipFirst: false,
-};
-
-export const AI_ANALYSIS = {
-  MAX_PAGES: 50,
-  MAX_TEXT_LENGTH: 10000,
-  API_ENDPOINT: "/api/gemini-proxy",
-};
-
-export interface ToolItem {
+export interface Tool {
   id: string;
   title: string;
   description: string;
@@ -47,126 +7,109 @@ export interface ToolItem {
   icon: string;
 }
 
-export const tools: ToolItem[] = [
+export const tools: Tool[] = [
   {
-    id: "merge",
+    id: "merge-pdf",
     title: "Merge PDF",
-    description: "Combine multiple PDF files into one single PDF easily.",
-    category: "organize",
+    description: "Combine multiple PDF files into a single, clean document in any order you choose.",
+    category: "page-operations",
     path: "/merge-pdf",
     icon: "Merge",
   },
   {
-    id: "compress",
-    title: "Compress PDF",
-    description: "Reduce PDF file size without losing premium quality.",
-    category: "optimize",
-    path: "/compress-pdf",
-    icon: "Minimize2",
-  },
-  {
-    id: "split",
+    id: "split-pdf",
     title: "Split PDF",
-    description: "Split PDF pages into separate documents by page range.",
-    category: "organize",
+    description: "Extract ranges of pages or split custom pages into multi-part individual documents.",
+    category: "page-operations",
     path: "/split-pdf",
     icon: "Scissors",
   },
   {
-    id: "reorder",
-    title: "Organize PDF",
-    description: "Rearrange, sort, and organize the pages of your PDF file.",
-    category: "organize",
-    path: "/reorder-pdf",
-    icon: "ArrowUp",
+    id: "compress-pdf",
+    title: "Compress PDF",
+    description: "Reduce file size footprint using professional compression schemes purely in your browser.",
+    category: "utilities",
+    path: "/compress-pdf",
+    icon: "Minimize2",
   },
   {
-    id: "extract",
-    title: "Extract Pages",
-    description: "Extract specific pages from your PDF file into a new document.",
-    category: "organize",
-    path: "/extract-pages-pdf",
-    icon: "Layers",
-  },
-  {
-    id: "img-to-pdf",
-    title: "Image to PDF",
-    description: "Convert JPG, PNG, and other images to PDF in seconds.",
-    category: "convert",
-    path: "/image-to-pdf",
-    icon: "ImageIcon",
-  },
-  {
-    id: "pdf-to-img",
-    title: "PDF to Image",
-    description: "Convert PDF pages into high-quality companion images.",
-    category: "convert",
-    path: "/pdf-to-image",
-    icon: "Layers",
-  },
-  {
-    id: "delete-pages",
-    title: "Delete Pages",
-    description: "Remove unwanted pages from your PDF file easily.",
-    category: "organize",
-    path: "/organize",
-    icon: "Trash2",
-  },
-  {
-    id: "rotate",
+    id: "rotate-pdf",
     title: "Rotate PDF",
-    description: "Rotate one or all pages of your PDF document easily.",
-    category: "organize",
+    description: "Rotate single pages or the entire document pages 90, 180, or 270 degrees clockwise.",
+    category: "page-operations",
     path: "/rotate-pdf",
     icon: "RotateCw",
   },
   {
-    id: "watermark",
-    title: "Add Watermark",
-    description: "Add a custom text watermark seal over your PDF pages.",
-    category: "security",
-    path: "/watermark-pdf",
-    icon: "Stamp",
+    id: "delete-pages-pdf",
+    title: "Delete Pages",
+    description: "Selectively strip out unwanted, trailing, or confidential pages from your master files.",
+    category: "organize",
+    path: "/delete-pages-pdf",
+    icon: "Trash2",
   },
   {
-    id: "page-numbers",
+    id: "watermark-pdf",
+    title: "Watermark PDF",
+    description: "Superimpose elegant, custom diagonal text stamps with configurable size and transparency.",
+    category: "security-edit",
+    path: "/watermark-pdf",
+    icon: "Bookmark",
+  },
+  {
+    id: "add-page-numbers",
     title: "Page Numbers",
-    description: "Add clean, structured page numbers to your PDF pages.",
-    category: "organize",
+    description: "Stitch standard page indices automatically onto document page footer panels.",
+    category: "security-edit",
     path: "/add-page-numbers",
     icon: "Hash",
   },
   {
-    id: "add-blank",
+    id: "add-blank-page",
     title: "Add Blank Page",
-    description: "Add empty clean pages into any position of your PDF file.",
+    description: "Incorporate empty page spacing into start, middle, or end of your document flows.",
     category: "organize",
     path: "/add-blank-page",
-    icon: "FileCode",
+    icon: "FilePlus",
   },
   {
-    id: "protect",
+    id: "protect-pdf",
     title: "Protect PDF",
-    description: "Lock your PDF with a strong security password locally.",
-    category: "security",
+    description: "Encrypt and secure your sensitive PDFs using state-of-the-art browser password standard hashes.",
+    category: "security-edit",
     path: "/protect-pdf",
+    icon: "Shield",
+  },
+  {
+    id: "unlock-pdf",
+    title: "Unlock PDF",
+    description: "Strip document lock credentials from your standard user files for clear, unlocked reading.",
+    category: "security-edit",
+    path: "/unlock-pdf",
     icon: "Lock",
   },
   {
-    id: "unlock",
-    title: "Unlock PDF",
-    description: "Remove passwords and locks from your PDF document easily.",
-    category: "security",
-    path: "/unlock-pdf",
-    icon: "Unlock",
+    id: "image-to-pdf",
+    title: "Image to PDF",
+    description: "Convert multiple PNG or JPG photos into clean formatted PDF pages instantly.",
+    category: "convert",
+    path: "/image-to-pdf",
+    icon: "Image",
+  },
+  {
+    id: "pdf-to-image",
+    title: "PDF to Image",
+    description: "Convert multiple pages from document directly into portable standard image canvases.",
+    category: "convert",
+    path: "/pdf-to-image",
+    icon: "Eye",
   },
   {
     id: "ai-analyze",
     title: "AI Analyze",
     description: "Summarize, analyze, and inspect your PDF document content using secure offline local text parsing boosted by premium AI assistance.",
     category: "intelligence",
-    path: "/ai-analyze",
+    path: "/intelligence",
     icon: "Sparkles",
   }
 ];
-

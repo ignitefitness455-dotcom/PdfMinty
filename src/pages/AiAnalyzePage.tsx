@@ -1,98 +1,263 @@
-import { useState, useCallback } from "react";
-import { FileUploader } from "../components/FileUploader";
-import LoadingButton from "../components/LoadingButton";
-import { SEO } from "../components/SEO";
-import { useToast } from "../contexts/ToastContext";
-import { PDFJS_WORKER_SRC } from "../config/constants";
+import React, { useState } from 'react';
+import { ArrowLeft, Sparkles, Send, FileText, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { FileUploader } from '../components/FileUploader';
+import { ROUTES } from '../config/routes';
+import { SEO } from '../components/SEO';
 
-export default function AiAnalyzePage() {
-  const { showToast } = useToast();
-  const [file, setFile] = useState<File | null>(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<string | null>(null);
+let pdfjsLib: any = null;
 
-  const extractText = useCallback(async (pdfFile: File): Promise<string> => {
-    const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_SRC;
-    const pdf = await pdfjsLib.getDocument({ data: await pdfFile.arrayBuffer() }).promise;
-    let text = "";
-    // Limit to first 10 pages for analysis to keep prompt sizes healthy
-    for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      text += content.items.map((item: any) => item.str).join(" ") + "\n";
+const loadPdfjs = async () => {
+  if (!pdfjsLib) {
+    pdfjsLib = await import('pdfjs-dist');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '4.3.136'}/pdf.worker.min.mjs`;
+  }
+  return pdfjsLib;
+};
+
+export const AiAnalyzePage: React.FC = () => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [extractedText, setExtractedText] = useState<string>('');
+  const [totalPages, setTotalPages] = useState<number>(0);
+  
+  // AI querying state
+  const [query, setQuery] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFilesSelected = async (files: File[]) => {
+    if (files.length === 0) return;
+    const file = files[0];
+    setSelectedFile(file);
+    setIsExtracting(true);
+    setExtractedText('');
+    setAiResult('');
+    setError(null);
+
+    try {
+      const pdfjs = await loadPdfjs();
+      const bytes = await file.arrayBuffer();
+      const loadingTask = pdfjs.getDocument({ data: bytes });
+      const pdf = await loadingTask.promise;
+      setTotalPages(pdf.numPages);
+
+      let textBuffer = '';
+      const maxPages = Math.min(pdf.numPages, 12); // Extract first 12 pages to optimize payload
+      
+      for (let i = 1; i <= maxPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str || '')
+          .join(' ');
+        textBuffer += `--- PAGE ${i} ---\n${pageText}\n\n`;
+      }
+
+      setExtractedText(textBuffer);
+    } catch (err: any) {
+      console.error('Text extraction error:', err);
+      setError(err?.message || 'Failed to extract text structures. Make sure document does not contain image-only pages or lock passwords.');
+    } finally {
+      setIsExtracting(false);
     }
-    return text;
-  }, []);
+  };
 
-  const handleAnalyze = useCallback(async () => {
-    if (!file) {
-      showToast("Please select a PDF file", "info");
+  const submitQuery = async (mode: 'summary' | 'qa') => {
+    if (!extractedText) {
+      setError('No extracted text structures found to inspect.');
       return;
     }
-    setAnalyzing(true);
-    setAnalysis(null);
-    try {
-      const text = await extractText(file);
-      if (!text.trim()) {
-        throw new Error("No text content found in PDF target.");
-      }
+    if (mode === 'qa' && !query.trim()) {
+      setError('Please provide a specific query prompt.');
+      return;
+    }
 
-      const response = await fetch("/api/gemini-proxy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, name: file.name }),
+    setAiLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/gemini/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          textContent: extractedText,
+          query: mode === 'qa' ? query : '',
+          mode
+        })
       });
 
-      const result = await response.json();
-      if (!result.success) {
-        throw new Error(result.error || "Analysis failed");
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Server rejected request. Please check secret API variables.');
       }
-      setAnalysis(result.analysis);
-      showToast("Document analyzed successfully!", "success");
+
+      setAiResult(data.result || 'No response returned.');
     } catch (err: any) {
-      showToast(err.message || "Failed to analyze document", "error");
+      console.error('AI Error:', err);
+      setError(err?.message || 'An unexpected server error occurred during AI analysis. Verify GEMINI_API_KEY in secrets.');
     } finally {
-      setAnalyzing(false);
+      setAiLoading(false);
     }
-  }, [file, extractText, showToast]);
+  };
 
   return (
-    <>
-      <SEO title="AI PDF Analysis" description="Analyze PDF content with AI" />
-      <main id="main-content" className="container mx-auto max-w-4xl px-4 py-8">
-        <h1 className="mb-2 text-3xl font-bold">AI PDF Analysis</h1>
-        <p className="mb-6 text-slate-600 dark:text-slate-400">
-          Upload any PDF file and our intelligence parser will securely read its contents (client-side),
-          extract structural elements, identify core concepts, and provide answers or insights. No documents are stored on our servers.
-        </p>
+    <div className="space-y-6 max-w-5xl mx-auto" id="ai_analyze_page">
+      <SEO 
+        title="AI PDF Analyze — Free Dynamic Page Assistant" 
+        description="Extract PDF metadata and analyze contents with Gemini server AI. Create summaries, ask custom queries, and inspect facts safely."
+      />
 
-        <FileUploader
-          onSelectedFiles={(files) => { setFile(files[0]); setAnalysis(null); }}
-          toolId="ai-analyze"
-        />
+      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+        <ArrowLeft className="w-4 h-4" />
+        <span>Return to Dashboard</span>
+      </Link>
 
-        {file && (
-          <div className="mt-4 rounded-lg border bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
-            <p className="text-sm font-medium">{file.name}</p>
+      <div className="space-y-2">
+        <div className="flex items-center space-x-2">
+          <Sparkles className="w-6 h-6 text-amber-500 fill-amber-100 animate-pulse" />
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">AI Analyze & Assistant</h1>
+        </div>
+        <p className="text-slate-500 text-sm">Upload standard PDF files, extract context indices offline, and query answers or summaries securely via Gemini.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Side: Upload & Inspection */}
+        <div className="lg:col-span-1 space-y-4">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center space-x-2">
+              <FileText className="w-4 h-4 text-emerald-600" />
+              <span>Document Upload</span>
+            </h3>
+
+            {!selectedFile ? (
+              <FileUploader 
+                onFilesSelected={handleFilesSelected} 
+                title="Select PDF for AI review"
+                subtitle="Load a PDF file here"
+              />
+            ) : (
+              <div className="space-y-4">
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between" id="loaded_ai_file">
+                  <div className="truncate pr-2">
+                    <p className="text-xs font-bold text-slate-800 truncate">{selectedFile.name}</p>
+                    <p className="text-[10px] text-slate-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {totalPages} pages</p>
+                  </div>
+                  <button 
+                    onClick={() => { setSelectedFile(null); setExtractedText(''); setAiResult(''); }} 
+                    className="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-2.5 rounded-lg"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                {isExtracting ? (
+                  <div className="flex items-center space-x-2 text-xs text-slate-500 justify-center py-3 bg-slate-50 rounded-xl" id="extraction_spinner">
+                    <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />
+                    <span>Extracting PDF text locally...</span>
+                  </div>
+                ) : extractedText ? (
+                  <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center space-x-1.5 text-xs text-emerald-800 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span>Text indexes loaded successfully!</span>
+                  </div>
+                ) : null}
+              </div>
+            )}
           </div>
-        )}
 
-        <div className="mt-6">
-          <LoadingButton onClick={handleAnalyze} loading={analyzing} disabled={!file}>
-            {analyzing ? "Analyzing..." : "Analyze Document"}
-          </LoadingButton>
+          <div className="bg-slate-100 p-4 rounded-xl space-y-2 border border-slate-200 text-xs text-slate-500 leading-normal">
+            <p className="font-bold text-slate-700">Privacy Information:</p>
+            <p>
+              Your document files are processed locally inside your web browser. Only the extracted raw text of the document is sent securely to our Express server to utilize Gemini APIs. Original PDF binaries never touch the clouds.
+            </p>
+          </div>
         </div>
 
-        {analysis && (
-          <div className="mt-8 rounded-lg border bg-white p-6 dark:border-slate-700 dark:bg-slate-900">
-            <h2 className="mb-4 text-lg font-semibold">Analysis Results</h2>
-            <div className="prose dark:prose-invert max-w-none whitespace-pre-wrap text-sm leading-relaxed">
-              {analysis}
+        {/* Right Side: AI Console */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between min-h-[420px] space-y-6">
+            <div className="space-y-4 flex-1">
+              <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">AI Control Center</h3>
+              
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => submitQuery('summary')}
+                  disabled={!extractedText || aiLoading}
+                  className={`py-2 px-4 rounded-xl text-xs font-bold transition-all ${
+                    extractedText && !aiLoading
+                      ? 'bg-amber-100/50 hover:bg-amber-100 border border-amber-200 text-amber-800'
+                      : 'bg-slate-100 border border-slate-200 text-slate-400 pointer-events-none'
+                  }`}
+                >
+                  ✨ Summarize Document Complete
+                </button>
+              </div>
+
+              {/* Chat interaction input */}
+              <div className="space-y-2">
+                <label htmlFor="ai_query_input" className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Ask anything about this document:</label>
+                <div className="relative">
+                  <input
+                    id="ai_query_input"
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={extractedText ? "e.g., What are the main agreements in section 3?" : "Please load a file on the left first."}
+                    className="w-full border border-slate-300 rounded-xl py-2.5 pl-3.5 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    disabled={!extractedText || aiLoading}
+                    onKeyDown={(e) => { if (e.key === 'Enter') submitQuery('qa'); }}
+                  />
+                  <button
+                    onClick={() => submitQuery('qa')}
+                    disabled={!extractedText || !query.trim() || aiLoading}
+                    className={`absolute right-1.5 top-1.5 p-1.5 rounded-lg text-white transition-colors ${
+                      query.trim() && !aiLoading ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer' : 'bg-slate-300 pointer-events-none'
+                    }`}
+                    aria-label="Send query"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="flex items-start space-x-1.5 text-xs text-rose-700 bg-rose-50 border border-rose-100 p-3.5 rounded-xl shadow-sm">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <div>
+                    <p className="font-bold">Execution Error</p>
+                    <p className="mt-0.5">{error}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* AI response panel */}
+              {aiLoading ? (
+                <div className="flex flex-col items-center justify-center space-y-3 py-12 border border-dashed border-slate-200 rounded-xl" id="ai_loader">
+                  <span className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin"></span>
+                  <span className="text-xs font-semibold text-slate-500">Letting Gemini think...</span>
+                </div>
+              ) : aiResult ? (
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 shadow-inner" id="ai_response_box">
+                  <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider pb-1.5 border-b border-slate-200">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <span>Gemini Core Insights</span>
+                  </div>
+                  <div className="text-sm text-slate-800 leading-relaxed font-sans whitespace-pre-wrap whitespace-pre-line prose max-w-none">
+                    {aiResult}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center py-16 border border-dashed border-slate-200 rounded-xl text-slate-400">
+                  <Sparkles className="w-7 h-7 text-slate-300 mb-2 animate-bounce" />
+                  <p className="text-xs font-medium max-w-sm">No analysis performed yet. Click one of the summary profiles or Ask a question above.</p>
+                </div>
+              )}
             </div>
           </div>
-        )}
-      </main>
-    </>
+        </div>
+      </div>
+    </div>
   );
-}
+};

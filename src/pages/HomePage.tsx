@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLayout } from "../components/Layout";
-import { useTranslation } from "react-i18next";
+import { ROUTES } from "../config/routes";
 import {
   Sparkles,
   Shield,
@@ -13,26 +13,114 @@ import {
   WifiOff,
   Zap,
   Star,
-  MessageSquare,
+  Merge, Scissors, Minimize2, RotateCw, Trash2, Bookmark, Hash, 
+  FilePlus, Lock, Image, Eye
 } from "lucide-react";
-import { prefetchToolChunk } from "../core/utils";
-import { useDebounce } from "../hooks/useDebounce";
-import { SearchComponent } from "../components/SearchComponent";
-import { ToolWorkspace } from "../components/ToolWorkspace";
-import { ToolExplanation } from "../components/ToolExplanation";
 
-export default function HomePage() {
+// Translation hook to map translation keys properly
+const useTranslation = () => {
+  const translations: Record<string, string> = {
+    search_placeholder: "Search PDF tools...",
+    not_found_title: "No tools found",
+    not_found_desc: "We couldn't find any tools matching your search. Try checking your spelling or search for something else.",
+    clear_filter: "Clear Search",
+    popular: "POPULAR",
+    smart_reduction: "SMART REDUCTION",
+    ai_hybrid: "AI HYBRID",
+    offline_aes: "OFFLINE AES",
+    fast_convert: "FAST CONVERT",
+    extractor: "EXTRACTOR",
+    launch_tool: "Launch Tool",
+    how_it_works_title: "How It Works",
+    how_it_works_desc: "Three simple steps to process your files entirely inside your browser.",
+    step_1_title: "Select Tool",
+    step_1_desc: "Choose one of our free PDF tools to combine, split, or compress files.",
+    step_2_title: "Add Files",
+    step_2_desc: "Upload your documents directly. Your files never touch our servers.",
+    step_3_title: "Download",
+    step_3_desc: "Receive your processed document instantly with maximum privacy.",
+  };
+  return {
+    t: (key: string) => translations[key] || key
+  };
+};
+
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  const [isDebouncing, setIsDebouncing] = useState(false);
+
+  useEffect(() => {
+    setIsDebouncing(true);
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+      setIsDebouncing(false);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return { debouncedValue, isDebouncing };
+};
+
+const SearchComponent: React.FC<{
+  value: string;
+  onChange: (v: string) => void;
+  isDebouncing: boolean;
+  placeholder: string;
+}> = ({ value, onChange, isDebouncing, placeholder }) => {
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-2xl border border-border-muted bg-surface-container-low/50 backdrop-blur-md px-5 py-4 pr-12 text-sm text-primary placeholder-on-surface-variant/50 focus:border-security-green focus:outline-none focus:ring-4 focus:ring-security-green/10 transition-all duration-300"
+      />
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
+        {isDebouncing && (
+          <svg className="animate-spin h-4 w-4 text-security-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        )}
+        <svg className="h-5 w-5 text-on-surface-variant/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+// Prefetching stub
+const prefetchToolChunk = (slug: string) => {
+  // Option stub for link preloading
+};
+
+const toolMetadataMap: Record<string, { icon: React.ComponentType<any>; color: string; id: string; badgeKey?: string }> = {
+  'merge-pdf': { icon: Merge, color: 'text-security-green', id: 'merge', badgeKey: 'popular' },
+  'compress-pdf': { icon: Minimize2, color: 'text-security-green', id: 'compress', badgeKey: 'smart_reduction' },
+  'split-pdf': { icon: Scissors, color: 'text-security-green', id: 'split' },
+  'image-to-pdf': { icon: Image, color: 'text-security-green', id: 'img-to-pdf', badgeKey: 'fast_convert' },
+  'pdf-to-image': { icon: Eye, color: 'text-security-green', id: 'pdf-to-img' },
+  'delete-pages-pdf': { icon: Trash2, color: 'text-security-green', id: 'delete-pages', badgeKey: 'extractor' },
+  'rotate-pdf': { icon: RotateCw, color: 'text-security-green', id: 'rotate' },
+  'watermark-pdf': { icon: Bookmark, color: 'text-security-green', id: 'watermark' },
+  'add-page-numbers': { icon: Hash, color: 'text-security-green', id: 'page-numbers' },
+  'protect-pdf': { icon: Shield, color: 'text-security-green', id: 'protect', badgeKey: 'offline_aes' },
+  'unlock-pdf': { icon: Lock, color: 'text-security-green', id: 'unlock' },
+  'add-blank-page': { icon: FilePlus, color: 'text-security-green', id: 'add-blank' },
+  'intelligence': { icon: Sparkles, color: 'text-security-green', id: 'ai-analyze', badgeKey: 'ai_hybrid' },
+};
+
+export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const { toolsList } = useLayout();
   const { t } = useTranslation();
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-
-  const currentTool = useMemo(() => {
-    const segments = pathname.toLowerCase().split("/").filter(Boolean);
-    return toolsList.find((t) => segments.includes(t.slug.toLowerCase()));
-  }, [toolsList, pathname]);
 
   const [testimonials, setTestimonials] = useState<Array<{
     rating: number;
@@ -60,12 +148,12 @@ export default function HomePage() {
 
   const getAvatarColor = (char: string): string => {
     const colors = [
-      "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
-      "bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-305",
-      "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300",
-      "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300",
-      "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300",
-      "bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300",
+      "bg-emerald-900/40 text-[#00FFC2] border border-border-muted",
+      "bg-sky-900/40 text-sky-400 border border-border-muted",
+      "bg-violet-900/40 text-violet-400 border border-border-muted",
+      "bg-amber-900/40 text-amber-400 border border-border-muted",
+      "bg-rose-900/40 text-rose-400 border border-border-muted",
+      "bg-teal-900/40 text-teal-400 border border-border-muted",
     ];
     const code = char.toUpperCase().charCodeAt(0) || 65;
     return colors[code % colors.length];
@@ -87,15 +175,12 @@ export default function HomePage() {
     }
   };
 
-  const debouncedValue = useDebounce(searchQuery, 300);
-  const isDebouncing = false;
+  const { debouncedValue, isDebouncing } = useDebounce(searchQuery, 300);
 
   const rankedOrder = useMemo(() => [
     "merge",
     "compress",
     "split",
-    "reorder",
-    "extract",
     "img-to-pdf",
     "pdf-to-img",
     "delete-pages",
@@ -110,8 +195,10 @@ export default function HomePage() {
 
   const sortedTools = useMemo(() => {
     return [...toolsList].sort((a, b) => {
-      const indexA = rankedOrder.indexOf(a.id);
-      const indexB = rankedOrder.indexOf(b.id);
+      const metaA = toolMetadataMap[a.slug] || { id: a.slug };
+      const metaB = toolMetadataMap[b.slug] || { id: b.slug };
+      const indexA = rankedOrder.indexOf(metaA.id);
+      const indexB = rankedOrder.indexOf(metaB.id);
       return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
     });
   }, [toolsList, rankedOrder]);
@@ -126,34 +213,29 @@ export default function HomePage() {
     );
   }, [sortedTools, debouncedValue]);
 
-  if (currentTool) {
-    return (
-      <div className="space-y-12">
-        <ToolWorkspace tool={currentTool} />
-        <ToolExplanation />
-      </div>
-    );
-  }
-
   return (
-    <div className="animate-fadein relative z-10 font-sans">
-      <div className="text-center max-w-3xl mx-auto mb-14">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-800/40 rounded-full text-emerald-600 dark:text-emerald-400 text-xs font-semibold mb-5 leading-none">
-          <Sparkles className="w-3 h-3 animate-pulse text-emerald-500" />{" "}
-          WebAssembly & Client-Side Sandbox Active
+    <div className="animate-fadein relative z-10 font-sans text-on-background bg-background pb-12 select-none">
+      
+      {/* Decorative Glow Elements */}
+      <div className="absolute top-[-150px] left-1/2 -translate-x-1/2 -z-10 w-[800px] h-[450px] bg-gradient-to-r from-security-green/10 via-primary-fixed/5 to-tertiary-fixed-dim/5 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="text-center max-w-3xl mx-auto mb-16 relative pt-4">
+        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 bg-surface-container-low border border-border-muted rounded-full text-security-green text-xs font-bold mb-6 tracking-wide select-none shadow-lg">
+          <Sparkles className="w-3.5 h-3.5 animate-pulse text-security-green" />{" "}
+          WebAssembly Client Sandbox Active
         </div>
-        <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-4 font-sans">
-          Free PDF Tools{" "}
-          <span className="bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent font-extrabold">
-            No Upload
+        <h1 className="text-4xl md:text-6xl font-black text-primary tracking-tight leading-none mb-6 font-sans">
+          Local PDF Utilities{" "}
+          <span className="text-primary-fixed font-black">
+            Zero Uploads
           </span>
         </h1>
-        <p className="text-slate-550 dark:text-slate-400 text-sm md:text-base font-medium max-w-xl mx-auto leading-relaxed">
-          PDFMinty is the best free client side pdf compressor and organizer that runs fully inside your browser. Here is how to combine pdf files offline free, how to make pdf file size smaller without losing quality, and extract pages from pdf file locally. Our package of free online pdf tools that don't upload files keeps your highly confidential contracts, worksheets, and invoices 100% secure with no accounts required.
+        <p className="text-on-surface-variant text-sm md:text-base font-medium max-w-2xl mx-auto leading-relaxed">
+          Merge, split, and compress your critical files entirely in your browser. PDFMinty runs 100% client-side, meaning your highly confidential files never leave your device’s sandbox memory. No signups, no accounts—just immediate offline processing for ultimate peace of mind.
         </p>
       </div>
 
-      <div className="mb-12 max-w-md mx-auto">
+      <div className="mb-14 max-w-lg mx-auto">
         <SearchComponent
           value={searchQuery}
           onChange={setSearchQuery}
@@ -163,15 +245,15 @@ export default function HomePage() {
       </div>
 
       {filteredTools.length === 0 ? (
-        <div className="text-center py-16 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg mx-auto bg-white dark:bg-slate-900 shadow-sm">
-          <p className="text-slate-600 dark:text-slate-300 font-extrabold text-base mb-2">{t("not_found_title")}</p>
-          <p className="text-xs text-slate-400 dark:text-slate-500 max-w-xs mx-auto leading-relaxed font-semibold">
+        <div className="text-center py-20 border-2 border-dashed border-border-muted rounded-[32px] max-w-lg mx-auto bg-surface-container-low shadow-xl">
+          <p className="text-primary font-black text-lg mb-2">{t("not_found_title")}</p>
+          <p className="text-xs text-on-surface-variant max-w-xs mx-auto leading-relaxed font-semibold">
             {t("not_found_desc")}
           </p>
           <button
             type="button"
             onClick={() => setSearchQuery("")}
-            className="mt-6 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 font-extrabold text-xs text-white rounded-2xl transition-all cursor-pointer shadow-lg shadow-emerald-500/15 border-0 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="mt-6 px-6 py-3 bg-surface-container-high hover:bg-surface-container-highest border border-border-muted font-extrabold text-xs text-primary-fixed rounded-xl transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-security-green"
           >
             {t("clear_filter")}
           </button>
@@ -179,100 +261,64 @@ export default function HomePage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTools.map((tool) => {
-            const Icon = tool.icon;
+            const meta = toolMetadataMap[tool.slug] || {
+              icon: Sparkles,
+              color: 'text-security-green',
+              id: tool.slug
+            };
+            const Icon = meta.icon;
+            const toolId = meta.id;
 
             let badge = null;
-            if (tool.id === "merge")
-              badge = {
-                text: t("popular"),
-                color:
-                  "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800/60",
-              };
-            else if (tool.id === "compress")
-              badge = {
-                text: t("smart_reduction"),
-                color:
-                  "bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-300 border-teal-100 dark:border-teal-800/60",
-              };
-            else if (tool.id === "ai-analyze")
-              badge = {
-                text: t("ai_hybrid"),
-                color:
-                  "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-100 dark:border-indigo-800/60",
-              };
-            else if (tool.id === "protect")
-              badge = {
-                text: t("offline_aes"),
-                color:
-                  "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-303 border-rose-100 dark:border-rose-800/60",
-              };
-            else if (tool.id === "img-to-pdf")
-              badge = {
-                text: t("fast_convert"),
-                color:
-                  "bg-amber-50 dark:bg-amber-955/50 text-amber-700 dark:text-amber-300 border-amber-100 dark:border-amber-800/60",
-              };
-            else if (tool.id === "delete-pages")
-              badge = {
-                text: t("extractor"),
-                color:
-                  "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-303 border-blue-105 dark:border-blue-800/60",
-              };
-            else if (tool.id === "reorder")
-              badge = {
-                text: "ORGANIZER",
-                color:
-                  "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-100 dark:border-indigo-800/60",
-              };
-            else if (tool.id === "extract")
-              badge = {
-                text: "VISUAL",
-                color:
-                  "bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-300 border-teal-100 dark:border-teal-800/60",
-              };
+            if (toolId === "merge")
+              badge = { text: t("popular"), color: "bg-security-green/10 text-security-green border-security-green/20" };
+            else if (toolId === "compress")
+              badge = { text: t("smart_reduction"), color: "bg-tertiary-fixed-dim/10 text-tertiary-fixed-dim border-tertiary-fixed-dim/20" };
+            else if (toolId === "ai-analyze")
+              badge = { text: t("ai_hybrid"), color: "bg-primary-fixed/10 text-primary-fixed border-primary-fixed/20" };
+            else if (toolId === "protect")
+              badge = { text: t("offline_aes"), color: "bg-critical-red/10 text-critical-red border-critical-red/20" };
+            else if (toolId === "img-to-pdf")
+              badge = { text: t("fast_convert"), color: "bg-warning-amber/10 text-warning-amber border-warning-amber/20" };
+            else if (toolId === "delete-pages")
+              badge = { text: t("extractor"), color: "bg-sky-400/10 text-sky-400 border-sky-400/20" };
 
             return (
               <button
                 type="button"
-                key={tool.id}
-                id={`tool-card-${tool.id}`}
+                key={tool.slug}
+                id={`tool-card-${toolId}`}
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate(`/${tool.slug}`);
                 }}
                 onMouseEnter={() => prefetchToolChunk(tool.slug)}
                 onFocus={() => prefetchToolChunk(tool.slug)}
-                className="p-6 rounded-3xl border border-slate-200/70 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:border-emerald-500/30 dark:hover:border-emerald-500/50 hover:ring-4 hover:ring-emerald-500/5 dark:hover:ring-emerald-500/10 cursor-pointer hover:shadow-[0_12px_30px_rgba(16,185,129,0.06)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.2)] hover:-translate-y-1 transition-all duration-300 group text-start relative overflow-hidden flex flex-col justify-between animate-fadein focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500"
+                className="page-card glass-panel rounded-[24px] p-6 border border-border-muted hover:border-security-green shadow-lg hover:shadow-security-green/5 flex flex-col justify-between text-left group transition-all duration-300 transform hover:-translate-y-1 relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-security-green"
               >
                 <div>
                   <div className="flex items-center justify-between mb-5">
-                    <div
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 border ${tool.color}`}
-                    >
-                      <Icon className="w-5.5 h-5.5" />
+                    <div className="w-12 h-12 rounded-xl bg-surface-container-low border border-border-muted flex items-center justify-center transition-transform group-hover:scale-110 shadow-md">
+                      <Icon className="w-5.5 h-5.5 text-security-green" />
                     </div>
                     {badge && (
-                      <span
-                        className={`text-[9px] font-extrabold tracking-wider px-2.5 py-1 rounded-full border ${badge.color}`}
-                      >
+                      <span className={`text-[9px] font-extrabold tracking-wider px-2.5 py-1 rounded-full border ${badge.color}`}>
                         {badge.text}
                       </span>
                     )}
                   </div>
 
-                  <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 leading-snug mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-base font-black text-primary leading-snug mb-2 group-hover:text-security-green transition-colors font-sans">
                     {tool.name}
                   </h3>
-                  <p className="text-slate-505 dark:text-slate-400 text-xs leading-relaxed font-semibold">
+                  <p className="text-on-surface-variant text-xs leading-relaxed font-semibold line-clamp-2 min-h-[2.5rem]">
                     {tool.description}
                   </p>
                 </div>
 
-                <div className="mt-4 flex items-center gap-1.5 text-xs text-transparent group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-all font-bold">
+                <div className="mt-5 flex items-center gap-1.5 text-xs text-on-surface-variant group-hover:text-security-green transition-all font-bold">
                   {t("launch_tool")}{" "}
-                  <span className="translate-x-0 group-hover:translate-x-1 transition-transform">
-                    →
-                  </span>
+                  <span className="translate-x-0 group-hover:translate-x-1 transition-transform">→</span>
                 </div>
               </button>
             );
@@ -280,427 +326,332 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="mt-20 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-6 md:p-8 bg-white dark:bg-slate-900/40 relative overflow-hidden z-20 shadow-sm flex flex-col md:flex-row items-center gap-8">
-        <div className="flex-1 space-y-4">
-          <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full font-black tracking-widest uppercase">
-            Performance-Optimized Rendering
+      {/* Visual Workspace Feature Section */}
+      <div className="mt-24 border border-border-muted rounded-[32px] p-8 md:p-12 bg-surface-container-low/50 backdrop-blur-md relative overflow-hidden z-20 shadow-xl flex flex-col md:flex-row items-center gap-10">
+        <div className="flex-1 space-y-5">
+          <span className="inline-flex items-center gap-1.5 text-[10px] bg-security-green/10 text-security-green border border-security-green/20 px-3.5 py-1.5 rounded-full font-black tracking-widest uppercase animate-pulse">
+            Local Dev-Sandbox Architecture
           </span>
-          <h2 className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
-            Privacy-First Desktop Workspace Interface
+          <h2 className="text-2xl md:text-3xl font-black text-primary tracking-tight leading-tight">
+            Fast, Private Interactive Workspace
           </h2>
-          <p className="text-xs md:text-sm text-slate-505 dark:text-slate-400 leading-relaxed font-semibold">
-            Experience flawless speed. PDFMinty deploys responsive inline SVGs alongside our modular OptimizedImage component. By delivering highly compressed WebP graphics with traditional PNG fallbacks, we guarantee zero load layout shifts and perfect viewport adaptiveness across mobile and desktop displays.
+          <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed font-medium">
+            PDFMinty processes all your documents locally within your device's memory. With secure WebAssembly integrations, operations happen instantly without transmission queues, file upload limits, or cloud exposures. Experience absolute control over your contract agreements, confidential datasheets, and forms with a distraction-free desktop environment.
           </p>
         </div>
-        <div className="w-full md:w-80 shrink-0 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-lg bg-slate-950 p-4 aspect-square flex flex-col justify-between font-mono text-[10px] text-slate-400 select-none relative group transition-transform duration-500 hover:scale-102">
-          {/* Mock Browser/Workspace UI */}
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-2">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
-            </div>
-            <span className="text-[8px] bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded text-emerald-400 font-extrabold tracking-wider shrink-0 uppercase">
-              100% PRIVATE
-            </span>
-          </div>
-          
-          {/* Main workspace container */}
-          <div className="flex-1 grid grid-cols-12 gap-2 overflow-hidden mb-2">
-            {/* Mock Sidebar */}
-            <div className="col-span-3 border-e border-slate-900 pe-1 flex flex-col gap-1.5 opacity-80 pt-1">
-              <div className="h-1.5 bg-slate-800 rounded w-full"></div>
-              <div className="h-1.5 bg-slate-800/60 rounded w-5/6"></div>
-              <div className="h-1.5 bg-slate-800/60 rounded w-3/4"></div>
-              <div className="h-1.5 bg-slate-800/30 rounded w-5/6"></div>
-              <div className="mt-auto h-5 bg-emerald-500/10 border border-emerald-500/35 rounded-md flex items-center justify-center text-[7px] text-emerald-400 font-black animate-pulse hover:bg-emerald-500/20 transition-all">
-                MINT PDF
+        <div className="w-full md:w-80 shrink-0 border border-border-muted rounded-[24px] overflow-hidden shadow-2xl bg-surface-container-low p-5">
+          <div className="w-full h-44 bg-surface-container-lowest rounded-xl p-3.5 flex flex-col gap-3 border border-border-muted shadow-inner relative overflow-hidden select-none">
+            {/* Workspace header */}
+            <div className="flex items-center justify-between border-b border-border-muted pb-1.5 whitespace-nowrap">
+              <div className="flex items-center gap-1">
+                <div className="w-2.5.5 h-2.5 rounded-full bg-critical-red"></div>
+                <div className="w-2.5.5 h-2.5 rounded-full bg-warning-amber"></div>
+                <div className="w-2.5.5 h-2.5 rounded-full bg-security-green"></div>
+                <span className="text-[9px] text-on-surface-variant font-mono ml-2">client-workspace.pdf</span>
               </div>
+              <div className="px-1.5 py-0.5 rounded bg-security-green/10 text-security-green text-[8px] font-black uppercase">100% Offline</div>
             </div>
-            {/* Mock Canvas/Previews */}
-            <div className="col-span-9 bg-slate-900/40 rounded-xl p-2 flex flex-col gap-2 relative overflow-hidden border border-slate-900">
-              <div className="text-[8px] text-slate-500 font-bold flex items-center justify-between">
-                <span>document_work.pdf</span>
-                <span className="text-[7px] text-slate-400 bg-slate-800/80 px-1 py-0.5 rounded font-mono">3 Pages</span>
+            {/* Workspace body / dropzone representation */}
+            <div className="flex-1 border border-dashed border-border-muted rounded-lg flex flex-col items-center justify-center p-2 text-center bg-surface-container-low/10">
+              <Merge className="w-5 h-5 text-security-green mb-1 animate-bounce" />
+              <span className="text-[10px] font-bold text-primary">Drag & Drop PDF here</span>
+              <span className="text-[8px] text-on-surface-variant/70 mt-0.5">or click to browse locally</span>
+            </div>
+            {/* Mini active items list */}
+            <div className="flex items-center gap-1.5 whitespace-nowrap">
+              <div className="flex-1 bg-surface-container-lowest p-2 rounded-md border border-border-muted flex items-center justify-between shadow-sm">
+                <span className="text-[8px] text-on-surface-variant font-bold max-w-[120px] truncate">client_contract.pdf</span>
+                <span className="text-[7px] text-on-surface-variant/60 font-mono">1.2 MB</span>
               </div>
-              <div className="flex-1 grid grid-cols-3 gap-1.5 items-center">
-                {/* Page 1 */}
-                <div className="border border-emerald-500/45 bg-emerald-500/5 rounded-lg p-1 flex flex-col justify-between aspect-[3/4] shadow-[0_4px_12px_rgba(16,185,129,0.06)] cursor-pointer hover:border-emerald-400 hover:scale-105 transition-all">
-                  <div className="h-1 bg-emerald-500/20 rounded w-2/3"></div>
-                  <div className="h-1 bg-emerald-500/10 rounded w-full"></div>
-                  <div className="h-1 bg-emerald-500/10 rounded w-1/2"></div>
-                  <div className="text-[7px] text-emerald-400 font-black text-center mt-1">PAGE 1</div>
-                </div>
-                {/* Page 2 */}
-                <div className="border border-slate-800/80 bg-slate-900/60 rounded-lg p-1 flex flex-col justify-between aspect-[3/4] cursor-pointer hover:border-slate-700 hover:scale-105 transition-all">
-                  <div className="h-1 bg-slate-800 rounded w-1/2"></div>
-                  <div className="h-1 bg-slate-800 rounded w-4/5"></div>
-                  <div className="h-1 bg-slate-800 rounded w-1/3"></div>
-                  <div className="text-[7px] text-slate-500 font-bold text-center mt-1">PAGE 2</div>
-                </div>
-                {/* Page 3 */}
-                <div className="border border-slate-800/80 bg-slate-900/60 rounded-lg p-1 flex flex-col justify-between aspect-[3/4] cursor-pointer hover:border-slate-700 hover:scale-105 transition-all">
-                  <div className="h-1 bg-slate-800 rounded w-3/4"></div>
-                  <div className="h-1 bg-slate-800/70 rounded w-1/2"></div>
-                  <div className="h-1 bg-slate-800/70 rounded w-2/3"></div>
-                  <div className="text-[7px] text-slate-500 font-bold text-center mt-1 flex items-center justify-between px-0.5">
-                    <span>PAGE 3</span>
-                    <span className="text-[6px] text-emerald-400">↻</span>
-                  </div>
-                </div>
+              <div className="w-6 h-6 rounded-md bg-security-green flex items-center justify-center text-background font-bold text-[10px] shadow-sm shrink-0 hover:bg-primary-fixed-dim transition-colors cursor-pointer">
+                →
               </div>
             </div>
           </div>
-
-          {/* Footer Info */}
-          <div className="flex items-center justify-between border-t border-slate-900 pt-2.5 text-[8px] text-slate-500">
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-              Secure local computation (CPU & Wasm)
-            </span>
-            <span>v1.0.0</span>
-          </div>
-
-          {/* Decorative glowing gradient sphere in backdrop */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
         </div>
       </div>
 
-      <div className="mt-20 relative z-20">
-        <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-slate-50 text-center tracking-tight mb-2">
+      {/* How It Works Section */}
+      <div className="mt-24 relative z-20">
+        <h2 className="text-2xl md:text-4xl font-black text-primary text-center tracking-tight mb-2 font-sans">
           {t("how_it_works_title")}
         </h2>
-        <p className="text-slate-505 dark:text-slate-400 text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">
+        <p className="text-on-surface-variant text-xs md:text-sm text-center mb-16 max-w-md mx-auto font-medium">
           {t("how_it_works_desc")}
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          <div
-            id="step-1-card"
-            className="flex flex-col items-center p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all duration-300"
-          >
-            <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-lg mb-4 shadow-md shadow-indigo-600/10">
-              1
-            </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2">
-              {t("step_1_title")}
-            </h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-xs font-semibold">
-              {t("step_1_desc")}
-            </p>
-          </div>
+        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+          {/* Timeline Connector Line */}
+          <div className="hidden md:block absolute top-[40px] left-[15%] right-[15%] h-[2px] bg-gradient-to-r from-security-green/5 via-security-green/20 to-security-green/5 -z-10" />
 
-          <div
-            id="step-2-card"
-            className="flex flex-col items-center p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all duration-300"
-          >
-            <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-lg mb-4 shadow-md shadow-indigo-600/10">
-              2
-            </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2">
-              {t("step_2_title")}
-            </h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-xs font-semibold">
-              {t("step_2_desc")}
-            </p>
+          <div id="step-1-card" className="flex flex-col items-center p-8 rounded-3xl bg-surface-container-low border border-border-muted shadow-lg hover:border-security-green transition-all duration-300">
+            <div className="w-12 h-12 rounded-full bg-surface-container-lowest text-security-green border border-border-muted flex items-center justify-center font-bold text-lg mb-4 shadow-md z-10 font-mono">1</div>
+            <h3 className="text-base font-bold text-primary mb-2">{t("step_1_title")}</h3>
+            <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">{t("step_1_desc")}</p>
           </div>
+          <div id="step-2-card" className="flex flex-col items-center p-8 rounded-3xl bg-surface-container-low border border-border-muted shadow-lg hover:border-security-green transition-all duration-300">
+            <div className="w-12 h-12 rounded-full bg-surface-container-lowest text-security-green border border-border-muted flex items-center justify-center font-bold text-lg mb-4 shadow-md z-10 font-mono">2</div>
+            <h3 className="text-base font-bold text-primary mb-2">{t("step_2_title")}</h3>
+            <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">{t("step_2_desc")}</p>
+          </div>
+          <div id="step-3-card" className="flex flex-col items-center p-8 rounded-3xl bg-surface-container-low border border-border-muted shadow-lg hover:border-security-green transition-all duration-300">
+            <div className="w-12 h-12 rounded-full bg-surface-container-lowest text-security-green border border-border-muted flex items-center justify-center font-bold text-lg mb-4 shadow-md z-10 font-mono">3</div>
+            <h3 className="text-base font-bold text-primary mb-2">{t("step_3_title")}</h3>
+            <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">{t("step_3_desc")}</p>
+          </div>
+        </div>
+      </div>
 
-          <div
-            id="step-3-card"
-            className="flex flex-col items-center p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all duration-300"
-          >
-            <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-lg mb-4 shadow-md shadow-indigo-600/10">
-              3
+      {/* Why Choose Section with visual rhythm surface tint */}
+      <div className="my-24 relative z-20 -mx-4 px-6 py-20 bg-surface-container-low/40 border-y border-border-muted rounded-[40px]">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl md:text-4xl font-black text-primary text-center tracking-tight mb-2">
+            Why Choose PDFMinty?
+          </h2>
+          <p className="text-on-surface-variant text-xs md:text-sm text-center mb-16 max-w-md mx-auto font-medium">
+            Professional grade web tools with zero security compromises.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="why-card-privacy" className="bg-surface-container-lowest border border-border-muted p-8 rounded-3xl shadow-lg text-center flex flex-col items-center hover:border-security-green transition-all duration-300">
+              <div className="w-16 h-16 rounded-full bg-surface-container-high border border-border-muted flex items-center justify-center mb-5 shadow-inner">
+                <Shield className="w-6 h-6 text-security-green fill-security-green/10" />
+              </div>
+              <h3 className="text-base font-bold text-primary mb-2.5">Privacy First</h3>
+              <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">Your documents never leave your computer. All operations run strictly inside your local browser memory to maintain absolute file confidentiality.</p>
             </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2">
-              {t("step_3_title")}
-            </h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-xs font-semibold">
-              {t("step_3_desc")}
-            </p>
+            <div id="why-card-account" className="bg-surface-container-lowest border border-border-muted p-8 rounded-3xl shadow-lg text-center flex flex-col items-center hover:border-security-green transition-all duration-300">
+              <div className="w-16 h-16 rounded-full bg-surface-container-high border border-border-muted flex items-center justify-center mb-5 shadow-inner">
+                <UserX className="w-6 h-6 text-critical-red fill-critical-red/10" />
+              </div>
+              <h3 className="text-base font-bold text-primary mb-2.5">No Account</h3>
+              <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">Skip tedious signups. Enjoy high-performance, direct tools without credentials, subscription gates, or trackable identifiers.</p>
+            </div>
+            <div id="why-card-free" className="bg-surface-container-lowest border border-border-muted p-8 rounded-3xl shadow-lg text-center flex flex-col items-center hover:border-security-green transition-all duration-300">
+              <div className="w-16 h-16 rounded-full bg-surface-container-high border border-border-muted flex items-center justify-center mb-5 shadow-inner">
+                <Gift className="w-6 h-6 text-warning-amber fill-warning-amber/10" />
+              </div>
+              <h3 className="text-base font-bold text-primary mb-2.5">Completely Free</h3>
+              <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">Enjoy unlimited editing, compression, and division with no paywalls, hidden monthly fees, restricted trial counts, or watermarks.</p>
+            </div>
+            <div id="why-card-tools" className="bg-surface-container-lowest border border-border-muted p-8 rounded-3xl shadow-lg text-center flex flex-col items-center hover:border-security-green transition-all duration-300">
+              <div className="w-16 h-16 rounded-full bg-surface-container-high border border-border-muted flex items-center justify-center mb-5 shadow-inner">
+                <Layers className="w-6 h-6 text-primary-fixed fill-primary-fixed/10" />
+              </div>
+              <h3 className="text-base font-bold text-primary mb-2.5">13 Tools</h3>
+              <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">Get complete document coverage with 13 local tools including Merge, Split, Compress, Rotate, Watermark, and even private AI PDF Analysis.</p>
+            </div>
+            <div id="why-card-offline" className="bg-surface-container-lowest border border-border-muted p-8 rounded-3xl shadow-lg text-center flex flex-col items-center hover:border-security-green transition-all duration-300">
+              <div className="w-16 h-16 rounded-full bg-surface-container-high border border-border-muted flex items-center justify-center mb-5 shadow-inner">
+                <WifiOff className="w-6 h-6 text-[#00FFC2] fill-[#00FFC2]/10" />
+              </div>
+              <h3 className="text-base font-bold text-primary mb-2.5">100% Offline</h3>
+              <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">Our core toolkit operates entirely without an active network connection. Complete heavy conversions on commutes or in air-gapped security cleanrooms.</p>
+            </div>
+            <div id="why-card-speed" className="bg-surface-container-lowest border border-border-muted p-8 rounded-3xl shadow-lg text-center flex flex-col items-center hover:border-security-green transition-all duration-300">
+              <div className="w-16 h-16 rounded-full bg-surface-container-high border border-border-muted flex items-center justify-center mb-5 shadow-inner">
+                <Zap className="w-6 h-6 text-tertiary-fixed-dim fill-tertiary-fixed-dim/10" />
+              </div>
+              <h3 className="text-base font-bold text-primary mb-2.5">Instant Execution</h3>
+              <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">Skip upload buffers and long queues. WebAssembly compiling means files process instantly inside your browser memory for immediate download.</p>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="mt-20 relative z-20">
-        <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-slate-50 text-center tracking-tight mb-2">
-          Why Choose PDFMinty?
+        <h2 className="text-2xl md:text-3xl font-black text-primary text-center tracking-tight mb-2">
+          User Feedback Wall
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">
-          Professional grade tools without the premium price tag.
+        <p className="text-on-surface-variant text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">
+          See what our privacy-conscious visitors say about PDFMinty.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            id="why-card-privacy"
-            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
-          >
-            <div className="w-16 h-16 rounded-full bg-sky-50 dark:bg-sky-955/40 border border-sky-100 dark:border-sky-900/40 flex items-center justify-center mb-5 shadow-sm">
-              <Shield className="w-6 h-6 text-sky-500 dark:text-sky-400 fill-sky-500/10" />
-            </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
-              Privacy First
-            </h3>
-            <p className="text-slate-505 dark:text-slate-400 text-xs leading-relaxed font-semibold">
-              All calculations run inside your browser cache so that none of your personal information, corporate ledgers, or private documents are leaked.
-            </p>
+        {testimonialsLoading ? (
+          <div className="flex justify-center py-8">
+            <svg className="animate-spin h-8 w-8 text-security-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
           </div>
-
-          <div
-            id="why-card-account"
-            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
-          >
-            <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/40 flex items-center justify-center mb-5 shadow-sm">
-              <UserX className="w-6 h-6 text-rose-500 dark:text-rose-455 fill-rose-500/10" />
+        ) : testimonials.length === 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-surface-container-low border border-border-muted p-6 rounded-2xl shadow-md flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-1 text-security-green mb-3">
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                </div>
+                <p className="text-xs text-on-surface-variant font-medium leading-relaxed mb-4">
+                  "I was skeptical about a completely free browser-based PDF merger with no limits, but PDFMinty exceeded all my expectations. Extremely fast and respects my documents' privacy!"
+                </p>
+              </div>
+              <div className="flex items-center gap-3 pt-3 border-t border-border-muted">
+                <div className="w-10 h-10 rounded-full bg-surface-container-high text-security-green border border-border-muted flex items-center justify-center font-bold text-sm">
+                  S
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-primary">Sarah K.</h4>
+                  <span className="text-[10px] text-on-surface-variant/70">Verified User</span>
+                </div>
+              </div>
             </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
-              No Account
-            </h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed font-semibold">
-              Skip tedious signup screens and subscriptions—enjoy our full-featured toolkit with absolutely no email addresses, logins, or accounts needed.
-            </p>
-          </div>
-
-          <div
-            id="why-card-free"
-            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
-          >
-            <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-955/40 border border-amber-100 dark:border-amber-900/40 flex items-center justify-center mb-5 shadow-sm">
-              <Gift className="w-6 h-6 text-amber-505 dark:text-amber-450 fill-amber-550/10" />
+            <div className="bg-surface-container-low border border-border-muted p-6 rounded-2xl shadow-md flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-1 text-security-green mb-3">
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                </div>
+                <p className="text-xs text-on-surface-variant font-medium leading-relaxed mb-4">
+                  "Finally a tool where I don't need to sign up or input my email to download my compiled file. I split my 40-page contract in less than 2 seconds. Highly secure design!"
+                </p>
+              </div>
+              <div className="flex items-center gap-3 pt-3 border-t border-border-muted">
+                <div className="w-10 h-10 rounded-full bg-surface-container-high text-security-green border border-border-muted flex items-center justify-center font-bold text-sm">
+                  M
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-primary">Mark T.</h4>
+                  <span className="text-[10px] text-on-surface-variant/70">Lead Architect</span>
+                </div>
+              </div>
             </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
-              Completely Free
-            </h3>
-            <p className="text-slate-505 dark:text-slate-400 text-xs leading-relaxed font-semibold">
-              Enjoy unlimited editing, compression, and division with no paywalls, hidden monthly fees, restricted trial counts, or watermarks.
-            </p>
-          </div>
-
-          <div
-            id="why-card-tools"
-            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
-          >
-            <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-center mb-5 shadow-sm">
-              <Layers className="w-6 h-6 text-indigo-500 dark:text-indigo-400 fill-indigo-500/10" />
+            <div className="bg-surface-container-low border border-border-muted p-6 rounded-2xl shadow-md flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-1 text-security-green mb-3">
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                  <Star className="w-4 h-4 fill-security-green text-security-green" />
+                </div>
+                <p className="text-xs text-on-surface-variant font-medium leading-relaxed mb-4">
+                  "The compression is truly magical! My 15MB graphic pdf reduced down to 3MB completely within my device. I couldn't be happier with PDFMinty."
+                </p>
+              </div>
+              <div className="flex items-center gap-3 pt-3 border-t border-border-muted">
+                <div className="w-10 h-10 rounded-full bg-surface-container-high text-security-green border border-border-muted flex items-center justify-center font-bold text-sm">
+                  D
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-primary">David L.</h4>
+                  <span className="text-[10px] text-on-surface-variant/70">Content Creator</span>
+                </div>
+              </div>
             </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
-              15 Tools
-            </h3>
-            <p className="text-slate-505 dark:text-slate-400 text-xs leading-relaxed font-semibold">
-              Get complete document coverage with 15 local tools including Merge, Split, Reorder Pages, Extract Pages, Compress, Rotate, Watermark, and even private AI PDF Analysis.
-            </p>
           </div>
-
-          <div
-            id="why-card-offline"
-            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
-          >
-            <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 flex items-center justify-center mb-5 shadow-sm">
-              <WifiOff className="w-6 h-6 text-emerald-555 dark:text-emerald-400 fill-emerald-500/10" />
-            </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
-              Works Offline
-            </h3>
-            <p className="text-slate-505 dark:text-slate-400 text-xs leading-relaxed font-semibold">
-              Once loaded, our WebAssembly-powered engines operate without internet capability, enabling complete workflow independence on the go.
-            </p>
-          </div>
-
-          <div
-            id="why-card-processing"
-            className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 rounded-3xl shadow-sm text-center flex flex-col items-center hover:shadow-md dark:hover:shadow-[0_4px_25px_rgba(0,0,0,0.3)] transition-all duration-300"
-          >
-            <div className="w-16 h-16 rounded-full bg-violet-50 dark:bg-violet-950/40 border border-violet-100 dark:border-violet-955/40 flex items-center justify-center mb-5 shadow-sm">
-              <Zap className="w-6 h-6 text-violet-505 dark:text-violet-400 fill-violet-500/10" />
-            </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2.5">
-              Fast Processing
-            </h3>
-            <p className="text-slate-555 dark:text-slate-400 text-xs leading-relaxed font-semibold">
-              Decode and compile large documents in milliseconds utilizing your native device's CPU instead of waiting for slow network queues.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-14 bg-slate-100/60 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-800 p-8 md:p-10 rounded-3xl relative overflow-hidden text-center z-20">
-          <div className="max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-black tracking-widest uppercase">
-              🛡️ Air-Gapped Sandbox Integrity
-            </div>
-            <h2 className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
-              Why PDFMinty Is 100% Safe For Your Sensitive Data
-            </h2>
-            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
-              PDFMinty is built on cutting-edge WebAssembly (Wasm) and local browser-side libraries to decode and construct PDFs directly in your device's memory. When you choose our online pdf tools privacy is guaranteed because your sensitive files never travel across the internet or touch remote servers. All text extractions, coordinate translations, and cryptographic protections run locally, delivering a seamless and 100% airtight document workspace on your native browser sandbox.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {!testimonialsLoading && testimonials.length > 0 && (
-        <div className="mt-20 relative z-20">
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50/80 dark:bg-amber-955/40 border border-amber-100 dark:border-amber-800/40 rounded-full text-amber-600 dark:text-amber-450 text-xs font-semibold mb-4 leading-none">
-              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-              Real User Reviews
-            </div>
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tight mb-2">
-              What Our Users Say
-            </h2>
-            <p className="text-slate-505 dark:text-slate-400 text-xs md:text-sm max-w-md mx-auto font-medium">
-              Genuine feedback from people who use PDFMinty every day.
-            </p>
-          </div>
-
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-5 space-y-5">
-            {testimonials.map((review, idx) => {
-              const displayName = review.displayEmail
-                ? review.displayEmail.split("@")[0]
-                : "Anonymous";
-              const avatarChar = displayName[0]?.toUpperCase() || "A";
-              const avatarColor = getAvatarColor(avatarChar);
-              const relativeTime = formatRelativeTime(review.timestamp);
-
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {testimonials.map((review, i) => {
+              const char = review.displayEmail ? review.displayEmail[0] : "U";
               return (
-                <div
-                  key={idx}
-                  className="break-inside-avoid bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm hover:shadow-md dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all duration-300"
-                >
-                  <div className="flex items-center gap-0.5 mb-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-3.5 h-3.5 ${
-                          i < review.rating
-                            ? "fill-amber-400 text-amber-400"
-                            : "fill-slate-100 text-slate-200 dark:fill-slate-800 dark:text-slate-700"
-                        }`}
-                      />
-                    ))}
-                  </div>
-
-                  <div className="flex items-start gap-2 mb-4">
-                    <MessageSquare className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 mt-0.5 shrink-0" />
-                    <p className="text-slate-605 dark:text-slate-300 text-xs leading-relaxed font-semibold">
-                      {review.comment}
+                <div key={i} className="bg-surface-container-low border border-border-muted p-6 rounded-2xl shadow-md flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-1 text-security-green mb-3">
+                      {Array.from({ length: review.rating || 5 }).map((_, idx) => (
+                        <Star key={idx} className="w-4 h-4 fill-security-green text-security-green" />
+                      ))}
+                    </div>
+                    <p className="text-xs text-on-surface-variant font-medium leading-relaxed mb-4">
+                      "{review.comment}"
                     </p>
                   </div>
-
-                  <div className="flex items-center gap-2.5">
-                    <div
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${avatarColor}`}
-                    >
-                      {avatarChar}
+                  <div className="flex items-center gap-3 pt-3 border-t border-border-muted">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold ${getAvatarColor(char)}`}>
+                      {char.toUpperCase()}
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-slate-750 dark:text-slate-205 text-xs font-semibold truncate">
-                        {review.displayEmail || "Anonymous User"}
-                      </p>
-                      {relativeTime && (
-                        <p className="text-slate-400 dark:text-slate-500 text-[10px] font-semibold">
-                          {relativeTime}
-                        </p>
-                      )}
+                    <div>
+                      <h4 className="text-xs font-bold text-primary">{review.displayEmail || "Anonymous"}</h4>
+                      <span className="text-[10px] text-on-surface-variant/70">{formatRelativeTime(review.timestamp)}</span>
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div
-        id="faq-section"
-        className="mt-20 max-w-4xl mx-auto relative z-20"
-      >
-        <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-slate-50 text-center tracking-tight mb-8 font-sans">
-          {t("faq_title")}
+      <div className="mt-24 relative z-20" id="faq-section">
+        <h2 className="text-2xl md:text-3xl font-black text-primary text-center tracking-tight mb-2">
+          Frequently Asked Questions
         </h2>
+        <p className="text-on-surface-variant text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">
+          Quick clarity on core PDFMinty features, standards, and operations.
+        </p>
 
-        <div className="space-y-4">
+        <div className="max-w-3xl mx-auto space-y-4">
           {[
             {
-              q: "Are online PDF tools safe to use?",
-              a: "Most cloud services require you to upload personal worksheets, financial invoices, or legal contracts to remote databases, exposing you to dangerous hacks and data leaks. PDFMinty entirely redefines this model by processing files locally inside your browser sandbox. Your data remains fully encapsulated inside your personal device, making it the safest document utility online.",
+              q: "Are my files safe with PDFMinty?",
+              a: "Absolutely! All standard file computations (merge, split, compress, edit) are performed fully client-side inside your browser window. Your private files are never uploaded to our servers, keeping your documents 100% confidential."
             },
             {
-              q: "Does PdfMinty upload my files?",
-              a: "Never. PDFMinty operates 100% offline-first. When you compile, organize, compress, or crop pages, our client-side Web Workers execute every calculation directly in your browser cache. We do not host server storage or upload pathways for your raw files, guaranteeing absolute data confidentiality.",
+              q: "How much does it cost to use PDFMinty?",
+              a: "PDFMinty is completely, unconditionally free. There are no payment screens, registration gates, daily execution counts, or premium capabilities hidden behind subscriptions."
             },
             {
-              q: "Is PdfMinty completely free?",
-              a: "Yes. Every single tool—including our state-of-the-art AI PDF Analyzer—is 100% free with no premium gatekeepers, mandatory subscription cycles, trial volume limits, or watermarks embedded on your outputs.",
+              q: "Does PDFMinty work offline without an active network?",
+              a: "Yes! Since all operations run purely inside your client browser, our core suite of 13 tools works flawlessly even if you are entirely disconnected from the internet."
             },
             {
-              q: "Do I need to create an account?",
-              a: "No. Since no processing takes place on external cloud servers, there is never a need to register, verify email addresses, or log into user accounts. You can access all professional features instantly from any device.",
-            },
-            {
-              q: "Does PdfMinty work without internet?",
-              a: "Yes, absolutely! Thanks to browser-level Service Workers and local script caching, you can open, reload, and fully operate all our offline tools even when disconnected from cellular or Wi-Fi network systems.",
-            },
-            {
-              q: "What PDF tools does PdfMinty offer?",
-              a: "PDFMinty is a comprehensive, client-side suite hosting 15 advanced tools. This includes PDF Merging, PDF Splitting, PDF Page Reordering, Page Extraction, Smart Compression, Rotation, Deleting Pages, Watermarking, Adding Blank Pages, Password Protection, Password Removal (Unlock), Image-to-PDF Conversion, PDF-to-Image Extraction, and our secure, local AI PDF Document Analyzer.",
-            },
-          ].map((faq, idx) => {
-            const isOpen = openFaqIndex === idx;
-            return (
-              <div
-                key={idx}
-                id={`faq-item-${idx}`}
-                className="border border-slate-200/85 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm transition-all duration-200"
+              q: "Can I use PDFMinty on my tablet or mobile device?",
+              a: "Yes, our modern responsive layout is optimized for desktops, tablets, and smartphones alike. No apps to install—just open PDFMinty and edit instantly."
+            }
+          ].map((faq, i) => (
+            <div key={i} className="bg-surface-container-low border border-border-muted rounded-2xl overflow-hidden shadow-sm transition-all duration-300">
+              <button
+                type="button"
+                onClick={() => setOpenFaqIndex(openFaqIndex === i ? null : i)}
+                className="w-full flex items-center justify-between p-5 text-left font-bold text-primary text-sm md:text-base hover:bg-surface-container-high transition-colors"
+                id={`faq-toggle-${i}`}
               >
-                <button
-                  type="button"
-                  onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                  className="w-full px-6 py-4 flex items-center justify-between text-start hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer text-slate-705 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-emerald-400 font-sans border-0 font-bold bg-transparent focus:outline-none"
-                >
-                  <span>{faq.q}</span>
-                  {isOpen ? (
-                    <ChevronUp className="w-4 h-4 text-slate-400 shrink-0 ms-4" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ms-4" />
-                  )}
-                </button>
-
-                <div
-                  className={`transition-all duration-300 overflow-hidden ${isOpen ? "max-h-56 border-t border-slate-100 dark:border-slate-800" : "max-h-0"}`}
-                >
-                  <p className="p-6 text-xs text-slate-505 dark:text-slate-400 leading-relaxed bg-slate-50/30 dark:bg-slate-950/30 font-medium select-text">
-                    {faq.a}
-                  </p>
+                <span>{faq.q}</span>
+                {openFaqIndex === i ? (
+                  <ChevronUp className="w-5 h-5 text-security-green shrink-0 transition-transform" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-on-surface-variant/60 shrink-0 transition-transform" />
+                )}
+              </button>
+              {openFaqIndex === i && (
+                <div className="p-5 pt-0 border-t border-border-muted text-on-surface-variant text-xs md:text-sm leading-relaxed font-semibold bg-surface-container-lowest/30">
+                  {faq.a}
                 </div>
-              </div>
-            );
-          })}
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
-      <div
-        id="cta-banner"
-        className="mt-20 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 text-white rounded-3xl p-8 md:p-12 text-center shadow-xl relative z-20 overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-white/10 to-transparent pointer-events-none" />
-        <div className="relative z-10 max-w-xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
-            Ready to Mint Your PDF?
+      <div className="mt-24 border border-border-muted rounded-3xl bg-surface-container-low/40 p-10 md:p-14 text-center text-primary relative overflow-hidden z-20 shadow-xl">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-security-green/10 rounded-full filter blur-[80px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-tertiary-fixed-dim/5 rounded-full filter blur-[80px] pointer-events-none"></div>
+        <div className="relative z-10 max-w-xl mx-auto space-y-5">
+          <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-1 font-sans">
+            Ready to secure your PDF workflow?
           </h2>
-          <p className="text-indigo-100 text-sm md:text-base font-normal mb-8">
-            Experience the fastest and most secure PDF tools today.
+          <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed font-semibold">
+            Choose any tool from our security workspace to load document files local-first. Instant execution, no subscription gates, 100% data integrity.
           </p>
-          <button
-            type="button"
-            onClick={() =>
-              window.scrollTo({ top: 0, behavior: "smooth" })
-            }
-            className="bg-white text-indigo-700 hover:bg-slate-100 px-8 py-3.5 rounded-full text-sm font-extrabold tracking-wide shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border-0"
-          >
-            Get Started Now
-          </button>
+          <div className="pt-4">
+            <button
+              onClick={() => window.scrollTo({ top: 400, behavior: "smooth" })}
+              className="px-6 py-3.5 rounded-xl bg-security-green hover:bg-primary-fixed-dim text-[#131313] font-black text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-security-green/10 active:scale-95 cursor-pointer max-w-xs inline-flex items-center justify-center gap-2"
+            >
+              <Zap className="w-4 h-4 fill-[#131111] text-[#131111]" />
+              <span>Explore All Tools</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default HomePage;

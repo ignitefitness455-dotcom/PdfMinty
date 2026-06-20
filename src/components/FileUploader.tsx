@@ -1,113 +1,134 @@
-import React, { useState, useRef } from "react";
-import { Upload, FileImage } from "lucide-react";
+import React, { useState, useRef } from 'react';
+import { Upload, File, AlertCircle } from 'lucide-react';
 
 interface FileUploaderProps {
-  onSelectedFiles: (files: File[]) => void;
-  toolId: string;
+  onFilesSelected: (files: File[]) => void;
+  accept?: string;
+  multiple?: boolean;
+  title?: string;
+  subtitle?: string;
 }
 
 export const FileUploader: React.FC<FileUploaderProps> = ({
-  onSelectedFiles,
-  toolId,
+  onFilesSelected,
+  accept = 'application/pdf',
+  multiple = false,
+  title = 'Drag and drop your files here',
+  subtitle = 'or click to browse from your device'
 }) => {
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [dragActive, setDragActive] = useState(false);
+
+  const processFiles = (filesList: FileList | null) => {
+    if (!filesList || filesList.length === 0) return;
+    setError(null);
+
+    const validFiles: File[] = [];
+    const expectedTypes = accept.split(',').map(t => t.trim());
+
+    for (let i = 0; i < filesList.length; i++) {
+      const file = filesList[i];
+      const matchesType = expectedTypes.some(type => {
+        if (type === 'application/pdf') {
+          return file.type === 'application/pdf' || file.name.endsWith('.pdf');
+        }
+        if (type.startsWith('image/')) {
+          return file.type.startsWith('image/') || /\.(jpg|jpeg|png)$/i.test(file.name);
+        }
+        return true;
+      });
+
+      if (matchesType) {
+        validFiles.push(file);
+      } else {
+        setError(`Unsupported file format ignored: "${file.name}". Expected: ${accept}`);
+      }
+    }
+
+    if (validFiles.length > 0) {
+      if (!multiple) {
+        onFilesSelected([validFiles[0]]);
+      } else {
+        onFilesSelected(validFiles);
+      }
+    }
+  };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setIsDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setIsDragActive(false);
     }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      onSelectedFiles(Array.from(e.dataTransfer.files));
-    }
+    setIsDragActive(false);
+    processFiles(e.dataTransfer.files);
   };
 
-  const triggerInput = () => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    processFiles(e.target.files);
+  };
+
+  const triggerInputClick = () => {
     fileInputRef.current?.click();
   };
 
-  const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      onSelectedFiles(Array.from(e.target.files));
-    }
-  };
-
-  const isImageOnly = toolId === "img-to-pdf";
-
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onDragEnter={handleDrag}
-      onDragOver={handleDrag}
-      onDragLeave={handleDrag}
-      onDrop={handleDrop}
-      onClick={triggerInput}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          triggerInput();
-        }
-      }}
-      aria-label={
-        isImageOnly
-          ? "Upload image files. Drag & drop files here, or click to browse."
-          : "Upload PDF documents. Drag & drop files here, or click to browse."
-      }
-      className={`border-2 border-dashed rounded-3xl p-12 md:p-18 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-4 group relative ${
-        dragActive
-          ? "border-emerald-500 bg-emerald-500/10 dark:bg-emerald-950/20"
-          : "border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30 hover:border-emerald-500/50 hover:bg-slate-100/50 dark:hover:bg-slate-900/20"
-      }`}
-    >
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple={toolId === "merge" || toolId === "img-to-pdf"}
-        accept={isImageOnly ? "image/png,image/jpeg" : "application/pdf"}
-        onChange={onFileInputChange}
-        onClick={(e) => e.stopPropagation()}
-        className="hidden"
-      />
-      <div className="w-20 h-20 rounded-2xl bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 flex items-center justify-center transition-all group-hover:scale-110 shadow-lg">
-        {isImageOnly ? (
-          <FileImage className="w-8 h-8 text-emerald-500 dark:text-emerald-400" />
-        ) : (
-          <Upload className="w-8 h-8 text-emerald-500 dark:text-emerald-400" />
-        )}
-      </div>
-      <div className="space-y-1">
-        <p className="text-base font-extrabold text-slate-705 dark:text-slate-250">
-          Drop files here or <span className="text-emerald-500 dark:text-emerald-400 underline">click to choose</span>
+    <div className="w-full flex flex-col space-y-3" id="file_uploader_wrapper">
+      <div
+        onDragEnter={handleDrag}
+        onDragOver={handleDrag}
+        onDragLeave={handleDrag}
+        onDrop={handleDrop}
+        onClick={triggerInputClick}
+        id="uploader_dropzone"
+        className={`relative w-full border-2 border-dashed rounded-2xl py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 group ${
+          isDragActive 
+            ? 'border-emerald-500 bg-emerald-50/40 shadow-inner' 
+            : 'border-slate-300 hover:border-emerald-500 hover:bg-slate-50'
+        }`}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={accept}
+          multiple={multiple}
+          onChange={handleChange}
+          className="hidden"
+          id="uploader_hidden_input"
+        />
+
+        <div className={`p-4 rounded-full mb-4 transition-transform duration-200 ${
+          isDragActive ? 'bg-emerald-100 text-emerald-600 scale-110' : 'bg-slate-100 text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 group-hover:scale-105'
+        }`}>
+          <Upload className="w-8 h-8" />
+        </div>
+
+        <h3 className="font-semibold text-slate-800 text-base md:text-lg mb-1">
+          {title}
+        </h3>
+        <p className="text-slate-500 text-sm mb-2">
+          {subtitle}
         </p>
-        <p className="text-xs text-slate-400 dark:text-slate-500">
-          Drag & drop anywhere in this card, or click to select files.
-        </p>
+        <span className="inline-flex py-1 px-3 rounded-md bg-white border border-slate-200 text-xs text-slate-500 font-medium group-hover:border-emerald-200 group-hover:text-emerald-700">
+          Max file size: 50MB
+        </span>
       </div>
-      <div className="mt-2">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            triggerInput();
-          }}
-          className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs rounded-full transition-all flex items-center gap-1.5 shadow-[0_4px_25px_rgba(16,185,129,0.3)] hover:scale-105 cursor-pointer"
-        >
-          Choose File(s)
-        </button>
-      </div>
+
+      {error && (
+        <div className="flex items-center space-x-2 p-3.5 rounded-xl border border-rose-100 bg-rose-50 text-rose-800 text-xs font-semibold shadow-sm animate-pulse" id="uploader_error">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
     </div>
   );
 };
-
-export default FileUploader;

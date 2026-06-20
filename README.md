@@ -1,41 +1,20 @@
-# PDFMinty
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-Free privacy-first PDF tools. All processing happens in your browser.
+# Run and deploy your AI Studio app
 
-## Tech Stack
+This contains everything you need to run your app locally.
 
-- React 18 + TypeScript + Vite
-- Tailwind CSS + shadcn/ui
-- pdf-lib + PDF.js (client-side)
-- Cloudflare Pages Functions (serverless)
-- Cloudflare KV (metadata storage)
+View your app in AI Studio: https://ai.studio/apps/ff1d94ca-8844-480c-a061-c7a76b7ce750
 
-## Development
+## Run Locally
 
-```bash
-npm install
-npm run dev
-```
+**Prerequisites:**  Node.js
 
-## Deployment
 
-```bash
-npm run build
-# Deploy dist/ to Cloudflare Pages
-```
-
-## Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| GEMINI_API_KEY | No | Google AI API key for /intelligence |
-| GEMINI_MODEL | No | Model name (default: gemini-2.0-flash) |
-| RESEND_API_KEY | No | For email notifications |
-| RATELIMIT_KV | Yes | Cloudflare KV namespace |
-
-## Privacy Guarantee
-
-- PDFs never leave your browser
-- No server-side PDF processing
-- No analytics on file content
-- Zero-knowledge architecture
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

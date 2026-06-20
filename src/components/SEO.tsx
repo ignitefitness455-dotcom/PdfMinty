@@ -1,5 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
+import { useLocation } from "react-router-dom";
+import { SITE_URL } from "../config/routes";
 
 interface SEOProps {
   title: string;
@@ -15,31 +17,38 @@ export const SEO: React.FC<SEOProps> = ({
   description,
   canonical,
   ogType = "website",
-  ogImage = "https://pdfaid.com/og-image.png",
+  ogImage = `${SITE_URL}/og-image.png`,
   schemaMarkup,
 }) => {
-  const currentUrl = canonical || (typeof window !== "undefined" ? window.location.href : "https://pdfaid.com");
+  const location = useLocation();
+
+  // Normalize path following Canonical.tsx normalization rules
+  let path = location.pathname;
+  if (path === "/organize") {
+    path = "/delete-pages-pdf";
+  }
+
+  // Remove trailing slashes (except for home page)
+  if (path.length > 1 && path.endsWith("/")) {
+    path = path.slice(0, -1);
+  }
+
+  const derivedCanonical = `${SITE_URL}${path}`;
+  const currentUrl = canonical || derivedCanonical;
 
   return (
     <Helmet>
-      {/* Primary meta tags */}
       <title>{title}</title>
       <meta name="description" content={description} />
-
-      {/* Open Graph / Facebook */}
       <meta property="og:type" content={ogType} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={currentUrl} />
       <meta property="og:image" content={ogImage} />
-
-      {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
-
-      {/* Structured JSON-LD Data */}
       {schemaMarkup && (
         <script type="application/ld+json">
           {JSON.stringify(schemaMarkup)}

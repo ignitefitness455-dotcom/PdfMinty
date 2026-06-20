@@ -1,8 +1,6 @@
 {
   "name": "PDFMinty",
-  "description": "Premium Client-Side PDF Toolkit - Merge, Split, Compress, AI Analyze & Transform PDF documents safely offline inside your browser.",
+  "description": "Privacy-first, client-side PDF toolkit with server-side AI intelligence. Combine, split, compress, protect, unlock, and edit PDF files offline instantly within your browser with complete confidentiality.",
   "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

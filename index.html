@@ -2,29 +2,112 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Core SEO Meta Tags -->
-    <title>PDFAid — Free Privacy-First PDF Toolkit</title>
+    <title>PDFMinty — Free Privacy-First PDF Toolkit</title>
     <meta name="description" content="Privacy-first, client-side PDF toolkit. Combine, split, compress, protect, unlock, and edit PDF files offline instantly within your browser with complete confidentiality." />
-    <link rel="canonical" href="https://pdfaid.com" />
+    <link rel="canonical" href="https://pdfminty.com" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://pdfaid.com" />
-    <meta property="og:title" content="PDFAid — Free Privacy-First PDF Toolkit" />
+    <meta property="og:url" content="https://pdfminty.com" />
+    <meta property="og:title" content="PDFMinty — Free Privacy-First PDF Toolkit" />
     <meta property="og:description" content="Privacy-first, client-side PDF toolkit. Combine, split, compress, protect, unlock, and edit PDF files offline instantly within your browser with complete confidentiality." />
-    <meta property="og:image" content="https://pdfaid.com/og-image.png" />
+    <meta property="og:image" content="https://pdfminty.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://pdfaid.com" />
-    <meta name="twitter:title" content="PDFAid — Free Privacy-First PDF Toolkit" />
+    <meta name="twitter:url" content="https://pdfminty.com" />
+    <meta name="twitter:title" content="PDFMinty — Free Privacy-First PDF Toolkit" />
     <meta name="twitter:description" content="Privacy-first, client-side PDF toolkit. Combine, split, compress, protect, unlock, and edit PDF files offline instantly within your browser with complete confidentiality." />
-    <meta name="twitter:image" content="https://pdfaid.com/og-image.png" />
+    <meta name="twitter:image" content="https://pdfminty.com/og-image.png" />
+
+    <!-- Hreflang alternates -->
+    <link rel="alternate" hreflang="en" href="https://pdfminty.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://pdfminty.com/" />
+
+    <!-- JSON-LD Structured Data Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://pdfminty.com/#webapp",
+          "name": "PDFMinty",
+          "description": "Free, privacy-first online PDF toolkit. Merge, split, compress, rotate, watermark, and analyze PDFs entirely in your browser.",
+          "url": "https://pdfminty.com",
+          "applicationCategory": "UtilityApplication",
+          "applicationSubCategory": "PDF Software",
+          "operatingSystem": "Any",
+          "browserRequirements": "Requires JavaScript. Requires HTML5.",
+          "softwareVersion": "1.0.0",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
+          "author": { "@type": "Organization", "name": "PDFMinty", "url": "https://pdfminty.com" },
+          "publisher": { "@type": "Organization", "name": "PDFMinty", "logo": { "@type": "ImageObject", "url": "https://pdfminty.com/logo.png", "width": 512, "height": 512 } },
+          "image": { "@type": "ImageObject", "url": "https://pdfminty.com/og-image.png", "width": 1200, "height": 630 },
+          "featureList": [
+            "Merge multiple PDF files", "Split PDF into separate pages", "Compress PDF file size", "Rotate PDF pages",
+            "Delete pages from PDF", "Add watermarks to PDF", "Add page numbers", "Insert blank pages",
+            "Password protect PDF", "Unlock password-protected PDF", "Convert images to PDF", "Convert PDF to images",
+            "AI-powered PDF analysis"
+          ]
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://pdfminty.com/#organization",
+          "name": "PDFMinty",
+          "url": "https://pdfminty.com",
+          "logo": "https://pdfminty.com/logo.png"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://pdfminty.com/#website",
+          "url": "https://pdfminty.com",
+          "name": "PDFMinty",
+          "publisher": { "@id": "https://pdfminty.com/#organization" },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": { "@type": "EntryPoint", "urlTemplate": "https://pdfminty.com/?q={search_term_string}" },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://pdfminty.com/#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://pdfminty.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Merge PDF", "item": "https://pdfminty.com/merge-pdf" },
+            { "@type": "ListItem", "position": 3, "name": "Split PDF", "item": "https://pdfminty.com/split-pdf" },
+            { "@type": "ListItem", "position": 4, "name": "Compress PDF", "item": "https://pdfminty.com/compress-pdf" },
+            { "@type": "ListItem", "position": 5, "name": "Rotate PDF", "item": "https://pdfminty.com/rotate-pdf" },
+            { "@type": "ListItem", "position": 6, "name": "Delete Pages", "item": "https://pdfminty.com/delete-pages-pdf" },
+            { "@type": "ListItem", "position": 7, "name": "Watermark PDF", "item": "https://pdfminty.com/watermark-pdf" },
+            { "@type": "ListItem", "position": 8, "name": "Page Numbers", "item": "https://pdfminty.com/add-page-numbers" },
+            { "@type": "ListItem", "position": 9, "name": "Add Blank Page", "item": "https://pdfminty.com/add-blank-page" },
+            { "@type": "ListItem", "position": 10, "name": "Protect PDF", "item": "https://pdfminty.com/protect-pdf" },
+            { "@type": "ListItem", "position": 11, "name": "Unlock PDF", "item": "https://pdfminty.com/unlock-pdf" },
+            { "@type": "ListItem", "position": 12, "name": "Image to PDF", "item": "https://pdfminty.com/image-to-pdf" },
+            { "@type": "ListItem", "position": 13, "name": "PDF to Image", "item": "https://pdfminty.com/pdf-to-image" },
+            { "@type": "ListItem", "position": 14, "name": "AI Analyze Document", "item": "https://pdfminty.com/intelligence" }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://pdfminty.com/#faq",
+          "mainEntity": [
+            { "@type": "Question", "name": "Is PDFMinty really free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, PDFMinty is 100% free to use. All PDF processing happens locally in your browser — no subscription, no upload limits, no hidden fees." } },
+            { "@type": "Question", "name": "Are my files uploaded to your server?", "acceptedAnswer": { "@type": "Answer", "text": "No. PDFMinty is a privacy-first tool. All PDF processing happens entirely in your browser using client-side JavaScript. Your files never leave your device." } },
+            { "@type": "Question", "name": "What is the maximum file size?", "acceptedAnswer": { "@type": "Answer", "text": "PDFMinty can handle files up to 500MB in total. However, performance depends on your device's memory and processing power." } }
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500/30">
     <div id="root"></div>

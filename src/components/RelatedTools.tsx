@@ -1,55 +1,38 @@
+import React, { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { tools } from "@/config/constants";
-import * as Icons from "lucide-react";
+import { useLayout } from "./Layout";
 
-interface RelatedToolsProps {
-  currentToolId?: string;
-  category?: string;
-}
-
-export function RelatedTools({ currentToolId, category }: RelatedToolsProps) {
+export const RelatedTools: React.FC = () => {
   const { pathname } = useLocation();
+  const { toolsList } = useLayout();
+
+  const related = useMemo(() => {
+    const segments = pathname.toLowerCase().split("/").filter(Boolean);
+    const activeTool = toolsList.find((t) => segments.includes(t.slug.toLowerCase()));
+    const currentIdx = activeTool ? toolsList.indexOf(activeTool) : 0;
+    
+    return toolsList
+      .filter((t) => t.slug !== activeTool?.slug)
+      .slice(currentIdx, currentIdx + 3);
+  }, [toolsList, pathname]);
 
   if (pathname === "/") return null;
 
-  // If parameters are not explicitly passed, automatically determine them from current route
-  const activeToolId = currentToolId || tools.find((t) => pathname.includes(t.path))?.id;
-  const activeCategory = category || tools.find((t) => t.id === activeToolId)?.category || "organize";
-
-  const related = tools
-    .filter((t) => t.id !== activeToolId && t.category === activeCategory)
-    .slice(0, 3);
-
-  // Fallback to any 3 tools if no relative matches are found
-  const finalRelated = related.length > 0 
-    ? related 
-    : tools.filter((t) => t.id !== activeToolId).slice(0, 3);
-
-  if (!finalRelated.length) return null;
-
   return (
-    <section className="mt-12 rounded-xl border bg-white p-6 dark:border-slate-700 dark:bg-slate-900 border-slate-200">
-      <h3 className="mb-4 text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Related Tools</h3>
-      <div className="grid gap-3 sm:grid-cols-3">
-        {finalRelated.map((tool) => {
-          const Icon = (Icons as any)[tool.icon] || Icons.FileText;
-          return (
-            <Link
-              key={tool.id}
-              to={tool.path}
-              className="flex items-center gap-3 rounded-lg border p-3 hover:-translate-y-0.5 hover:shadow dark:border-slate-755 transition-all duration-200 border-slate-100 bg-slate-50/50 dark:bg-slate-950/20"
-            >
-              <Icon className="h-5 w-5 text-emerald-600 shrink-0" />
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{tool.title}</p>
-                <p className="text-xs text-slate-500 truncate">{tool.description}</p>
-              </div>
-            </Link>
-          );
-        })}
+    <div className="mt-12 pt-8 border-t border-slate-200" id="related_tools_box">
+      <h3 className="text-sm font-extrabold uppercase tracking-wide text-slate-400 mb-4">Other Helper Documents</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {related.map((tool) => (
+          <Link
+            key={tool.slug}
+            to={`/${tool.slug}`}
+            className="p-4 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-all hover:shadow-sm"
+          >
+            <span className="font-bold text-sm text-slate-800 block hover:text-emerald-700 transition-colors">{tool.name}</span>
+            <span className="text-[11px] text-slate-500 block line-clamp-1 mt-1">{tool.description}</span>
+          </Link>
+        ))}
       </div>
-    </section>
+    </div>
   );
-}
-
-export default RelatedTools;
+};

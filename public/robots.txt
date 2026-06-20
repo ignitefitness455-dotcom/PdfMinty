@@ -1,7 +1,0 @@
-User-agent: *
-Allow: /
-
-Disallow: /api/
-Disallow: /functions/
-
-Sitemap: https://pdfminty.com/sitemap.xml

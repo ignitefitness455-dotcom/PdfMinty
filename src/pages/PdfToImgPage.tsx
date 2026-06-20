@@ -1,53 +1,212 @@
-import ToolWorkspace from "../components/ToolWorkspace";
-import { SEO } from "../components/SEO";
-import { PDFJS_WORKER_SRC } from "../config/constants";
+import React, { useState } from 'react';
+import { ArrowLeft, Eye, Download, AlertCircle, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { FileUploader } from '../components/FileUploader';
+import { ROUTES } from '../config/routes';
+import { SEO } from '../components/SEO';
 
-export default function PdfToImgPage() {
-  const handleConvert = async (files: File[]): Promise<Blob> => {
-    // Use pdf.js to render pages to canvas, then export as images
-    const file = files[0];
-    const arrayBuffer = await file.arrayBuffer();
-    
-    // Dynamic import pdfjs to avoid SSR issues
-    const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_SRC;
-    
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    if (pdf.numPages < 1) {
-      throw new Error("The PDF has no pages to convert.");
+// Import PDFJS dynamically to keep bundles light
+let pdfjsLib: any = null;
+
+const loadPdfjs = async () => {
+  if (!pdfjsLib) {
+    pdfjsLib = await import('pdfjs-dist');
+    // Align worker with Cloud unpkg package
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '4.3.136'}/pdf.worker.min.mjs`;
+  }
+  return pdfjsLib;
+};
+
+export const PdfToImgPage: React.FC = () => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [imageUrls, setImageUrls] = useState<{ page: number; dataUrl: string }[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFilesSelected = (files: File[]) => {
+    if (files.length > 0) {
+      setSelectedFile(files[0]);
+      setImageUrls([]);
+      setError(null);
     }
-    const page = await pdf.getPage(1);
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    if (!context) {
-      throw new Error("Could not create canvas context.");
-    }
-    const viewport = page.getViewport({ scale: 2 });
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    await page.render({ canvasContext: context, viewport } as any).promise;
-    
-    return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error("Failed to convert page to PNG image"));
+  };
+
+  const handleExport = async () => {
+    if (!selectedFile) return;
+
+    setLoading(true);
+    setError(null);
+    setImageUrls([]);
+
+    try {
+      const pdfjs = await loadPdfjs();
+      const fileBytes = await selectedFile.arrayBuffer();
+      
+      const loadingTask = pdfjs.getDocument({ data: fileBytes });
+      const pdf = await loadingTask.promise;
+      
+      const totalPages = Math.min(pdf.numPages, 10); // Limit to 10 pages maximum for browser speed
+      const rendered: { page: number; dataUrl: string }[] = [];
+      
+      for (let i = 1; i <= totalPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.5 });
+        
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        if (context) {
+          await page.render({ canvasContext: context, viewport }).promise;
+          rendered.push({
+            page: i,
+            dataUrl: canvas.toDataURL('image/png')
+          });
         }
-      }, "image/png");
-    });
+      }
+      
+      setImageUrls(rendered);
+      if (pdf.numPages > 10) {
+        setError('Document contains more than 10 pages. We exported only the first 10 pages to optimize browser memory resources.');
+      }
+    } catch (err: any) {
+      console.error('Export images failed:', err);
+      // Fallback: If pdfjs-dist gets worker loading issue in local environment, provide simple guide
+      setError(err?.message || 'Error occurred during PDF parsing. Encrypted documents are not supported for canvas extraction.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downloadImage = (dataUrl: string, page: number) => {
+    if (!selectedFile) return;
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `pdfminty_page_${page}_${selectedFile.name.replace(/\.pdf$/i, '')}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
-    <>
-      <SEO title="PDF to Image" description="Convert PDF pages to images" />
-      <ToolWorkspace
-        title="PDF to Image"
-        description="Convert the first page of a PDF to a PNG image."
-        onProcess={handleConvert}
-        multiple={false}
-        downloadFileName="page.png"
+    <div className="space-y-6 max-w-4xl mx-auto" id="pdf_to_img_container">
+      <SEO 
+        title="PDF to Image — Export PDF Pages as PNG Offline" 
+        description="Convert PDF document pages to clean PNG images offline in your browser. Fully private, safe, and instant file extraction."
       />
-    </>
+
+      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+        <ArrowLeft className="w-4 h-4" />
+        <span>Return to Dashboard</span>
+      </Link>
+
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Convert PDF to Images</h1>
+        <p className="text-slate-500 text-sm">Extract PDF layouts and export each page into high-definition raster PNG files offline.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 space-y-4">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <Eye className="w-5 h-5 text-violet-600" />
+            
+            {!selectedFile ? (
+              <FileUploader 
+                onFilesSelected={handleFilesSelected} 
+                title="Select a PDF to convert"
+                subtitle="Drag a PDF file here or browse"
+              />
+            ) : (
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between" id="loaded_to_img_file">
+                <div className="truncate pr-4">
+                  <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
+                  <p className="text-xs text-slate-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document</p>
+                </div>
+                <button 
+                  onClick={() => setSelectedFile(null)} 
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  Change File
+                </button>
+              </div>
+            )}
+          </div>
+
+          {imageUrls.length > 0 && (
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4" id="rendered_img_deck">
+              <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider block">Rendered Pages Decodes</h3>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {imageUrls.map((item) => (
+                  <div key={item.page} className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between">
+                    <div className="aspect-[3/4] relative w-full bg-white border border-slate-100 rounded-lg overflow-hidden shadow-sm flex items-center justify-center">
+                      <img src={item.dataUrl} alt={`Page ${item.page}`} className="max-w-full max-h-full object-contain" />
+                    </div>
+                    <div className="mt-3 flex items-center justify-between text-xs">
+                      <span className="font-bold text-slate-700">Page {item.page}</span>
+                      <button
+                        onClick={() => downloadImage(item.dataUrl, item.page)}
+                        className="py-1 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-md flex items-center space-x-1"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>PNG</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Configurations column */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
+          <div className="space-y-4">
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Image Export</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Export is performed entirely using client hardware. No document info gets sent out.
+            </p>
+            <div className="p-3 bg-violet-50 rounded-xl border border-violet-100 text-[11px] text-violet-800 font-medium leading-normal flex items-center space-x-1.5">
+              <Sparkles className="w-4 h-4 text-violet-500 flex-shrink-0" />
+              <span>Converts PDF plates locally to raw PNG grids</span>
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            {error && (
+              <div className="flex items-start space-x-1.5 text-xs text-rose-700 bg-rose-50 border border-rose-100 p-3 rounded-lg">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {imageUrls.length === 0 && (
+              <button
+                onClick={handleExport}
+                disabled={!selectedFile || loading}
+                className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide text-white flex items-center justify-center space-x-2 transition-all shadow-md shadow-violet-600/10 ${
+                  selectedFile && !loading
+                    ? 'bg-violet-600 hover:bg-violet-700 cursor-pointer hover:-translate-y-0.5'
+                    : 'bg-slate-300 pointer-events-none shadow-none'
+                }`}
+              >
+                {loading ? (
+                  <span className="flex items-center space-x-1.5">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span>Extracting layers...</span>
+                  </span>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4" />
+                    <span>Render Pages</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
-}
+};

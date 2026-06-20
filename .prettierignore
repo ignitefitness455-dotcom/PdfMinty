@@ -1,7 +1,0 @@
-# Prettier ignore
-node_modules/
-dist/
-build/
-.wrangler/
-package-lock.json
-public/

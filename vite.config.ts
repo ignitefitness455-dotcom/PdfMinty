@@ -1,42 +1,18 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-import { resolve } from "path";
-import { visualizer } from "rollup-plugin-visualizer";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(),
-    visualizer({
-      filename: "dist/stats.html",
-      open: false,
-      gzipSize: true,
-      brotliSize: true,
-    }),
+    tailwindcss()
   ],
-  resolve: {
-    alias: {
-      "@": resolve(__dirname, "./src"),
-    },
-  },
   build: {
-    target: "es2022",
-    outDir: "dist",
-    sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          pdf: ["pdf-lib", "pdfjs-dist"],
-        },
-      },
-    },
-  },
-  worker: {
-    format: "es",
+    outDir: 'dist',
+    emptyOutDir: true,
   },
   server: {
-    host: "0.0.0.0",
     port: 3000,
-  },
+    strictPort: true,
+  }
 });

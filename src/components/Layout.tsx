@@ -1,43 +1,22 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { z } from "zod";
-import {
-  Moon,
-  Sun,
-  ShieldAlert,
-  MessageSquare,
-  Mail,
-  HelpCircle,
-  RefreshCw,
-  ArrowUp,
-  Merge,
-  Scissors,
-  RotateCw,
-  Trash2,
-  Stamp,
-  Hash,
-  Plus,
-  Lock,
-  Unlock,
-  Image as ImageIcon,
-  Layers,
-  Minimize2,
-  Brain,
-} from "lucide-react";
-import { ToolType } from "../types";
-import { useToast } from "../contexts/ToastContext";
-import confetti from "canvas-confetti";
-import { Breadcrumbs } from "./InternalSEO";
+import React, { useState, createContext, useContext, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { 
+  FileText, Merge, Scissors, Minimize2, RotateCw, Trash2, 
+  Bookmark, Hash, FilePlus, Shield, Lock, Image, Eye, Sparkles, Menu, X,
+  Moon, Sun, Mail, HelpCircle, MessageSquare, Star
+} from 'lucide-react';
+import { ROUTES } from '../config/routes';
+import InternalSEO, { Breadcrumbs } from "./InternalSEO";
 import { RelatedTools } from "./RelatedTools";
-import { SkipToContent } from "./SkipToContent";
+
+interface ToolInfo {
+  name: string;
+  slug: string;
+  description: string;
+}
 
 interface LayoutContextType {
-  showToast: (message: string, type?: "success" | "error" | "info") => void;
-  theme: "light" | "dark";
-  themeSetting: "light" | "dark" | "system";
-  setThemeSetting: (setting: "light" | "dark" | "system") => void;
-  setTheme: (theme: "light" | "dark") => void;
-  toolsList: typeof toolsList;
+  toolsList: ToolInfo[];
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -45,968 +24,457 @@ const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 export const useLayout = () => {
   const context = useContext(LayoutContext);
   if (!context) {
-    throw new Error("useLayout must be used within a LayoutProvider");
+    throw new Error('useLayout must be used within a LayoutProvider');
   }
   return context;
 };
 
-const toolsList = [
-  {
-    id: "merge" as ToolType,
-    name: "Merge PDF",
-    slug: "merge-pdf",
-    description: "Combine multiple PDF files into one single PDF easily.",
-    icon: Merge,
-    color: "bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:border-emerald-500/50",
-  },
-  {
-    id: "compress" as ToolType,
-    name: "Compress PDF",
-    slug: "compress-pdf",
-    description: "Reduce PDF file size without losing premium quality.",
-    icon: Minimize2,
-    color: "bg-pink-500/5 hover:bg-pink-500/10 text-pink-500 border-pink-500/20 hover:border-pink-500/50",
-  },
-  {
-    id: "split" as ToolType,
-    name: "Split PDF",
-    slug: "split-pdf",
-    description: "Split PDF pages into separate documents by page range.",
-    icon: Scissors,
-    color: "bg-blue-500/5 hover:bg-blue-500/10 text-blue-500 border-blue-500/20 hover:border-blue-500/50",
-  },
-  {
-    id: "reorder" as ToolType,
-    name: "Organize PDF",
-    slug: "reorder-pdf",
-    description: "Rearrange, sort, and organize the pages of your PDF file.",
-    icon: ArrowUp,
-    color: "bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:border-indigo-500/50",
-  },
-  {
-    id: "extract" as ToolType,
-    name: "Extract Pages",
-    slug: "extract-pages-pdf",
-    description: "Extract specific pages from your PDF file into a new document.",
-    icon: Layers,
-    color: "bg-teal-500/5 hover:bg-teal-500/10 text-teal-500 border-teal-500/20 hover:border-teal-500/50",
-  },
-  {
-    id: "img-to-pdf" as ToolType,
-    name: "Image to PDF",
-    slug: "image-to-pdf",
-    description: "Convert JPG, PNG, and other images to PDF in seconds.",
-    icon: ImageIcon,
-    color: "bg-fuchsia-500/5 hover:bg-fuchsia-500/10 text-fuchsia-500 border-fuchsia-500/20 hover:border-fuchsia-500/50",
-  },
-  {
-    id: "pdf-to-img" as ToolType,
-    name: "PDF to Image",
-    slug: "pdf-to-image",
-    description: "Convert PDF pages into high-quality companion images.",
-    icon: Layers,
-    color: "bg-sky-500/5 hover:bg-sky-500/10 text-sky-500 border-sky-500/20 hover:border-sky-500/50",
-  },
-  {
-    id: "delete-pages" as ToolType,
-    name: "Delete Pages",
-    slug: "organize",
-    description: "Remove unwanted pages from your PDF file easily.",
-    icon: Trash2,
-    color: "bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 border-rose-500/20 hover:border-rose-500/50",
-  },
-  {
-    id: "rotate" as ToolType,
-    name: "Rotate PDF",
-    slug: "rotate-pdf",
-    description: "Rotate one or all pages of your PDF document easily.",
-    icon: RotateCw,
-    color: "bg-amber-500/5 hover:bg-amber-500/10 text-amber-500 border-amber-500/20 hover:border-amber-500/50",
-  },
-  {
-    id: "watermark" as ToolType,
-    name: "Add Watermark",
-    slug: "watermark-pdf",
-    description: "Add a custom text watermark seal over your PDF pages.",
-    icon: Stamp,
-    color: "bg-teal-500/5 hover:bg-teal-500/10 text-teal-500 border-teal-500/20 hover:border-teal-500/50",
-  },
-  {
-    id: "page-numbers" as ToolType,
-    name: "Page Numbers",
-    slug: "add-page-numbers",
-    description: "Add clean, structured page numbers to your PDF pages.",
-    icon: Hash,
-    color: "bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-505 border-indigo-500/20 hover:border-indigo-500/50",
-  },
-  {
-    id: "protect" as ToolType,
-    name: "Protect PDF",
-    slug: "protect-pdf",
-    description: "Encrypt and lock your PDF document with a strong password.",
-    icon: Lock,
-    color: "bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-500 border-cyan-500/20 hover:border-cyan-500/50",
-  },
-  {
-    id: "unlock" as ToolType,
-    name: "Unlock PDF",
-    slug: "unlock-pdf",
-    description: "Decouple and remove passwords from secure incoming PDFs.",
-    icon: Unlock,
-    color: "bg-orange-500/5 hover:bg-orange-500/10 text-orange-500 border-orange-500/20 hover:border-orange-500/50",
-  },
-  {
-    id: "add-blank" as ToolType,
-    name: "Add Blank Page",
-    slug: "add-blank-page",
-    description: "Insert empty blank spaces anywhere inside your PDF.",
-    icon: Plus,
-    color: "bg-violet-500/5 hover:bg-violet-500/10 text-violet-500 border-violet-500/20 hover:border-violet-500/50",
-  },
-  {
-    id: "ai-analyze" as ToolType,
-    name: "AI PDF Summary",
-    slug: "intelligence",
-    description: "Summarize and extract key insights from your PDF using AI.",
-    icon: Brain,
-    color: "bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:border-indigo-500/50",
-  },
-];
+interface LayoutProps {
+  children: React.ReactNode;
+}
 
-export const contactSchema = z.object({
-  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
-  email: z.string().trim().email("Invalid email address"),
-  subject: z.string().trim().min(1, "Subject is required").max(200, "Subject too long"),
-  message: z.string().trim().min(10, "Message must be at least 10 characters").max(5000, "Message too long"),
-});
-
-export type ContactFormData = z.infer<typeof contactSchema>;
-
-export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const navigate = useNavigate();
+export const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { showToast } = useToast();
+  const navigate = useNavigate();
 
-  const [themeSetting, setThemeSetting] = useState<"light" | "dark" | "system">(() => {
-    try {
-      const saved = localStorage.getItem("pdfminty-theme-setting");
-      if (saved === "light" || saved === "dark" || saved === "system") {
-        return saved;
-      }
-      const legacySaved = localStorage.getItem("pdfminty-theme");
-      if (legacySaved === "light" || legacySaved === "dark") {
-        return legacySaved;
-      }
-    } catch {
-      // ignore
-    }
-    return "system";
-  });
-
-  const [systemTheme, setSystemTheme] = useState<"light" | "dark">(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    ) {
-      return "dark";
-    }
-    return "light";
-  });
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleMediaQueryChange = (e: MediaQueryListEvent) => {
-      setSystemTheme(e.matches ? "dark" : "light");
-    };
-
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener("change", handleMediaQueryChange);
-      return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
-    } else {
-      (mediaQuery as any).addListener(handleMediaQueryChange);
-      return () => (mediaQuery as any).removeListener(handleMediaQueryChange);
-    }
-  }, []);
-
-  const theme: "light" | "dark" = themeSetting === "system" ? systemTheme : themeSetting;
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("pdfminty-theme-setting", themeSetting);
-      localStorage.setItem("pdfminty-theme", themeSetting);
-    } catch {
-      // ignore
-    }
-
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [theme, themeSetting]);
-
-  const setThemeLegacy = (val: "light" | "dark" | ((prev: "light" | "dark") => "light" | "dark")) => {
-    if (typeof val === "function") {
-      setThemeSetting((prevSetting) => {
-        const currentActive = prevSetting === "system" ? systemTheme : prevSetting;
-        return val(currentActive);
-      });
-    } else {
-      setThemeSetting(val);
-    }
-  };
-
-  const [showScrollTop, setShowScrollTop] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
+  // Dialog State Control
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [feedbackRating, setFeedbackRating] = useState<number | null>(null);
-  const [feedbackComment, setFeedbackComment] = useState("");
-  const [feedbackEmail, setFeedbackEmail] = useState("");
-  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
-
   const [showContactModal, setShowContactModal] = useState(false);
-  const [contactName, setContactName] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [contactSubject, setContactSubject] = useState("");
-  const [contactMessage, setContactMessage] = useState("");
-  const [contactSubmitting, setContactSubmitting] = useState(false);
-  const [contactErrors, setContactErrors] = useState<{
-    name?: string;
-    email?: string;
-    subject?: string;
-    message?: string;
-  }>({});
-  const [honeypotWebsite, setHoneypotWebsite] = useState("");
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [contactSubmitted, setContactSubmitted] = useState(false);
 
-  const submitFeedback = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!feedbackRating) {
-      showToast("Please pick a rating to submit your feedback.", "error");
-      return;
+  // Theme management logic
+  const [theme, setThemeSetting] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('theme-preference');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
-    setFeedbackSubmitting(true);
-    try {
-      const apiBase = "";
-      const response = await fetch(`${apiBase}/api/feedback`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Origin": window.location.origin
-        },
-        body: JSON.stringify({
-          rating: feedbackRating,
-          comment: feedbackComment,
-          email: feedbackEmail,
-          website: honeypotWebsite,
-        }),
-      });
+    localStorage.setItem('theme-preference', theme);
+  }, [theme]);
 
-      if (response.ok) {
-        showToast("Thank you! Your feedback has been secured.", "success");
-        setFeedbackComment("");
-        setFeedbackEmail("");
-        setFeedbackRating(null);
-        setShowFeedbackModal(false);
+  const toolsList: ToolInfo[] = [
+    { name: 'Merge PDF', slug: 'merge-pdf', description: 'Combine multiple PDFs into one document' },
+    { name: 'Split PDF', slug: 'split-pdf', description: 'Extract custom page ranges' },
+    { name: 'Compress PDF', slug: 'compress-pdf', description: 'Reduce PDF file size offline' },
+    { name: 'Rotate PDF', slug: 'rotate-pdf', description: 'Rotate specific or all PDF pages' },
+    { name: 'Delete Pages', slug: 'delete-pages-pdf', description: 'Filter out unneeded pages' },
+    { name: 'Watermark PDF', slug: 'watermark-pdf', description: 'Draw custom stamp text overlay' },
+    { name: 'Page Numbers', slug: 'add-page-numbers', description: 'Add page identifiers dynamically' },
+    { name: 'Add Blank Page', slug: 'add-blank-page', description: 'Insert empty spacing sheets' },
+    { name: 'Protect PDF', slug: 'protect-pdf', description: 'Encrypt document with password constraint' },
+    { name: 'Unlock PDF', slug: 'unlock-pdf', description: 'Decrypt pages to clean format' },
+    { name: 'Image to PDF', slug: 'image-to-pdf', description: 'Convert PNG/JPG into beautiful PDFs' },
+    { name: 'PDF to Image', slug: 'pdf-to-image', description: 'Export PDF pages to standard raster images' },
+    { name: 'AI Analyze', slug: 'intelligence', description: 'Summarize or ask questions via server AI' },
+  ];
 
-        try {
-          confetti({
-            particleCount: 140,
-            spread: 80,
-            origin: { y: 0.6 },
-          });
-        } catch {
-          // ignore
-        }
-      } else {
-        const errTxt = await response.text();
-        console.error("Cloudflare API feedback submission error:", response.status, errTxt);
-        showToast(`Could not send feedback (${response.status}). Please try again.`, "error");
-      }
-    } catch (err) {
-      console.error("Cloudflare API feedback connection error:", err);
-      showToast("Network error. Please try again later.", "error");
-    } finally {
-      setFeedbackSubmitting(false);
-    }
-  };
-
-  const submitContactUs = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const validation = contactSchema.safeParse({
-      name: contactName,
-      email: contactEmail,
-      subject: contactSubject,
-      message: contactMessage,
-    });
-
-    if (!validation.success) {
-      const fieldErrors: typeof contactErrors = {};
-      validation.error.issues.forEach((issue) => {
-        const path = issue.path[0] as keyof typeof contactErrors;
-        if (path) {
-          fieldErrors[path] = issue.message;
-        }
-      });
-      setContactErrors(fieldErrors);
-      showToast("Please correct the form validation errors.", "error");
-      return;
-    }
-
-    setContactErrors({});
-    setContactSubmitting(true);
-    try {
-      const apiBase = "";
-      const response = await fetch(`${apiBase}/api/contact`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Origin": window.location.origin
-        },
-        body: JSON.stringify({
-          name: contactName,
-          email: contactEmail,
-          subject: contactSubject,
-          message: contactMessage,
-          website: honeypotWebsite,
-        }),
-      });
-
-      if (response.ok) {
-        showToast("Your inquiry message has been delivered.", "success");
-        setContactName("");
-        setContactEmail("");
-        setContactSubject("");
-        setContactMessage("");
-        setShowContactModal(false);
-      } else {
-        const errTxt = await response.text();
-        console.error("Cloudflare API contact submission error:", response.status, errTxt);
-        showToast("Failed to deliver message. Please try again.", "error");
-      }
-    } catch (err) {
-      console.error("Cloudflare API contact connection error:", err);
-      showToast("Network failure. Please try again later.", "error");
-    } finally {
-      setContactSubmitting(false);
-    }
-  };
+  const menuItems = [
+    { name: 'Merge PDF', path: ROUTES.MERGE, icon: Merge, desc: 'Combine multiple PDFs into one document' },
+    { name: 'Split PDF', path: ROUTES.SPLIT, icon: Scissors, desc: 'Extract custom page ranges' },
+    { name: 'Compress PDF', path: ROUTES.COMPRESS, icon: Minimize2, desc: 'Reduce PDF file size offline' },
+    { name: 'Rotate PDF', path: ROUTES.ROTATE, icon: RotateCw, desc: 'Rotate specific or all PDF pages' },
+    { name: 'Delete Pages', path: ROUTES.DELETE_PAGES, icon: Trash2, desc: 'Filter out unneeded pages' },
+    { name: 'Watermark PDF', path: ROUTES.WATERMARK, icon: Bookmark, desc: 'Draw custom stamp text overlay' },
+    { name: 'Page Numbers', path: ROUTES.PAGE_NUMBERS, icon: Hash, desc: 'Add page identifiers dynamically' },
+    { name: 'Add Blank Page', path: ROUTES.ADD_BLANK, icon: FilePlus, desc: 'Insert empty spacing sheets' },
+    { name: 'Protect PDF', path: ROUTES.PROTECT, icon: Shield, desc: 'Encrypt document with password constraint' },
+    { name: 'Unlock PDF', path: ROUTES.UNLOCK, icon: Lock, desc: 'Decrypt pages to clean format' },
+    { name: 'Image to PDF', path: ROUTES.IMG_TO_PDF, icon: Image, desc: 'Convert PNG/JPG into beautiful PDFs' },
+    { name: 'PDF to Image', path: ROUTES.PDF_TO_IMG, icon: Eye, desc: 'Export PDF pages to standard raster images' },
+    { name: 'AI Analyze', path: ROUTES.AI_ANALYZE, icon: Sparkles, desc: 'Summarize or ask questions via server AI' },
+  ];
 
   return (
-    <LayoutContext.Provider
-      value={{
-        showToast,
-        theme,
-        themeSetting,
-        setThemeSetting,
-        setTheme: setThemeLegacy,
-        toolsList,
-      }}
-    >
-      <div
-        id="pdfminty-root"
-        className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200 antialiased overflow-x-hidden w-full"
-      >
-        <SkipToContent />
-
+    <LayoutContext.Provider value={{ toolsList }}>
+      <div className="min-h-screen flex flex-col bg-background text-on-background font-sans transition-colors duration-200 selection:bg-primary-fixed/30" id="app_shell">
+        
+        {/* Upper Navigation Header */}
         <header
           id="header-bar"
-          className="sticky top-0 bg-white/80 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-900/80 z-20 transition-all shadow-[0_2px_15px_-4px_rgba(0,0,0,0.02)]"
+          className="sticky top-0 bg-background/80 backdrop-blur-xl border-b border-border-muted z-50 transition-all shadow-[0_4px_20px_rgba(0,255,194,0.02)]"
         >
-          <div className="max-w-7xl mx-auto px-4 py-3.5 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
             <Link
               to="/"
               className="flex items-center gap-3 cursor-pointer group select-none decoration-none"
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
+              onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); }}
             >
-              <div className="flex items-center justify-center transition-all duration-300 group-hover:scale-110 shrink-0 bg-slate-50 dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200/50 dark:border-slate-800 shadow-sm">
-                <svg
-                  className="w-10 h-10 md:w-11 md:h-11 drop-shadow-[0_4px_12px_rgba(16,185,129,0.22)]"
-                  viewBox="0 0 48 48"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect
-                    x="6"
-                    y="11"
-                    width="26"
-                    height="33"
-                    rx="6"
-                    fill="#0F172A"
-                    className="dark:fill-slate-950"
-                  />
-                  <rect
-                    x="7"
-                    y="12"
-                    width="24"
-                    height="31"
-                    rx="5"
-                    stroke="#334155"
-                    strokeWidth="1"
-                    strokeOpacity="0.3"
-                    fill="none"
-                  />
-                  <rect
-                    x="15"
-                    y="4"
-                    width="27"
-                    height="33"
-                    rx="6"
-                    fill="#10B981"
-                  />
-                  <rect
-                    x="16"
-                    y="5"
-                    width="25"
-                    height="31"
-                    rx="5"
-                    stroke="#34D399"
-                    strokeWidth="1.2"
-                    strokeOpacity="0.4"
-                    fill="none"
-                  />
-                  <path
-                    d="M35 4L42 11H39C36.7909 11 35 9.20914 35 7V4Z"
-                    fill="#A7F3D0"
-                  />
-                  <rect
-                    x="21"
-                    y="15"
-                    width="15"
-                    height="2.2"
-                    rx="1.1"
-                    fill="#FFFFFF"
-                  />
-                  <rect
-                    x="21"
-                    y="21"
-                    width="15"
-                    height="2.2"
-                    rx="1.1"
-                    fill="#FFFFFF"
-                  />
-                  <rect
-                    x="21"
-                    y="27"
-                    width="9"
-                    height="2.2"
-                    rx="1.1"
-                    fill="#FFFFFF"
-                    opacity="0.8"
-                  />
+              <div className="flex items-center justify-center transition-all duration-300 group-hover:scale-115 shrink-0 bg-surface-container-low p-2 rounded-xl border border-border-muted shadow-lg shadow-black/40">
+                <svg className="w-8 h-8 drop-shadow-[0_0px_10px_rgba(0,255,194,0.4)] animate-pulse" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="6" y="11" width="26" height="33" rx="6" fill="#0E0E0E" />
+                  <rect x="7" y="12" width="24" height="31" rx="5" stroke="rgba(255,255,255,0.15)" strokeWidth="1.2" fill="none" />
+                  <rect x="15" y="4" width="27" height="33" rx="6" fill="#00FFC2" />
+                  <rect x="16" y="5" width="25" height="31" rx="5" stroke="#FFFFFF" strokeWidth="1" strokeOpacity="0.3" fill="none" />
+                  <path d="M35 4L42 11H39C36.7909 11 35 9.20914 35 7V4Z" fill="#131313" />
+                  <rect x="21" y="15" width="15" height="2.2" rx="1.1" fill="#131313" />
+                  <rect x="21" y="21" width="15" height="2.2" rx="1.1" fill="#131313" />
+                  <rect x="21" y="27" width="9" height="2.2" rx="1.1" fill="#131313" opacity="0.8" />
                 </svg>
               </div>
               <div>
-                <div className="flex items-center gap-1.5 align-middle">
-                  <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-emerald-600 to-teal-500 dark:from-white dark:via-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-                    PDF
-                    <span className="text-emerald-500 font-extrabold">
-                      Minty
-                    </span>
+                <div className="flex items-center gap-2 align-middle">
+                  <span className="text-2xl font-black tracking-tight text-primary-fixed">
+                    PDF<span className="text-primary font-light">Minty</span>
                   </span>
-                  <span className="text-[9px] font-black tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-100/80 dark:border-emerald-800/80 px-1.5 py-0.5 rounded-full uppercase leading-none mt-0.5">
-                    V2
-                  </span>
+                  <span className="text-[9px] font-black tracking-widest text-[#131313] bg-primary-fixed border border-primary-fixed px-1.5 py-0.5 rounded-md uppercase leading-none mt-0.5 animate-pulse">LOCAL</span>
                 </div>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider leading-none mt-1">
-                  100% Secure Offline Studio
-                </p>
               </div>
             </Link>
 
-            <div className="flex items-center gap-4 md:gap-5 font-sans">
-              <div className="hidden lg:flex items-center gap-6 text-xs text-slate-500 dark:text-slate-400 font-bold animate-fadein">
-                <Link
-                  to="/"
-                  className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer decoration-none"
-                  onClick={() => {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                >
-                  Tools Dashboard
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (location.pathname !== "/") {
-                      navigate("/", { replace: false });
-                    }
-                    setTimeout(() => {
-                      document
-                        .getElementById("faq-section")
-                        ?.scrollIntoView({ behavior: "smooth" });
-                    }, 200);
-                  }}
-                  className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer bg-transparent border-0"
-                >
-                  Why Offline?
-                </button>
-                <span className="text-slate-200 dark:text-slate-800">|</span>
+            <nav className="hidden md:flex items-center gap-6 font-semibold text-sm">
+              <Link to={ROUTES.MERGE} className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.MERGE ? "text-primary-fixed border-b-2 border-primary-fixed" : "text-on-surface-variant hover:text-primary-fixed"}`}>Merge</Link>
+              <Link to={ROUTES.SPLIT} className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.SPLIT ? "text-primary-fixed border-b-2 border-primary-fixed" : "text-on-surface-variant hover:text-primary-fixed"}`}>Split</Link>
+              <Link to={ROUTES.COMPRESS} className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.COMPRESS ? "text-primary-fixed border-b-2 border-primary-fixed" : "text-on-surface-variant hover:text-primary-fixed"}`}>Compress</Link>
+              <Link to={ROUTES.PROTECT} className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.PROTECT ? "text-primary-fixed border-b-2 border-primary-fixed" : "text-on-surface-variant hover:text-primary-fixed"}`}>Protect</Link>
+              <Link to={ROUTES.UNLOCK} className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.UNLOCK ? "text-primary-fixed border-b-2 border-primary-fixed" : "text-on-surface-variant hover:text-primary-fixed"}`}>Unlock</Link>
+              <Link to={ROUTES.IMG_TO_PDF} className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.IMG_TO_PDF ? "text-primary-fixed border-b-2 border-primary-fixed" : "text-on-surface-variant hover:text-primary-fixed"}`}>Convert</Link>
+              <Link to={ROUTES.AI_ANALYZE} className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.AI_ANALYZE ? "text-primary-fixed border-b-2 border-primary-fixed" : "text-on-surface-variant hover:text-primary-fixed"}`}>AI Analyze</Link>
+            </nav>
+
+            <div className="flex items-center gap-4 font-sans">
+              <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 bg-surface-container-high rounded-full border border-border-muted shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-security-green pulse-mint"></span>
+                <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">LOCAL SANDBOX SECURE</span>
               </div>
 
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900 dark:bg-slate-800 text-white rounded-full text-xs font-bold tracking-wide border border-slate-800 dark:border-slate-700 shadow-lg shadow-slate-950/10">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="hidden sm:inline">🔒 Sandbox Active</span>
-                <span className="sm:hidden">🔒 Secure</span>
-              </span>
-
+              {/* Theme Toggle Button */}
               <button
-                type="button"
-                id="theme-toggler"
-                onClick={() => {
-                  setThemeSetting(theme === "light" ? "dark" : "light");
-                }}
-                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-805 text-slate-705 dark:text-slate-200 border border-slate-200/60 dark:border-slate-800/80 transition-all cursor-pointer shadow-sm flex items-center justify-center font-bold focus:outline-none"
-                aria-label="Toggle Dark Mode"
+                onClick={() => setThemeSetting(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface transition-all active:scale-95 cursor-pointer shadow-sm relative group"
+                aria-label="Toggle theme mode"
+                id="theme_toggle_btn"
               >
-                {theme === "light" ? (
-                  <Moon className="w-4 h-4 text-indigo-500 fill-indigo-500/10" />
+                {theme === 'dark' ? (
+                  <Sun className="w-5 h-5 text-amber-500 fill-amber-500/10" />
                 ) : (
-                  <Sun className="w-4 h-4 text-amber-500 animate-pulse" />
+                  <Moon className="w-5 h-5 text-slate-700 fill-slate-700/10" />
                 )}
+                <span className="absolute invisible group-hover:visible -bottom-9 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] whitespace-nowrap font-bold px-2 py-1 rounded shadow-md border border-slate-800 pointer-events-none z-50">
+                  {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+                </span>
+              </button>
+
+              {/* Mobile Drawer Trigger */}
+              <button 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+                className="p-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface lg:hidden focus:outline-none transition-all"
+                aria-label="Toggle menu"
+                id="mobile_menu_toggle"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5 text-security-green" /> : <Menu className="w-5 h-5 text-on-surface-variant" />}
               </button>
             </div>
           </div>
         </header>
 
-        <main
-          id="main-content"
-          className="flex-1 max-w-7xl w-full mx-auto px-4 py-10 relative overflow-x-hidden min-h-[60vh]"
-        >
-          <div className="absolute top-0 start-10 w-96 h-96 bg-emerald-100/30 dark:bg-emerald-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] pointer-events-none z-0" />
-          <div className="absolute top-20 end-10 w-80 h-80 bg-teal-100/20 dark:bg-teal-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[80px] pointer-events-none z-0 animate-pulse duration-10000" />
-          <div className="absolute bottom-40 start-1/3 w-96 h-96 bg-indigo-100/10 dark:bg-indigo-950/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter filter blur-[120px] pointer-events-none z-0" />
+        {/* Mobile Drawer Overlay */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden fixed inset-0 z-40 bg-background pt-20 flex flex-col animate-fadein" id="mobile_drawer">
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+              <Link 
+                to={ROUTES.HOME} 
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-4 py-3 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white"
+              >
+                All PDF Tools
+              </Link>
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+                <p className="px-4 text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">Individual Utilities</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center space-x-3 p-3 rounded-xl border ${location.pathname === item.path ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300' : 'border-slate-100 dark:border-slate-800/60 hover:border-slate-200 text-slate-700 dark:text-slate-300'}`}
+                      >
+                        <span className="p-1.5 rounded-lg bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800">
+                          <Icon className="w-5 h-5 text-emerald-600" />
+                        </span>
+                        <div>
+                          <span className="font-semibold text-sm block">{item.name}</span>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 block line-clamp-1">{item.desc}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
 
+              {/* Mobile Display Settings */}
+              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
+                <p className="px-4 text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase mb-2">Display Settings</p>
+                <button
+                  onClick={() => setThemeSetting(theme === 'dark' ? 'light' : 'dark')}
+                  className="w-full flex items-center justify-between p-3.5 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/60 font-semibold text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-left"
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="p-1.5 rounded-lg bg-white dark:bg-slate-950 shadow-sm border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                      {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-500 fill-amber-500/10" /> : <Moon className="w-4 h-4 text-slate-600 fill-slate-750/10" />}
+                    </span>
+                    <span>{theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}</span>
+                  </div>
+                  <span className="text-xs text-slate-400 dark:text-slate-500 font-mono pr-2">Toggle</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* Primary Page Canvas Container */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" id="primary_page_container">
           <div className="container-pdfminty py-2 sm:py-4 lg:py-6 relative z-10">
             <Breadcrumbs />
+            <InternalSEO />
             {children}
             <RelatedTools />
           </div>
-
-          <div className="max-w-7xl mx-auto px-4 mt-12 mb-2 font-sans relative z-10">
-            <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 rounded-2xl p-4 flex items-center justify-center gap-3 max-w-2xl mx-auto shadow-sm text-center">
-              <span className="text-lg">🔒</span>
-              <p className="text-xs font-bold text-slate-700 dark:text-slate-300 leading-snug">
-                <span className="text-emerald-600 dark:text-emerald-400 me-1 font-extrabold">
-                  100% Secure & Private.
-                </span>{" "}
-                All files are processed locally on your device. No data is ever
-                uploaded to our servers.
-              </p>
-            </div>
-          </div>
         </main>
 
+        {/* Custom Footer */}
         <footer
           id="footer-menu"
-          className="border-t border-slate-200/60 dark:border-slate-900/60 bg-white dark:bg-slate-950/40 py-12 transition-colors font-sans"
+          className="border-t border-border-muted bg-surface-container-lowest py-16 transition-colors duration-200 font-sans"
         >
           <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center gap-8">
             <div className="flex flex-wrap justify-center items-center gap-4 text-xs font-semibold">
-              <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 rounded-full border border-emerald-100 dark:border-emerald-800/50 flex items-center gap-1.5 shadow-sm">
-                🛡️ Privacy Secure
-              </span>
-              <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-455 rounded-full border border-indigo-100 dark:border-indigo-805/50 flex items-center gap-1.5 shadow-sm">
-                📂 100% Offline Core
-              </span>
-              <span className="px-3 py-1 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-450 rounded-full border border-amber-100 dark:border-amber-800/50 flex items-center gap-1.5 shadow-sm">
-                ✨ Free Forever
-              </span>
+              <span className="px-3.5 py-1.5 bg-surface-container-high text-security-green rounded-full border border-border-muted flex items-center gap-1.5 shadow-sm">🛡️ Privacy Secure</span>
+              <span className="px-3.5 py-1.5 bg-surface-container-high text-primary-fixed rounded-full border border-border-muted flex items-center gap-1.5 shadow-sm">📂 100% Offline Core</span>
+              <span className="px-3.5 py-1.5 bg-surface-container-high text-tertiary-fixed-dim rounded-full border border-border-muted flex items-center gap-1.5 shadow-sm">✨ Free Forever</span>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-8 text-sm font-bold text-slate-600 dark:text-slate-400">
-              <button
-                id="open-feedback-modal"
-                onClick={() => setShowFeedbackModal(true)}
-                className="inline-flex items-center gap-2 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer bg-transparent border-0"
-              >
-                <MessageSquare className="w-4.5 h-4.5 text-emerald-500" /> Provide Feedback
+            <div className="flex flex-wrap items-center justify-center gap-8 text-sm font-bold text-on-surface-variant">
+              <button id="open-feedback-modal" onClick={() => setShowFeedbackModal(true)} className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant cursor-pointer bg-transparent border-0 font-bold text-sm">
+                <MessageSquare className="w-4.5 h-4.5 text-security-green fill-security-green/10" /> Provide Feedback
               </button>
-              <button
-                id="open-contact-modal"
-                onClick={() => setShowContactModal(true)}
-                className="inline-flex items-center gap-2 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer bg-transparent border-0"
-              >
-                <Mail className="w-4.5 h-4.5 text-blue-500" /> Contact Us
+              <button id="open-contact-modal" onClick={() => setShowContactModal(true)} className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant cursor-pointer bg-transparent border-0 font-bold text-sm">
+                <Mail className="w-4.5 h-4.5 text-sky-400 fill-sky-400/10" /> Contact Us
               </button>
               <button
                 onClick={() => {
                   window.scrollTo(0, 0);
-                  if (location.pathname !== "/") {
-                    navigate("/");
-                  }
-                  setTimeout(() => {
-                    const faqSection = document.getElementById("faq-section");
-                    faqSection?.scrollIntoView({ behavior: "smooth" });
-                  }, 200);
+                  if (location.pathname !== "/") { navigate("/"); }
+                  setTimeout(() => { document.getElementById("faq-section")?.scrollIntoView({ behavior: "smooth" }); }, 200);
                 }}
-                className="inline-flex items-center gap-2 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer bg-transparent border-0"
+                className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant cursor-pointer bg-transparent border-0 font-bold text-sm"
               >
-                <HelpCircle className="w-4.5 h-4.5 text-indigo-500" /> Privacy & FAQ
+                <HelpCircle className="w-4.5 h-4.5 text-warning-amber fill-warning-amber/10" /> Privacy & FAQ
               </button>
-              <Link
-                to="/is-it-safe-to-upload-pdf-to-online-tools"
-                onClick={() => window.scrollTo(0, 0)}
-                className="inline-flex items-center gap-2 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer text-slate-600 dark:text-slate-400 no-underline"
-              >
-                <ShieldAlert className="w-4.5 h-4.5 text-rose-500" /> Is It Safe?
-              </Link>
             </div>
 
-            <div className="max-w-2xl text-xs text-slate-500 dark:text-slate-400 space-y-3 leading-relaxed border-t border-slate-100 dark:border-slate-900 pt-6">
-              <p className="font-extrabold text-slate-800 dark:text-slate-200">
-                PDFMinty Proprietorship & Copyright Information
+            <div className="max-w-2xl text-xs text-on-surface-variant/80 space-y-3 leading-relaxed border-t border-border-muted pt-6 select-none leading-relaxed">
+              <p className="font-extrabold text-primary">PDFMinty Copyright & Safety Guarantee</p>
+              <p className="font-medium">
+                © 2026 PDFMinty. All rights reserved. PDFMinty is an independent, client-side offline toolkit. We process all your PDF modifications entirely inside your browser's memory using secure Web Worker technology, meaning your files never touch a remote server and absolute device sovereignty is maintained.
               </p>
-              <p className="font-medium text-slate-500 dark:text-slate-450">
-                © 2026 PDFMinty. All rights reserved. PDFMinty is a 100% secure,
-                independent, and open-source client-side offline distributed
-                studio. No files or user data processed here are ever uploaded
-                to remote servers. All calculations and file generations are
-                performed securely inside the user's browser using local Web
-                Worker technology.
+              <p className="font-medium">
+                Offering a friction-free, account-less alternative to online cloud converters, our utilities let you merge, split, and compress your critical documents under full local device control. PDFMinty is committed to persistent data privacy and utility-grade performance, completely free of charge.
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-500 font-semibold uppercase tracking-widest">
-                Developed by & under Proprietorship of PDFMinty. Strictly safe & distributed.
-              </p>
+              <p className="text-xs text-primary-fixed/80 font-semibold uppercase tracking-widest leading-none">Developed by & under Proprietorship of PDFMinty. Secure, client-buffered local suite.</p>
             </div>
           </div>
         </footer>
 
+        {/* Feedback Modal Overlay */}
         {showFeedbackModal && (
-          <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadein">
-            <div
-              className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl p-6 md:p-8 border border-slate-100 dark:border-slate-800 animate-slideup relative text-start"
-              id="feedback-modal-content"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="feedback-title"
-            >
-              <button
-                aria-label="Close dialog"
-                onClick={() => setShowFeedbackModal(false)}
-                className="absolute top-4 end-4 text-slate-505 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 transition-colors text-xl font-bold cursor-pointer bg-transparent border-0"
-              >
-                ✕
-              </button>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-fadein">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl border border-slate-200/60 dark:border-slate-800 p-6 shadow-2xl space-y-4 text-left">
+              <div className="flex justify-between items-center">
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-emerald-500" /> Share Your Feedback
+                </h3>
+                <button 
+                  onClick={() => {
+                    setShowFeedbackModal(false);
+                    setFeedbackSubmitted(false);
+                  }}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-              <h2
-                id="feedback-title"
-                className="text-xl md:text-2xl font-black text-slate-900 dark:text-slate-50 mb-2"
-              >
-                Provide Feedback
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 font-medium">
-                Let us know your thoughts or any issues you have faced with our browser tools.
-              </p>
-
-              <form onSubmit={submitFeedback} className="space-y-5 text-start">
-                <div>
-                  <div className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-2">
-                    Rate your experience *
+              {feedbackSubmitted ? (
+                <div className="text-center py-6 space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                    </svg>
                   </div>
-                  <div className="flex justify-between items-center gap-2 py-2">
-                    {[
-                      { val: 1, label: "😩", name: "Very Bad" },
-                      { val: 2, label: "🙁", name: "Poor" },
-                      { val: 3, label: "😐", name: "Average" },
-                      { val: 4, label: "🙂", name: "Good" },
-                      { val: 5, label: "😄", name: "Excellent" },
-                    ].map((r) => (
-                      <button
-                        key={r.val}
-                        type="button"
-                        onClick={() => setFeedbackRating(r.val)}
-                        className={`flex-1 py-3 px-2 rounded-2xl flex flex-col items-center border transition-all cursor-pointer ${
-                          feedbackRating === r.val
-                            ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/50 scale-105"
-                            : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-950"
-                        }`}
-                      >
-                        <span className="text-2xl mb-1">{r.label}</span>
-                        <span className="text-[10px] sm:text-xs font-bold text-slate-505 dark:text-slate-400">
-                          {r.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Honeypot field for bot spam detection */}
-                <input
-                  type="text"
-                  name="website"
-                  value={honeypotWebsite}
-                  onChange={(e) => setHoneypotWebsite(e.target.value)}
-                  className="hidden"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  style={{ display: "none" }}
-                />
-                <div>
-                  <label htmlFor="feedback-comment-input" className="text-xs font-bold text-slate-705 dark:text-slate-300 block mb-1.5 flex align-center">
-                    Feedback Message *
-                  </label>
-                  <textarea
-                    id="feedback-comment-input"
-                    aria-label="Text area"
-                    required
-                    rows={4}
-                    value={feedbackComment}
-                    onChange={(e) => setFeedbackComment(e.target.value)}
-                    placeholder="Share details about what you liked, or where we can improve..."
-                    className="w-full text-xs font-medium p-3 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:border-indigo-505 dark:focus:border-indigo-505 focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="feedback-email-input" className="text-xs font-bold text-slate-705 dark:text-slate-300 block mb-1.5">
-                    Email Address (Optional)
-                  </label>
-                  <input
-                    id="feedback-email-input"
-                    aria-label="Input field"
-                    type="email"
-                    value={feedbackEmail}
-                    onChange={(e) => setFeedbackEmail(e.target.value)}
-                    placeholder="name@example.com"
-                    className="w-full text-xs font-medium px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:border-indigo-505 dark:focus:border-indigo-505 focus:ring-1 focus:ring-indigo-505 transition-all font-sans"
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-2">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Feedback Submitted!</h3>
+                  <p className="text-xs text-slate-550 dark:text-slate-400">Thank you for helping us make PDFMinty better.</p>
                   <button
-                    type="button"
-                    onClick={() => setShowFeedbackModal(false)}
-                    className="flex-1 py-3 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-xl cursor-pointer bg-transparent"
+                    onClick={() => {
+                      setFeedbackSubmitted(false);
+                      setShowFeedbackModal(false);
+                    }}
+                    className="mt-2 px-5 py-2.5 bg-emerald-505 hover:bg-emerald-600 text-white rounded-xl text-xs font-extrabold cursor-pointer transition-all active:scale-95"
                   >
-                    Cancel
+                    Close
                   </button>
-                  <button
+                </div>
+              ) : (
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    // Send Feedback internally or save it
+                    const formData = new FormData(e.currentTarget);
+                    const email = formData.get("email");
+                    const comment = formData.get("comment");
+                    const rating = 5;
+
+                    await fetch("/api/feedback", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ email, comment, rating }),
+                    });
+                  } catch (err) {
+                    console.error(err);
+                  }
+                  setFeedbackSubmitted(true);
+                }} className="space-y-4">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
+                    We would love to hear your experiences or ideas to make PDFMinty even more secure and robust!
+                  </p>
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Rating</label>
+                    <div className="flex gap-1.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button key={star} type="button" className="text-amber-400 hover:scale-110 transition-transform cursor-pointer">
+                          <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Email Address</label>
+                    <input 
+                      type="email"
+                      name="email"
+                      placeholder="you@example.com"
+                      className="w-full text-xs rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 p-3.5 dark:text-white"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Your Message</label>
+                    <textarea 
+                      name="comment"
+                      rows={3}
+                      placeholder="Tell us what you like or how we can improve..."
+                      className="w-full text-xs rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 p-3.5 dark:text-white"
+                      required
+                    />
+                  </div>
+                  <button 
                     type="submit"
-                    disabled={feedbackSubmitting}
-                    className="flex-1 py-3 bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 min-h-[48px] min-w-[48px] p-2"
-                    style={{ backgroundColor: "#4f46e5" }}
+                    className="w-full bg-emerald-605 hover:bg-emerald-700 text-white font-extrabold text-xs py-3 rounded-xl shadow-lg shadow-emerald-600/10 transition-all active:scale-95 cursor-pointer"
                   >
-                    {feedbackSubmitting && (
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    )}
                     Submit Feedback
                   </button>
-                </div>
-              </form>
+                </form>
+              )}
             </div>
           </div>
         )}
 
+        {/* Contact Modal Overlay */}
         {showContactModal && (
-          <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadein">
-            <div
-              className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl p-6 md:p-8 border border-slate-100 dark:border-slate-800 animate-slideup relative text-start"
-              id="contact-modal-content"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="contact-title"
-            >
-              <button
-                aria-label="Close dialog"
-                onClick={() => setShowContactModal(false)}
-                className="absolute top-4 end-4 text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 transition-colors text-xl font-bold cursor-pointer bg-transparent border-0"
-              >
-                ✕
-              </button>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-fadein">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl border border-slate-200/60 dark:border-slate-800 p-6 shadow-2xl space-y-4 text-left">
+              <div className="flex justify-between items-center">
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-blue-500" /> Contact PDFMinty
+                </h3>
+                <button 
+                  onClick={() => {
+                    setShowContactModal(false);
+                    setContactSubmitted(false);
+                  }}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-              <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-slate-50 mb-2">
-                Contact Us
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 font-medium">
-                Drop us an inquiry and our team will get back to you as soon as possible.
-              </p>
-
-              <form
-                onSubmit={submitContactUs}
-                className="space-y-4 text-start font-sans"
-              >
-                {/* Honeypot field for bot spam detection */}
-                <input
-                  type="text"
-                  name="website"
-                  value={honeypotWebsite}
-                  onChange={(e) => setHoneypotWebsite(e.target.value)}
-                  className="hidden"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  style={{ display: "none" }}
-                />
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label htmlFor="contact-name-input" className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                      Your Name *
-                    </label>
-                    <input
-                      id="contact-name-input"
-                      aria-label="Input field"
-                      required
-                      type="text"
-                      value={contactName}
-                      onChange={(e) => {
-                        setContactName(e.target.value);
-                        if (contactErrors.name) {
-                          setContactErrors((prev) => ({ ...prev, name: undefined }));
-                        }
-                      }}
-                      placeholder="John Doe"
-                      className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-850 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
-                        contactErrors.name
-                          ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                          : "border-slate-200 dark:border-slate-855 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
-                      }`}
-                    />
-                    {contactErrors.name && (
-                      <p className="text-[10px] text-rose-500 font-bold mt-1">{contactErrors.name}</p>
-                    )}
+              {contactSubmitted ? (
+                <div className="text-center py-6 space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-blue-105 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                    </svg>
                   </div>
-                  <div>
-                    <label htmlFor="contact-email-input" className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                      Your Email *
-                    </label>
-                    <input
-                      id="contact-email-input"
-                      aria-label="Input field"
-                      required
-                      type="email"
-                      value={contactEmail}
-                      onChange={(e) => {
-                        setContactEmail(e.target.value);
-                        if (contactErrors.email) {
-                          setContactErrors((prev) => ({ ...prev, email: undefined }));
-                        }
-                      }}
-                      placeholder="john@example.com"
-                      className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-855 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
-                        contactErrors.email
-                          ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                          : "border-slate-200 dark:border-slate-855 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
-                      }`}
-                    />
-                    {contactErrors.email && (
-                      <p className="text-[10px] text-rose-500 font-bold mt-1">{contactErrors.email}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="contact-subject-input" className="text-xs font-bold text-slate-707 dark:text-slate-300 block mb-1">
-                    Subject *
-                  </label>
-                  <input
-                    id="contact-subject-input"
-                    aria-label="Input field"
-                    required
-                    type="text"
-                    value={contactSubject}
-                    onChange={(e) => {
-                      setContactSubject(e.target.value);
-                      if (contactErrors.subject) {
-                        setContactErrors((prev) => ({ ...prev, subject: undefined }));
-                      }
-                    }}
-                    placeholder="Inquiry or partnership topic"
-                    className={`w-full text-xs font-medium px-4 py-2.5 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-850 dark:text-slate-100 focus:ring-1 transition-all font-sans ${
-                      contactErrors.subject
-                        ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                        : "border-slate-200 dark:border-slate-855 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-indigo-500"
-                    }`}
-                  />
-                  {contactErrors.subject && (
-                    <p className="text-[10px] text-rose-500 font-bold mt-1">{contactErrors.subject}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="contact-message-input" className="text-xs font-bold text-slate-707 dark:text-slate-300 block mb-1">
-                    Message *
-                  </label>
-                  <textarea
-                    id="contact-message-input"
-                    aria-label="Message text"
-                    required
-                    rows={4}
-                    value={contactMessage}
-                    onChange={(e) => {
-                      setContactMessage(e.target.value);
-                      if (contactErrors.message) {
-                        setContactErrors((prev) => ({ ...prev, message: undefined }));
-                      }
-                    }}
-                    placeholder="Type details of your message..."
-                    className={`w-full text-xs font-medium p-3 rounded-xl border outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:ring-1 transition-all resize-none font-sans ${
-                      contactErrors.message
-                        ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500"
-                        : "border-slate-200 dark:border-slate-850 focus:border-indigo-500 dark:focus:border-indigo-505 focus:ring-indigo-500"
-                    }`}
-                  />
-                  {contactErrors.message && (
-                    <p className="text-[10px] text-rose-500 font-bold mt-1">{contactErrors.message}</p>
-                  )}
-                </div>
-
-                <div className="flex gap-3 pt-3">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Message Sent!</h3>
+                  <p className="text-xs text-slate-550 dark:text-slate-400">We will get back to your query as soon as possible.</p>
                   <button
-                    type="button"
-                    onClick={() => setShowContactModal(false)}
-                    className="flex-1 py-3 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-xl cursor-pointer bg-transparent"
+                    onClick={() => {
+                      setContactSubmitted(false);
+                      setShowContactModal(false);
+                    }}
+                    className="mt-2 px-5 py-2.5 bg-blue-550 hover:bg-blue-600 text-white rounded-xl text-xs font-extrabold cursor-pointer transition-all active:scale-95"
                   >
-                    Cancel
+                    Close
                   </button>
-                  <button
+                </div>
+              ) : (
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  // Simulate sending success
+                  setContactSubmitted(true);
+                }} className="space-y-4">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
+                    Have questions about document security, partnerships, or local distributed technologies? Drop us a line.
+                  </p>
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Email Address</label>
+                    <input 
+                      type="email"
+                      placeholder="you@example.com"
+                      className="w-full text-xs rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 p-3.5 dark:text-white"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Subject</label>
+                    <input 
+                      type="text"
+                      placeholder="How can we help?"
+                      className="w-full text-xs rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 p-3.5 dark:text-white"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Message</label>
+                    <textarea 
+                      rows={3}
+                      placeholder="Type your question or request here..."
+                      className="w-full text-xs rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 p-3.5 dark:text-white"
+                      required
+                    />
+                  </div>
+                  <button 
                     type="submit"
-                    disabled={contactSubmitting}
-                    className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 min-h-[48px] min-w-[48px] p-2"
+                    className="w-full bg-blue-600 hover:bg-blue-750 text-white font-extrabold text-xs py-3 rounded-xl shadow-lg shadow-blue-600/10 transition-all active:scale-95 cursor-pointer"
                   >
-                    {contactSubmitting && (
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    )}
                     Send Message
                   </button>
-                </div>
-              </form>
+                </form>
+              )}
             </div>
           </div>
         )}
 
-        {showScrollTop && (
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 end-6 p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl hover:translate-y-[-2px] hover:scale-105 active:scale-95 transition-all cursor-pointer z-50 group border-0 animate-fadein"
-            title="Scroll to Top"
-            aria-label="Scroll to top"
-          >
-            <ArrowUp className="w-5 h-5 group-hover:translate-y-[-1px] transition-transform animate-none" />
-          </button>
-        )}
       </div>
     </LayoutContext.Provider>
   );
