@@ -61,7 +61,7 @@ self.onmessage = async (e: MessageEvent) => {
         transferables = [result.buffer];
         break;
       case 'pdfToImage':
-        result = await ops.pdfToImage(payload.bytes, payload.originalName, payload.scale);
+        result = await ops.pdfToImage(payload.bytes, payload.originalName, payload.scale, payload.maxPages);
         transferables = result.map((r: any) => r.imageBytes.buffer);
         break;
       default:

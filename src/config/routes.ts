@@ -20,6 +20,5 @@ export const ROUTES = {
   PDF_TO_IMG: `/${TOOLS.find((t) => t.id === 'pdf-to-image')?.slug || 'pdf-to-image'}`,
   AI_ANALYZE: `/${TOOLS.find((t) => t.id === 'intelligence')?.slug || 'intelligence'}`,
   TRUST_ARTICLE: `/${TOOLS.find((t) => t.id === 'trust-article')?.slug || 'is-it-safe-to-upload-pdf-to-online-tools'}`,
-  IS_SAFE_ARTICLE: `/${TOOLS.find((t) => t.id === 'trust-article')?.slug || 'is-it-safe-to-upload-pdf-to-online-tools'}`,
 };
 export default ROUTES;

@@ -28,9 +28,11 @@ import React, { useState, createContext, useContext, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
+import { TOOLS } from '../config/seo-data';
 
 import InternalSEO, { Breadcrumbs } from './InternalSEO';
 import { RelatedTools } from './RelatedTools';
+import { ToolGuide } from './ToolGuide';
 
 interface ToolInfo {
   name: string;
@@ -88,138 +90,40 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     localStorage.setItem('theme-preference', theme);
   }, [theme]);
 
-  const toolsList: ToolInfo[] = [
-    {
-      name: 'Merge PDF',
-      slug: 'merge-pdf',
-      description: 'Combine multiple PDFs into one document',
-    },
-    { name: 'Split PDF', slug: 'split-pdf', description: 'Extract custom page ranges' },
-    {
-      name: 'Extract Pages',
-      slug: 'extract-pages-pdf',
-      description: 'Cherry-pick individual pages easily',
-    },
-    {
-      name: 'Reorder PDF',
-      slug: 'reorder-pdf',
-      description: 'Rearrange page sequences interactively',
-    },
-    { name: 'Compress PDF', slug: 'compress-pdf', description: 'Reduce PDF file size offline' },
-    { name: 'Rotate PDF', slug: 'rotate-pdf', description: 'Rotate specific or all PDF pages' },
-    { name: 'Delete Pages', slug: 'delete-pages-pdf', description: 'Filter out unneeded pages' },
-    { name: 'Watermark PDF', slug: 'watermark-pdf', description: 'Draw custom stamp text overlay' },
-    {
-      name: 'Page Numbers',
-      slug: 'add-page-numbers',
-      description: 'Add page identifiers dynamically',
-    },
-    { name: 'Add Blank Page', slug: 'add-blank-page', description: 'Insert empty spacing sheets' },
-    {
-      name: 'Protect PDF',
-      slug: 'protect-pdf',
-      description: 'Encrypt document with password constraint',
-    },
-    { name: 'Unlock PDF', slug: 'unlock-pdf', description: 'Decrypt pages to clean format' },
-    {
-      name: 'Image to PDF',
-      slug: 'image-to-pdf',
-      description: 'Convert PNG/JPG into beautiful PDFs',
-    },
-    {
-      name: 'PDF to Image',
-      slug: 'pdf-to-image',
-      description: 'Export PDF pages to standard raster images',
-    },
-    {
-      name: 'AI Analyze',
-      slug: 'intelligence',
-      description: 'Summarize or ask questions via server AI',
-    },
-  ];
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    Merge,
+    Scissors,
+    CheckSquare,
+    Move,
+    Minimize2,
+    RotateCw,
+    Trash2,
+    Bookmark,
+    Hash,
+    FilePlus,
+    Shield,
+    Lock,
+    Image,
+    Eye,
+    Sparkles,
+  };
 
-  const menuItems = [
-    {
-      name: 'Merge PDF',
-      path: ROUTES.MERGE,
-      icon: Merge,
-      desc: 'Combine multiple PDFs into one document',
-    },
-    { name: 'Split PDF', path: ROUTES.SPLIT, icon: Scissors, desc: 'Extract custom page ranges' },
-    {
-      name: 'Extract Pages',
-      path: ROUTES.EXTRACT_PAGES,
-      icon: CheckSquare,
-      desc: 'Cherry-pick individual pages easily',
-    },
-    {
-      name: 'Reorder PDF',
-      path: ROUTES.REORDER,
-      icon: Move,
-      desc: 'Rearrange page sequences interactively',
-    },
-    {
-      name: 'Compress PDF',
-      path: ROUTES.COMPRESS,
-      icon: Minimize2,
-      desc: 'Reduce PDF file size offline',
-    },
-    {
-      name: 'Rotate PDF',
-      path: ROUTES.ROTATE,
-      icon: RotateCw,
-      desc: 'Rotate specific or all PDF pages',
-    },
-    {
-      name: 'Delete Pages',
-      path: ROUTES.DELETE_PAGES,
-      icon: Trash2,
-      desc: 'Filter out unneeded pages',
-    },
-    {
-      name: 'Watermark PDF',
-      path: ROUTES.WATERMARK,
-      icon: Bookmark,
-      desc: 'Draw custom stamp text overlay',
-    },
-    {
-      name: 'Page Numbers',
-      path: ROUTES.PAGE_NUMBERS,
-      icon: Hash,
-      desc: 'Add page identifiers dynamically',
-    },
-    {
-      name: 'Add Blank Page',
-      path: ROUTES.ADD_BLANK,
-      icon: FilePlus,
-      desc: 'Insert empty spacing sheets',
-    },
-    {
-      name: 'Protect PDF',
-      path: ROUTES.PROTECT,
-      icon: Shield,
-      desc: 'Encrypt document with password constraint',
-    },
-    { name: 'Unlock PDF', path: ROUTES.UNLOCK, icon: Lock, desc: 'Decrypt pages to clean format' },
-    {
-      name: 'Image to PDF',
-      path: ROUTES.IMG_TO_PDF,
-      icon: Image,
-      desc: 'Convert PNG/JPG into beautiful PDFs',
-    },
-    {
-      name: 'PDF to Image',
-      path: ROUTES.PDF_TO_IMG,
-      icon: Eye,
-      desc: 'Export PDF pages to standard raster images',
-    },
-    {
-      name: 'AI Analyze',
-      path: ROUTES.AI_ANALYZE,
-      icon: Sparkles,
-      desc: 'Summarize or ask questions via server AI',
-    },
-  ];
+  const toolsList: ToolInfo[] = TOOLS
+    .filter((t) => t.type === 'tool')
+    .map((t) => ({
+      name: t.name,
+      slug: t.slug,
+      description: t.shortDescription,
+    }));
+
+  const menuItems = TOOLS
+    .filter((t) => t.type === 'tool')
+    .map((t) => ({
+      name: t.name,
+      path: `/${t.slug}`,
+      icon: iconMap[t.icon] || HelpCircle,
+      desc: t.shortDescription,
+    }));
 
   return (
     <LayoutContext.Provider value={{ toolsList }}>
@@ -459,12 +363,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Primary Page Canvas Container */}
         <main
           className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
-          id="primary_page_container"
+          id="main-content"
         >
           <div className="container-pdfminty py-2 sm:py-4 lg:py-6 relative z-10">
             <Breadcrumbs />
             <InternalSEO />
             {children}
+            <ToolGuide slug={location.pathname.replace(/^\//, '').replace(/\/$/, '')} />
             <RelatedTools />
           </div>
         </main>

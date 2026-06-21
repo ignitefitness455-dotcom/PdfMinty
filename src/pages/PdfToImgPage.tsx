@@ -12,6 +12,7 @@ export const PdfToImgPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [imageUrls, setImageUrls] = useState<{ page: number; dataUrl: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [maxPagesLimit, setMaxPagesLimit] = useState<string>('15');
 
   const urlsRef = React.useRef<string[]>([]);
 
@@ -47,10 +48,11 @@ export const PdfToImgPage: React.FC = () => {
 
     try {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
+      const maxPagesVal = maxPagesLimit === 'all' ? undefined : parseInt(maxPagesLimit, 10);
 
       const rendered = await WorkerManager.getInstance().runOperation<
         { page: number; imageBytes: Uint8Array }[]
-      >('pdfToImage', { bytes: fileBytes, originalName: selectedFile.name, scale: 1.5 }, [
+      >('pdfToImage', { bytes: fileBytes, originalName: selectedFile.name, scale: 1.5, maxPages: maxPagesVal }, [
         fileBytes.buffer,
       ]);
 
@@ -187,6 +189,32 @@ export const PdfToImgPage: React.FC = () => {
             <p className="text-xs text-slate-500 leading-relaxed">
               Export is performed entirely using client hardware. No document info gets sent out.
             </p>
+
+            <div className="space-y-2">
+              <label htmlFor="max_pages_limit_select" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Max pages to convert:
+              </label>
+              <select
+                id="max_pages_limit_select"
+                value={maxPagesLimit}
+                onChange={(e) => setMaxPagesLimit(e.target.value)}
+                className="w-full border border-slate-300 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+              >
+                <option value="5">First 5 Pages</option>
+                <option value="10">First 10 Pages</option>
+                <option value="15">First 15 Pages</option>
+                <option value="30">First 30 Pages</option>
+                <option value="all">All Pages (Unlimited)</option>
+              </select>
+            </div>
+
+            {maxPagesLimit === 'all' && (
+              <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[10px] text-amber-800 leading-normal">
+                <span className="font-bold block mb-0.5">⚠️ Memory warning:</span>
+                Rendering all pages at high-definition scales (1.5x) uses significant browser memory and CPU locally. For very large PDF files, this might cause your browser tab to temporarily freeze.
+              </div>
+            )}
+
             <div className="p-3 bg-violet-50 rounded-xl border border-violet-100 text-[11px] text-violet-800 font-medium leading-normal flex items-center space-x-1.5">
               <Sparkles className="w-4 h-4 text-violet-500 flex-shrink-0" />
               <span>Converts PDF plates locally to raw PNG grids</span>

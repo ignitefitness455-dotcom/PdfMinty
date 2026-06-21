@@ -8,7 +8,6 @@ import {
   Layers,
   WifiOff,
   Zap,
-  Star,
   Merge,
   Scissors,
   Minimize2,
@@ -20,13 +19,15 @@ import {
   Lock,
   Image,
   Eye,
+  CheckSquare,
+  Move,
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useLayout } from '../components/Layout';
 import { SEO } from '../components/SEO';
-import { ROUTES } from '../config/routes';
+import { TOOLS } from '../config/seo-data';
 
 // Translation hook to map translation keys properly
 const useTranslation = () => {
@@ -42,6 +43,8 @@ const useTranslation = () => {
     offline_aes: 'OFFLINE AES',
     fast_convert: 'FAST CONVERT',
     extractor: 'EXTRACTOR',
+    visual_extract: 'VISUAL EXTRACT',
+    interactive_order: 'INTERACTIVE ORDER',
     launch_tool: 'Launch Tool',
     how_it_works_title: 'How It Works',
     how_it_works_desc: 'Three simple steps to process your files entirely inside your browser.',
@@ -133,52 +136,26 @@ const SearchComponent: React.FC<{
 };
 
 // Prefetching stub
-const prefetchToolChunk = (slug: string) => {
+const prefetchToolChunk = (_slug: string) => {
   // Option stub for link preloading
 };
 
-const toolMetadataMap: Record<
-  string,
-  { icon: React.ComponentType<any>; color: string; id: string; badgeKey?: string }
-> = {
-  'merge-pdf': { icon: Merge, color: 'text-security-green', id: 'merge', badgeKey: 'popular' },
-  'compress-pdf': {
-    icon: Minimize2,
-    color: 'text-security-green',
-    id: 'compress',
-    badgeKey: 'smart_reduction',
-  },
-  'split-pdf': { icon: Scissors, color: 'text-security-green', id: 'split' },
-  'image-to-pdf': {
-    icon: Image,
-    color: 'text-security-green',
-    id: 'img-to-pdf',
-    badgeKey: 'fast_convert',
-  },
-  'pdf-to-image': { icon: Eye, color: 'text-security-green', id: 'pdf-to-img' },
-  'delete-pages-pdf': {
-    icon: Trash2,
-    color: 'text-security-green',
-    id: 'delete-pages',
-    badgeKey: 'extractor',
-  },
-  'rotate-pdf': { icon: RotateCw, color: 'text-security-green', id: 'rotate' },
-  'watermark-pdf': { icon: Bookmark, color: 'text-security-green', id: 'watermark' },
-  'add-page-numbers': { icon: Hash, color: 'text-security-green', id: 'page-numbers' },
-  'protect-pdf': {
-    icon: Shield,
-    color: 'text-security-green',
-    id: 'protect',
-    badgeKey: 'offline_aes',
-  },
-  'unlock-pdf': { icon: Lock, color: 'text-security-green', id: 'unlock' },
-  'add-blank-page': { icon: FilePlus, color: 'text-security-green', id: 'add-blank' },
-  intelligence: {
-    icon: Sparkles,
-    color: 'text-security-green',
-    id: 'ai-analyze',
-    badgeKey: 'ai_hybrid',
-  },
+const iconMap: Record<string, React.ComponentType<any>> = {
+  Merge,
+  Scissors,
+  CheckSquare,
+  Move,
+  Minimize2,
+  RotateCw,
+  Trash2,
+  Bookmark,
+  Hash,
+  FilePlus,
+  Shield,
+  Lock,
+  Image,
+  Eye,
+  Sparkles,
 };
 
 export const HomePage: React.FC = () => {
@@ -190,34 +167,15 @@ export const HomePage: React.FC = () => {
 
   const { debouncedValue, isDebouncing } = useDebounce(searchQuery, 300);
 
-  const rankedOrder = useMemo(
-    () => [
-      'merge',
-      'compress',
-      'split',
-      'img-to-pdf',
-      'pdf-to-img',
-      'delete-pages',
-      'rotate',
-      'watermark',
-      'page-numbers',
-      'protect',
-      'unlock',
-      'add-blank',
-      'ai-analyze',
-    ],
-    []
-  );
-
   const sortedTools = useMemo(() => {
     return [...toolsList].sort((a, b) => {
-      const metaA = toolMetadataMap[a.slug] || { id: a.slug };
-      const metaB = toolMetadataMap[b.slug] || { id: b.slug };
-      const indexA = rankedOrder.indexOf(metaA.id);
-      const indexB = rankedOrder.indexOf(metaB.id);
-      return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+      const toolA = TOOLS.find((t) => t.slug === a.slug);
+      const toolB = TOOLS.find((t) => t.slug === b.slug);
+      const rankA = toolA?.homeRank ?? 999;
+      const rankB = toolB?.homeRank ?? 999;
+      return rankA - rankB;
     });
-  }, [toolsList, rankedOrder]);
+  }, [toolsList]);
 
   const filteredTools = useMemo(() => {
     const cleanQuery = debouncedValue.toLowerCase().trim();
@@ -278,46 +236,27 @@ export const HomePage: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTools.map((tool) => {
-            const meta = toolMetadataMap[tool.slug] || {
-              icon: Sparkles,
-              color: 'text-security-green',
-              id: tool.slug,
-            };
-            const Icon = meta.icon;
-            const toolId = meta.id;
+            const toolSEO = TOOLS.find((t) => t.slug === tool.slug)!;
+            const Icon = iconMap[toolSEO.icon] || Sparkles;
+            const toolId = toolSEO.id;
 
             let badge = null;
-            if (toolId === 'merge')
-              badge = {
-                text: t('popular'),
-                color: 'bg-security-green/10 text-security-green border-security-green/20',
+            if (toolSEO.badge) {
+              const badgeColors: Record<string, string> = {
+                popular: 'bg-security-green/10 text-security-green border-security-green/20',
+                smart_reduction: 'bg-tertiary-fixed-dim/10 text-tertiary-fixed-dim border-tertiary-fixed-dim/20',
+                ai_hybrid: 'bg-primary-fixed/10 text-primary-fixed border-primary-fixed/20',
+                offline_aes: 'bg-critical-red/10 text-critical-red border-critical-red/20',
+                fast_convert: 'bg-warning-amber/10 text-warning-amber border-warning-amber/20',
+                extractor: 'bg-sky-400/10 text-sky-400 border-sky-400/20',
+                visual_extract: 'bg-indigo-400/10 text-indigo-400 border-indigo-400/20',
+                interactive_order: 'bg-fuchsia-400/10 text-fuchsia-400 border-fuchsia-400/20',
               };
-            else if (toolId === 'compress')
               badge = {
-                text: t('smart_reduction'),
-                color:
-                  'bg-tertiary-fixed-dim/10 text-tertiary-fixed-dim border-tertiary-fixed-dim/20',
+                text: t(toolSEO.badge),
+                color: badgeColors[toolSEO.badge] || 'bg-slate-400/10 text-slate-400 border-slate-400/20',
               };
-            else if (toolId === 'ai-analyze')
-              badge = {
-                text: t('ai_hybrid'),
-                color: 'bg-primary-fixed/10 text-primary-fixed border-primary-fixed/20',
-              };
-            else if (toolId === 'protect')
-              badge = {
-                text: t('offline_aes'),
-                color: 'bg-critical-red/10 text-critical-red border-critical-red/20',
-              };
-            else if (toolId === 'img-to-pdf')
-              badge = {
-                text: t('fast_convert'),
-                color: 'bg-warning-amber/10 text-warning-amber border-warning-amber/20',
-              };
-            else if (toolId === 'delete-pages')
-              badge = {
-                text: t('extractor'),
-                color: 'bg-sky-400/10 text-sky-400 border-sky-400/20',
-              };
+            }
 
             return (
               <button
@@ -532,9 +471,9 @@ export const HomePage: React.FC = () => {
               <div className="w-16 h-16 rounded-full bg-surface-container-high border border-border-muted flex items-center justify-center mb-5 shadow-inner">
                 <Layers className="w-6 h-6 text-primary-fixed fill-primary-fixed/10" />
               </div>
-              <h3 className="text-base font-bold text-primary mb-2.5">13 Tools</h3>
+              <h3 className="text-base font-bold text-primary mb-2.5">{TOOLS.filter((t) => t.type === 'tool').length} Tools</h3>
               <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-                Get complete document coverage with 13 local tools including Merge, Split, Compress,
+                Get complete document coverage with {TOOLS.filter((t) => t.type === 'tool').length} local tools including Merge, Split, Compress,
                 Rotate, Watermark, and even private AI PDF Analysis.
               </p>
             </div>
@@ -588,7 +527,7 @@ export const HomePage: React.FC = () => {
             },
             {
               q: 'Does PDFMinty work offline without an active network?',
-              a: 'Yes! Since all operations run purely inside your client browser, our core suite of 13 tools works flawlessly even if you are entirely disconnected from the internet.',
+              a: `Yes! Since all operations run purely inside your client browser, our core suite of ${TOOLS.filter((t) => t.type === 'tool').length} tools works flawlessly even if you are entirely disconnected from the internet.`,
             },
             {
               q: 'Can I use PDFMinty on my tablet or mobile device?',

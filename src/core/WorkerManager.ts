@@ -124,7 +124,7 @@ export class WorkerManager {
       case 'unlockPDF':
         return await ops.unlockPDF(payload);
       case 'pdfToImage':
-        return await ops.pdfToImage(payload.bytes, payload.originalName, payload.scale);
+        return await ops.pdfToImage(payload.bytes, payload.originalName, payload.scale, payload.maxPages);
       default:
         throw new Error(`Unknown operation: ${operation}`);
     }

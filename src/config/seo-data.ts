@@ -10,6 +10,9 @@ export interface ToolSEOInfo {
   metaDescription: string;
   h1: string;
   icon: string;
+  iconColor?: string;
+  badge?: string;
+  homeRank?: number;
   category: string;
   priority: number;
   changefreq: string;
@@ -20,6 +23,7 @@ export interface ToolSEOInfo {
     totalTime: string;
     steps: string[];
   };
+  faqs?: { q: string; a: string }[];
 }
 
 export const TOOLS: ToolSEOInfo[] = [
@@ -33,6 +37,9 @@ export const TOOLS: ToolSEOInfo[] = [
       'Merge PDF files online for free. Combine multiple PDF documents into one single secure file right inside your web browser. No server uploads, keeping your data confidential.',
     h1: 'Merge PDF Files Online with Absolute Privacy',
     icon: 'Merge',
+    iconColor: 'text-security-green',
+    badge: 'popular',
+    homeRank: 1,
     category: 'page-operations',
     priority: 0.9,
     changefreq: 'monthly',
@@ -47,6 +54,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Download your newly merged PDF file instantly.',
       ],
     },
+    faqs: [
+      {
+        q: 'Can I merge password-protected PDFs?',
+        a: 'Password-protected or encrypted PDFs cannot be merged directly. You must first unlock them using our "Unlock PDF" tool before combining them.',
+      },
+      {
+        q: 'Is there a limit to the number of files or file size I can merge?',
+        a: 'No. Because all processing happens directly on your device rather than on our servers, there are no file size triggers or file count restrictions.',
+      },
+      {
+        q: 'Will merging PDFs affect the formatting, fonts, or links?',
+        a: 'No. Our merging engine retains all text formatting, embedded fonts, vectors, active hyperlinks, and original page layouts without modification.',
+      },
+      {
+        q: 'Is my data safe when merging files here?',
+        a: 'Yes, absolutely. Your documents are merged fully in your browser sandbox using local client-side processing. Your file packets never navigate over network channels.',
+      },
+    ],
     longFormBody: `
       <h1>Merge PDF Files Online with Absolute Privacy</h1>
       <p>PDFMinty introduces a fundamentally modern, secure way to combine your critical administrative documents. Traditionally, using free online PDF mergers meant uploading your tax returns, financial records, or medical scans to unknown cloud servers. PDFMinty relies entirely on offline-capable browser sandboxing, meaning your private pages are combined piece-by-piece right on your local device. This client-side execution makes it physically impossible for unauthorized entities to intercept your files.</p>
@@ -76,6 +101,8 @@ export const TOOLS: ToolSEOInfo[] = [
       'Split PDF pages or extract custom page ranges online. Free browser-side utility to separate complex PDF documents into smaller parts securely.',
     h1: 'Split PDF Online - Extract Pages with Absolute Privacy',
     icon: 'Scissors',
+    iconColor: 'text-security-green',
+    homeRank: 3,
     category: 'page-operations',
     priority: 0.9,
     changefreq: 'monthly',
@@ -90,6 +117,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Download the split PDF file to your machine instantly.',
       ],
     },
+    faqs: [
+      {
+        q: 'How do I specify which pages to extract?',
+        a: 'You can type specific page numbers or ranges, such as "1-3, 5, 8-10". Comma-separated or hyphenated formats are fully supported.',
+      },
+      {
+        q: 'Will the extracted PDF be larger in file size?',
+        a: 'No. The splitting processor isolates internal document streams precisely, preserving target vectors while discarding unselected resource footprints.',
+      },
+      {
+        q: 'Can I split encrypted PDF files?',
+        a: 'You must decrypt secured or locked files before splitting them. Please use our "Unlock PDF" tool first if you know the password of the file.',
+      },
+      {
+        q: 'Is split processing done on your cloud servers?',
+        a: 'No. The splitting routine binds directly inside your browser cache. This client-side execution makes it impossible for third parties to view your records.',
+      },
+    ],
     longFormBody: `
       <h1>Split PDF Online - Extract Pages with Absolute Privacy</h1>
       <p>Dealing with massive documents or manuals often means you only need a couple of pages. PDFMinty's split PDF tool extracts target page ranges with surgical utility. Unlike legacy services that host server processes to rip files apart, our system uses client-side parser bindings. This allows you to split pages or isolate multi-page scopes on your laptop or smartphone without exposing confidential content.</p>
@@ -119,6 +164,9 @@ export const TOOLS: ToolSEOInfo[] = [
       'Reduce your PDF file size online without losing quality. Complete offline-first compression on your machine, securing confidential files.',
     h1: 'Compress PDF Online - Reduce PDF File Size Securely',
     icon: 'Minimize2',
+    iconColor: 'text-security-green',
+    badge: 'smart_reduction',
+    homeRank: 2,
     category: 'utilities',
     priority: 0.9,
     changefreq: 'monthly',
@@ -133,6 +181,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Download your optimized, much smaller PDF file.',
       ],
     },
+    faqs: [
+      {
+        q: 'How does the optimizer reduce PDF size without losing quality?',
+        a: 'It removes redundant document metadata, compresses raw coordinate structures, and optimizes subset fonts while keeping core content completely legible.',
+      },
+      {
+        q: 'Will the images in my PDF become blurry?',
+        a: 'Our medium setting balances quality and compression by keeping standard preview resolutions. Use the light setting to optimize without touching any image scales.',
+      },
+      {
+        q: 'Can I compress active electronic forms?',
+        a: 'Yes. Form fields, digital signatures, and interactive overlays remain intact and responsive during compression.',
+      },
+      {
+        q: 'Does PDFMinty keep a copy of my compressed records?',
+        a: 'Never. All compression operations run locally inside your device\'s browser memory. No data is uploaded or stored on any external server.',
+      },
+    ],
     longFormBody: `
       <h1>Compress PDF Online - Reduce PDF File Size Securely</h1>
       <p>High-resolution graphics or heavy embedded fonts can inflate a PDF's size, triggering email bounce-backs and slow upload speeds. PDFMinty's offline PDF compression optimizes document footprints without degrading readability. The optimizer works inside your browser, so you never hand confidential slides or corporate reports to third-party databases.</p>
@@ -162,6 +228,8 @@ export const TOOLS: ToolSEOInfo[] = [
       'Rotate PDF pages clockwise or counterclockwise. Flip individual pages or rotate all pages in seconds from your web browser safely.',
     h1: 'Rotate PDF Pages Online with Instant Verification',
     icon: 'RotateCw',
+    iconColor: 'text-security-green',
+    homeRank: 9,
     category: 'page-operations',
     priority: 0.8,
     changefreq: 'monthly',
@@ -176,6 +244,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Download the correctly oriented PDF file.',
       ],
     },
+    faqs: [
+      {
+        q: 'Can I rotate only a single page of a larger PDF?',
+        a: 'Yes. You can click on specific page thumbnails to rotate selected pages separately, or rotate all pages in the document simultaneously.',
+      },
+      {
+        q: 'Does rotating pages alter the original resolution or layout?',
+        a: 'No. Page rotation simply updates the "Rotate" tag coordinate inside the PDF\'s native structural catalog. Text, vector layers, and layouts remain identical.',
+      },
+      {
+        q: 'Is there a limit to the document size I can rotate?',
+        a: 'No. Page orientation shifts are incredibly lightweight and fast. The changes are written to the document schema instantly in your browser.',
+      },
+      {
+        q: 'Do you store my rotated documents?',
+        a: 'No files are ever saved or transmitted. The rotation happens on your computer locally, guaranteeing 100% data confidentiality.',
+      },
+    ],
     longFormBody: `
       <h1>Rotate PDF Pages Online with Instant Verification</h1>
       <p>Mismatched column alignments, inverted form scans, or sideways landscape architectural blueprints can disrupt reading. PDFMinty's browser-bound rotate PDF utility easily corrects page orientation. You can select specific pages or rotate all pages simultaneously, watching the layout shift in real-time, all completely on your local device.</p>
@@ -205,6 +291,9 @@ export const TOOLS: ToolSEOInfo[] = [
       'Remove unwanted pages from your PDF file securely. Clean and select visual thumbnail pages to delete in your browser without cloud uploads.',
     h1: 'Delete PDF Pages Online - Eliminate Unwanted Sheets',
     icon: 'Trash2',
+    iconColor: 'text-security-green',
+    badge: 'extractor',
+    homeRank: 8,
     category: 'organize',
     priority: 0.8,
     changefreq: 'monthly',
@@ -219,6 +308,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Instantly download the newly cleaned PDF document.',
       ],
     },
+    faqs: [
+      {
+        q: 'Can I undo deleting page thumbnails before compiling?',
+        a: 'Yes. You can click or toggle page selection cards on and off to easily adjust what pages to delete before clicking the final process button.',
+      },
+      {
+        q: 'Does deleting pages reduce the overall PDF file size?',
+        a: 'Yes. The processor removes deleted page structures and their associated media elements, resulting in a cleaner, lighter PDF document.',
+      },
+      {
+        q: 'Can I delete pages from protected PDFs?',
+        a: 'You must enter the authorized password to unlock encrypted files first before editing page layouts or deleting specific pages.',
+      },
+      {
+        q: 'Is my document text analyzed or sent to the cloud?',
+        a: 'No. Your pages are rendered and cropped inside local browser sandboxes. No files or personal text ever travel over remote web servers.',
+      },
+    ],
     longFormBody: `
       <h1>Delete PDF Pages Online - Eliminate Unwanted Sheets</h1>
       <p>Preparing a document for presentation often requires cutting unnecessary filler, confidential metadata, or blank trailing pages. PDFMinty's delete pages feature makes editing simple. Our visual workspace lets you select, toggle, and strip out unwanted sheets locally, ensuring confidential details stay within your device boundaries.</p>
@@ -247,7 +354,10 @@ export const TOOLS: ToolSEOInfo[] = [
     metaDescription:
       'Isolate and extract specific pages from your PDF documents. Save individual pages as a brand new secure PDF locally, 100% in-browser.',
     h1: 'Extract PDF Pages Safely - Isolate Crucial Documents',
-    icon: 'Scissors',
+    icon: 'CheckSquare',
+    iconColor: 'text-security-green',
+    badge: 'visual_extract',
+    homeRank: 4,
     category: 'organize',
     priority: 0.8,
     changefreq: 'monthly',
@@ -262,6 +372,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Download the new, smaller PDF containing only the selected pages.',
       ],
     },
+    faqs: [
+      {
+        q: 'How is "Extract Pages" different from "Split PDF"?',
+        a: '"Extract Pages" provides an interactive, visual interface where you can preview and select thumbnails, whereas "Split PDF" lets you specify custom ranges using text input.',
+      },
+      {
+        q: 'Will hyperlinks or bookmarks stay active in the extracted pages?',
+        a: 'Yes. Active links, internal bookmarks, outline definitions, and formatting are preserved for all extracted pages.',
+      },
+      {
+        q: 'Can I extract pages and rearrange them at the same time?',
+        a: 'To extract pages, use this tool. Once extracted and downloaded, you can use our "Reorder PDF Pages" tool to easily rearrange their sequence.',
+      },
+      {
+        q: 'Is visual page extraction secure in my browser?',
+        a: 'Yes. Rendered page images are loaded locally and are never transmitted over the internet or indexed by online search engines.',
+      },
+    ],
     longFormBody: `
       <h1>Extract PDF Pages Safely - Isolate Crucial Documents</h1>
       <p>PDFMinty's extract PDF pages tool allows you to pull important sheets out of complex reports and save them as standalone files. Keep your relevant tax summaries, contract signatures, or chart illustrations, while discarding the rest of the document. Like all PDFMinty tools, the extraction process is completed directly in your browser with zero server latency.</p>
@@ -290,7 +418,10 @@ export const TOOLS: ToolSEOInfo[] = [
     metaDescription:
       'Rearrange the page order of your PDF document online for free. Drag, drop and organize page thumbnails privately inside your browser.',
     h1: 'Reorder PDF Pages - Arrange and Organize Pages Online',
-    icon: 'Layers',
+    icon: 'Move',
+    iconColor: 'text-security-green',
+    badge: 'interactive_order',
+    homeRank: 5,
     category: 'organize',
     priority: 0.8,
     changefreq: 'monthly',
@@ -305,6 +436,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Download your reorganized PDF file instantly.',
       ],
     },
+    faqs: [
+      {
+        q: 'How does visual reordering work?',
+        a: 'Upload your PDF to view interactive page cards. Drag and drop the page previews into your desired position, and click download to compile.',
+      },
+      {
+        q: 'Does rearranging pages mess up my document\'s index or table of contents?',
+        a: 'It organizes target pages physically, but does not auto-rewrite text titles. Double-check your page references if you change the structure significantly.',
+      },
+      {
+        q: 'Can I reorder files of any size?',
+        a: 'Yes. Large documents are rendered locally as lightweight thumbnails at an optimized resolution so you can arrange them smoothly to prevent lags.',
+      },
+      {
+        q: 'Does PDFMinty upload my reordered chapters to a server?',
+        a: 'No files are transferred. The reordering calculation runs entirely in your local browser sandbox, giving you absolute privacy.',
+      },
+    ],
     longFormBody: `
       <h1>Reorder PDF Pages - Arrange and Organize Pages Online</h1>
       <p>Scanned files and compiled reports can easily end up with pages mixed up or out of sequence. PDFMinty's reorder PDF pages tool provides an easy drag-and-drop workspace to organize your document layouts. This interactive interface works 100% inside your web browser, keeping your page ordering simple, fast, and completely private.</p>
@@ -334,6 +483,8 @@ export const TOOLS: ToolSEOInfo[] = [
       'Protect and stamp your PDF files online with a secure custom watermark. Custom styling, transparency, and positioning locally.',
     h1: 'Add Watermark to PDF - Overlay Custom Text Seals Safely',
     icon: 'Bookmark',
+    iconColor: 'text-security-green',
+    homeRank: 10,
     category: 'security-edit',
     priority: 0.8,
     changefreq: 'monthly',
@@ -348,6 +499,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Apply the watermark stamp and download your protected document.',
       ],
     },
+    faqs: [
+      {
+        q: 'Can someone easily strip my watermark text overlay?',
+        a: 'Watermarks are stamped directly to the document vectors and graphic plates, making them very difficult to remove without professional PDF editing tools.',
+      },
+      {
+        q: 'Can I customize watermark text size, angles, and transparency?',
+        a: 'Yes. You can customize the overlay text, choose diagonal or straight rotation angles, set desired transparency levels, and scale font sizes easily.',
+      },
+      {
+        q: 'Will the watermark cover up my original text?',
+        a: 'You can adjust the opacity slider to make the watermark text semi-transparent. This ensures your background content remains highly readable.',
+      },
+      {
+        q: 'Are my custom watermark terms or files saved?',
+        a: 'No. Watermark stamping is calculated fully in-browser through offscreen rendering. Your inputs and layouts stay private to your workspace.',
+      },
+    ],
     longFormBody: `
       <h1>Add Watermark to PDF - Overlay Custom Text Seals Safely</h1>
       <p>Stamping documents with custom text overlays is a great way to safeguard intellectual property, label drafts, and discourage unauthorized sharing. PDFMinty's watermark tool lets you apply customizable, transparent watermarks to all of your PDF pages locally, right inside your web browser, without relying on vulnerable cloud servers.</p>
@@ -377,6 +546,8 @@ export const TOOLS: ToolSEOInfo[] = [
       'Insert page numbers into your PDF file. Customize numbering formats, header or footer layouts, and alignment completely in-browser.',
     h1: 'Add Page Numbers to PDF - Format Documents Instantly',
     icon: 'Hash',
+    iconColor: 'text-security-green',
+    homeRank: 11,
     category: 'security-edit',
     priority: 0.8,
     changefreq: 'monthly',
@@ -391,6 +562,24 @@ export const TOOLS: ToolSEOInfo[] = [
         "Click 'Add Page Numbers' and download your updated PDF.",
       ],
     },
+    faqs: [
+      {
+        q: 'Where are the page numbers placed on my PDF sheet?',
+        a: 'You can place page numbers in headers (top) or footers (bottom), aligned to the left side, center, or right side of the pages.',
+      },
+      {
+        q: 'Can I skip adding page numbers on the first page?',
+        a: 'Yes. You can choose whether to number all pages or skip numbering on the first sheet (useful for title pages and cover slides).',
+      },
+      {
+        q: 'Can I customize the numbering format and starting index?',
+        a: 'Yes. You can change standard text patterns, select professional templates, and define custom starting pages or step increments easily.',
+      },
+      {
+        q: 'Will adding page numbers overwrite any of my existing headers or text?',
+        a: 'Page numbers are aligned cleanly in your document\'s blank margins. Make sure your layout has sufficient footer/header breathing space to avoid overlap.',
+      },
+    ],
     longFormBody: `
       <h1>Add Page Numbers to PDF - Format Documents Instantly</h1>
       <p>Unnumbered documents are difficult to navigate and reference in professional and academic settings. PDFMinty's page numbers tool lets you automatically stamp consistent, clear page counts onto your PDFs. Best of all, our tool operates entirely within your web browser, keeping your files safe, secure, and private.</p>
@@ -420,6 +609,8 @@ export const TOOLS: ToolSEOInfo[] = [
       'Add clear blank pages anywhere in your PDF file. Select custom layout sizes like Letter or A4 to insert blank pages securely.',
     h1: 'Add Blank Page to PDF - Insert Space Margins Safely',
     icon: 'FilePlus',
+    iconColor: 'text-security-green',
+    homeRank: 14,
     category: 'organize',
     priority: 0.8,
     changefreq: 'monthly',
@@ -434,6 +625,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Click the insert button and download the updated file.',
       ],
     },
+    faqs: [
+      {
+        q: 'Where can I insert an empty blank sheet in my PDF document?',
+        a: 'You can insert blank pages at the very start of the document, at the end, or after any specific page number of your choice.',
+      },
+      {
+        q: 'What paper templates and layouts are supported?',
+        a: 'Our compiler supports A4, Letter, and custom formats, and automatically matches the paper dimensions and orientations of your existing pages.',
+      },
+      {
+        q: 'Will inserting a blank page corrupt my active hyperlinks?',
+        a: 'No. The internal cross-reference list is systematically updated to offset subsequent page layouts, leaving internal links and bookmarks functional.',
+      },
+      {
+        q: 'Is it safe to add spacing pages to my official documents here?',
+        a: 'Absolutely. Processing runs entirely on your local machine. Your commercial files, invoices, and contracts never exit your browser.',
+      },
+    ],
     longFormBody: `
       <h1>Add Blank Page to PDF - Insert Space Margins Safely</h1>
       <p>Whether you're creating printable planners, preparing double-sided reports, or adding section break space, adding blank pages to your PDFs is easy with PDFMinty. Our offline tool lets you quickly insert clean, blank pages into your documents, keeping your editing private, fast, and secure.</p>
@@ -463,6 +672,9 @@ export const TOOLS: ToolSEOInfo[] = [
       'Secure your PDF files with high-strength file access passwords. Completely local in-browser encryption safeguards sensitive business files.',
     h1: 'Password Protect PDF - Secure Documents with AES Encryption',
     icon: 'Shield',
+    iconColor: 'text-security-green',
+    badge: 'offline_aes',
+    homeRank: 12,
     category: 'security-edit',
     priority: 0.8,
     changefreq: 'monthly',
@@ -477,6 +689,24 @@ export const TOOLS: ToolSEOInfo[] = [
         "Click 'Protect PDF' and download your secure encrypted file.",
       ],
     },
+    faqs: [
+      {
+        q: 'How strong is the password protection applied to my PDF?',
+        a: 'We use high-strength standard cryptographic file-locking models. Unlocking the PDF requires brute-forcing, making it extremely secure.',
+      },
+      {
+        q: 'What is the difference between an owner password and a user password?',
+        a: 'A "User Password" restricts open permissions, requiring password entry to view content. An "Owner Password" lets users read but blocks printing, copying, or modifications.',
+      },
+      {
+        q: 'Can I set permissions to disable only printing?',
+        a: 'Yes. You can choose to encrypt file access completely or enforce specific restrictions to disable text copying and printing separately.',
+      },
+      {
+        q: 'Does PDFMinty know or store my chosen password?',
+        a: 'No. Encryption calculations run locally. We have no backend databases or telemetry logs, so we can never recover a forgotten password.',
+      },
+    ],
     longFormBody: `
       <h1>Password Protect PDF - Secure Documents with AES Encryption</h1>
       <p>PDFMinty's protect tool lets you lock your sensitive PDF documents with robust encryption. Encrypting your files ensures key tax filings, financial spreadsheets, or business reports are shielded from prying eyes. Best of all, our high-speed tool encrypts your files directly in your web browser, keeping your passwords and content completely confidential.</p>
@@ -506,6 +736,8 @@ export const TOOLS: ToolSEOInfo[] = [
       'Decrypt standard password protections from your PDFs. Strip file-restrictions and render your unlocked documents instantly in-browser.',
     h1: 'Unlock PDF - Decrypt Password Restricted PDF Documents',
     icon: 'Lock',
+    iconColor: 'text-security-green',
+    homeRank: 13,
     category: 'security-edit',
     priority: 0.8,
     changefreq: 'monthly',
@@ -520,6 +752,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Download your unlocked, restriction-free PDF file.',
       ],
     },
+    faqs: [
+      {
+        q: 'Can I unlock a protected PDF if I do not know the password?',
+        a: 'No. To unlock a file, you must enter the correct authorized password. Our tool is a clean decryptor, not a brute-force hacking tool.',
+      },
+      {
+        q: 'What kinds of security restrictions can I remove with this tool?',
+        a: 'It strips away print bans, copy-paste blocks, page editing constraints, and password protection flags, reverting documents to standard files.',
+      },
+      {
+        q: 'Will decrypting a PDF alter its formatting or image quality?',
+        a: 'No. Unlocking only changes security headers and permission streams inside the document structure. Your fonts, formatting, and layouts remain unchanged.',
+      },
+      {
+        q: 'Is it safe to type my sensitive passwords on your website?',
+        a: 'Yes. Decryption runs 100% locally in your browser sandbox using your CPU. No password characters or document bytes are sent over the network.',
+      },
+    ],
     longFormBody: `
       <h1>Unlock PDF - Decrypt Password Restricted PDF Documents</h1>
       <p>PDFMinty's unlock tool lets you quickly decrypt pages so you can access, read, and print your files hassle-free. If you're tired of entering credentials every time you open a file, or if you need to print a restricted PDF, our tool handles it in seconds directly inside your web browser.</p>
@@ -549,6 +799,9 @@ export const TOOLS: ToolSEOInfo[] = [
       'Convert images to PDF documents for free. Assemble JPG, PNG, and WebP files into single clean PDF pages completely inside your web browser.',
     h1: 'Convert Image to PDF - Turn JPEG and PNG Photos into PDFs',
     icon: 'Image',
+    iconColor: 'text-security-green',
+    badge: 'fast_convert',
+    homeRank: 6,
     category: 'convert',
     priority: 0.8,
     changefreq: 'monthly',
@@ -563,6 +816,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Download your newly created PDF file to your machine.',
       ],
     },
+    faqs: [
+      {
+        q: 'Can I convert multiple JPG or PNG images into a single PDF?',
+        a: 'Yes. You can upload multiple files at once, drag the thumbnail cards to arrange their page order, and generate a clean, unified multi-page PDF.',
+      },
+      {
+        q: 'Will converting images to PDF reduce their original quality?',
+        a: 'No. Our converter translates raw raster bytes directly into lossless vector layout envelopes inside the PDF, keeping your layout crisp.',
+      },
+      {
+        q: 'Can I mix different image sizes and formats in the same file?',
+        a: 'Yes. You can upload a mix of PNG, JPEG, and WebP, and set output paper sizes like A4 or Letter to fit files cleanly.',
+      },
+      {
+        q: 'Are my personal photos uploaded to a cloud server?',
+        a: 'No. Image parsing and envelope packing occur entirely within your browser memory. Your personal images never leave your local workspace.',
+      },
+    ],
     longFormBody: `
       <h1>Convert Image to PDF - Turn JPEG and PNG Photos into PDFs</h1>
       <p>Converting scanned files, sketches, and mobile photos into clean, organized PDFs can make them much easier to view and share. PDFMinty's image to PDF tool lets you combine JPG, PNG, and WebP files into professional documents. Our conversion process runs 100% locally in your web browser, keeping your photos secure without uploading them to remote servers.</p>
@@ -592,6 +863,8 @@ export const TOOLS: ToolSEOInfo[] = [
       'Convert PDF pages to lossless PNG or high-quality JPG images. Zero uploading means document text elements remain private and local.',
     h1: 'Convert PDF to Image - Export Pages to PNG and JPEG',
     icon: 'Eye',
+    iconColor: 'text-security-green',
+    homeRank: 7,
     category: 'convert',
     priority: 0.8,
     changefreq: 'monthly',
@@ -606,6 +879,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Download your converted images inside a single ZIP folder.',
       ],
     },
+    faqs: [
+      {
+        q: 'Why is there a customizable page conversion limit setting?',
+        a: 'Rendering high-definition images (1.5x) uses substantial memory. Large PDFs can freeze your tab if converted all at once, so we provide customizable limits with a memory warning.',
+      },
+      {
+        q: 'What formats can I export my PDF pages into?',
+        a: 'You can export pages as lossless, highly detailed PNG files or optimized JPG sheets. The images are conveniently compressed into a single ZIP archive.',
+      },
+      {
+        q: 'Can I convert password-protected documents to images?',
+        a: 'Yes, but you must first decrypt the secured PDF files using our "Unlock PDF" tool before converting pages to raster images.',
+      },
+      {
+        q: 'Is it secure to convert confidential invoices to images?',
+        a: 'Yes. The canvas drawing sequence executes entirely on your local machine using the browser viewport. No server assets or remote databases are utilized.',
+      },
+    ],
     longFormBody: `
       <h1>Convert PDF to Image - Export Pages to PNG and JPEG</h1>
       <p>Converting PDF pages into individual image files can make them easy to share, view on mobile devices, or use in web projects. PDFMinty's PDF to image tool converts files into lossless PNGs or high-quality JPGs in seconds. Best of all, our conversion process runs entirely in your web browser, keeping your critical documents completely private and secure.</p>
@@ -635,6 +926,9 @@ export const TOOLS: ToolSEOInfo[] = [
       'Analyze PDF files with edge AI. Securely summarize, chat with, and extract deep structural details from your PDF contents with privacy in mind.',
     h1: 'AI Analyze PDF - Summarize and Query Documents with Gemini',
     icon: 'Sparkles',
+    iconColor: 'text-security-green',
+    badge: 'ai_hybrid',
+    homeRank: 15,
     category: 'intelligence',
     priority: 0.85,
     changefreq: 'weekly',
@@ -649,6 +943,24 @@ export const TOOLS: ToolSEOInfo[] = [
         'Read or copy the AI-generated answers and analytical breakdowns.',
       ],
     },
+    faqs: [
+      {
+        q: 'Is my entire document uploaded to third-party databases?',
+        a: 'No. To safeguard your privacy, PDFMinty parses your text characters locally inside your browser, only sending plain text prompts to secure server-side API links.',
+      },
+      {
+        q: 'Is there a maximum character count for AI analysis?',
+        a: 'Our parser handles standard books and complex documents. If a document is exceptionally large, some text pools are prioritized to fit within the prompt window.',
+      },
+      {
+        q: 'Can the AI translate my PDF text to other languages?',
+        a: 'Yes. You can ask our AI Analyzer to summarize, rewrite, translate text layers, and search for specific data inside your files in the chat box.',
+      },
+      {
+        q: 'Does the AI analyze scanned hand-written paper or photos?',
+        a: 'Scanned text requires OCR. If your PDF has selectable text layer blocks, the analyzer can read them easily. For scans, make sure characters are crisp.',
+      },
+    ],
     longFormBody: `
       <h1>AI Analyze PDF - Summarize and Query Documents with Gemini</h1>
       <p>Reading through lengthy PDFs, research papers, legal contracts, or technical manuals can be incredibly time-consuming. PDFMinty's AI Analyze tool lets you summarize and chat with your documents using powerful artificial intelligence, helping you find key insights instantly.</p>

@@ -7,6 +7,8 @@ import {
   RefreshCw,
   CheckCircle2,
 } from 'lucide-react';
+// @ts-expect-error - Vite will bundle the worker from the package and return its URL path
+import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -19,7 +21,7 @@ let pdfjsLib: any = null;
 const loadPdfjs = async () => {
   if (!pdfjsLib) {
     pdfjsLib = await import('pdfjs-dist');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '4.3.136'}/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
   }
   return pdfjsLib;
 };

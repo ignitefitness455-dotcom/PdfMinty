@@ -1,4 +1,4 @@
-import { ArrowLeft, Trash2, Download, AlertCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Trash2, Download, AlertCircle, AlertTriangle, Loader2, CheckSquare, Square } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -11,13 +11,84 @@ export const DeletePagesPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [pagesStr, setPagesStr] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [renderingThumbnails, setRenderingThumbnails] = useState(false);
+  const [thumbnails, setThumbnails] = useState<{ page: number; dataUrl: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFilesSelected = (files: File[]) => {
+  const urlsRef = React.useRef<string[]>([]);
+
+  React.useEffect(() => {
+    urlsRef.current = thumbnails.map((t) => t.dataUrl);
+  }, [thumbnails]);
+
+  React.useEffect(() => {
+    return () => {
+      // Clean up all generated URLs when leaving page
+      urlsRef.current.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, []);
+
+  const handleFilesSelected = async (files: File[]) => {
     if (files.length > 0) {
-      setSelectedFile(files[0]);
+      thumbnails.forEach((t) => URL.revokeObjectURL(t.dataUrl));
+      const file = files[0];
+      setSelectedFile(file);
       setError(null);
+      setPagesStr('');
+      setThumbnails([]);
+
+      setRenderingThumbnails(true);
+      try {
+        const fileBytes = new Uint8Array(await file.arrayBuffer());
+        const rendered = await WorkerManager.getInstance().runOperation<
+          { page: number; imageBytes: Uint8Array }[]
+        >('pdfToImage', { bytes: fileBytes, originalName: file.name, scale: 0.3 }, [
+          fileBytes.buffer,
+        ]);
+        const mapped = rendered.map((item) => {
+          const blob = new Blob([item.imageBytes as any], { type: 'image/png' });
+          return {
+            page: item.page,
+            dataUrl: URL.createObjectURL(blob),
+          };
+        });
+        setThumbnails(mapped);
+      } catch (err: any) {
+        console.error('Failed to render previews:', err);
+        setError('Previews could not be rendered, but you can still delete pages using standard input.');
+      } finally {
+        setRenderingThumbnails(false);
+      }
     }
+  };
+
+  const parsedPagesToDelete = React.useMemo(() => {
+    return pagesStr
+      .split(',')
+      .map((p) => parseInt(p.trim(), 10))
+      .filter((p) => !isNaN(p));
+  }, [pagesStr]);
+
+  const togglePageDeletion = (pageNumber: number) => {
+    let newPages: number[];
+    if (parsedPagesToDelete.includes(pageNumber)) {
+      newPages = parsedPagesToDelete.filter((p) => p !== pageNumber);
+    } else {
+      newPages = [...parsedPagesToDelete, pageNumber].sort((a, b) => a - b);
+    }
+    setPagesStr(newPages.join(', '));
+  };
+
+  const selectAll = () => {
+    if (thumbnails.length > 0) {
+      setPagesStr(thumbnails.map((t) => t.page).join(', '));
+    }
+  };
+
+  const clearSelection = () => {
+    setPagesStr('');
   };
 
   const handleDelete = async () => {
@@ -97,6 +168,7 @@ export const DeletePagesPage: React.FC = () => {
                 onFilesSelected={handleFilesSelected}
                 title="Select a PDF to organize"
                 subtitle="Drag a PDF file here or browse"
+                accept="application/pdf"
               />
             ) : (
               <div
@@ -110,7 +182,11 @@ export const DeletePagesPage: React.FC = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => setSelectedFile(null)}
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setThumbnails([]);
+                    setPagesStr('');
+                  }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Change File
@@ -118,6 +194,96 @@ export const DeletePagesPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          {selectedFile && (
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                <h3 className="text-sm font-extrabold text-slate-700">
+                  Select Pages to Delete
+                </h3>
+                {thumbnails.length > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={selectAll}
+                      className="text-xs font-semibold text-rose-600 hover:underline bg-slate-50 py-1 px-2.5 rounded-lg border border-slate-200"
+                    >
+                      Delete All
+                    </button>
+                    <button
+                      onClick={clearSelection}
+                      className="text-xs font-semibold text-slate-500 hover:underline bg-slate-50 py-1 px-2.5 rounded-lg border border-slate-200"
+                    >
+                      Keep All
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {renderingThumbnails ? (
+                <div
+                  className="flex flex-col items-center justify-center p-12 space-y-3"
+                  id="delete_thumbnails_loader"
+                >
+                  <Loader2 className="w-8 h-8 text-rose-600 animate-spin" />
+                  <p className="text-xs font-bold text-slate-400">
+                    Loading document pages structure...
+                  </p>
+                </div>
+              ) : thumbnails.length > 0 ? (
+                <div
+                  className="grid grid-cols-2 sm:grid-cols-3 gap-4"
+                  id="delete_thumbnails_interactive_grid"
+                >
+                  {thumbnails.map((item) => {
+                    const isSelected = parsedPagesToDelete.includes(item.page);
+                    return (
+                      <button
+                        key={item.page}
+                        id={`delete-page-thumbnail-btn-${item.page}`}
+                        onClick={() => togglePageDeletion(item.page)}
+                        className={`group relative aspect-[3/4] bg-slate-50 border-2 rounded-xl overflow-hidden focus:outline-none transition-all p-1 flex flex-col justify-between ${
+                          isSelected
+                            ? 'border-rose-500 ring-4 ring-rose-500/10'
+                            : 'border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="absolute top-2 left-2 z-10 p-1 bg-white border border-slate-200 rounded-lg shadow-sm">
+                          {isSelected ? (
+                            <CheckSquare className="w-4 h-4 text-rose-600" />
+                          ) : (
+                            <Square className="w-4 h-4 text-slate-300 group-hover:text-slate-400" />
+                          )}
+                        </div>
+
+                        <div className="w-full h-[85%] bg-white rounded-lg overflow-hidden flex items-center justify-center shadow-inner">
+                          <img
+                            src={item.dataUrl}
+                            alt={`Page ${item.page}`}
+                            referrerPolicy="no-referrer"
+                            className="max-w-full max-h-full object-contain"
+                          />
+                        </div>
+
+                        <div className="w-full flex items-center justify-center pt-1">
+                          <span
+                            className={`text-[10px] font-extrabold ${isSelected ? 'text-rose-600' : 'text-slate-500'}`}
+                          >
+                            Page {item.page}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                  <p className="text-xs text-slate-500">
+                    Could not load individual page previews.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="bg-amber-50 p-4 rounded-xl flex items-start space-x-2 border border-amber-200 text-xs text-amber-800 leading-normal">
             <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />

@@ -43,15 +43,36 @@ export default function InternalSEO() {
   const tool = toolsList.find((t) => `/${t.slug}` === location.pathname);
   if (!tool) return null;
   const APP_URL = SITE_URL;
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'WebApplication',
-    name: tool.name,
-    description: tool.description,
-    url: `${APP_URL}/${tool.slug}`,
-    applicationCategory: 'UtilityApplication',
-    operatingSystem: 'Any',
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-  };
+  const structuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: tool.name,
+      description: tool.description,
+      url: `${APP_URL}/${tool.slug}`,
+      applicationCategory: 'UtilityApplication',
+      operatingSystem: 'Any',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: `${APP_URL}/`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: tool.name,
+          item: `${APP_URL}/${tool.slug}`,
+        },
+      ],
+    },
+  ];
+
   return <script type="application/ld+json">{JSON.stringify(structuredData)}</script>;
 }

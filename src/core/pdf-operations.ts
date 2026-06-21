@@ -1,5 +1,7 @@
 import { PDFDocument as PDFDocumentEncrypt } from '@cantoo/pdf-lib';
 import { PDFDocument as PlainPDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib';
+// @ts-expect-error - Vite will bundle the worker from the package and return its URL path
+import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 import { PDF_PAGE_SIZES, WATERMARK_DEFAULTS, PAGE_NUMBER_DEFAULTS } from '../config/constants';
 
@@ -10,7 +12,7 @@ let pdfjsLib: any = null;
 const loadPdfjs = async () => {
   if (!pdfjsLib) {
     pdfjsLib = await import('pdfjs-dist');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '4.3.136'}/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
   }
   return pdfjsLib;
 };
@@ -415,7 +417,8 @@ export async function unlockPDF(payload: {
 export async function pdfToImage(
   bytes: Uint8Array,
   originalName: string,
-  scale: number = 1.5
+  scale: number = 1.5,
+  maxPages?: number
 ): Promise<{ page: number; imageBytes: Uint8Array }[]> {
   try {
     const { bytes: safeBytes } = PDFSanitizer.sanitize(bytes);
@@ -424,7 +427,7 @@ export async function pdfToImage(
     const loadingTask = pdf_js.getDocument({ data: safeBytes });
     const pdf = await loadingTask.promise;
 
-    const totalPages = Math.min(pdf.numPages, 10);
+    const totalPages = maxPages !== undefined ? Math.min(pdf.numPages, maxPages) : pdf.numPages;
     const rendered: { page: number; imageBytes: Uint8Array }[] = [];
 
     for (let i = 1; i <= totalPages; i++) {

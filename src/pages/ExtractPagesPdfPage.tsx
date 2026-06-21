@@ -54,7 +54,7 @@ export const ExtractPagesPdfPage: React.FC = () => {
         const fileBytes = new Uint8Array(await file.arrayBuffer());
         const rendered = await WorkerManager.getInstance().runOperation<
           { page: number; imageBytes: Uint8Array }[]
-        >('pdfToImage', { bytes: fileBytes, originalName: file.name, scale: 0.4 }, [
+        >('pdfToImage', { bytes: fileBytes, originalName: file.name, scale: 0.3 }, [
           fileBytes.buffer,
         ]);
         const mapped = rendered.map((item) => {
