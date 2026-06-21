@@ -60,24 +60,7 @@ const useTranslation = () => {
   };
 };
 
-const useDebounce = (value: string, delay: number) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  const [isDebouncing, setIsDebouncing] = useState(false);
-
-  useEffect(() => {
-    setIsDebouncing(true);
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-      setIsDebouncing(false);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return { debouncedValue, isDebouncing };
-};
+import { useDebounce } from '../hooks/useDebounce';
 
 const SearchComponent: React.FC<{
   value: string;

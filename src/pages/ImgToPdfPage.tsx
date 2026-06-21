@@ -184,7 +184,19 @@ export const ImgToPdfPage: React.FC = () => {
             <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
               Layout Guidelines
             </h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            
+            <div className="space-y-2">
+              <label className="block text-[11px] uppercase tracking-wide font-bold text-slate-500">
+                Page Size
+              </label>
+              <select className="w-full text-sm p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-fuchsia-500 transition-colors">
+                <option value="fit">Fit identical to Image</option>
+                <option value="a4">A4 (Standard Document)</option>
+                <option value="letter">US Letter</option>
+              </select>
+            </div>
+
+            <p className="text-xs text-slate-500 leading-relaxed pt-2">
               Uploaded files are mapped one-to-one to individual PDF pages. Standard widths match
               original photo bounds for premium preservation.
             </p>

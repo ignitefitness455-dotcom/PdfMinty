@@ -11,8 +11,8 @@ export const onRequest: PagesFunction = async (context) => {
   newHeaders.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()');
   newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
 
-  // Content Security Policy
-  // Baseline allow self, google fonts, googleapis (Gemini API), and disallow unsafe-eval
+  // IMPORTANT: The Content-Security-Policy string here MUST stay byte-identical
+  // with the one defined in public/_headers
   const cspDirectives = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline'",
@@ -20,6 +20,7 @@ export const onRequest: PagesFunction = async (context) => {
     "font-src 'self' data:",
     "img-src 'self' blob: data:",
     "connect-src 'self' https://*.googleapis.com https://generativelanguage.googleapis.com https://api.resend.com",
+    "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

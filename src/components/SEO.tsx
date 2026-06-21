@@ -39,36 +39,76 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
     canonicalUrl = `${SITE_URL}/${item.slug}`;
 
     if (item.type === 'tool') {
-      jsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'WebApplication',
-        name: `${SITE_NAME} - ${item.name}`,
-        url: canonicalUrl,
-        description: description,
-        applicationCategory: 'BusinessApplication',
-        operatingSystem: 'All',
-        browserRequirements: 'Requires HTML5, WebAssembly',
-      };
+      jsonLd = [
+        {
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: `${SITE_NAME} - ${item.name}`,
+          url: canonicalUrl,
+          description: description,
+          applicationCategory: 'BusinessApplication',
+          operatingSystem: 'All',
+          browserRequirements: 'Requires HTML5, WebAssembly',
+        },
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: SITE_URL,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: item.name,
+              item: canonicalUrl,
+            },
+          ],
+        }
+      ];
     } else if (item.type === 'article') {
-      jsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'Article',
-        headline: h1Text,
-        description: description,
-        url: canonicalUrl,
-        publisher: {
-          '@type': 'Organization',
-          name: 'PDFMinty',
-          logo: {
-            '@type': 'ImageObject',
-            url: `${SITE_URL}/og-image.png`,
+      jsonLd = [
+        {
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: h1Text,
+          description: description,
+          url: canonicalUrl,
+          publisher: {
+            '@type': 'Organization',
+            name: 'PDFMinty',
+            logo: {
+              '@type': 'ImageObject',
+              url: `${SITE_URL}/og-image.png`,
+            },
+          },
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': canonicalUrl,
           },
         },
-        mainEntityOfPage: {
-          '@type': 'WebPage',
-          '@id': canonicalUrl,
-        },
-      };
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: SITE_URL,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: item.name,
+              item: canonicalUrl,
+            },
+          ],
+        }
+      ];
     }
   } else if (location.pathname === '/') {
     // Standard homepage schema markup

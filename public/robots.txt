@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# API endpoints — don't index
+Disallow: /api/
+Disallow: /functions/
+
+# Sitemap
+Sitemap: https://pdfminty.com/sitemap.xml

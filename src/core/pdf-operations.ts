@@ -418,7 +418,8 @@ export async function pdfToImage(
   bytes: Uint8Array,
   originalName: string,
   scale: number = 1.5,
-  maxPages?: number
+  maxPages?: number,
+  format: 'image/png' | 'image/jpeg' = 'image/png'
 ): Promise<{ page: number; imageBytes: Uint8Array }[]> {
   try {
     const { bytes: safeBytes } = PDFSanitizer.sanitize(bytes);
@@ -450,14 +451,14 @@ export async function pdfToImage(
       if (context) {
         await page.render({ canvasContext: context as any, viewport }).promise;
         if (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas) {
-          const blob = await canvas.convertToBlob({ type: 'image/png' });
+          const blob = await canvas.convertToBlob({ type: format, quality: format === 'image/jpeg' ? 0.9 : undefined });
           rendered.push({
             page: i,
             imageBytes: new Uint8Array(await blob.arrayBuffer()),
           });
         } else if (canvas instanceof HTMLCanvasElement) {
           const blob = await new Promise<Blob>((resolve, reject) =>
-            canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('blob null'))), 'image/png')
+            canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('blob null'))), format, format === 'image/jpeg' ? 0.9 : undefined)
           );
           rendered.push({
             page: i,

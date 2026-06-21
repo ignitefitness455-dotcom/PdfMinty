@@ -10,9 +10,10 @@ import { WorkerManager } from '../core/WorkerManager';
 export const PdfToImgPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [imageUrls, setImageUrls] = useState<{ page: number; dataUrl: string }[]>([]);
+  const [imageUrls, setImageUrls] = useState<{ page: number; dataUrl: string; format: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [maxPagesLimit, setMaxPagesLimit] = useState<string>('15');
+  const [exportFormat, setExportFormat] = useState<'image/png' | 'image/jpeg'>('image/png');
 
   const urlsRef = React.useRef<string[]>([]);
 
@@ -52,16 +53,17 @@ export const PdfToImgPage: React.FC = () => {
 
       const rendered = await WorkerManager.getInstance().runOperation<
         { page: number; imageBytes: Uint8Array }[]
-      >('pdfToImage', { bytes: fileBytes, originalName: selectedFile.name, scale: 1.5, maxPages: maxPagesVal }, [
+      >('pdfToImage', { bytes: fileBytes, originalName: selectedFile.name, scale: 1.5, maxPages: maxPagesVal, format: exportFormat }, [
         fileBytes.buffer,
       ]);
 
       const convertedToDataUrls = rendered.map((item) => {
         // Blob from Uint8Array
-        const blob = new Blob([item.imageBytes as any], { type: 'image/png' });
+        const blob = new Blob([item.imageBytes as any], { type: exportFormat });
         return {
           page: item.page,
           dataUrl: URL.createObjectURL(blob),
+          format: exportFormat,
         };
       });
 
@@ -78,11 +80,12 @@ export const PdfToImgPage: React.FC = () => {
     }
   };
 
-  const downloadImage = (dataUrl: string, page: number) => {
+  const downloadImage = (dataUrl: string, page: number, format: string) => {
     if (!selectedFile) return;
     const link = document.createElement('a');
     link.href = dataUrl;
-    link.download = `pdfminty_page_${page}_${selectedFile.name.replace(/\.pdf$/i, '')}.png`;
+    const ext = format === 'image/jpeg' ? 'jpeg' : 'png';
+    link.download = `pdfminty_page_${page}_${selectedFile.name.replace(/\.pdf$/i, '')}.${ext}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -166,11 +169,11 @@ export const PdfToImgPage: React.FC = () => {
                     <div className="mt-3 flex items-center justify-between text-xs">
                       <span className="font-bold text-slate-700">Page {item.page}</span>
                       <button
-                        onClick={() => downloadImage(item.dataUrl, item.page)}
+                        onClick={() => downloadImage(item.dataUrl, item.page, item.format)}
                         className="py-1 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-md flex items-center space-x-1"
                       >
                         <Download className="w-3.5 h-3.5" />
-                        <span>PNG</span>
+                        <span className="uppercase">{item.format.replace('image/', '')}</span>
                       </button>
                     </div>
                   </div>
@@ -190,10 +193,26 @@ export const PdfToImgPage: React.FC = () => {
               Export is performed entirely using client hardware. No document info gets sent out.
             </p>
 
-            <div className="space-y-2">
-              <label htmlFor="max_pages_limit_select" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Max pages to convert:
-              </label>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="export_format_select" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Export Format:
+                </label>
+                <select
+                  id="export_format_select"
+                  value={exportFormat}
+                  onChange={(e) => setExportFormat(e.target.value as 'image/png' | 'image/jpeg')}
+                  className="w-full border border-slate-300 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                >
+                  <option value="image/png">PNG (Lossless, higher quality)</option>
+                  <option value="image/jpeg">JPEG (Smaller file size, fast sharing)</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="max_pages_limit_select" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Max pages to convert:
+                </label>
               <select
                 id="max_pages_limit_select"
                 value={maxPagesLimit}
@@ -207,6 +226,7 @@ export const PdfToImgPage: React.FC = () => {
                 <option value="all">All Pages (Unlimited)</option>
               </select>
             </div>
+          </div>
 
             {maxPagesLimit === 'all' && (
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[10px] text-amber-800 leading-normal">
