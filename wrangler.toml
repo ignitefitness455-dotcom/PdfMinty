@@ -4,6 +4,6 @@ compatibility_date = "2026-01-01"
 compatibility_flags = ["nodejs_compat"]
 
 # TODO: Create the real KV namespace in the Cloudflare dashboard and replace the ID below
-[[kv_namespaces]]
-binding = "RATELIMIT_KV"
-id = "REPLACE_WITH_REAL_KV_ID"
+# [[kv_namespaces]]
+# binding = "RATELIMIT_KV"
+# id = "REPLACE_WITH_REAL_KV_ID"
