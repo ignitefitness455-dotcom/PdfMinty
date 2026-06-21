@@ -1,0 +1,191 @@
+import { getCorsOrigin, getCorsHeaders } from '../utils/cors';
+import {
+  sanitizeForStorage,
+  sanitizeForHtml,
+  isValidEmail,
+  MAX_MESSAGE_LENGTH,
+} from '../utils/validation';
+
+interface Env {
+  RATELIMIT_KV?: KVNamespace;
+  RESEND_API_KEY?: string;
+  RESEND_FROM_EMAIL?: string;
+  NOTIFICATION_EMAIL?: string;
+}
+
+export const onRequest: PagesFunction<Env> = async (context) => {
+  const { request, env } = context;
+  const origin = getCorsOrigin(request);
+  const corsHeaders = getCorsHeaders(origin);
+
+  // Handle preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders as HeadersInit,
+    });
+  }
+
+  if (request.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed. Use POST.' }), {
+      status: 405,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+      } as HeadersInit,
+    });
+  }
+
+  // Rate Limiting
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown-ip';
+  const hourBlock = Math.floor(Date.now() / 3600000);
+  const rateLimitKey = `rate_limit:feedback:${ip}:${hourBlock}`;
+
+  if (env.RATELIMIT_KV) {
+    try {
+      const currentCountStr = await env.RATELIMIT_KV.get(rateLimitKey);
+      const currentCount = currentCountStr ? parseInt(currentCountStr, 10) : 0;
+
+      if (currentCount >= 3) {
+        return new Response(
+          JSON.stringify({
+            error:
+              'Too many feedback requests from this IP. Please wait an hour before trying again.',
+          }),
+          {
+            status: 429,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            } as HeadersInit,
+          }
+        );
+      }
+
+      await env.RATELIMIT_KV.put(rateLimitKey, (currentCount + 1).toString(), {
+        expirationTtl: 3600,
+      });
+    } catch (kvError) {
+      console.error('KV rate limiting read/write error:', kvError);
+    }
+  }
+
+  try {
+    const rawData = (await request.json()) as any;
+    const ratingRaw = parseInt(rawData.rating, 10);
+    const comment = sanitizeForStorage(rawData.comment || '');
+    const emailRaw = rawData.email ? sanitizeForStorage(rawData.email) : '';
+
+    const errors: Record<string, string> = {};
+
+    if (isNaN(ratingRaw) || ratingRaw < 1 || ratingRaw > 5) {
+      errors.rating = 'Rating must be a whole number between 1 and 5.';
+    }
+
+    if (!comment) {
+      errors.comment = 'Comment is required.';
+    } else if (comment.length > MAX_MESSAGE_LENGTH) {
+      errors.comment = `Comment cannot exceed ${MAX_MESSAGE_LENGTH} characters.`;
+    }
+
+    if (emailRaw && !isValidEmail(emailRaw)) {
+      errors.email = 'Please provide a valid email address.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return new Response(JSON.stringify({ error: 'Validation failed', errors }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } as HeadersInit,
+      });
+    }
+
+    const submissionId = crypto.randomUUID();
+    const payloadHtml = `
+      <h3>New Feedback Submission</h3>
+      <p><b>ID:</b> ${submissionId}</p>
+      <p><b>Rating:</b> ${ratingRaw} / 5 Stars</p>
+      <p><b>Email:</b> ${emailRaw ? sanitizeForHtml(emailRaw) : '<i>Not provided</i>'}</p>
+      <p><b>Comment / Message:</b></p>
+      <pre>${sanitizeForHtml(comment)}</pre>
+    `;
+
+    let emailSent = false;
+    if (env.RESEND_API_KEY && env.RESEND_FROM_EMAIL && env.NOTIFICATION_EMAIL) {
+      try {
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: env.RESEND_FROM_EMAIL,
+            to: [env.NOTIFICATION_EMAIL],
+            subject: `[PDFMinty Feedback] ${ratingRaw} Star Rating`,
+            html: payloadHtml,
+            reply_to: emailRaw || undefined,
+          }),
+        });
+
+        if (emailResponse.ok) {
+          emailSent = true;
+        } else {
+          const errText = await emailResponse.text();
+          console.error('Resend Feedback API failed:', errText);
+        }
+      } catch (emailError) {
+        console.error('Resend delivery exception:', emailError);
+      }
+    }
+
+    // Fallback: Store feedback in KV under feedback_submissions:{uuid}
+    if (!emailSent && env.RATELIMIT_KV) {
+      try {
+        const storageKey = `feedback_submissions:${submissionId}`;
+        await env.RATELIMIT_KV.put(
+          storageKey,
+          JSON.stringify({
+            id: submissionId,
+            rating: ratingRaw,
+            comment,
+            email: emailRaw,
+            timestamp: new Date().toISOString(),
+          })
+        );
+      } catch (kvStoreError) {
+        console.error('KV feedback storage failure:', kvStoreError);
+      }
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Thank you! Your feedback helps make PDFMinty better.',
+      }),
+      {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } as HeadersInit,
+      }
+    );
+  } catch (err) {
+    console.error('Feedback exception:', err);
+    return new Response(
+      JSON.stringify({
+        error: 'Something went wrong. Please try again later.',
+      }),
+      {
+        status: 500,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } as HeadersInit,
+      }
+    );
+  }
+};

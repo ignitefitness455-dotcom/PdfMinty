@@ -1,21 +1,11 @@
-import React, { useState } from 'react';
 import { ArrowLeft, Eye, Download, AlertCircle, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { FileUploader } from '../components/FileUploader';
-import { ROUTES } from '../config/routes';
 import { SEO } from '../components/SEO';
-
-// Import PDFJS dynamically to keep bundles light
-let pdfjsLib: any = null;
-
-const loadPdfjs = async () => {
-  if (!pdfjsLib) {
-    pdfjsLib = await import('pdfjs-dist');
-    // Align worker with Cloud unpkg package
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '4.3.136'}/pdf.worker.min.mjs`;
-  }
-  return pdfjsLib;
-};
+import { ROUTES } from '../config/routes';
+import { WorkerManager } from '../core/WorkerManager';
 
 export const PdfToImgPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -23,8 +13,24 @@ export const PdfToImgPage: React.FC = () => {
   const [imageUrls, setImageUrls] = useState<{ page: number; dataUrl: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const urlsRef = React.useRef<string[]>([]);
+
+  React.useEffect(() => {
+    urlsRef.current = imageUrls.map((item) => item.dataUrl);
+  }, [imageUrls]);
+
+  React.useEffect(() => {
+    return () => {
+      // Clean up all generated URLs when leaving page
+      urlsRef.current.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, []);
+
   const handleFilesSelected = (files: File[]) => {
     if (files.length > 0) {
+      imageUrls.forEach((item) => URL.revokeObjectURL(item.dataUrl));
       setSelectedFile(files[0]);
       setImageUrls([]);
       setError(null);
@@ -34,46 +40,37 @@ export const PdfToImgPage: React.FC = () => {
   const handleExport = async () => {
     if (!selectedFile) return;
 
+    imageUrls.forEach((item) => URL.revokeObjectURL(item.dataUrl));
     setLoading(true);
     setError(null);
     setImageUrls([]);
 
     try {
-      const pdfjs = await loadPdfjs();
-      const fileBytes = await selectedFile.arrayBuffer();
-      
-      const loadingTask = pdfjs.getDocument({ data: fileBytes });
-      const pdf = await loadingTask.promise;
-      
-      const totalPages = Math.min(pdf.numPages, 10); // Limit to 10 pages maximum for browser speed
-      const rendered: { page: number; dataUrl: string }[] = [];
-      
-      for (let i = 1; i <= totalPages; i++) {
-        const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 1.5 });
-        
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        
-        if (context) {
-          await page.render({ canvasContext: context, viewport }).promise;
-          rendered.push({
-            page: i,
-            dataUrl: canvas.toDataURL('image/png')
-          });
-        }
-      }
-      
-      setImageUrls(rendered);
-      if (pdf.numPages > 10) {
-        setError('Document contains more than 10 pages. We exported only the first 10 pages to optimize browser memory resources.');
-      }
+      const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
+
+      const rendered = await WorkerManager.getInstance().runOperation<
+        { page: number; imageBytes: Uint8Array }[]
+      >('pdfToImage', { bytes: fileBytes, originalName: selectedFile.name, scale: 1.5 }, [
+        fileBytes.buffer,
+      ]);
+
+      const convertedToDataUrls = rendered.map((item) => {
+        // Blob from Uint8Array
+        const blob = new Blob([item.imageBytes as any], { type: 'image/png' });
+        return {
+          page: item.page,
+          dataUrl: URL.createObjectURL(blob),
+        };
+      });
+
+      setImageUrls(convertedToDataUrls);
     } catch (err: any) {
       console.error('Export images failed:', err);
       // Fallback: If pdfjs-dist gets worker loading issue in local environment, provide simple guide
-      setError(err?.message || 'Error occurred during PDF parsing. Encrypted documents are not supported for canvas extraction.');
+      setError(
+        err?.message ||
+          'Error occurred during PDF parsing. Encrypted documents are not supported for canvas extraction.'
+      );
     } finally {
       setLoading(false);
     }
@@ -91,40 +88,49 @@ export const PdfToImgPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="pdf_to_img_container">
-      <SEO 
-        title="PDF to Image — Export PDF Pages as PNG Offline" 
-        description="Convert PDF document pages to clean PNG images offline in your browser. Fully private, safe, and instant file extraction."
-      />
+      <SEO slug="pdf-to-image" />
 
-      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+      <Link
+        to={ROUTES.HOME}
+        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+      >
         <ArrowLeft className="w-4 h-4" />
         <span>Return to Dashboard</span>
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Convert PDF to Images</h1>
-        <p className="text-slate-500 text-sm">Extract PDF layouts and export each page into high-definition raster PNG files offline.</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Convert PDF to Images
+        </h1>
+        <p className="text-slate-500 text-sm">
+          Extract PDF layouts and export each page into high-definition raster PNG files offline.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <Eye className="w-5 h-5 text-violet-600" />
-            
+
             {!selectedFile ? (
-              <FileUploader 
-                onFilesSelected={handleFilesSelected} 
+              <FileUploader
+                onFilesSelected={handleFilesSelected}
                 title="Select a PDF to convert"
                 subtitle="Drag a PDF file here or browse"
               />
             ) : (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between" id="loaded_to_img_file">
+              <div
+                className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between"
+                id="loaded_to_img_file"
+              >
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
-                  <p className="text-xs text-slate-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document</p>
+                  <p className="text-xs text-slate-400">
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                  </p>
                 </div>
-                <button 
-                  onClick={() => setSelectedFile(null)} 
+                <button
+                  onClick={() => setSelectedFile(null)}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Change File
@@ -134,14 +140,26 @@ export const PdfToImgPage: React.FC = () => {
           </div>
 
           {imageUrls.length > 0 && (
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4" id="rendered_img_deck">
-              <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider block">Rendered Pages Decodes</h3>
-              
+            <div
+              className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4"
+              id="rendered_img_deck"
+            >
+              <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider block">
+                Rendered Pages Decodes
+              </h3>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {imageUrls.map((item) => (
-                  <div key={item.page} className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between">
+                  <div
+                    key={item.page}
+                    className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between"
+                  >
                     <div className="aspect-[3/4] relative w-full bg-white border border-slate-100 rounded-lg overflow-hidden shadow-sm flex items-center justify-center">
-                      <img src={item.dataUrl} alt={`Page ${item.page}`} className="max-w-full max-h-full object-contain" />
+                      <img
+                        src={item.dataUrl}
+                        alt={`Page ${item.page}`}
+                        className="max-w-full max-h-full object-contain"
+                      />
                     </div>
                     <div className="mt-3 flex items-center justify-between text-xs">
                       <span className="font-bold text-slate-700">Page {item.page}</span>
@@ -163,7 +181,9 @@ export const PdfToImgPage: React.FC = () => {
         {/* Configurations column */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Image Export</h3>
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
+              Image Export
+            </h3>
             <p className="text-xs text-slate-500 leading-relaxed">
               Export is performed entirely using client hardware. No document info gets sent out.
             </p>

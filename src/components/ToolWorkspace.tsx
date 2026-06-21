@@ -1,8 +1,10 @@
-import React, { useState, useCallback } from "react";
-import { useToast } from "../contexts/ToastContext";
-import { X } from "lucide-react";
-import { FileUploader } from "./FileUploader";
-import LoadingButton from "./LoadingButton";
+import { X } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+
+import { useToast } from '../contexts/ToastContext';
+
+import { FileUploader } from './FileUploader';
+import LoadingButton from './LoadingButton';
 
 interface ToolWorkspaceProps {
   title: string;
@@ -20,7 +22,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   multiple = true,
   onProcess,
   renderOptions,
-  downloadFileName = "output.pdf",
+  downloadFileName = 'output.pdf',
 }) => {
   const { showToast } = useToast();
   const [files, setFiles] = useState<File[]>([]);
@@ -28,10 +30,21 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   const [processing, setProcessing] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
 
-  const handleFiles = useCallback((newFiles: File[]) => {
-    setFiles((prev) => (multiple ? [...prev, ...newFiles] : newFiles));
-    setResultUrl(null);
-  }, [multiple]);
+  React.useEffect(() => {
+    return () => {
+      if (resultUrl) {
+        URL.revokeObjectURL(resultUrl);
+      }
+    };
+  }, [resultUrl]);
+
+  const handleFiles = useCallback(
+    (newFiles: File[]) => {
+      setFiles((prev) => (multiple ? [...prev, ...newFiles] : newFiles));
+      setResultUrl(null);
+    },
+    [multiple]
+  );
 
   const removeFile = useCallback((index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
@@ -40,7 +53,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
   const handleProcess = useCallback(async () => {
     if (!files.length) {
-      showToast("Please select at least one file", "error");
+      showToast('Please select at least one file', 'error');
       return;
     }
     setProcessing(true);
@@ -49,14 +62,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       if (result) {
         const url = URL.createObjectURL(result);
         setResultUrl(url);
-        showToast("Processing complete!", "success");
-        const a = document.createElement("a");
+        showToast('Processing complete!', 'success');
+        const a = document.createElement('a');
         a.href = url;
         a.download = downloadFileName;
         a.click();
       }
     } catch (err: any) {
-      showToast(err.message || "Processing failed", "error");
+      showToast(err.message || 'Processing failed', 'error');
     } finally {
       setProcessing(false);
     }
@@ -67,17 +80,21 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       <h1 className="mb-2 text-3xl font-bold tracking-tight">{title}</h1>
       <p className="mb-6 text-slate-600 dark:text-slate-400">{description}</p>
 
-      <FileUploader
-        onFilesSelected={handleFiles}
-        multiple={multiple}
-      />
+      <FileUploader onFilesSelected={handleFiles} multiple={multiple} />
 
       {files.length > 0 && (
         <div className="mt-6 space-y-2">
           {files.map((file, i) => (
-            <div key={`${file.name}-${i}`} className="flex items-center justify-between rounded-lg border bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+            <div
+              key={`${file.name}-${i}`}
+              className="flex items-center justify-between rounded-lg border bg-white p-3 dark:border-slate-700 dark:bg-slate-900"
+            >
               <span className="truncate text-sm">{file.name}</span>
-              <button onClick={() => removeFile(i)} className="rounded p-1 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Remove file">
+              <button
+                onClick={() => removeFile(i)}
+                className="rounded p-1 hover:bg-slate-100 dark:hover:bg-slate-800"
+                aria-label="Remove file"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -98,7 +115,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           disabled={!files.length}
           className="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition cursor-pointer flex items-center justify-center gap-2"
         >
-          {processing ? "Processing..." : title}
+          {processing ? 'Processing...' : title}
         </LoadingButton>
         {resultUrl && (
           <a

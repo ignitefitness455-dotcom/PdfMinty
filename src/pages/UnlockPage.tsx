@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
 import { ArrowLeft, Lock, Download, AlertCircle, KeyRound } from 'lucide-react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { FileUploader } from '../components/FileUploader';
-import { unlockPdf } from '../utils/pdfProcessor';
-import { ROUTES } from '../config/routes';
 import { SEO } from '../components/SEO';
+import { ROUTES } from '../config/routes';
+import { WorkerManager } from '../core/WorkerManager';
 
 export const UnlockPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -30,8 +31,13 @@ export const UnlockPage: React.FC = () => {
     setError(null);
 
     try {
-      const unlockedBytes = await unlockPdf(selectedFile, password);
-      const blob = new Blob([unlockedBytes], { type: 'application/pdf' });
+      const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
+      const unlockedBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
+        'unlockPDF',
+        { fileBytes, password },
+        [fileBytes.buffer]
+      );
+      const blob = new Blob([unlockedBytes as any], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -42,7 +48,9 @@ export const UnlockPage: React.FC = () => {
       URL.revokeObjectURL(url);
     } catch (err: any) {
       console.error('Unlock error:', err);
-      setError(err?.message || 'Decryption failed. Please verify the keys match target structures.');
+      setError(
+        err?.message || 'Decryption failed. Please verify the keys match target structures.'
+      );
     } finally {
       setLoading(false);
     }
@@ -50,40 +58,50 @@ export const UnlockPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="unlock_page_container">
-      <SEO 
-        title="Unlock PDF — Decrypt PDF password offline" 
-        description="Strip locks from password protected PDFs instantly offline inside your browser. Unlock file constraints cleanly, fast, securely."
-      />
+      <SEO slug="unlock-pdf" />
 
-      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+      <Link
+        to={ROUTES.HOME}
+        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+      >
         <ArrowLeft className="w-4 h-4" />
         <span>Return to Dashboard</span>
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Unlock PDF File</h1>
-        <p className="text-slate-500 text-sm">Strip password credentials from secure documents offline to acquire clean, unlocked copies.</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Unlock PDF File
+        </h1>
+        <p className="text-slate-500 text-sm">
+          Strip password credentials from secure documents offline to acquire clean, unlocked
+          copies.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <Lock className="w-5 h-5 text-teal-600" />
-            
+
             {!selectedFile ? (
-              <FileUploader 
-                onFilesSelected={handleFilesSelected} 
+              <FileUploader
+                onFilesSelected={handleFilesSelected}
                 title="Select locked PDF to decrypt"
                 subtitle="Drag secure PDF file here or browse"
               />
             ) : (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between" id="loaded_unlock_file">
+              <div
+                className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between"
+                id="loaded_unlock_file"
+              >
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
-                  <p className="text-xs text-slate-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document</p>
+                  <p className="text-xs text-slate-400">
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                  </p>
                 </div>
-                <button 
-                  onClick={() => setSelectedFile(null)} 
+                <button
+                  onClick={() => setSelectedFile(null)}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Change File
@@ -96,10 +114,17 @@ export const UnlockPage: React.FC = () => {
         {/* Configurations column */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Provide Credentials</h3>
-            
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
+              Provide Credentials
+            </h3>
+
             <div className="space-y-2">
-              <label htmlFor="sec_phrase" className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Password key:</label>
+              <label
+                htmlFor="sec_phrase"
+                className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
+              >
+                Password key:
+              </label>
               <div className="relative">
                 <input
                   id="sec_phrase"
@@ -113,8 +138,11 @@ export const UnlockPage: React.FC = () => {
                 <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               </div>
             </div>
-            
-            <p className="text-xs text-slate-400">You must already possess editing or viewing credentials to unlock encrypted structures.</p>
+
+            <p className="text-xs text-slate-400">
+              You must already possess editing or viewing credentials to unlock encrypted
+              structures.
+            </p>
           </div>
 
           <div className="space-y-3 pt-4 border-t border-slate-100">

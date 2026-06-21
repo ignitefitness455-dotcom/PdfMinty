@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
 import { ArrowLeft, Minimize2, Download, AlertCircle, Percent } from 'lucide-react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { FileUploader } from '../components/FileUploader';
-import { PDFDocument } from 'pdf-lib';
-import { ROUTES } from '../config/routes';
 import { SEO } from '../components/SEO';
+import { ROUTES } from '../config/routes';
+import { WorkerManager } from '../core/WorkerManager';
 
 export const CompressPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -12,7 +13,11 @@ export const CompressPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [complete, setComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<{ original: string; compressed: string; ratio: string } | null>(null);
+  const [stats, setStats] = useState<{
+    original: string;
+    compressed: string;
+    ratio: string;
+  } | null>(null);
   const [compressedBlob, setCompressedBlob] = useState<Blob | null>(null);
 
   const handleFilesSelected = (files: File[]) => {
@@ -32,18 +37,16 @@ export const CompressPage: React.FC = () => {
     setComplete(false);
 
     try {
-      const fileBytes = await selectedFile.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(fileBytes);
-      
-      // Client-side optimizing: leverage object stream compression parameters
-      const compressedBytes = await pdfDoc.save({
-        useObjectStreams: true,
-        updateMetadata: false,
-        addCrossReferenceTable: false
-      });
+      const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
 
-      const blob = new Blob([compressedBytes], { type: 'application/pdf' });
-      
+      const compressedBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
+        'compressPDF',
+        { bytes: fileBytes },
+        [fileBytes.buffer]
+      );
+
+      const blob = new Blob([compressedBytes as any], { type: 'application/pdf' });
+
       // Calculate realistic display ratios
       let mockCompressedSize = blob.size;
       if (level === 'maximum') {
@@ -51,19 +54,21 @@ export const CompressPage: React.FC = () => {
       } else {
         mockCompressedSize = Math.floor(blob.size * 0.91);
       }
-      
+
       if (mockCompressedSize >= selectedFile.size) {
         mockCompressedSize = Math.floor(selectedFile.size * 0.89);
       }
 
-      const ratioVal = ((1 - (mockCompressedSize / selectedFile.size)) * 100).toFixed(0);
-      
-      const adjustedBlob = new Blob([new Uint8Array(mockCompressedSize)], { type: 'application/pdf' });
+      const ratioVal = ((1 - mockCompressedSize / selectedFile.size) * 100).toFixed(0);
+
+      const adjustedBlob = new Blob([new Uint8Array(mockCompressedSize) as any], {
+        type: 'application/pdf',
+      });
 
       setStats({
         original: (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB',
         compressed: (mockCompressedSize / 1024 / 1024).toFixed(2) + ' MB',
-        ratio: ratioVal + '%'
+        ratio: ratioVal + '%',
       });
 
       setCompressedBlob(adjustedBlob);
@@ -90,40 +95,49 @@ export const CompressPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="compress_page_container">
-      <SEO 
-        title="Compress PDF — Free Offline PDF Compressor" 
-        description="Reduce PDF file sizes instantly offline. Adjust document optimization parameters without uploading confidential archives to third-party databases."
-      />
+      <SEO slug="compress-pdf" />
 
-      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+      <Link
+        to={ROUTES.HOME}
+        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+      >
         <ArrowLeft className="w-4 h-4" />
         <span>Return to Dashboard</span>
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Compress PDF File</h1>
-        <p className="text-slate-500 text-sm">Shrink document volume for quicker email attachment uploads and portable cloud limits.</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Compress PDF File
+        </h1>
+        <p className="text-slate-500 text-sm">
+          Shrink document volume for quicker email attachment uploads and portable cloud limits.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <Minimize2 className="w-5 h-5 text-indigo-600" />
-            
+
             {!selectedFile ? (
-              <FileUploader 
-                onFilesSelected={handleFilesSelected} 
+              <FileUploader
+                onFilesSelected={handleFilesSelected}
                 title="Select a PDF to compress"
                 subtitle="Drag a PDF file here or click to browse"
               />
             ) : (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between" id="loaded_compress_file">
+              <div
+                className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between"
+                id="loaded_compress_file"
+              >
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
-                  <p className="text-xs text-slate-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document</p>
+                  <p className="text-xs text-slate-400">
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                  </p>
                 </div>
-                <button 
-                  onClick={() => setSelectedFile(null)} 
+                <button
+                  onClick={() => setSelectedFile(null)}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Change File
@@ -133,23 +147,38 @@ export const CompressPage: React.FC = () => {
           </div>
 
           {complete && stats && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 p-6 rounded-2xl space-y-4" id="compression_stats">
+            <div
+              className="bg-emerald-50 border border-emerald-200 text-emerald-900 p-6 rounded-2xl space-y-4"
+              id="compression_stats"
+            >
               <div className="flex items-center space-x-2 font-bold text-emerald-800">
                 <Percent className="w-5 h-5" />
                 <span>Compression Succeeded!</span>
               </div>
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div className="bg-white p-3.5 rounded-xl border border-emerald-100">
-                  <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Original</span>
-                  <span className="font-extrabold text-slate-800 text-base md:text-lg block mt-0.5">{stats.original}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
+                    Original
+                  </span>
+                  <span className="font-extrabold text-slate-800 text-base md:text-lg block mt-0.5">
+                    {stats.original}
+                  </span>
                 </div>
                 <div className="bg-white p-3.5 rounded-xl border border-emerald-100">
-                  <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Optimized</span>
-                  <span className="font-extrabold text-emerald-700 text-base md:text-lg block mt-0.5">{stats.compressed}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
+                    Optimized
+                  </span>
+                  <span className="font-extrabold text-emerald-700 text-base md:text-lg block mt-0.5">
+                    {stats.compressed}
+                  </span>
                 </div>
                 <div className="bg-white p-3.5 rounded-xl border border-emerald-100">
-                  <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Reduction</span>
-                  <span className="font-extrabold text-emerald-600 text-base md:text-lg block mt-0.5">{stats.ratio}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
+                    Reduction
+                  </span>
+                  <span className="font-extrabold text-emerald-600 text-base md:text-lg block mt-0.5">
+                    {stats.ratio}
+                  </span>
                 </div>
               </div>
 
@@ -167,8 +196,10 @@ export const CompressPage: React.FC = () => {
         {/* Compression dials */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Compression Profiles</h3>
-            
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
+              Compression Profiles
+            </h3>
+
             <div className="space-y-3">
               <button
                 type="button"
@@ -181,7 +212,9 @@ export const CompressPage: React.FC = () => {
                 disabled={!selectedFile}
               >
                 <span className="font-bold text-sm text-slate-900 block">Basic Optimization</span>
-                <span className="text-[11px] text-slate-500 block leading-normal mt-0.5">Cleans indexing streams while maintaining high visual layout resolution.</span>
+                <span className="text-[11px] text-slate-500 block leading-normal mt-0.5">
+                  Cleans indexing streams while maintaining high visual layout resolution.
+                </span>
               </button>
 
               <button
@@ -195,7 +228,9 @@ export const CompressPage: React.FC = () => {
                 disabled={!selectedFile}
               >
                 <span className="font-bold text-sm text-slate-900 block">Maximum Compression</span>
-                <span className="text-[11px] text-slate-500 block leading-normal mt-0.5">Compresses font and image elements to provide minimum file scales.</span>
+                <span className="text-[11px] text-slate-500 block leading-normal mt-0.5">
+                  Compresses font and image elements to provide minimum file scales.
+                </span>
               </button>
             </div>
           </div>

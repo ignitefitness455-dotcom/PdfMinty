@@ -1,9 +1,18 @@
+import {
+  ArrowLeft,
+  Sparkles,
+  Send,
+  FileText,
+  AlertCircle,
+  RefreshCw,
+  CheckCircle2,
+} from 'lucide-react';
 import React, { useState } from 'react';
-import { ArrowLeft, Sparkles, Send, FileText, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
 import { FileUploader } from '../components/FileUploader';
-import { ROUTES } from '../config/routes';
 import { SEO } from '../components/SEO';
+import { ROUTES } from '../config/routes';
 
 let pdfjsLib: any = null;
 
@@ -20,7 +29,7 @@ export const AiAnalyzePage: React.FC = () => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedText, setExtractedText] = useState<string>('');
   const [totalPages, setTotalPages] = useState<number>(0);
-  
+
   // AI querying state
   const [query, setQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -45,20 +54,21 @@ export const AiAnalyzePage: React.FC = () => {
 
       let textBuffer = '';
       const maxPages = Math.min(pdf.numPages, 12); // Extract first 12 pages to optimize payload
-      
+
       for (let i = 1; i <= maxPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .map((item: any) => item.str || '')
-          .join(' ');
+        const pageText = textContent.items.map((item: any) => item.str || '').join(' ');
         textBuffer += `--- PAGE ${i} ---\n${pageText}\n\n`;
       }
 
       setExtractedText(textBuffer);
     } catch (err: any) {
       console.error('Text extraction error:', err);
-      setError(err?.message || 'Failed to extract text structures. Make sure document does not contain image-only pages or lock passwords.');
+      setError(
+        err?.message ||
+          'Failed to extract text structures. Make sure document does not contain image-only pages or lock passwords.'
+      );
     } finally {
       setIsExtracting(false);
     }
@@ -78,25 +88,30 @@ export const AiAnalyzePage: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/gemini/analyze', {
+      const response = await fetch('/api/gemini-proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           textContent: extractedText,
           query: mode === 'qa' ? query : '',
-          mode
-        })
+          mode,
+        }),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Server rejected request. Please check secret API variables.');
+        throw new Error(
+          data.error || 'Server rejected request. Please check secret API variables.'
+        );
       }
 
       setAiResult(data.result || 'No response returned.');
     } catch (err: any) {
       console.error('AI Error:', err);
-      setError(err?.message || 'An unexpected server error occurred during AI analysis. Verify GEMINI_API_KEY in secrets.');
+      setError(
+        err?.message ||
+          'An unexpected server error occurred during AI analysis. Verify GEMINI_API_KEY in secrets.'
+      );
     } finally {
       setAiLoading(false);
     }
@@ -104,12 +119,12 @@ export const AiAnalyzePage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto" id="ai_analyze_page">
-      <SEO 
-        title="AI PDF Analyze — Free Dynamic Page Assistant" 
-        description="Extract PDF metadata and analyze contents with Gemini server AI. Create summaries, ask custom queries, and inspect facts safely."
-      />
+      <SEO slug="intelligence" />
 
-      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+      <Link
+        to={ROUTES.HOME}
+        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+      >
         <ArrowLeft className="w-4 h-4" />
         <span>Return to Dashboard</span>
       </Link>
@@ -117,9 +132,14 @@ export const AiAnalyzePage: React.FC = () => {
       <div className="space-y-2">
         <div className="flex items-center space-x-2">
           <Sparkles className="w-6 h-6 text-amber-500 fill-amber-100 animate-pulse" />
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">AI Analyze & Assistant</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            AI Analyze & Assistant
+          </h1>
         </div>
-        <p className="text-slate-500 text-sm">Upload standard PDF files, extract context indices offline, and query answers or summaries securely via Gemini.</p>
+        <p className="text-slate-500 text-sm">
+          Upload standard PDF files, extract context indices offline, and query answers or summaries
+          securely via Gemini.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -132,20 +152,29 @@ export const AiAnalyzePage: React.FC = () => {
             </h3>
 
             {!selectedFile ? (
-              <FileUploader 
-                onFilesSelected={handleFilesSelected} 
+              <FileUploader
+                onFilesSelected={handleFilesSelected}
                 title="Select PDF for AI review"
                 subtitle="Load a PDF file here"
               />
             ) : (
               <div className="space-y-4">
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between" id="loaded_ai_file">
+                <div
+                  className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between"
+                  id="loaded_ai_file"
+                >
                   <div className="truncate pr-2">
                     <p className="text-xs font-bold text-slate-800 truncate">{selectedFile.name}</p>
-                    <p className="text-[10px] text-slate-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {totalPages} pages</p>
+                    <p className="text-[10px] text-slate-400">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {totalPages} pages
+                    </p>
                   </div>
-                  <button 
-                    onClick={() => { setSelectedFile(null); setExtractedText(''); setAiResult(''); }} 
+                  <button
+                    onClick={() => {
+                      setSelectedFile(null);
+                      setExtractedText('');
+                      setAiResult('');
+                    }}
                     className="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-2.5 rounded-lg"
                   >
                     Clear
@@ -153,7 +182,10 @@ export const AiAnalyzePage: React.FC = () => {
                 </div>
 
                 {isExtracting ? (
-                  <div className="flex items-center space-x-2 text-xs text-slate-500 justify-center py-3 bg-slate-50 rounded-xl" id="extraction_spinner">
+                  <div
+                    className="flex items-center space-x-2 text-xs text-slate-500 justify-center py-3 bg-slate-50 rounded-xl"
+                    id="extraction_spinner"
+                  >
                     <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />
                     <span>Extracting PDF text locally...</span>
                   </div>
@@ -170,7 +202,9 @@ export const AiAnalyzePage: React.FC = () => {
           <div className="bg-slate-100 p-4 rounded-xl space-y-2 border border-slate-200 text-xs text-slate-500 leading-normal">
             <p className="font-bold text-slate-700">Privacy Information:</p>
             <p>
-              Your document files are processed locally inside your web browser. Only the extracted raw text of the document is sent securely to our Express server to utilize Gemini APIs. Original PDF binaries never touch the clouds.
+              Your document files are processed locally inside your web browser. Only the extracted
+              raw text of the document is sent securely to our Express server to utilize Gemini
+              APIs. Original PDF binaries never touch the clouds.
             </p>
           </div>
         </div>
@@ -179,8 +213,10 @@ export const AiAnalyzePage: React.FC = () => {
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between min-h-[420px] space-y-6">
             <div className="space-y-4 flex-1">
-              <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">AI Control Center</h3>
-              
+              <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
+                AI Control Center
+              </h3>
+
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => submitQuery('summary')}
@@ -197,23 +233,36 @@ export const AiAnalyzePage: React.FC = () => {
 
               {/* Chat interaction input */}
               <div className="space-y-2">
-                <label htmlFor="ai_query_input" className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Ask anything about this document:</label>
+                <label
+                  htmlFor="ai_query_input"
+                  className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
+                >
+                  Ask anything about this document:
+                </label>
                 <div className="relative">
                   <input
                     id="ai_query_input"
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder={extractedText ? "e.g., What are the main agreements in section 3?" : "Please load a file on the left first."}
+                    placeholder={
+                      extractedText
+                        ? 'e.g., What are the main agreements in section 3?'
+                        : 'Please load a file on the left first.'
+                    }
                     className="w-full border border-slate-300 rounded-xl py-2.5 pl-3.5 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     disabled={!extractedText || aiLoading}
-                    onKeyDown={(e) => { if (e.key === 'Enter') submitQuery('qa'); }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') submitQuery('qa');
+                    }}
                   />
                   <button
                     onClick={() => submitQuery('qa')}
                     disabled={!extractedText || !query.trim() || aiLoading}
                     className={`absolute right-1.5 top-1.5 p-1.5 rounded-lg text-white transition-colors ${
-                      query.trim() && !aiLoading ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer' : 'bg-slate-300 pointer-events-none'
+                      query.trim() && !aiLoading
+                        ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer'
+                        : 'bg-slate-300 pointer-events-none'
                     }`}
                     aria-label="Send query"
                   >
@@ -234,12 +283,20 @@ export const AiAnalyzePage: React.FC = () => {
 
               {/* AI response panel */}
               {aiLoading ? (
-                <div className="flex flex-col items-center justify-center space-y-3 py-12 border border-dashed border-slate-200 rounded-xl" id="ai_loader">
+                <div
+                  className="flex flex-col items-center justify-center space-y-3 py-12 border border-dashed border-slate-200 rounded-xl"
+                  id="ai_loader"
+                >
                   <span className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin"></span>
-                  <span className="text-xs font-semibold text-slate-500">Letting Gemini think...</span>
+                  <span className="text-xs font-semibold text-slate-500">
+                    Letting Gemini think...
+                  </span>
                 </div>
               ) : aiResult ? (
-                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 shadow-inner" id="ai_response_box">
+                <div
+                  className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 shadow-inner"
+                  id="ai_response_box"
+                >
                   <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider pb-1.5 border-b border-slate-200">
                     <Sparkles className="w-4 h-4 text-amber-500" />
                     <span>Gemini Core Insights</span>
@@ -251,7 +308,10 @@ export const AiAnalyzePage: React.FC = () => {
               ) : (
                 <div className="flex flex-col items-center justify-center text-center py-16 border border-dashed border-slate-200 rounded-xl text-slate-400">
                   <Sparkles className="w-7 h-7 text-slate-300 mb-2 animate-bounce" />
-                  <p className="text-xs font-medium max-w-sm">No analysis performed yet. Click one of the summary profiles or Ask a question above.</p>
+                  <p className="text-xs font-medium max-w-sm">
+                    No analysis performed yet. Click one of the summary profiles or Ask a question
+                    above.
+                  </p>
                 </div>
               )}
             </div>

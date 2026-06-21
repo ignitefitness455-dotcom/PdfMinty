@@ -8,13 +8,16 @@ This contains everything you need to run your app locally.
 
 View your app in AI Studio: https://ai.studio/apps/ff1d94ca-8844-480c-a061-c7a76b7ce750
 
-## Run Locally
+## Local Development Flow
 
-**Prerequisites:**  Node.js
-
+**Prerequisites:** Node.js, Wrangler CLI
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+2. Set up environment variables (see `.env.example`). Note that `GEMINI_API_KEY` is a Cloudflare secret in production.
+3. Run the Vite frontend app:
    `npm run dev`
+4. Test Cloudflare Pages Functions locally:
+   `npm run pages:dev`
+5. Create a production build:
+   `npm run build`

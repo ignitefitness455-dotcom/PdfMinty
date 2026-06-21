@@ -108,24 +108,8 @@
       ]
     }
     </script>
-    <script>
-      // Proactively clear legacy service workers to fix blank screen issues of cached custom domains
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          let unregisteredAny = false;
-          for (let registration of registrations) {
-            registration.unregister();
-            unregisteredAny = true;
-          }
-          if (unregisteredAny && !sessionStorage.getItem('sw_cleared_reload')) {
-            sessionStorage.setItem('sw_cleared_reload', '1');
-            window.location.reload();
-          }
-        }).catch(function(err) {
-          console.error('Service worker clearance failed:', err);
-        });
-      }
-    </script>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#059669" />
   </head>
   <body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500/30">
     <div id="root"></div>

@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
 import { Upload, File, AlertCircle } from 'lucide-react';
+import React, { useState, useRef } from 'react';
 
 interface FileUploaderProps {
   onFilesSelected: (files: File[]) => void;
@@ -14,7 +14,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   accept = 'application/pdf',
   multiple = false,
   title = 'Drag and drop your files here',
-  subtitle = 'or click to browse from your device'
+  subtitle = 'or click to browse from your device',
 }) => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,11 +25,11 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     setError(null);
 
     const validFiles: File[] = [];
-    const expectedTypes = accept.split(',').map(t => t.trim());
+    const expectedTypes = accept.split(',').map((t) => t.trim());
 
     for (let i = 0; i < filesList.length; i++) {
       const file = filesList[i];
-      const matchesType = expectedTypes.some(type => {
+      const matchesType = expectedTypes.some((type) => {
         if (type === 'application/pdf') {
           return file.type === 'application/pdf' || file.name.endsWith('.pdf');
         }
@@ -91,8 +91,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         onClick={triggerInputClick}
         id="uploader_dropzone"
         className={`relative w-full border-2 border-dashed rounded-2xl py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 group ${
-          isDragActive 
-            ? 'border-emerald-500 bg-emerald-50/40 shadow-inner' 
+          isDragActive
+            ? 'border-emerald-500 bg-emerald-50/40 shadow-inner'
             : 'border-slate-300 hover:border-emerald-500 hover:bg-slate-50'
         }`}
       >
@@ -106,25 +106,28 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           id="uploader_hidden_input"
         />
 
-        <div className={`p-4 rounded-full mb-4 transition-transform duration-200 ${
-          isDragActive ? 'bg-emerald-100 text-emerald-600 scale-110' : 'bg-slate-100 text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 group-hover:scale-105'
-        }`}>
+        <div
+          className={`p-4 rounded-full mb-4 transition-transform duration-200 ${
+            isDragActive
+              ? 'bg-emerald-100 text-emerald-600 scale-110'
+              : 'bg-slate-100 text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 group-hover:scale-105'
+          }`}
+        >
           <Upload className="w-8 h-8" />
         </div>
 
-        <h3 className="font-semibold text-slate-800 text-base md:text-lg mb-1">
-          {title}
-        </h3>
-        <p className="text-slate-500 text-sm mb-2">
-          {subtitle}
-        </p>
+        <h3 className="font-semibold text-slate-800 text-base md:text-lg mb-1">{title}</h3>
+        <p className="text-slate-500 text-sm mb-2">{subtitle}</p>
         <span className="inline-flex py-1 px-3 rounded-md bg-white border border-slate-200 text-xs text-slate-500 font-medium group-hover:border-emerald-200 group-hover:text-emerald-700">
           Max file size: 50MB
         </span>
       </div>
 
       {error && (
-        <div className="flex items-center space-x-2 p-3.5 rounded-xl border border-rose-100 bg-rose-50 text-rose-800 text-xs font-semibold shadow-sm animate-pulse" id="uploader_error">
+        <div
+          className="flex items-center space-x-2 p-3.5 rounded-xl border border-rose-100 bg-rose-50 text-rose-800 text-xs font-semibold shadow-sm animate-pulse"
+          id="uploader_error"
+        >
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{error}</span>
         </div>

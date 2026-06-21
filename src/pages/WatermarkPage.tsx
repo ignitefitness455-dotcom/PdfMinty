@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
 import { ArrowLeft, Bookmark, Download, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { FileUploader } from '../components/FileUploader';
-import { addWatermarkToPdf } from '../utils/pdfProcessor';
-import { ROUTES } from '../config/routes';
 import { SEO } from '../components/SEO';
+import { ROUTES } from '../config/routes';
+import { WorkerManager } from '../core/WorkerManager';
 
 export const WatermarkPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -33,13 +34,14 @@ export const WatermarkPage: React.FC = () => {
     setError(null);
 
     try {
-      const watermarkedBytes = await addWatermarkToPdf(selectedFile, text, {
-        size,
-        opacity,
-        colorHex: color
-      });
+      const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
+      const watermarkedBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
+        'watermarkPDF',
+        { bytes: fileBytes, text, options: { size, opacity, colorHex: color } },
+        [fileBytes.buffer]
+      );
 
-      const blob = new Blob([watermarkedBytes], { type: 'application/pdf' });
+      const blob = new Blob([watermarkedBytes as any], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -58,40 +60,49 @@ export const WatermarkPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="watermark_page_container">
-      <SEO 
-        title="Watermark PDF — Free Offline PDF Watermarker" 
-        description="Add diagonal transparent text stamps or watermarks onto your PDF pages offline. Restrict sharing and protect copyrights without external uploads."
-      />
+      <SEO slug="watermark-pdf" />
 
-      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+      <Link
+        to={ROUTES.HOME}
+        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+      >
         <ArrowLeft className="w-4 h-4" />
         <span>Return to Dashboard</span>
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Watermark PDF</h1>
-        <p className="text-slate-500 text-sm">Overlay diagonal text blocks onto pages to label status or prevent data leaks.</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Watermark PDF
+        </h1>
+        <p className="text-slate-500 text-sm">
+          Overlay diagonal text blocks onto pages to label status or prevent data leaks.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <Bookmark className="w-5 h-5 text-purple-600" />
-            
+
             {!selectedFile ? (
-              <FileUploader 
-                onFilesSelected={handleFilesSelected} 
+              <FileUploader
+                onFilesSelected={handleFilesSelected}
                 title="Select a PDF to watermark"
                 subtitle="Drag a PDF file here or browse"
               />
             ) : (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between" id="loaded_watermark_file">
+              <div
+                className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between"
+                id="loaded_watermark_file"
+              >
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
-                  <p className="text-xs text-slate-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document</p>
+                  <p className="text-xs text-slate-400">
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                  </p>
                 </div>
-                <button 
-                  onClick={() => setSelectedFile(null)} 
+                <button
+                  onClick={() => setSelectedFile(null)}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Change File
@@ -104,11 +115,18 @@ export const WatermarkPage: React.FC = () => {
         {/* Configurations column */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Watermark Config</h3>
-            
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
+              Watermark Config
+            </h3>
+
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <label htmlFor="watermark_text" className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Stamp Text:</label>
+                <label
+                  htmlFor="watermark_text"
+                  className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
+                >
+                  Stamp Text:
+                </label>
                 <input
                   id="watermark_text"
                   type="text"
@@ -121,7 +139,12 @@ export const WatermarkPage: React.FC = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="stamp_size" className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Font Size: {size}px</label>
+                <label
+                  htmlFor="stamp_size"
+                  className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
+                >
+                  Font Size: {size}px
+                </label>
                 <input
                   id="stamp_size"
                   type="range"
@@ -135,7 +158,12 @@ export const WatermarkPage: React.FC = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="stamp_opacity" className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Opacity: {(opacity * 100).toFixed(0)}%</label>
+                <label
+                  htmlFor="stamp_opacity"
+                  className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
+                >
+                  Opacity: {(opacity * 100).toFixed(0)}%
+                </label>
                 <input
                   id="stamp_opacity"
                   type="range"
@@ -150,14 +178,16 @@ export const WatermarkPage: React.FC = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Stamp Color:</label>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
+                  Stamp Color:
+                </label>
                 <div className="flex items-center space-x-2">
                   {[
                     { hex: '#94a3b8', label: 'Gray' },
                     { hex: '#ef4444', label: 'Red' },
                     { hex: '#22c55e', label: 'Green' },
                     { hex: '#3b82f6', label: 'Blue' },
-                    { hex: '#f59e0b', label: 'Amber' }
+                    { hex: '#f59e0b', label: 'Amber' },
                   ].map((item) => (
                     <button
                       key={item.hex}
@@ -165,7 +195,9 @@ export const WatermarkPage: React.FC = () => {
                       onClick={() => setColor(item.hex)}
                       title={item.label}
                       className={`w-8 h-8 rounded-full border-2 transition-transform ${
-                        color === item.hex ? 'border-slate-800 scale-110 shadow-sm' : 'border-transparent hover:scale-105'
+                        color === item.hex
+                          ? 'border-slate-800 scale-110 shadow-sm'
+                          : 'border-transparent hover:scale-105'
                       }`}
                       style={{ backgroundColor: item.hex }}
                       disabled={!selectedFile}

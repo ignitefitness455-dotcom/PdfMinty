@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
 import { ArrowLeft, FilePlus, Download, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { FileUploader } from '../components/FileUploader';
-import { addBlankPageToPdf } from '../utils/pdfProcessor';
-import { ROUTES } from '../config/routes';
 import { SEO } from '../components/SEO';
+import { ROUTES } from '../config/routes';
+import { WorkerManager } from '../core/WorkerManager';
 
 export const AddBlankPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -28,8 +29,13 @@ export const AddBlankPage: React.FC = () => {
 
     try {
       const targetPos = positionType === 'custom' ? customIndex : positionType;
-      const updatedBytes = await addBlankPageToPdf(selectedFile, targetPos);
-      const blob = new Blob([updatedBytes], { type: 'application/pdf' });
+      const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
+      const updatedBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
+        'addBlankPagePDF',
+        { bytes: fileBytes, position: targetPos },
+        [fileBytes.buffer]
+      );
+      const blob = new Blob([updatedBytes as any], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -48,40 +54,49 @@ export const AddBlankPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="add_blank_container">
-      <SEO 
-        title="Add Blank PDF Page — Free Offline Page Padder" 
-        description="Insert empty blank pages into existing PDFs offline. Configure insertion indexes without uploading to internet cloud servers."
-      />
+      <SEO slug="add-blank-page" />
 
-      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+      <Link
+        to={ROUTES.HOME}
+        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+      >
         <ArrowLeft className="w-4 h-4" />
         <span>Return to Dashboard</span>
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Add Blank Page</h1>
-        <p className="text-slate-500 text-sm">Embed empty canvas spaces into start, middle, or end indices of your document.</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Add Blank Page
+        </h1>
+        <p className="text-slate-500 text-sm">
+          Embed empty canvas spaces into start, middle, or end indices of your document.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <FilePlus className="w-5 h-5 text-sky-600" />
-            
+
             {!selectedFile ? (
-              <FileUploader 
-                onFilesSelected={handleFilesSelected} 
+              <FileUploader
+                onFilesSelected={handleFilesSelected}
                 title="Select a PDF to pad"
                 subtitle="Drag a PDF file here or browse"
               />
             ) : (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between" id="loaded_blank_file">
+              <div
+                className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between"
+                id="loaded_blank_file"
+              >
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
-                  <p className="text-xs text-slate-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document</p>
+                  <p className="text-xs text-slate-400">
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                  </p>
                 </div>
-                <button 
-                  onClick={() => setSelectedFile(null)} 
+                <button
+                  onClick={() => setSelectedFile(null)}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Change File
@@ -94,13 +109,15 @@ export const AddBlankPage: React.FC = () => {
         {/* Configurations column */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Insert Location</h3>
-            
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
+              Insert Location
+            </h3>
+
             <div className="space-y-3">
               {[
                 { type: 'start', label: 'Start', desc: 'Prepend at very beginning of file' },
                 { type: 'end', label: 'End', desc: 'Append at final trailing page' },
-                { type: 'custom', label: 'Custom Index', desc: 'Insert at specific page offset' }
+                { type: 'custom', label: 'Custom Index', desc: 'Insert at specific page offset' },
               ].map((pos) => (
                 <button
                   key={pos.type}
@@ -114,13 +131,17 @@ export const AddBlankPage: React.FC = () => {
                   disabled={!selectedFile}
                 >
                   <span className="font-bold text-sm text-slate-900 block">{pos.label}</span>
-                  <span className="text-[11px] text-slate-500 block leading-normal mt-0.5">{pos.desc}</span>
+                  <span className="text-[11px] text-slate-500 block leading-normal mt-0.5">
+                    {pos.desc}
+                  </span>
                 </button>
               ))}
 
               {positionType === 'custom' && (
                 <div className="space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-200 animate-fadeIn text-xs">
-                  <label htmlFor="custom_pg_index" className="font-bold text-slate-600 block">Insert at page index:</label>
+                  <label htmlFor="custom_pg_index" className="font-bold text-slate-600 block">
+                    Insert at page index:
+                  </label>
                   <input
                     id="custom_pg_index"
                     type="number"

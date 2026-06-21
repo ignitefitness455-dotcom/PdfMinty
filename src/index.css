@@ -1,9 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @variant dark (&:where(.dark, .dark *));
 
-html, body {
+html,
+body {
   max-width: 100vw;
   width: 100%;
   overflow-x: hidden;
@@ -19,7 +20,7 @@ html, body {
   --custom-security-green: #059669;
   --custom-primary: #0f172a;
   --custom-on-primary: #ffffff;
-  
+
   --custom-surface: #ffffff;
   --custom-on-surface: #0f172a;
   --custom-surface-dim: #f8fafc;
@@ -28,13 +29,13 @@ html, body {
   --custom-on-surface-variant: #475569;
   --custom-inverse-surface: #1e293b;
   --custom-inverse-on-surface: #f8fafc;
-  
+
   --custom-surface-lowest: #fdfdfd;
   --custom-surface-low: #f8fafc;
   --custom-surface-container: #f1f5f9;
   --custom-surface-container-high: #e2e8f0;
   --custom-surface-container-highest: #cbd5e1;
-  
+
   --custom-border-muted: #e2e8f0;
   --custom-glass-bg: rgba(255, 255, 255, 0.75);
   --custom-text-muted-more: #64748b;
@@ -45,10 +46,10 @@ html.dark {
   --custom-on-bg: #e5e2e1;
   --custom-primary-fixed: #36ffc4;
   --custom-primary-fixed-dim: #00e1ab;
-  --custom-security-green: #00FFC2;
+  --custom-security-green: #00ffc2;
   --custom-primary: #fbfffa;
   --custom-on-primary: #003828;
-  
+
   --custom-surface: #131313;
   --custom-on-surface: #e5e2e1;
   --custom-surface-dim: #131313;
@@ -57,21 +58,21 @@ html.dark {
   --custom-on-surface-variant: #b9cbc1;
   --custom-inverse-surface: #e5e2e1;
   --custom-inverse-on-surface: #313030;
-  
+
   --custom-surface-lowest: #0e0e0e;
   --custom-surface-low: #1c1b1b;
   --custom-surface-container: #201f1f;
   --custom-surface-container-high: #2a2a2a;
   --custom-surface-container-highest: #353534;
-  
+
   --custom-border-muted: rgba(255, 255, 255, 0.08);
   --custom-glass-bg: rgba(18, 18, 18, 0.75);
   --custom-text-muted-more: #8a9b90;
 }
 
 @theme {
-  --font-sans: "Sora", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: 'Sora', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
   --color-background: var(--custom-bg);
   --color-on-background: var(--custom-on-bg);
@@ -89,13 +90,13 @@ html.dark {
   --color-on-surface-variant: var(--custom-on-surface-variant);
   --color-inverse-surface: var(--custom-inverse-surface);
   --color-inverse-on-surface: var(--custom-inverse-on-surface);
-  
+
   --color-surface-container-lowest: var(--custom-surface-lowest);
   --color-surface-container-low: var(--custom-surface-low);
   --color-surface-container: var(--custom-surface-container);
   --color-surface-container-high: var(--custom-surface-container-high);
   --color-surface-container-highest: var(--custom-surface-container-highest);
-  
+
   --color-border-muted: var(--custom-border-muted);
 }
 
@@ -103,7 +104,9 @@ body {
   background-color: var(--custom-bg);
   color: var(--custom-on-bg);
   font-family: var(--font-sans);
-  transition: background-color 0.2s, color 0.15s;
+  transition:
+    background-color 0.2s,
+    color 0.15s;
 }
 
 .glass-panel {
@@ -250,7 +253,7 @@ html.dark select {
 
 .active-glow {
   box-shadow: 0px 0px 20px rgba(0, 255, 194, 0.2);
-  border-color: #00FFC2 !important;
+  border-color: #00ffc2 !important;
 }
 
 .pulse-mint {
@@ -258,8 +261,15 @@ html.dark select {
 }
 
 @keyframes pulse-mint {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: .4; transform: scale(0.92); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.92);
+  }
 }
 
 .page-card {
@@ -267,7 +277,7 @@ html.dark select {
 }
 
 .page-card:hover {
-  border-color: #00FFC2;
+  border-color: #00ffc2;
   background: rgba(0, 255, 194, 0.04);
   box-shadow: 0px 0px 15px rgba(0, 255, 194, 0.1);
 }
@@ -284,6 +294,5 @@ html.dark select {
   background: #2a2a2a;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00FFC2;
+  background: #00ffc2;
 }
-

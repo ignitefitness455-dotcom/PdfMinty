@@ -13,7 +13,7 @@ export const useToast = () => {
     return {
       showToast: (message: string, type?: 'success' | 'error') => {
         console.log(`[Toast] ${type?.toUpperCase()}: ${message}`);
-      }
+      },
     };
   }
   return context;
@@ -32,7 +32,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <ToastContext.Provider value={{ showToast }}>
       {children}
       {toast && (
-        <div 
+        <div
           id="toast-notification"
           className={`fixed bottom-4 right-4 z-50 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all transform animate-bounce ${
             toast.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'

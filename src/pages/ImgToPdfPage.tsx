@@ -1,23 +1,53 @@
-import React, { useState } from 'react';
 import { ArrowLeft, Image, Download, Trash2, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { FileUploader } from '../components/FileUploader';
-import { imagesToPdf } from '../utils/pdfProcessor';
-import { ROUTES } from '../config/routes';
 import { SEO } from '../components/SEO';
+import { ROUTES } from '../config/routes';
+import { WorkerManager } from '../core/WorkerManager';
 
 export const ImgToPdfPage: React.FC = () => {
-  const [images, setImages] = useState<File[]>([]);
+  const [images, setImages] = useState<{ file: File; id: string; url: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const urlsRef = React.useRef<string[]>([]);
+
+  React.useEffect(() => {
+    urlsRef.current = images.map((img) => img.url);
+  }, [images]);
+
+  React.useEffect(() => {
+    return () => {
+      // Clean up all generated URLs when leaving page
+      urlsRef.current.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, []);
+
   const handleFilesSelected = (newFiles: File[]) => {
-    setImages((prev) => [...prev, ...newFiles]);
+    const nextImages = newFiles.map((file) => ({
+      file,
+      id: `${file.name}_${Date.now()}_${Math.random()}`,
+      url: URL.createObjectURL(file),
+    }));
+    setImages((prev) => [...prev, ...nextImages]);
     setError(null);
   };
 
   const handleRemove = (index: number) => {
+    const imgToRemove = images[index];
+    if (imgToRemove) {
+      URL.revokeObjectURL(imgToRemove.url);
+    }
     setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleClearDeck = () => {
+    images.forEach((img) => URL.revokeObjectURL(img.url));
+    setImages([]);
   };
 
   const handleConvert = async () => {
@@ -30,8 +60,18 @@ export const ImgToPdfPage: React.FC = () => {
     setError(null);
 
     try {
-      const pdfBytes = await imagesToPdf(images);
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const imageBlobs = await Promise.all(
+        images.map(async (img) => ({
+          buf: new Uint8Array(await img.file.arrayBuffer()),
+          type: img.file.type,
+        }))
+      );
+      const pdfBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
+        'imagesToPDF',
+        { imageBlobs },
+        imageBlobs.map((b) => b.buf.buffer)
+      );
+      const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -42,7 +82,9 @@ export const ImgToPdfPage: React.FC = () => {
       URL.revokeObjectURL(url);
     } catch (err: any) {
       console.error('Image logic error:', err);
-      setError(err?.message || 'Failed to convert selected images to PDF. Ensure standard PNG/JPG formats.');
+      setError(
+        err?.message || 'Failed to convert selected images to PDF. Ensure standard PNG/JPG formats.'
+      );
     } finally {
       setLoading(false);
     }
@@ -50,28 +92,32 @@ export const ImgToPdfPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="img_to_pdf_container">
-      <SEO 
-        title="Image to PDF — Convert PNG/JPG to PDF Offline" 
-        description="Convert bulk PNG and JPG photo records into elegant, printable PDFs offline. Rapid, confidential, and completely free within your browser."
-      />
+      <SEO slug="image-to-pdf" />
 
-      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+      <Link
+        to={ROUTES.HOME}
+        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+      >
         <ArrowLeft className="w-4 h-4" />
         <span>Return to Dashboard</span>
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Convert Image to PDF</h1>
-        <p className="text-slate-500 text-sm">Convert individual screenshots or sequential camera captures into an unified PDF file.</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Convert Image to PDF
+        </h1>
+        <p className="text-slate-500 text-sm">
+          Convert individual screenshots or sequential camera captures into an unified PDF file.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <Image className="w-5 h-5 text-fuchsia-600" />
-            <FileUploader 
-              onFilesSelected={handleFilesSelected} 
-              multiple 
+            <FileUploader
+              onFilesSelected={handleFilesSelected}
+              multiple
               accept="image/png, image/jpeg, image/jpg"
               title="Select images to convert"
               subtitle="Drag PNG, JPG or JPEG files here or browse"
@@ -79,21 +125,33 @@ export const ImgToPdfPage: React.FC = () => {
           </div>
 
           {images.length > 0 && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden" id="images_deck_list">
+            <div
+              className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+              id="images_deck_list"
+            >
               <div className="bg-slate-50 border-b border-slate-100 px-4 py-3 flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Arrange Photo Deck ({images.length} added)</span>
-                <button onClick={() => setImages([])} className="text-xs font-semibold text-rose-600 hover:text-rose-700">Clear Deck</button>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Arrange Photo Deck ({images.length} added)
+                </span>
+                <button
+                  onClick={handleClearDeck}
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700"
+                >
+                  Clear Deck
+                </button>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4">
-                {images.map((file, idx) => {
-                  const tempUrl = URL.createObjectURL(file);
+                {images.map((img, idx) => {
                   return (
-                    <div key={`${file.name}_${idx}`} className="relative group bg-slate-50 rounded-xl overflow-hidden border border-slate-200 p-2 flex flex-col justify-between">
+                    <div
+                      key={img.id}
+                      className="relative group bg-slate-50 rounded-xl overflow-hidden border border-slate-200 p-2 flex flex-col justify-between"
+                    >
                       <div className="aspect-square relative w-full rounded-lg overflow-hidden bg-slate-200">
-                        <img 
-                          src={tempUrl} 
-                          alt={file.name} 
+                        <img
+                          src={img.url}
+                          alt={img.file.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                         />
                         <button
@@ -105,8 +163,12 @@ export const ImgToPdfPage: React.FC = () => {
                         </button>
                       </div>
                       <div className="p-1 mt-2">
-                        <p className="text-xs font-bold text-slate-800 truncate" title={file.name}>{file.name}</p>
-                        <p className="text-[10px] text-slate-400">{(file.size / 1024).toFixed(0)} KB</p>
+                        <p className="text-xs font-bold text-slate-800 truncate" title={img.file.name}>
+                          {img.file.name}
+                        </p>
+                        <p className="text-[10px] text-slate-400">
+                          {(img.file.size / 1024).toFixed(0)} KB
+                        </p>
                       </div>
                     </div>
                   );
@@ -119,12 +181,16 @@ export const ImgToPdfPage: React.FC = () => {
         {/* Configurations column */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Layout Guidelines</h3>
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
+              Layout Guidelines
+            </h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Uploaded files are mapped one-to-one to individual PDF pages. Standard widths match original photo bounds for premium preservation.
+              Uploaded files are mapped one-to-one to individual PDF pages. Standard widths match
+              original photo bounds for premium preservation.
             </p>
             <div className="p-3 bg-fuchsia-50 rounded-xl border border-fuchsia-100 text-[11px] text-fuchsia-800 font-medium leading-normal">
-              Conversion logic preserves details locally within browser memory. Safe and fully sandbox insulated.
+              Conversion logic preserves details locally within browser memory. Safe and fully
+              sandbox insulated.
             </div>
           </div>
 

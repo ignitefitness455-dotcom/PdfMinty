@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
 import { ArrowLeft, Shield, Download, AlertCircle, KeyRound } from 'lucide-react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { FileUploader } from '../components/FileUploader';
-import { protectPdf } from '../utils/pdfProcessor';
-import { ROUTES } from '../config/routes';
 import { SEO } from '../components/SEO';
+import { ROUTES } from '../config/routes';
+import { WorkerManager } from '../core/WorkerManager';
 
 export const ProtectPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -30,8 +31,13 @@ export const ProtectPage: React.FC = () => {
     setError(null);
 
     try {
-      const encryptedBytes = await protectPdf(selectedFile, password);
-      const blob = new Blob([encryptedBytes], { type: 'application/pdf' });
+      const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
+      const encryptedBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
+        'protectPDF',
+        { fileBytes, userPassword: password },
+        [fileBytes.buffer]
+      );
+      const blob = new Blob([encryptedBytes as any], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -50,40 +56,49 @@ export const ProtectPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="protect_page_container">
-      <SEO 
-        title="Protect PDF — Secure PDF with Password offline" 
-        description="Encrypt PDF document and restrict editing with secure user-level password keys offline. Confidential safety, zero uploads, instant browser integration."
-      />
+      <SEO slug="protect-pdf" />
 
-      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+      <Link
+        to={ROUTES.HOME}
+        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+      >
         <ArrowLeft className="w-4 h-4" />
         <span>Return to Dashboard</span>
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Protect PDF Document</h1>
-        <p className="text-slate-500 text-sm">Lock confidential documents with standard password encryption hashes 100% locally.</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Protect PDF Document
+        </h1>
+        <p className="text-slate-500 text-sm">
+          Lock confidential documents with standard password encryption hashes 100% locally.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <Shield className="w-5 h-5 text-slate-700" />
-            
+
             {!selectedFile ? (
-              <FileUploader 
-                onFilesSelected={handleFilesSelected} 
+              <FileUploader
+                onFilesSelected={handleFilesSelected}
                 title="Select a PDF to encrypt"
                 subtitle="Drag a PDF file here or browse"
               />
             ) : (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between" id="loaded_protect_file">
+              <div
+                className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between"
+                id="loaded_protect_file"
+              >
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
-                  <p className="text-xs text-slate-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document</p>
+                  <p className="text-xs text-slate-400">
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                  </p>
                 </div>
-                <button 
-                  onClick={() => setSelectedFile(null)} 
+                <button
+                  onClick={() => setSelectedFile(null)}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Change File
@@ -96,10 +111,17 @@ export const ProtectPage: React.FC = () => {
         {/* Configurations column */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Lock Specifications</h3>
-            
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
+              Lock Specifications
+            </h3>
+
             <div className="space-y-2">
-              <label htmlFor="sec_password" className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Set Password:</label>
+              <label
+                htmlFor="sec_password"
+                className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
+              >
+                Set Password:
+              </label>
               <div className="relative">
                 <input
                   id="sec_password"
@@ -113,8 +135,11 @@ export const ProtectPage: React.FC = () => {
                 <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               </div>
             </div>
-            
-            <p className="text-xs text-slate-400">Locked containers prompt users to specify this password when reading details elsewhere.</p>
+
+            <p className="text-xs text-slate-400">
+              Locked containers prompt users to specify this password when reading details
+              elsewhere.
+            </p>
           </div>
 
           <div className="space-y-3 pt-4 border-t border-slate-100">

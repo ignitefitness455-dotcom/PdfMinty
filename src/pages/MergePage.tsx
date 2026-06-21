@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
 import { ArrowLeft, Files, Trash2, ArrowUp, ArrowDown, Download, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { FileUploader } from '../components/FileUploader';
-import { mergePdfs } from '../utils/pdfProcessor';
-import { ROUTES } from '../config/routes';
 import { SEO } from '../components/SEO';
+import { ROUTES } from '../config/routes';
+import { WorkerManager } from '../core/WorkerManager';
 
 export const MergePage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -42,8 +43,15 @@ export const MergePage: React.FC = () => {
     setError(null);
 
     try {
-      const mergedBytes = await mergePdfs(files);
-      const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+      const filesBytes = await Promise.all(
+        files.map((file) => file.arrayBuffer().then((ab) => new Uint8Array(ab)))
+      );
+      const mergedBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
+        'mergePDFs',
+        { filesBytes },
+        filesBytes.map((b) => b.buffer)
+      );
+      const blob = new Blob([mergedBytes as any], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -54,7 +62,10 @@ export const MergePage: React.FC = () => {
       URL.revokeObjectURL(url);
     } catch (err: any) {
       console.error('Merge error:', err);
-      setError(err?.message || 'An unexpected failure occurred while merging documents. Make sure they are not encrypted.');
+      setError(
+        err?.message ||
+          'An unexpected failure occurred while merging documents. Make sure they are not encrypted.'
+      );
     } finally {
       setLoading(false);
     }
@@ -62,19 +73,24 @@ export const MergePage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="merge_page_container">
-      <SEO 
-        title="Merge PDF — Free Offline PDF Merger" 
-        description="Combine multiple PDF files into one. Arrange their order and merge instantly offline inside your browser without uploading to any cloud servers."
-      />
+      <SEO slug="merge-pdf" />
 
-      <Link to={ROUTES.HOME} className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+      <Link
+        to={ROUTES.HOME}
+        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+      >
         <ArrowLeft className="w-4 h-4" />
         <span>Return to Dashboard</span>
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Merge PDF Documents</h1>
-        <p className="text-slate-500 text-sm">Combine several PDFs into a single, structured file. Your resources remain locally inside your browser.</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Merge PDF Documents
+        </h1>
+        <p className="text-slate-500 text-sm">
+          Combine several PDFs into a single, structured file. Your resources remain locally inside
+          your browser.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -82,54 +98,71 @@ export const MergePage: React.FC = () => {
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <Files className="w-5 h-5 text-emerald-600" />
-            <FileUploader 
-              onFilesSelected={handleFilesSelected} 
-              multiple 
+            <FileUploader
+              onFilesSelected={handleFilesSelected}
+              multiple
               title="Add more files to merge"
               subtitle="Drag PDF files here or click to browse"
             />
           </div>
 
           {files.length > 0 && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden" id="files_deck_list">
+            <div
+              className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+              id="files_deck_list"
+            >
               <div className="bg-slate-50 border-b border-slate-100 px-4 py-3 flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Arrange File Order ({files.length} selected)</span>
-                <button onClick={() => setFiles([])} className="text-xs font-semibold text-rose-600 hover:text-rose-700">Clear All</button>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Arrange File Order ({files.length} selected)
+                </span>
+                <button
+                  onClick={() => setFiles([])}
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700"
+                >
+                  Clear All
+                </button>
               </div>
 
               <div className="divide-y divide-slate-100">
                 {files.map((file, i) => (
-                  <div key={`${file.name}_${i}`} className="p-4 flex items-center justify-between gap-4 bg-white hover:bg-slate-50/50 transition-colors">
+                  <div
+                    key={`${file.name}_${i}`}
+                    className="p-4 flex items-center justify-between gap-4 bg-white hover:bg-slate-50/50 transition-colors"
+                  >
                     <div className="flex items-center space-x-3 overflow-hidden">
                       <span className="w-6 h-6 rounded-full bg-slate-100 text-[10px] text-slate-600 font-bold flex items-center justify-center flex-shrink-0">
                         {i + 1}
                       </span>
                       <div className="truncate">
-                        <p className="text-sm font-bold text-slate-800 truncate" title={file.name}>{file.name}</p>
-                        <p className="text-xs text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <p className="text-sm font-bold text-slate-800 truncate" title={file.name}>
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
                       </div>
                     </div>
 
                     <div className="flex items-center space-x-1 flex-shrink-0">
-                      <button 
-                        onClick={() => moveItem(i, 'up')} 
+                      <button
+                        onClick={() => moveItem(i, 'up')}
                         disabled={i === 0}
-                        aria-label="Move item up" 
+                        aria-label="Move item up"
                         className="p-1.5 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-30 disabled:pointer-events-none"
                       >
                         <ArrowUp className="w-4 h-4" />
                       </button>
-                      <button 
-                        onClick={() => moveItem(i, 'down')} 
+                      <button
+                        onClick={() => moveItem(i, 'down')}
                         disabled={i === files.length - 1}
-                        aria-label="Move item down" 
+                        aria-label="Move item down"
                         className="p-1.5 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-30 disabled:pointer-events-none"
                       >
                         <ArrowDown className="w-4 h-4" />
                       </button>
-                      <button 
-                        onClick={() => handleRemove(i)} 
-                        aria-label="Delete item" 
+                      <button
+                        onClick={() => handleRemove(i)}
+                        aria-label="Delete item"
                         className="p-1.5 rounded hover:bg-rose-50 text-rose-600 hover:scale-105 transition-transform"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -145,9 +178,12 @@ export const MergePage: React.FC = () => {
         {/* Sidebar settings */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Merge Settings</h3>
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
+              Merge Settings
+            </h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Use the ordering switches in the list deck to set page hierarchy. Merge compiles them consecutively from top to bottom.
+              Use the ordering switches in the list deck to set page hierarchy. Merge compiles them
+              consecutively from top to bottom.
             </p>
             <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-100 text-[11px] text-emerald-800 font-medium">
               Files are merged 100% locally on your computer. Your secrets never leave your side.
@@ -156,7 +192,10 @@ export const MergePage: React.FC = () => {
 
           <div className="space-y-3 pt-4">
             {error && (
-              <div className="flex items-start space-x-1.5 text-xs text-rose-700 bg-rose-50 border border-rose-100 p-3 rounded-lg" id="merge_error_box">
+              <div
+                className="flex items-start space-x-1.5 text-xs text-rose-700 bg-rose-50 border border-rose-100 p-3 rounded-lg"
+                id="merge_error_box"
+              >
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{error}</span>
               </div>

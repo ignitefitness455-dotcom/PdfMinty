@@ -1,201 +1,185 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Read routes.ts to get SITE_URL
-const routesPath = path.join(__dirname, "../src/config/routes.ts");
-let SITE_URL = "https://pdfminty.com";
-
-try {
-  const routesContent = fs.readFileSync(routesPath, "utf8");
-  const siteUrlMatch = routesContent.match(/SITE_URL\s*=\s*["']([^"']+)["']/);
-  SITE_URL = siteUrlMatch ? siteUrlMatch[1] : "https://pdfminty.com";
-} catch (error) {
-  console.error("Failed to read routes.ts, using fallback SITE_URL:", error);
+// Single Source of Truth TypeScript File Loader:
+// Compiles/strips TS markers at runtime to load metadata cleanly inside standard Node.js
+async function loadSeoData() {
+  const seoPath = path.join(__dirname, '../src/config/seo-data.ts');
+  const tempJsPath = path.join(__dirname, './seo-static-temp.js');
+  
+  try {
+    let content = fs.readFileSync(seoPath, 'utf8');
+    
+    // Crop out the interface declaration cleanly by finding position markers
+    const interfaceStart = content.indexOf('export interface');
+    const toolsStart = content.indexOf('export const TOOLS');
+    
+    if (interfaceStart !== -1 && toolsStart !== -1) {
+      content = content.substring(0, interfaceStart) + content.substring(toolsStart);
+    }
+    
+    // Remove individual type bindings
+    content = content.replace(': ToolSEOInfo[]', '');
+    
+    fs.writeFileSync(tempJsPath, content, 'utf8');
+    
+    const moduleUrl = pathToFileURL(tempJsPath).href;
+    const data = await import(moduleUrl);
+    
+    return data;
+  } finally {
+    if (fs.existsSync(tempJsPath)) {
+      fs.unlinkSync(tempJsPath);
+    }
+  }
 }
 
-// Defined tools for generating static pages
-const tools = [
-  {
-    id: "merge-pdf",
-    title: "Merge PDF",
-    description: "Combine multiple PDF files into a single, clean document in any order you choose.",
-    category: "page-operations",
-    path: "/merge-pdf",
-    icon: "Merge",
-  },
-  {
-    id: "split-pdf",
-    title: "Split PDF",
-    description: "Extract ranges of pages or split custom pages into multi-part individual documents.",
-    category: "page-operations",
-    path: "/split-pdf",
-    icon: "Scissors",
-  },
-  {
-    id: "compress-pdf",
-    title: "Compress PDF",
-    description: "Reduce file size footprint using professional compression schemes purely in your browser.",
-    category: "utilities",
-    path: "/compress-pdf",
-    icon: "Minimize2",
-  },
-  {
-    id: "rotate-pdf",
-    title: "Rotate PDF",
-    description: "Rotate single pages or the entire document pages 90, 180, or 270 degrees clockwise.",
-    category: "page-operations",
-    path: "/rotate-pdf",
-    icon: "RotateCw",
-  },
-  {
-    id: "delete-pages-pdf",
-    title: "Delete Pages",
-    description: "Selectively strip out unwanted, trailing, or confidential pages from your master files.",
-    category: "organize",
-    path: "/delete-pages-pdf",
-    icon: "Trash2",
-  },
-  {
-    id: "watermark-pdf",
-    title: "Watermark PDF",
-    description: "Superimpose elegant, custom diagonal text stamps with configurable size and transparency.",
-    category: "security-edit",
-    path: "/watermark-pdf",
-    icon: "Bookmark",
-  },
-  {
-    id: "add-page-numbers",
-    title: "Page Numbers",
-    description: "Stitch standard page indices automatically onto document page footer panels.",
-    category: "security-edit",
-    path: "/add-page-numbers",
-    icon: "Hash",
-  },
-  {
-    id: "add-blank-page",
-    title: "Add Blank Page",
-    description: "Incorporate empty page spacing into start, middle, or end of your document flows.",
-    category: "organize",
-    path: "/add-blank-page",
-    icon: "FilePlus",
-  },
-  {
-    id: "protect-pdf",
-    title: "Protect PDF",
-    description: "Encrypt and secure your sensitive PDFs using state-of-the-art browser password standard hashes.",
-    category: "security-edit",
-    path: "/protect-pdf",
-    icon: "Shield",
-  },
-  {
-    id: "unlock-pdf",
-    title: "Unlock PDF",
-    description: "Strip document lock credentials from your standard user files for clear, unlocked reading.",
-    category: "security-edit",
-    path: "/unlock-pdf",
-    icon: "Lock",
-  },
-  {
-    id: "image-to-pdf",
-    title: "Image to PDF",
-    description: "Convert multiple PNG or JPG photos into clean formatted PDF pages instantly.",
-    category: "convert",
-    path: "/image-to-pdf",
-    icon: "Image",
-  },
-  {
-    id: "pdf-to-image",
-    title: "PDF to Image",
-    description: "Convert multiple pages from document directly into portable standard image canvases.",
-    category: "convert",
-    path: "/pdf-to-image",
-    icon: "Eye",
-  },
-  {
-    id: "ai-analyze",
-    title: "AI Analyze",
-    description: "Summarize, analyze, and inspect your PDF document content using secure offline local text parsing boosted by premium AI assistance.",
-    category: "intelligence",
-    path: "/intelligence",
-    icon: "Sparkles",
-  }
-];
-
-// Load base index.html template from dist (built by Vite) or fallback to root index.html
-const distIndexHtmlPath = path.join(__dirname, "../dist/index.html");
-const rootIndexHtmlPath = path.join(__dirname, "../index.html");
-let baseHtml = "";
-try {
+async function run() {
+  const seoData = await loadSeoData();
+  const { SITE_URL, SITE_NAME, TOOLS } = seoData;
+  
+  const distDir = path.join(__dirname, "../dist");
+  const distIndexHtmlPath = path.join(distDir, "index.html");
+  const rootIndexHtmlPath = path.join(__dirname, "../index.html");
+  
+  let baseHtml = "";
   if (fs.existsSync(distIndexHtmlPath)) {
     baseHtml = fs.readFileSync(distIndexHtmlPath, "utf8");
     console.log("Reading template from compiled dist/index.html");
-  } else {
+  } else if (fs.existsSync(rootIndexHtmlPath)) {
     baseHtml = fs.readFileSync(rootIndexHtmlPath, "utf8");
     console.log("Reading template from root index.html");
+  } else {
+    throw new Error("Unable to locate any base index.html template file for static generation.");
   }
-} catch (e) {
-  baseHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDFMinty — Privacy-First PDF Toolkit</title>
-</head>
-<body>
-  <div id="root"></div>
-</body>
-</html>`;
-}
-
-// Helper to inject SEO metadata into base HTML for crawlers
-function generateHtmlContent(title, description, toolPath) {
-  const canonicalUrl = `${SITE_URL}${toolPath}`;
   
-  // Clean preexisting titles/metas to prevent duplicates
-  let html = baseHtml;
-  html = html.replace(/<title>[^<]*<\/title>/gi, "");
-  html = html.replace(/<meta\s+name="description"[^>]*>/gi, "");
-  html = html.replace(/<link\s+rel="canonical"[^>]*>/gi, "");
-  html = html.replace(/<meta\s+property="og:title"[^>]*>/gi, "");
-  html = html.replace(/<meta\s+property="og:description"[^>]*>/gi, "");
-  html = html.replace(/<meta\s+property="og:url"[^>]*>/gi, "");
-  html = html.replace(/<meta\s+property="og:type"[^>]*>/gi, "");
-  html = html.replace(/<meta\s+name="twitter:title"[^>]*>/gi, "");
-  html = html.replace(/<meta\s+name="twitter:description"[^>]*>/gi, "");
-  html = html.replace(/<meta\s+name="twitter:url"[^>]*>/gi, "");
+  // Clean base HTML to avoid double definitions (purging titles, descriptions, canonicals, OGs, Twitters, and JSON-LD markup)
+  function cleanBaseTemplate(html) {
+    let clean = html;
+    clean = clean.replace(/<title>[^<]*<\/title>/gi, "");
+    clean = clean.replace(/<meta\s+name="description"[^>]*>/gi, "");
+    clean = clean.replace(/<link\s+rel="canonical"[^>]*>/gi, "");
+    clean = clean.replace(/<meta\s+property="og:[^>]*>/gi, ""); // Purge all og: properties
+    clean = clean.replace(/<meta\s+name="twitter:[^>]*>/gi, ""); // Purge all twitter: properties
+    
+    // Purge any homepage-only JSON-LD structured script elements to avoid duplication
+    clean = clean.replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/gi, "");
+    
+    return clean;
+  }
   
-  const metaTags = `
-  <title>${title} — Privacy-First PDF Toolkit | PDFMinty</title>
-  <meta name="description" content="${description}">
-  <link rel="canonical" href="${canonicalUrl}">
-  <meta property="og:title" content="${title} | PDFMinty">
-  <meta property="og:description" content="${description}">
-  <meta property="og:url" content="${canonicalUrl}">
-  <meta property="og:type" content="website">
+  const optimizedBase = cleanBaseTemplate(baseHtml);
+  
+  TOOLS.forEach((item) => {
+    const pageUrl = `${SITE_URL}/${item.slug}`;
+    const targetFolder = path.join(distDir, item.slug);
+    
+    if (!fs.existsSync(targetFolder)) {
+      fs.mkdirSync(targetFolder, { recursive: true });
+    }
+    
+    // Construct route-specific JSON-LD blocks
+    const schemas = [];
+    
+    if (item.type === 'tool') {
+      // 1. WebApplication Schema
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": `${SITE_NAME} - ${item.name}`,
+        "url": pageUrl,
+        "description": item.metaDescription,
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires HTML5, WebAssembly"
+      });
+      
+      // 2. HowTo Schema
+      if (item.howTo) {
+        schemas.push({
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          "name": item.howTo.name,
+          "totalTime": item.howTo.totalTime,
+          "step": item.howTo.steps.map((stepText, index) => ({
+            "@type": "HowToStep",
+            "url": `${pageUrl}#step${index + 1}`,
+            "name": stepText,
+            "itemListElement": [{ "@type": "HowToDirection", "text": stepText }]
+          }))
+        });
+      }
+    } else if (item.type === 'article') {
+      // 1. Article Schema
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": item.h1,
+        "description": item.metaDescription,
+        "url": pageUrl,
+        "publisher": {
+          "@type": "Organization",
+          "name": SITE_NAME,
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${SITE_URL}/og-image.png`
+          }
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": pageUrl
+        }
+      });
+    }
+    
+    // Generate JSON-LD Script tag bundle
+    const jsonLdMarkup = schemas
+      .map(schema => `<script type="application/ld+json">${JSON.stringify(schema)}</script>`)
+      .join('\n  ');
+      
+    // Set custom page head meta tags
+    const headMeta = `
+  <title>${item.metaTitle}</title>
+  <meta name="description" content="${item.metaDescription}">
+  <link rel="canonical" href="${pageUrl}">
+  <meta property="og:type" content="${item.type === 'article' ? 'article' : 'website'}">
+  <meta property="og:title" content="${item.metaTitle}">
+  <meta property="og:description" content="${item.metaDescription}">
+  <meta property="og:url" content="${pageUrl}">
+  <meta property="og:image" content="${SITE_URL}/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${item.metaTitle}">
+  <meta name="twitter:description" content="${item.metaDescription}">
+  <meta name="twitter:image" content="${SITE_URL}/og-image.png">
+  ${jsonLdMarkup}
   `;
   
-  // Inject tags in head
-  html = html.replace("</head>", `${metaTags}\n</head>`);
-  return html;
+    // Inject metadata immediately inside the head element
+    let preRenderedHtml = optimizedBase.replace("</head>", `${headMeta}\n</head>`);
+    
+    // Pre-inject longFormBody directly inside the React hydration root element (#root) for raw HTML crawler response!
+    const preRenderedContent = `
+    <div id="root">
+      <article class="prose max-w-4xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
+        ${item.longFormBody}
+      </article>
+    </div>
+    `;
+    
+    // Replace empty #root mount tag with populated static HTML
+    preRenderedHtml = preRenderedHtml.replace(/<div\s+id="root"\s*><\/div>/i, preRenderedContent);
+    preRenderedHtml = preRenderedHtml.replace(/<div\s+id="root"\s*>\s*<\/div>/i, preRenderedContent);
+    
+    fs.writeFileSync(path.join(targetFolder, "index.html"), preRenderedHtml, "utf8");
+    console.log(`Pre-rendered static HTML created for ${item.name} at: ${targetFolder}/index.html`);
+  });
 }
 
-// Generate files in static build folder or public folder
-const distDir = path.join(__dirname, "../dist");
-if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir, { recursive: true });
-}
-
-tools.forEach((tool) => {
-  const toolDir = path.join(distDir, tool.path);
-  if (!fs.existsSync(toolDir)) {
-    fs.mkdirSync(toolDir, { recursive: true });
-  }
-  
-  const htmlContent = generateHtmlContent(tool.title, tool.description, tool.path);
-  fs.writeFileSync(path.join(toolDir, "index.html"), htmlContent, "utf8");
-  console.log(`Generated static SEO page for: ${tool.title} at ${toolDir}/index.html`);
+run().catch((err) => {
+  console.error("FATAL: Failed to pre-render static HTML pages:", err);
+  process.exit(1);
 });

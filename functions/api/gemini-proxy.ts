@@ -1,0 +1,242 @@
+import { GoogleGenAI } from '@google/genai';
+
+import { getCorsOrigin, getCorsHeaders } from '../utils/cors';
+
+interface Env {
+  GEMINI_API_KEY?: string;
+  GEMINI_MODEL?: string;
+  RATELIMIT_KV?: KVNamespace;
+}
+
+const MAX_TEXT_LENGTH = 30000;
+const DEFAULT_MODEL = 'gemini-3.5-flash';
+
+// Ephemeral in-memory fallback rate-limiting store (per-isolate, not a global cluster-wide counter).
+const fallbackStore = new Map<string, { count: number; expiresAt: number }>();
+
+function checkFallbackRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const cell = fallbackStore.get(ip);
+  if (!cell || now > cell.expiresAt) {
+    fallbackStore.set(ip, { count: 1, expiresAt: now + 3600000 });
+    return true;
+  }
+  if (cell.count >= 30) {
+    return false;
+  }
+  cell.count += 1;
+  return true;
+}
+
+function mapGeminiError(err: any): string {
+  if (!err) {
+    return 'An unknown error occurred during AI analysis.';
+  }
+  const msg = String(err.message || err).toLowerCase();
+  if (
+    msg.includes('api key') ||
+    msg.includes('auth') ||
+    msg.includes('unauthorized') ||
+    msg.includes('key_invalid') ||
+    msg.includes('key not') ||
+    msg.includes('invalid key')
+  ) {
+    return 'AI authentication failure. Ensure the server API credentials are correctly configured.';
+  }
+  if (
+    msg.includes('quota') ||
+    msg.includes('limit') ||
+    msg.includes('429') ||
+    msg.includes('exhausted') ||
+    msg.includes('resource_exhausted')
+  ) {
+    return 'AI quota exceeded. Please wait a bit before requesting more analysis.';
+  }
+  if (msg.includes('model') || msg.includes('not found') || msg.includes('404')) {
+    return 'The requested AI model is currently unavailable or unsupported.';
+  }
+  if (msg.includes('timeout') || msg.includes('504') || msg.includes('deadline')) {
+    return 'The request timed out. Try optimizing/reducing the size of the text to analyze.';
+  }
+  if (msg.includes('bad request') || msg.includes('400') || msg.includes('invalid')) {
+    return 'Failed to analyze document content (invalid input structure or empty context).';
+  }
+  return 'An unexpected error occurred while communicating with Gemini. Verification of credentials is required.';
+}
+
+export const onRequest: PagesFunction<Env> = async (context) => {
+  const { request, env } = context;
+  const origin = getCorsOrigin(request);
+  const corsHeaders = getCorsHeaders(origin);
+
+  // Handle preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders as HeadersInit,
+    });
+  }
+
+  if (request.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed. Use POST.' }), {
+      status: 405,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+      } as HeadersInit,
+    });
+  }
+
+  // Rate limit
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown-ip';
+  const hourBlock = Math.floor(Date.now() / 3600000);
+  const rateLimitKey = `rate_limit:gemini:${ip}:${hourBlock}`;
+  let isAllowed = true;
+
+  if (env.RATELIMIT_KV) {
+    try {
+      const currentCountStr = await env.RATELIMIT_KV.get(rateLimitKey);
+      const currentCount = currentCountStr ? parseInt(currentCountStr, 10) : 0;
+      if (currentCount >= 30) {
+        isAllowed = false;
+      } else {
+        await env.RATELIMIT_KV.put(rateLimitKey, (currentCount + 1).toString(), {
+          expirationTtl: 3600,
+        });
+      }
+    } catch (kvErr) {
+      console.error('KV rate limiting failed, reverting to memory map fallback:', kvErr);
+      isAllowed = checkFallbackRateLimit(ip);
+    }
+  } else {
+    // No KV namespace, use fallbackMap
+    isAllowed = checkFallbackRateLimit(ip);
+  }
+
+  if (!isAllowed) {
+    return new Response(
+      JSON.stringify({
+        error: 'Too many AI analysis requests from this IP. Limit is 30 per hour.',
+      }),
+      {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } as HeadersInit,
+      }
+    );
+  }
+
+  try {
+    const rawData = (await request.json()) as any;
+    const { textContent, query, mode } = rawData;
+
+    if (!textContent || typeof textContent !== 'string') {
+      return new Response(JSON.stringify({ error: 'Missing or invalid textContent parameters.' }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } as HeadersInit,
+      });
+    }
+
+    if (mode !== 'summary' && mode !== 'qa') {
+      return new Response(
+        JSON.stringify({ error: "Invalid mode. Allowed values: 'summary', 'qa'." }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          } as HeadersInit,
+        }
+      );
+    }
+
+    const truncated = textContent.slice(0, MAX_TEXT_LENGTH);
+    const geminiKey = env.GEMINI_API_KEY;
+
+    if (!geminiKey) {
+      console.error('Missing GEMINI_API_KEY secret environment variable');
+      return new Response(
+        JSON.stringify({
+          error: 'API proxy authentication failed. Verify server-side variables are loaded.',
+        }),
+        {
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          } as HeadersInit,
+        }
+      );
+    }
+
+    const modelName = env.GEMINI_MODEL || DEFAULT_MODEL;
+
+    // Use named parameter format { apiKey: ... }
+    const ai = new GoogleGenAI({
+      apiKey: geminiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    });
+
+    let systemInstruction = 'You are a professional PDF document analysis assistant.';
+    let promptText = '';
+
+    if (mode === 'summary') {
+      systemInstruction +=
+        ' Your task is to provide clear, detailed, and objective summaries of the provided custom text.';
+      promptText = `Please analyze and summarize the following document text content. Focus on identifying the primary messages, key sections, important metadata, and critical bullet points. Keep it clear and beautifully formatted with clean, professional linebreaks.\n\nDOCUMENT TEXT CONTENT:\n${truncated}`;
+    } else {
+      systemInstruction +=
+        " Your task is to answer user queries accurately based exclusively on the provided document text context. If the answer cannot be found or deduced, reply with 'This information could not be found in the document.'";
+      promptText = `Use the provided document text below to answer the user's specific query.\n\nUSER SPECIFIC QUERY:\n${query}\n\nDOCUMENT TEXT CONTEXT:\n${truncated}`;
+    }
+
+    const response = await ai.models.generateContent({
+      model: modelName,
+      contents: promptText,
+      config: {
+        systemInstruction,
+        temperature: 0.2,
+      },
+    });
+
+    // Extract text output via .text property
+    const aiText = response.text;
+
+    if (!aiText) {
+      throw new Error('No generative content output was produced by the model.');
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        result: aiText,
+      }),
+      {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } as HeadersInit,
+      }
+    );
+  } catch (err: any) {
+    console.error('Gemini API Proxy Exception:', err);
+    const safeMsg = mapGeminiError(err);
+    return new Response(JSON.stringify({ error: safeMsg }), {
+      status: 500,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+      } as HeadersInit,
+    });
+  }
+};
