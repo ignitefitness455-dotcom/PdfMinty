@@ -1,4 +1,5 @@
 import confetti from 'canvas-confetti';
+
 import { PDFSanitizer } from './PDFSanitizer';
 
 export { WorkerManager } from './WorkerManager';

@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLayout } from '../components/Layout';
 import { SEO } from '../components/SEO';
 import { TOOLS } from '../config/seo-data';
+import { useDebounce } from '../hooks/useDebounce';
 
 // Translation hook to map translation keys properly
 const useTranslation = () => {
@@ -59,8 +60,6 @@ const useTranslation = () => {
     t: (key: string) => translations[key] || key,
   };
 };
-
-import { useDebounce } from '../hooks/useDebounce';
 
 const SearchComponent: React.FC<{
   value: string;
