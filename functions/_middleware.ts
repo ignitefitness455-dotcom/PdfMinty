@@ -1,15 +1,21 @@
 export const onRequest: PagesFunction = async (context) => {
   const response = await context.next();
 
-  // Create mutable headers to avoid runtime errors with immutable response headers (e.g. from static asset fetches)
-  const newHeaders = new Headers(response.headers);
+  // Handle responses with 304, 204 or 1xx statuses which cannot have a body per HTTP spec
+  const hasNoBody = 
+    response.status === 204 || 
+    response.status === 304 || 
+    (response.status >= 100 && response.status < 200);
 
-  newHeaders.set('X-Content-Type-Options', 'nosniff');
-  newHeaders.set('X-Frame-Options', 'DENY');
-  newHeaders.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  newHeaders.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-  newHeaders.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()');
-  newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
+  // Create a mutable copy of the response with safe body handling
+  const newResponse = new Response(hasNoBody ? null : response.body, response);
+
+  newResponse.headers.set('X-Content-Type-Options', 'nosniff');
+  newResponse.headers.set('X-Frame-Options', 'DENY');
+  newResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  newResponse.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  newResponse.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()');
+  newResponse.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
 
   // IMPORTANT: The Content-Security-Policy string here MUST stay byte-identical
   // with the one defined in public/_headers
@@ -25,11 +31,7 @@ export const onRequest: PagesFunction = async (context) => {
     "base-uri 'self'",
     "form-action 'self'",
   ];
-  newHeaders.set('Content-Security-Policy', cspDirectives.join('; '));
+  newResponse.headers.set('Content-Security-Policy', cspDirectives.join('; '));
 
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: newHeaders,
-  });
+  return newResponse;
 };
