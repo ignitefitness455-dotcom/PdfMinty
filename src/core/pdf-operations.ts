@@ -347,14 +347,25 @@ export async function imagesToPDF(
   }
 }
 
-export async function compressPDF(bytes: Uint8Array): Promise<Uint8Array> {
+export async function compressPDF(
+  bytes: Uint8Array,
+  level: 'basic' | 'maximum' = 'basic'
+): Promise<Uint8Array> {
   const pdfDoc = await loadPlainPDF(bytes);
   try {
-    return await pdfDoc.save({
-      useObjectStreams: true,
-    });
+    if (level === 'maximum') {
+      // More aggressive: compress object streams + hint objects per tick
+      return await pdfDoc.save({
+        useObjectStreams: true,
+        addDefaultPage: false,
+        objectsPerTick: 50,
+      });
+    }
+    // Basic: object stream compression only (faster)
+    return await pdfDoc.save({ useObjectStreams: true });
   } catch (err) {
     handlePdfLibError(err, 'Failed to compress document streams.');
+    throw err;
   }
 }
 

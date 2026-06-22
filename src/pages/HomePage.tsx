@@ -117,9 +117,34 @@ const SearchComponent: React.FC<{
   );
 };
 
-// Prefetching stub
-const prefetchToolChunk = (_slug: string) => {
-  // Option stub for link preloading
+const prefetchMap: Record<string, () => Promise<any>> = {
+  'merge-pdf': () => import('../pages/MergePage'),
+  'split-pdf': () => import('../pages/SplitPage'),
+  'compress-pdf': () => import('../pages/CompressPage'),
+  'rotate-pdf': () => import('../pages/RotatePage'),
+  'delete-pages-pdf': () => import('../pages/DeletePagesPage'),
+  'extract-pages-pdf': () => import('../pages/ExtractPagesPdfPage'),
+  'reorder-pdf': () => import('../pages/ReorderPdfPage'),
+  'watermark-pdf': () => import('../pages/WatermarkPage'),
+  'add-page-numbers': () => import('../pages/PageNumbersPage'),
+  'add-blank-page': () => import('../pages/AddBlankPage'),
+  'protect-pdf': () => import('../pages/ProtectPage'),
+  'unlock-pdf': () => import('../pages/UnlockPage'),
+  'image-to-pdf': () => import('../pages/ImgToPdfPage'),
+  'pdf-to-image': () => import('../pages/PdfToImgPage'),
+  'intelligence': () => import('../pages/AiAnalyzePage'),
+};
+
+const prefetchedSet = new Set<string>();
+
+const prefetchToolChunk = (slug: string) => {
+  const key = slug.toLowerCase();
+  if (prefetchedSet.has(key)) return;
+  prefetchedSet.add(key);
+  const loader = prefetchMap[key];
+  if (loader) {
+    loader().catch((err) => console.debug('[prefetch] chunk error:', err));
+  }
 };
 
 const iconMap: Record<string, React.ComponentType<any>> = {

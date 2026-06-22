@@ -6,6 +6,7 @@ import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { logger } from '../utils/logger';
 
 export const CompressPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -39,42 +40,29 @@ export const CompressPage: React.FC = () => {
     try {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
 
+      // Pass level to the worker so basic vs maximum actually changes behaviour
       const compressedBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
         'compressPDF',
-        { bytes: fileBytes },
+        { bytes: fileBytes, level },
         [fileBytes.buffer]
       );
 
-      const blob = new Blob([compressedBytes as any], { type: 'application/pdf' });
+      // ✅ Use the REAL compressed bytes — not a fake zeroed Uint8Array
+      const blob = new Blob([compressedBytes], { type: 'application/pdf' });
 
-      // Calculate realistic display ratios
-      let mockCompressedSize = blob.size;
-      if (level === 'maximum') {
-        mockCompressedSize = Math.floor(blob.size * 0.78);
-      } else {
-        mockCompressedSize = Math.floor(blob.size * 0.91);
-      }
-
-      if (mockCompressedSize >= selectedFile.size) {
-        mockCompressedSize = Math.floor(selectedFile.size * 0.89);
-      }
-
-      const ratioVal = ((1 - mockCompressedSize / selectedFile.size) * 100).toFixed(0);
-
-      const adjustedBlob = new Blob([new Uint8Array(mockCompressedSize) as any], {
-        type: 'application/pdf',
-      });
+      const finalSize = blob.size;
+      const ratio = Math.max(0, ((1 - finalSize / selectedFile.size) * 100)).toFixed(0);
 
       setStats({
         original: (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB',
-        compressed: (mockCompressedSize / 1024 / 1024).toFixed(2) + ' MB',
-        ratio: ratioVal + '%',
+        compressed: (finalSize / 1024 / 1024).toFixed(2) + ' MB',
+        ratio: ratio + '%',
       });
 
-      setCompressedBlob(adjustedBlob);
+      setCompressedBlob(blob);
       setComplete(true);
     } catch (err: any) {
-      console.error('Compress error:', err);
+      logger.error('Compress error:', err);
       setError(err?.message || 'An unexpected failure occurred while compressing the document.');
     } finally {
       setLoading(false);
@@ -87,10 +75,14 @@ export const CompressPage: React.FC = () => {
     const link = document.createElement('a');
     link.href = url;
     link.download = `pdfminty_compressed_${selectedFile.name}`;
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // 1000ms delay prevents mobile-browser download race condition; revokeObjectURL prevents memory leak
+    setTimeout(() => {
+      if (document.body.contains(link)) document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 1000);
   };
 
   return (

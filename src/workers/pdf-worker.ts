@@ -49,7 +49,7 @@ self.onmessage = async (e: MessageEvent) => {
         transferables = [result.buffer];
         break;
       case 'compressPDF':
-        result = await ops.compressPDF(payload.bytes);
+        result = await ops.compressPDF(payload.bytes, payload.level);
         transferables = [result.buffer];
         break;
       case 'protectPDF':

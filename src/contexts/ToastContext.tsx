@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
+import { logger } from '../utils/logger';
+
 interface ToastContextType {
   showToast: (message: string, type?: 'success' | 'error') => void;
 }
@@ -12,7 +14,7 @@ export const useToast = () => {
     // Return safe fallback so dev mode never crashes if called outside Provider
     return {
       showToast: (message: string, type?: 'success' | 'error') => {
-        console.log(`[Toast] ${type?.toUpperCase()}: ${message}`);
+        logger.info(`[Toast] ${type?.toUpperCase()}: ${message}`);
       },
     };
   }

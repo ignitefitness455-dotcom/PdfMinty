@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 export class WorkerManager {
   private static instance: WorkerManager;
   private worker: Worker | null = null;
@@ -25,7 +27,7 @@ export class WorkerManager {
       });
       this.worker.onmessage = this.handleMessage.bind(this);
       this.worker.onerror = (err) => {
-        console.error('Worker error:', err);
+        logger.error('Worker error:', err);
       };
     }
     return this.worker;
@@ -51,7 +53,7 @@ export class WorkerManager {
     transferables: Transferable[] = []
   ): Promise<T> {
     if (!this.isSupported) {
-      console.warn('Web Workers not supported, running on main thread.');
+      logger.warn('Web Workers not supported, running on main thread.');
       return (await this.runOnMainThread(operation, payload)) as T;
     }
 
