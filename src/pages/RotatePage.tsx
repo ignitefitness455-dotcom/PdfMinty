@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
-import { ROUTES } from '../config/routes';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
+import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 
 export const RotatePage: React.FC = () => {
