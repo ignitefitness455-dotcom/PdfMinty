@@ -146,9 +146,25 @@ export const PAGE_NUMBER_DEFAULTS = {
 };
 
 export const UPLOAD_LIMITS = {
-  MAX_TOTAL_SIZE: 50 * 1024 * 1024,
+  MAX_TOTAL_SIZE: 150 * 1024 * 1024,
   MAX_FILES: 50,
-  MAX_SINGLE_FILE: 50 * 1024 * 1024,
+  MAX_SINGLE_FILE: 100 * 1024 * 1024,
+};
+
+export const TOOL_SIZE_LIMITS: Record<string, { maxSingleMB: number; maxTotalMB?: number }> = {
+  'merge-pdf': { maxSingleMB: 50, maxTotalMB: 150 },
+  'split-pdf': { maxSingleMB: 50 },
+  'compress-pdf': { maxSingleMB: 75 },
+  'rotate-pdf': { maxSingleMB: 50 },
+  'delete-pages-pdf': { maxSingleMB: 50 },
+  'watermark-pdf': { maxSingleMB: 50 },
+  'add-page-numbers': { maxSingleMB: 50 },
+  'add-blank-page': { maxSingleMB: 50 },
+  'protect-pdf': { maxSingleMB: 100 },
+  'unlock-pdf': { maxSingleMB: 100 },
+  'image-to-pdf': { maxSingleMB: 20, maxTotalMB: 100 },
+  'pdf-to-image': { maxSingleMB: 35 },
+  'ai-analyze': { maxSingleMB: 15 },
 };
 
 export const AI_LIMITS = {

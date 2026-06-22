@@ -1,15 +1,19 @@
-import { ArrowLeft, Hash, Download, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Hash, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { ROUTES } from '../config/routes';
+import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { WorkerManager } from '../core/WorkerManager';
 
 export const PageNumbersPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [pattern, setPattern] = useState<string>('Page {n} of {total}');
+  const [position, setPosition] = useState<string>('bottom-right');
+  const [startFrom, setStartFrom] = useState<number>(1);
+  const [skipFirstPage, setSkipFirstPage] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +38,7 @@ export const PageNumbersPage: React.FC = () => {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
       const updatedBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
         'addPageNumbersPDF',
-        { bytes: fileBytes, options: { format: pattern } },
+        { bytes: fileBytes, options: { format: pattern, position, startFrom, skipFirstPage } },
         [fileBytes.buffer]
       );
       const blob = new Blob([updatedBytes as any], { type: 'application/pdf' });
@@ -67,11 +71,16 @@ export const PageNumbersPage: React.FC = () => {
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Add PDF Page Numbers
-        </h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Add PDF Page Numbers
+          </h1>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            Limit: {TOOL_SIZE_LIMITS['add-page-numbers'].maxSingleMB}MB
+          </span>
+        </div>
         <p className="text-slate-500 text-sm">
-          Overlay sequential pagination logs across all page footers securely.
+          Overlay sequential pagination logs across all page footers securely. Files must be under {TOOL_SIZE_LIMITS['add-page-numbers'].maxSingleMB} MB.
         </p>
       </div>
 
@@ -84,7 +93,8 @@ export const PageNumbersPage: React.FC = () => {
               <FileUploader
                 onFilesSelected={handleFilesSelected}
                 title="Select a PDF to paginate"
-                subtitle="Drag a PDF file here or browse"
+                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['add-page-numbers'].maxSingleMB}MB)`}
+                maxSizeMB={TOOL_SIZE_LIMITS['add-page-numbers'].maxSingleMB}
               />
             ) : (
               <div
@@ -144,6 +154,64 @@ export const PageNumbersPage: React.FC = () => {
               </code>{' '}
               for overall sheet count bounds.
             </p>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="position_select"
+                className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
+              >
+                Placement Position:
+              </label>
+              <select
+                id="position_select"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                className="w-full border border-slate-300 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                disabled={!selectedFile}
+              >
+                <option value="bottom-right">Bottom Right (Standard)</option>
+                <option value="bottom-center">Bottom Center</option>
+                <option value="bottom-left">Bottom Left</option>
+                <option value="top-right">Top Right</option>
+                <option value="top-center">Top Center</option>
+                <option value="top-left">Top Left</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="start_from_input"
+                className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
+              >
+                First Index Value:
+              </label>
+              <input
+                id="start_from_input"
+                type="number"
+                min="0"
+                value={startFrom}
+                onChange={(e) => setStartFrom(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                className="w-full border border-slate-300 rounded-xl py-2 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                disabled={!selectedFile}
+              />
+            </div>
+
+            <div className="flex items-center space-x-2 pt-1">
+              <input
+                id="skip_first_checkbox"
+                type="checkbox"
+                checked={skipFirstPage}
+                onChange={(e) => setSkipFirstPage(e.target.checked)}
+                className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 focus:border-emerald-500"
+                disabled={!selectedFile}
+              />
+              <label
+                htmlFor="skip_first_checkbox"
+                className="text-xs font-bold text-slate-600 uppercase tracking-wider block cursor-pointer select-none"
+              >
+                Skip Title/First Page
+              </label>
+            </div>
           </div>
 
           <div className="space-y-3 pt-4 border-t border-slate-100">

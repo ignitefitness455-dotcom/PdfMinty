@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { ROUTES } from '../config/routes';
+import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { WorkerManager } from '../core/WorkerManager';
 
 export const MergePage: React.FC = () => {
@@ -13,8 +14,21 @@ export const MergePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleFilesSelected = (newFiles: File[]) => {
-    setFiles((prev) => [...prev, ...newFiles]);
     setError(null);
+    const updatedFiles = [...files, ...newFiles];
+    const totalBytes = updatedFiles.reduce((acc, f) => acc + f.size, 0);
+    const maxTotalBytes = (TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB || 150) * 1024 * 1024;
+
+    if (totalBytes > maxTotalBytes) {
+      setError(
+        `Uploading failed! The combined size of all your files (${(totalBytes / 1024 / 1024).toFixed(
+          2
+        )} MB) exceeds the absolute combined limit of ${TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB} MB. please remove some files.`
+      );
+      return;
+    }
+
+    setFiles(updatedFiles);
   };
 
   const handleRemove = (index: number) => {
@@ -84,12 +98,16 @@ export const MergePage: React.FC = () => {
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Merge PDF Documents
-        </h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Merge PDF Documents
+          </h1>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            Limit: {TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB}MB per file
+          </span>
+        </div>
         <p className="text-slate-500 text-sm">
-          Combine several PDFs into a single, structured file. Your resources remain locally inside
-          your browser.
+          Combine several PDFs into a single, structured file. Individual files must be under {TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB} MB (Max total: {TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB} MB).
         </p>
       </div>
 
@@ -102,7 +120,8 @@ export const MergePage: React.FC = () => {
               onFilesSelected={handleFilesSelected}
               multiple
               title="Add more files to merge"
-              subtitle="Drag PDF files here or click to browse"
+              subtitle={`Drag PDF files here or click to browse (Max limit: ${TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB}MB per file)`}
+              maxSizeMB={TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB}
             />
           </div>
 

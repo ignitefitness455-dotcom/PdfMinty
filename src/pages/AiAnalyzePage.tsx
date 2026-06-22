@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { ROUTES } from '../config/routes';
+import { TOOL_SIZE_LIMITS } from '../config/constants';
 
 let pdfjsLib: any = null;
 
@@ -132,15 +133,19 @@ export const AiAnalyzePage: React.FC = () => {
       </Link>
 
       <div className="space-y-2">
-        <div className="flex items-center space-x-2">
-          <Sparkles className="w-6 h-6 text-amber-500 fill-amber-100 animate-pulse" />
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            AI Analyze & Assistant
-          </h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-6 h-6 text-amber-500 fill-amber-100 animate-pulse" />
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              AI Analyze & Assistant
+            </h1>
+          </div>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            Limit: {TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}MB
+          </span>
         </div>
         <p className="text-slate-500 text-sm">
-          Upload standard PDF files, extract context indices offline, and query answers or summaries
-          securely via Gemini.
+          Upload standard PDF files, extract context indices offline, and query answers or summaries securely via Gemini. Files must be under {TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB} MB.
         </p>
       </div>
 
@@ -157,7 +162,8 @@ export const AiAnalyzePage: React.FC = () => {
               <FileUploader
                 onFilesSelected={handleFilesSelected}
                 title="Select PDF for AI review"
-                subtitle="Load a PDF file here"
+                subtitle={`Drag a PDF file here (Max limit: ${TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}MB)`}
+                maxSizeMB={TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}
               />
             ) : (
               <div className="space-y-4">

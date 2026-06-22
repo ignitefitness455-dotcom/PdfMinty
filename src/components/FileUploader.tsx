@@ -7,6 +7,7 @@ interface FileUploaderProps {
   multiple?: boolean;
   title?: string;
   subtitle?: string;
+  maxSizeMB?: number;
 }
 
 export const FileUploader: React.FC<FileUploaderProps> = ({
@@ -15,6 +16,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   multiple = false,
   title = 'Drag and drop your files here',
   subtitle = 'or click to browse from your device',
+  maxSizeMB = 50,
 }) => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,9 +28,12 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
     const validFiles: File[] = [];
     const expectedTypes = accept.split(',').map((t) => t.trim());
+    const limitBytes = maxSizeMB * 1024 * 1024;
 
     for (let i = 0; i < filesList.length; i++) {
       const file = filesList[i];
+      
+      // 1. Validate file format
       const matchesType = expectedTypes.some((type) => {
         if (type === 'application/pdf') {
           return file.type === 'application/pdf' || file.name.endsWith('.pdf');
@@ -39,11 +44,22 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         return true;
       });
 
-      if (matchesType) {
-        validFiles.push(file);
-      } else {
+      if (!matchesType) {
         setError(`Unsupported file format ignored: "${file.name}". Expected: ${accept}`);
+        continue;
       }
+
+      // 2. Validate maximum file size limit
+      if (file.size > limitBytes) {
+        setError(
+          `Uploading failed! "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(
+            2
+          )} MB). The maximum allowed limit for this tool is exactly ${maxSizeMB} MB.`
+        );
+        continue;
+      }
+
+      validFiles.push(file);
     }
 
     if (validFiles.length > 0) {
@@ -119,7 +135,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         <h3 className="font-semibold text-slate-800 text-base md:text-lg mb-1">{title}</h3>
         <p className="text-slate-500 text-sm mb-2">{subtitle}</p>
         <span className="inline-flex py-1 px-3 rounded-md bg-white border border-slate-200 text-xs text-slate-500 font-medium group-hover:border-emerald-200 group-hover:text-emerald-700">
-          Max file size: 50MB
+          Max file size: {maxSizeMB}MB
         </span>
       </div>
 

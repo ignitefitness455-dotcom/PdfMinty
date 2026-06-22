@@ -232,16 +232,41 @@ export async function watermarkPDF(
     }
 
     const pages = pdfDoc.getPages();
+    const angleRad = (rot * Math.PI) / 180;
+    const cosTheta = Math.cos(angleRad);
+    const sinTheta = Math.sin(angleRad);
+
+    const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+
     for (const page of pages) {
       const { width, height } = page.getSize();
-      page.drawText(text, {
-        x: width / 2 - text.length * size * 0.28,
-        y: height / 2,
-        size,
-        font,
-        color: rgb(rVal, gVal, bVal),
-        opacity,
-        rotate: degrees(rot),
+
+      lines.forEach((lineText, index) => {
+        const textWidth = font.widthOfTextAtSize(lineText, size);
+        const textHeight = size * 0.8; // Safe approximation for Helvetica Bold
+
+        // Center offsets before rotation
+        const lineOffsetLocalY = (lines.length / 2 - index - 0.5) * (size * 1.2);
+        const localCenterX = textWidth / 2;
+        const localCenterY = textHeight / 2 - lineOffsetLocalY;
+
+        // Rotated offsets
+        const rotatedCenterX = localCenterX * cosTheta - localCenterY * sinTheta;
+        const rotatedCenterY = localCenterX * sinTheta + localCenterY * cosTheta;
+
+        // Perfect starting anchor so the rotated center is dead-on page center
+        const x = width / 2 - rotatedCenterX;
+        const y = height / 2 - rotatedCenterY;
+
+        page.drawText(lineText, {
+          x,
+          y,
+          size,
+          font,
+          color: rgb(rVal, gVal, bVal),
+          opacity,
+          rotate: degrees(rot),
+        });
       });
     }
 
@@ -262,22 +287,45 @@ export async function addPageNumbersPDF(
     const pages = pdfDoc.getPages();
 
     const format = options?.format || PAGE_NUMBER_DEFAULTS.format;
-    const skipFirstPage = options?.skipFirstPage || PAGE_NUMBER_DEFAULTS.skipFirstPage;
-    let currentCount = options?.startFrom || PAGE_NUMBER_DEFAULTS.startFrom;
+    const skipFirstPage = options?.skipFirstPage !== undefined ? options.skipFirstPage : PAGE_NUMBER_DEFAULTS.skipFirstPage;
+    let currentCount = options?.startFrom !== undefined ? options.startFrom : PAGE_NUMBER_DEFAULTS.startFrom;
+    const position = options?.position || PAGE_NUMBER_DEFAULTS.position;
+
+    const size = 10;
+    const margin = 35;
 
     for (let idx = 0; idx < total; idx++) {
       if (skipFirstPage && idx === 0) continue;
 
       const page = pages[idx];
-      const { width } = page.getSize();
+      const { width, height } = page.getSize();
       const text = format
         .replace('{n}', currentCount.toString())
         .replace('{total}', total.toString());
 
+      const textWidth = font.widthOfTextAtSize(text, size);
+
+      let x = width - textWidth - margin; // default bottom-right
+      let y = margin; // default bottom
+
+      if (position.includes('left')) {
+        x = margin;
+      } else if (position.includes('center')) {
+        x = (width - textWidth) / 2;
+      } else if (position.includes('right')) {
+        x = width - textWidth - margin;
+      }
+
+      if (position.startsWith('top')) {
+        y = height - margin - size;
+      } else {
+        y = margin;
+      }
+
       page.drawText(text, {
-        x: width - 120, // Simplified bottom-right logic
-        y: 20,
-        size: 10,
+        x,
+        y,
+        size,
         font,
         color: rgb(0.3, 0.3, 0.3),
       });
@@ -297,7 +345,16 @@ export async function addBlankPagePDF(
 ): Promise<Uint8Array> {
   const pdfDoc = await loadPlainPDF(bytes);
   try {
-    const size = PDF_PAGE_SIZES[pageSizeKey] || PDF_PAGE_SIZES.A4;
+    let size: [number, number];
+    // Copy the size of existing pages to maintain layout harmony unless empty document fallback
+    if (pdfDoc.getPageCount() > 0) {
+      const referencePage = pdfDoc.getPages()[0];
+      const { width, height } = referencePage.getSize();
+      size = [width, height];
+    } else {
+      const defaultSize = PDF_PAGE_SIZES[pageSizeKey] || PDF_PAGE_SIZES.A4;
+      size = [defaultSize[0], defaultSize[1]];
+    }
 
     if (position === 'start') {
       pdfDoc.insertPage(0, [size[0], size[1]]);
@@ -305,7 +362,13 @@ export async function addBlankPagePDF(
       pdfDoc.addPage([size[0], size[1]]);
     } else {
       const targetIdx = Math.max(0, Math.min(position - 1, pdfDoc.getPageCount()));
-      pdfDoc.insertPage(targetIdx, [size[0], size[1]]);
+      let insertSize = size;
+      if (targetIdx < pdfDoc.getPageCount()) {
+        const pageAtIdx = pdfDoc.getPages()[targetIdx];
+        const sz = pageAtIdx.getSize();
+        insertSize = [sz.width, sz.height];
+      }
+      pdfDoc.insertPage(targetIdx, [insertSize[0], insertSize[1]]);
     }
 
     return await pdfDoc.save();
@@ -320,6 +383,7 @@ export async function imagesToPDF(
 ): Promise<Uint8Array> {
   try {
     const pdfDoc = await PlainPDFDocument.create();
+    const selectedPageSize = options?.pageSize ? PDF_PAGE_SIZES[options.pageSize] : null;
 
     for (const file of imageBlobs) {
       let embeddedImg;
@@ -331,14 +395,42 @@ export async function imagesToPDF(
         throw new Error(`Unsupported image format: ${file.type}. Please use JPG or PNG.`);
       }
 
-      const dims = embeddedImg.scale(1.0);
-      const page = pdfDoc.addPage([dims.width, dims.height]);
-      page.drawImage(embeddedImg, {
-        x: 0,
-        y: 0,
-        width: dims.width,
-        height: dims.height,
-      });
+      const imgWidth = embeddedImg.width;
+      const imgHeight = embeddedImg.height;
+
+      if (selectedPageSize) {
+        // Preserve standard proportions with smart margins padding
+        const margin = 20;
+        const pageWidth = selectedPageSize[0];
+        const pageHeight = selectedPageSize[1];
+
+        const maxWidth = pageWidth - 2 * margin;
+        const maxHeight = pageHeight - 2 * margin;
+
+        const scale = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+        const drawWidth = imgWidth * scale;
+        const drawHeight = imgHeight * scale;
+
+        const x = (pageWidth - drawWidth) / 2;
+        const y = (pageHeight - drawHeight) / 2;
+
+        const page = pdfDoc.addPage([pageWidth, pageHeight]);
+        page.drawImage(embeddedImg, {
+          x,
+          y,
+          width: drawWidth,
+          height: drawHeight,
+        });
+      } else {
+        const dims = embeddedImg.scale(1.0);
+        const page = pdfDoc.addPage([dims.width, dims.height]);
+        page.drawImage(embeddedImg, {
+          x: 0,
+          y: 0,
+          width: dims.width,
+          height: dims.height,
+        });
+      }
     }
 
     return await pdfDoc.save();

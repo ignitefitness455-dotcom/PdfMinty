@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { ROUTES } from '../config/routes';
+import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { WorkerManager } from '../core/WorkerManager';
 
 export const SplitPage: React.FC = () => {
@@ -73,12 +74,16 @@ export const SplitPage: React.FC = () => {
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Split PDF Document
-        </h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Split PDF Document
+          </h1>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            Limit: {TOOL_SIZE_LIMITS['split-pdf'].maxSingleMB}MB
+          </span>
+        </div>
         <p className="text-slate-500 text-sm">
-          Partition a PDF file into custom constituent sections and download each part
-          independently.
+          Partition a PDF file into custom constituent sections and download each part independently. Files must be under {TOOL_SIZE_LIMITS['split-pdf'].maxSingleMB} MB.
         </p>
       </div>
 
@@ -91,8 +96,9 @@ export const SplitPage: React.FC = () => {
               <FileUploader
                 onFilesSelected={handleFilesSelected}
                 title="Select a PDF to split"
-                subtitle="Drag a PDF file here or browse"
+                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['split-pdf'].maxSingleMB}MB)`}
                 accept="application/pdf"
+                maxSizeMB={TOOL_SIZE_LIMITS['split-pdf'].maxSingleMB}
               />
             ) : (
               <div

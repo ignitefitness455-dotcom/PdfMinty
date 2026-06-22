@@ -89,7 +89,7 @@ export class WorkerManager {
       this.worker.terminate();
       this.worker = null;
     }
-    for (const [id, promise] of this.promises.entries()) {
+    for (const promise of this.promises.values()) {
       clearTimeout(promise.timer);
       promise.reject(new Error('Worker was terminated.'));
     }

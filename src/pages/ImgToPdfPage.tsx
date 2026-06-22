@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { ROUTES } from '../config/routes';
+import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { WorkerManager } from '../core/WorkerManager';
 
 export const ImgToPdfPage: React.FC = () => {
@@ -28,13 +29,27 @@ export const ImgToPdfPage: React.FC = () => {
   }, []);
 
   const handleFilesSelected = (newFiles: File[]) => {
+    setError(null);
+    const existingTotalBytes = images.reduce((acc, img) => acc + img.file.size, 0);
+    const newTotalBytes = newFiles.reduce((acc, f) => acc + f.size, 0);
+    const combinedBytes = existingTotalBytes + newTotalBytes;
+    const maxTotalBytes = (TOOL_SIZE_LIMITS['image-to-pdf'].maxTotalMB || 100) * 1024 * 1024;
+
+    if (combinedBytes > maxTotalBytes) {
+      setError(
+        `Uploading failed! The combined size of all your images (${(combinedBytes / 1024 / 1024).toFixed(
+          2
+        )} MB) exceeds the absolute combined limit of ${TOOL_SIZE_LIMITS['image-to-pdf'].maxTotalMB} MB. Please use fewer/smaller images.`
+      );
+      return;
+    }
+
     const nextImages = newFiles.map((file) => ({
       file,
       id: `${file.name}_${Date.now()}_${Math.random()}`,
       url: URL.createObjectURL(file),
     }));
     setImages((prev) => [...prev, ...nextImages]);
-    setError(null);
   };
 
   const handleRemove = (index: number) => {
@@ -103,11 +118,16 @@ export const ImgToPdfPage: React.FC = () => {
       </Link>
 
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Convert Image to PDF
-        </h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Convert Image to PDF
+          </h1>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            Limit: {TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB}MB per image
+          </span>
+        </div>
         <p className="text-slate-500 text-sm">
-          Convert individual screenshots or sequential camera captures into an unified PDF file.
+          Convert individual screenshots or sequential camera captures into an unified PDF file. Individual images must be under {TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB} MB (Max total: {TOOL_SIZE_LIMITS['image-to-pdf'].maxTotalMB} MB).
         </p>
       </div>
 
@@ -120,7 +140,8 @@ export const ImgToPdfPage: React.FC = () => {
               multiple
               accept="image/png, image/jpeg, image/jpg"
               title="Select images to convert"
-              subtitle="Drag PNG, JPG or JPEG files here or browse"
+              subtitle={`Drag PNG, JPG or JPEG files here or browse (Max limit: ${TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB}MB per image)`}
+              maxSizeMB={TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB}
             />
           </div>
 
