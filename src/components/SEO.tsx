@@ -32,11 +32,15 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
   let jsonLd: Record<string, any> | null = null;
   const ogType = item?.type === 'article' ? 'article' : 'website';
 
+  let keywords = 'ilovepdf alternative, free pdf editor, pdf tools offline, compress pdf no upload, merge pdf online free, smallpdf free alternative, split pdf pages free, convert image to pdf, pdf watermark free, secure local pdf converter, adobe acrobat alternative, offline pdf toolkit, browser based pdf editor';
+
   if (item) {
     title = titleOverride || item.metaTitle;
     description = descriptionOverride || item.metaDescription;
     h1Text = item.h1;
     canonicalUrl = `${SITE_URL}/${item.slug}`;
+    const nameLow = item.name.toLowerCase();
+    keywords = `${nameLow}, free ${nameLow} online, offline ${nameLow}, secure ${nameLow}, ${nameLow} alternative, ${keywords}`;
 
     if (item.type === 'tool') {
       jsonLd = [
@@ -126,6 +130,7 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
       {/* General Title and Meta */}
       <title>{title}</title>
       <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
       <link rel="canonical" href={canonicalUrl} />
 
       {/* Open Graph Tags */}

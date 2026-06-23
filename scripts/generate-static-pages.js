@@ -1,9 +1,103 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import sharp from 'sharp';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Ensure favicons, touch-icons, and OG sharing images are generated on every build
+async function generateAllAssets(publicDir, distDir) {
+  const iconSource = path.join(publicDir, 'logo.svg');
+  if (!fs.existsSync(iconSource)) {
+    console.warn('Warning: Source logo.svg not found in public directory. Unable to generate assets.');
+    return;
+  }
+
+  console.log('Generating website logos, favicons, and metadata graphics...');
+  try {
+    // Ensure both output targets exist
+    if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
+    if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
+
+    const targets = [publicDir, distDir];
+
+    for (const target of targets) {
+      if (!fs.existsSync(target)) continue;
+
+      // 1. logo-192.png (PWA asset)
+      await sharp(iconSource)
+        .resize(192, 192)
+        .png()
+        .toFile(path.join(target, 'logo-192.png'));
+
+      // 2. logo-512.png (PWA asset)
+      await sharp(iconSource)
+        .resize(512, 512)
+        .png()
+        .toFile(path.join(target, 'logo-512.png'));
+
+      // 3. apple-touch-icon.png (Apple web device card)
+      await sharp(iconSource)
+        .resize(180, 180, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 1 } })
+        .png()
+        .toFile(path.join(target, 'apple-touch-icon.png'));
+
+      // 4. favicon.ico / favicon.png (Browser tabs)
+      await sharp(iconSource)
+        .resize(32, 32)
+        .png()
+        .toFile(path.join(target, 'favicon.ico'));
+
+      // 5. og-image.png (Rich social share preview, custom high-fidelity banner composition!)
+      const ogSvgMarkup = `
+        <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#0b1329;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#022c22;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect width="1200" height="630" fill="url(#grad)" />
+          
+          <circle cx="1100" cy="100" r="300" fill="#00FFC2" fill-opacity="0.04" />
+          <circle cx="100" cy="530" r="200" fill="#059669" fill-opacity="0.06" />
+
+          <g transform="translate(480, 110) scale(4.8)">
+            <rect x="6" y="11" width="26" height="33" rx="6" fill="#0E0E0E" />
+            <rect x="7" y="12" width="24" height="31" rx="5" stroke="rgba(255,255,255,0.15)" stroke-width="1.2" fill="none" />
+            <rect x="15" y="4" width="27" height="33" rx="6" fill="#00FFC2" />
+            <rect x="16" y="5" width="25" height="31" rx="5" stroke="#FFFFFF" stroke-width="1" stroke-opacity="0.3" fill="none" />
+            <path d="M35 4L42 11H39C36.7909 11 35 9.20914 35 7V4Z" fill="#131313" />
+            <rect x="21" y="15" width="15" height="2.2" rx="1.1" fill="#131313" />
+            <rect x="21" y="21" width="15" height="2.2" rx="1.1" fill="#131313" />
+            <rect x="21" y="27" width="9" height="2.2" rx="1.1" fill="#131313" fill-opacity="0.8" />
+          </g>
+
+          <text x="600" y="430" font-family="system-ui, -apple-system, sans-serif" font-size="80" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="-2px">
+            PDFMinty
+          </text>
+          
+          <text x="600" y="490" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" fill="#94A3B8" text-anchor="middle" letter-spacing="4px">
+            PRIVACY-FIRST FREE PDF TOOLKIT
+          </text>
+
+          <text x="600" y="540" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#00FFC2" text-anchor="middle" letter-spacing="1px">
+            100% Client-Side • Secure Offline Calculations • No Server Uploads
+          </text>
+        </svg>
+      `;
+
+      await sharp(Buffer.from(ogSvgMarkup))
+        .png()
+        .toFile(path.join(target, 'og-image.png'));
+    }
+
+    console.log('Successfully completed generateAllAssets procedure.');
+  } catch (err) {
+    console.error('Error during asset generation pipeline:', err);
+  }
+}
 
 // Single Source of Truth TypeScript File Loader:
 // Compiles/strips TS markers at runtime to load metadata cleanly inside standard Node.js
@@ -39,10 +133,15 @@ async function loadSeoData() {
 }
 
 async function run() {
+  const distDir = path.join(__dirname, "../dist");
+  const publicDir = path.join(__dirname, "../public");
+  
+  // Create logos & icons first on every build dynamically
+  await generateAllAssets(publicDir, distDir);
+
   const seoData = await loadSeoData();
   const { SITE_URL, SITE_NAME, TOOLS } = seoData;
   
-  const distDir = path.join(__dirname, "../dist");
   const distIndexHtmlPath = path.join(distDir, "index.html");
   const rootIndexHtmlPath = path.join(__dirname, "../index.html");
   
