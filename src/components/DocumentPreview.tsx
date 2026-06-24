@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import type { PDFDocumentProxy } from 'pdfjs-dist';
+import React, { useState, useCallback, useRef } from 'react';
 
 import { LazyPDFPage } from './LazyPDFPage';
 
 interface DocumentPreviewProps {
-  pdfDoc: any;
+  pdfDoc: PDFDocumentProxy;
   pageCount: number;
   selectedPages?: Set<number>;
   onSelectionChange?: (selected: Set<number>) => void;
@@ -25,53 +26,48 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     selectedPages ?? new Set()
   );
 
+  const lastSelectedRef = useRef<number | null>(null);
+
   const isControlled = selectedPages !== undefined && onSelectionChange !== undefined;
   const currentSelection = isControlled ? selectedPages : internalSelection;
 
   const handleSelect = useCallback(
-    (index: number, event?: React.MouseEvent) => {
-      if (!onSelectionChange && !setInternalSelection) return;
-
-      const newSet = new Set(currentSelection);
-      // Shift+click = range select
-      if (event?.shiftKey && currentSelection.size > 0) {
-        const last = Math.max(...Array.from(currentSelection));
-        const [from, to] = [Math.min(last, index), Math.max(last, index)];
-        for (let i = from; i <= to; i++) newSet.add(i);
+    (index: number, event?: React.MouseEvent | React.KeyboardEvent) => {
+      if (event?.shiftKey && lastSelectedRef.current !== null) {
+        const start = Math.min(lastSelectedRef.current, index);
+        const end = Math.max(lastSelectedRef.current, index);
+        setInternalSelection((prev) => {
+          const merged = new Set(prev);
+          for (let i = start; i <= end; i++) merged.add(i);
+          if (onSelectionChange) onSelectionChange(merged);
+          return merged;
+        });
       } else {
-        if (newSet.has(index)) {
-          newSet.delete(index);
-        } else {
-          newSet.add(index);
-        }
+        setInternalSelection((prev) => {
+          const next = new Set(prev);
+          if (next.has(index)) next.delete(index);
+          else next.add(index);
+          if (onSelectionChange) onSelectionChange(next);
+          return next;
+        });
       }
-
-      if (isControlled) {
-        onSelectionChange(newSet);
-      } else {
-        setInternalSelection(newSet);
-      }
+      lastSelectedRef.current = index;
     },
-    [currentSelection, isControlled, onSelectionChange]
+    [onSelectionChange, setInternalSelection]
   );
 
-  const selectAll = () => {
-    const all = new Set(Array.from({ length: pageCount }, (_, i) => i));
-    if (isControlled) {
-      onSelectionChange!(all);
-    } else {
-      setInternalSelection(all);
-    }
-  };
+  const selectAll = useCallback(() => {
+    const all = new Set<number>();
+    for (let i = 0; i < pageCount; i++) all.add(i);
+    setInternalSelection(all);
+    if (onSelectionChange) onSelectionChange(all);
+  }, [pageCount, onSelectionChange, setInternalSelection]);
 
-  const clearAll = () => {
-    const empty = new Set<number>();
-    if (isControlled) {
-      onSelectionChange!(empty);
-    } else {
-      setInternalSelection(empty);
-    }
-  };
+  const clearAll = useCallback(() => {
+    setInternalSelection(new Set());
+    if (onSelectionChange) onSelectionChange(new Set());
+    lastSelectedRef.current = null;
+  }, [onSelectionChange, setInternalSelection]);
 
   return (
     <div className="space-y-3">
@@ -84,7 +80,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             </span>
           )}
         </span>
-        {onSelectionChange || setInternalSelection ? (
+        {onSelectionChange ? (
           <div className="flex gap-2">
             <button
               onClick={selectAll}
@@ -107,10 +103,11 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
           <LazyPDFPage
             key={i}
             pdfDoc={pdfDoc}
+            pageNumber={i + 1}
             pageIndex={i}
             rotation={rotations[i] ?? 0}
             isSelected={currentSelection.has(i)}
-            onSelect={(idx) => handleSelect(idx)}
+            onSelect={(idx, e) => handleSelect(idx, e)}
             scale={scale}
           />
         ))}

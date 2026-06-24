@@ -7,6 +7,7 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 
 export const WatermarkPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -27,7 +28,11 @@ export const WatermarkPage: React.FC = () => {
   const handleWatermark = async () => {
     if (!selectedFile) return;
     if (!text.trim()) {
-      setError('Please provide watermarking stamp text.');
+      setError('Please enter watermark text.');
+      return;
+    }
+    if (text.length > 60) {
+      setError('Watermark text is too long. Maximum 60 characters.');
       return;
     }
 
@@ -43,14 +48,7 @@ export const WatermarkPage: React.FC = () => {
       );
 
       const blob = new Blob([watermarkedBytes as any], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `pdfminty_stamped_${selectedFile.name}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await downloadBlob(blob, `pdfminty_stamped_${selectedFile.name}`);
     } catch (err: any) {
       console.error('Watermark error:', err);
       setError(err?.message || 'An unexpected error occurred while adding the watermark.');
@@ -137,12 +135,17 @@ export const WatermarkPage: React.FC = () => {
                 <input
                   id="watermark_text"
                   type="text"
+                  maxLength={60}
+                  aria-label="Watermark text"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="e.g. DRAFT"
                   className="w-full border border-slate-300 rounded-xl py-2 px-3.5 text-sm font-bold tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   disabled={!selectedFile}
                 />
+                <p className="text-[10px] text-slate-400 mt-1 text-right">
+                  {text.length} / 60
+                </p>
               </div>
 
               <div className="space-y-1.5">
@@ -200,7 +203,8 @@ export const WatermarkPage: React.FC = () => {
                       key={item.hex}
                       type="button"
                       onClick={() => setColor(item.hex)}
-                      title={item.label}
+                      aria-label={`Watermark color: ${item.label}`}
+                      aria-pressed={color === item.hex}
                       className={`w-8 h-8 rounded-full border-2 transition-transform ${
                         color === item.hex
                           ? 'border-slate-800 scale-110 shadow-sm'

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import type { PDFDocumentProxy } from 'pdfjs-dist';
+import React, { useEffect, useState, useRef } from 'react';
 
 import { getPdfJs } from '../core/index';
 
@@ -19,10 +20,21 @@ export const PdfPreview: React.FC<PdfPreviewProps> = ({
   rotations,
   scale,
 }) => {
-  const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
   const [pageCount, setPageCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pdfDocRef.current) {
+        pdfDocRef.current.destroy().catch(() => { /* ignore */ });
+        pdfDocRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,13 +45,30 @@ export const PdfPreview: React.FC<PdfPreviewProps> = ({
       try {
         const bytes = new Uint8Array(await file.arrayBuffer());
         const pdfjs = await getPdfJs();
-        const doc = await pdfjs.getDocument({ data: bytes, useSystemFonts: true }).promise;
+        const doc = await pdfjs.getDocument({ data: bytes }).promise;
         if (!cancelled) {
+          if (pdfDocRef.current) {
+            try {
+              await pdfDocRef.current.destroy();
+            } catch {
+              // ignore
+            }
+          }
+          pdfDocRef.current = doc;
           setPdfDoc(doc);
           setPageCount(doc.numPages);
+        } else {
+          try {
+            await doc.destroy();
+          } catch {
+            // ignore
+          }
         }
-      } catch (err: any) {
-        if (!cancelled) setError(err?.message || 'Failed to load PDF preview.');
+      } catch (err: unknown) {
+        if (!cancelled) {
+          const message = err instanceof Error ? err.message : 'Failed to load PDF preview.';
+          setError(message);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -65,6 +94,8 @@ export const PdfPreview: React.FC<PdfPreviewProps> = ({
       </div>
     );
   }
+
+  if (!pdfDoc) return null;
 
   return (
     <DocumentPreview

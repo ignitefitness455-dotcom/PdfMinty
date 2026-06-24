@@ -1,4 +1,4 @@
-import { ArrowLeft, Trash2, Download, AlertCircle, AlertTriangle, Loader2, CheckSquare, Square } from 'lucide-react';
+import { ArrowLeft, Trash2, AlertCircle, AlertTriangle, Loader2, CheckSquare, Square } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -7,6 +7,7 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 
 export const DeletePagesPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -103,31 +104,56 @@ export const DeletePagesPage: React.FC = () => {
     setError(null);
 
     try {
-      // Parse list of integers (e.g. "1, 2, 4")
-      const pagesArray = pagesStr
+      const totalPages = thumbnails.length;
+      const parsed = pagesStr
         .split(',')
         .map((p) => parseInt(p.trim(), 10))
         .filter((p) => !isNaN(p));
 
-      if (pagesArray.length === 0) {
-        throw new Error('Please specify a comma-separated list of valid page numbers.');
+      // Reject out-of-range and non-positive values. Surface a clear error so the
+      // user knows which tokens were rejected.
+      const invalidTokens: string[] = [];
+      const validPages: number[] = [];
+      const seen = new Set<number>();
+
+      for (const p of parsed) {
+        if (!Number.isInteger(p) || p < 1 || p > totalPages) {
+          invalidTokens.push(String(p));
+          continue;
+        }
+        if (seen.has(p)) continue; // silently dedupe
+        seen.add(p);
+        validPages.push(p);
+      }
+
+      if (invalidTokens.length > 0) {
+        setError(
+          `Invalid page number(s): ${invalidTokens.join(', ')}. Document has ${totalPages} page(s). Use numbers between 1 and ${totalPages}.`
+        );
+        setLoading(false);
+        return;
+      }
+
+      if (validPages.length === 0) {
+        setError('Please enter at least one valid page number to delete.');
+        setLoading(false);
+        return;
+      }
+
+      if (validPages.length === totalPages) {
+        setError('Cannot delete all pages of the document.');
+        setLoading(false);
+        return;
       }
 
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
       const parsedBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
         'deletePagesPDF',
-        { bytes: fileBytes, pageIndices: pagesArray },
+        { bytes: fileBytes, pageIndices: validPages },
         [fileBytes.buffer]
       );
       const blob = new Blob([parsedBytes as any], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `pdfminty_stripped_${selectedFile.name}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await downloadBlob(blob, `pdfminty_stripped_${selectedFile.name}`);
     } catch (err: any) {
       console.error('Delete pages error:', err);
       setError(
@@ -190,6 +216,8 @@ export const DeletePagesPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => {
+                    // Revoke existing blob URLs to prevent memory leaks.
+                    thumbnails.forEach((t) => URL.revokeObjectURL(t.dataUrl));
                     setSelectedFile(null);
                     setThumbnails([]);
                     setPagesStr('');

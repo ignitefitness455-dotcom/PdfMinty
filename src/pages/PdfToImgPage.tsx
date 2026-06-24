@@ -1,4 +1,5 @@
 import { ArrowLeft, Eye, Download, AlertCircle, Sparkles } from 'lucide-react';
+import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -7,6 +8,17 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
+
+let pdfjsLib: unknown = null;
+
+const loadPdfjs = async (): Promise<any> => {
+  if (!pdfjsLib) {
+    pdfjsLib = await import('pdfjs-dist');
+    (pdfjsLib as any).GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
+  }
+  return pdfjsLib;
+};
 
 export const PdfToImgPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -15,6 +27,8 @@ export const PdfToImgPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [maxPagesLimit, setMaxPagesLimit] = useState<string>('15');
   const [exportFormat, setExportFormat] = useState<'image/png' | 'image/jpeg'>('image/png');
+  const [scale, setScale] = useState<1.0 | 1.5 | 2.0>(1.5);
+  const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
 
   const urlsRef = React.useRef<string[]>([]);
 
@@ -44,7 +58,6 @@ export const PdfToImgPage: React.FC = () => {
     if (!selectedFile) return;
 
     imageUrls.forEach((item) => URL.revokeObjectURL(item.dataUrl));
-    setLoading(true);
     setError(null);
     setImageUrls([]);
 
@@ -52,32 +65,69 @@ export const PdfToImgPage: React.FC = () => {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
       const maxPagesVal = maxPagesLimit === 'all' ? undefined : parseInt(maxPagesLimit, 10);
 
-      const rendered = await WorkerManager.getInstance().runOperation<
-        { page: number; imageBytes: Uint8Array }[]
-      >('pdfToImage', { bytes: fileBytes, originalName: selectedFile.name, scale: 1.5, maxPages: maxPagesVal, format: exportFormat }, [
-        fileBytes.buffer,
-      ]);
+      // Get total page count for progress display.
+      const pdfjs = await loadPdfjs();
+      const loadingTask = pdfjs.getDocument({ data: fileBytes.slice() });
+      const pdf = await loadingTask.promise;
+      const total = maxPagesVal ? Math.min(pdf.numPages, maxPagesVal) : pdf.numPages;
+      await pdf.destroy();
 
-      const convertedToDataUrls = rendered.map((item) => {
-        // Blob from Uint8Array
-        const blob = new Blob([item.imageBytes as any], { type: exportFormat });
-        return {
-          page: item.page,
-          dataUrl: URL.createObjectURL(blob),
-          format: exportFormat,
-        };
-      });
+      setProgress({ current: 0, total });
+      setLoading(true);
 
-      setImageUrls(convertedToDataUrls);
-    } catch (err: any) {
+      const collected: { page: number; dataUrl: string; format: string }[] = [];
+      for (let pageNum = 1; pageNum <= total; pageNum++) {
+        // Extract the single page first to keep memory footprint incredibly low and avoid neutering source bytes buffer
+        const singlePagePdfBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
+          'extractPages',
+          {
+            bytes: fileBytes,
+            pageNumbers: [pageNum],
+          }
+        );
+
+        const rendered = await WorkerManager.getInstance().runOperation<
+          { page: number; imageBytes: Uint8Array }[]
+        >(
+          'pdfToImage',
+          {
+            bytes: singlePagePdfBytes,
+            originalName: `page_${pageNum}.pdf`,
+            scale,
+            maxPages: 1,
+            format: exportFormat,
+          },
+          [singlePagePdfBytes.buffer]
+        );
+
+        if (rendered.length === 0) break;
+
+        const item = rendered[0];
+        const blob = new Blob([item.imageBytes as unknown as BlobPart], { type: exportFormat });
+        const url = URL.createObjectURL(blob);
+        collected.push({ page: pageNum, dataUrl: url, format: exportFormat });
+
+        const ext = exportFormat === 'image/jpeg' ? 'jpeg' : 'png';
+        const filename = `pdfminty_page_${pageNum}_${selectedFile.name.replace(/\.pdf$/i, '')}.${ext}`;
+        await downloadBlob(blob, filename, { fallbackOnly: true });
+
+        setProgress({ current: pageNum, total });
+        if (pageNum < total) {
+          await new Promise((r) => setTimeout(r, 400));
+        }
+      }
+
+      setImageUrls(collected);
+    } catch (err: unknown) {
       console.error('Export images failed:', err);
-      // Fallback: If pdfjs-dist gets worker loading issue in local environment, provide simple guide
+      const errMsg = err instanceof Error ? err.message : String(err);
       setError(
-        err?.message ||
+        errMsg ||
           'Error occurred during PDF parsing. Encrypted documents are not supported for canvas extraction.'
       );
     } finally {
       setLoading(false);
+      setProgress(null);
     }
   };
 
@@ -151,6 +201,21 @@ export const PdfToImgPage: React.FC = () => {
             )}
           </div>
 
+          {progress && (
+            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm" role="status" aria-live="polite">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-2">
+                <span>Rendering pages...</span>
+                <span>{progress.current} / {progress.total}</span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-violet-600 h-full transition-all duration-300"
+                  style={{ width: `${(progress.current / progress.total) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {imageUrls.length > 0 && (
             <div
               className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4"
@@ -171,6 +236,7 @@ export const PdfToImgPage: React.FC = () => {
                         src={item.dataUrl}
                         alt={`Page ${item.page}`}
                         className="max-w-full max-h-full object-contain"
+                        referrerPolicy="no-referrer"
                       />
                     </div>
                     <div className="mt-3 flex items-center justify-between text-xs">
@@ -217,28 +283,44 @@ export const PdfToImgPage: React.FC = () => {
               </div>
 
               <div className="space-y-2">
+                <label htmlFor="scale_select" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Render Quality:
+                </label>
+                <select
+                  id="scale_select"
+                  value={scale}
+                  onChange={(e) => setScale(parseFloat(e.target.value) as 1.0 | 1.5 | 2.0)}
+                  className="w-full border border-slate-300 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                >
+                  <option value="1">1.0x (Smaller, faster)</option>
+                  <option value="1.5">1.5x (Balanced)</option>
+                  <option value="2">2.0x (High-res, larger file)</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
                 <label htmlFor="max_pages_limit_select" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Max pages to convert:
                 </label>
-              <select
-                id="max_pages_limit_select"
-                value={maxPagesLimit}
-                onChange={(e) => setMaxPagesLimit(e.target.value)}
-                className="w-full border border-slate-300 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-              >
-                <option value="5">First 5 Pages</option>
-                <option value="10">First 10 Pages</option>
-                <option value="15">First 15 Pages</option>
-                <option value="30">First 30 Pages</option>
-                <option value="all">All Pages (Unlimited)</option>
-              </select>
+                <select
+                  id="max_pages_limit_select"
+                  value={maxPagesLimit}
+                  onChange={(e) => setMaxPagesLimit(e.target.value)}
+                  className="w-full border border-slate-300 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                >
+                  <option value="5">First 5 Pages</option>
+                  <option value="10">First 10 Pages</option>
+                  <option value="15">First 15 Pages</option>
+                  <option value="30">First 30 Pages</option>
+                  <option value="all">All Pages (Unlimited)</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-            {maxPagesLimit === 'all' && (
+            {(maxPagesLimit === 'all' || parseInt(maxPagesLimit, 10) > 15) && (
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[10px] text-amber-800 leading-normal">
                 <span className="font-bold block mb-0.5">⚠️ Memory warning:</span>
-                Rendering all pages at high-definition scales (1.5x) uses significant browser memory and CPU locally. For very large PDF files, this might cause your browser tab to temporarily freeze.
+                Rendering many pages at high-definition scales uses significant browser memory and CPU locally. For very large PDF files, this might cause your browser tab to temporarily freeze.
               </div>
             )}
 

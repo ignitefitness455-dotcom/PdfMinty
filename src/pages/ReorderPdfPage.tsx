@@ -7,6 +7,7 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 
 interface PageItem {
   page: number; // Original 1-based page index
@@ -72,14 +73,6 @@ export const ReorderPdfPage: React.FC = () => {
     }
   };
 
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-  };
-
   const handleDrop = (index: number) => {
     if (draggedIndex === null) return;
     if (draggedIndex === index) {
@@ -92,6 +85,29 @@ export const ReorderPdfPage: React.FC = () => {
     reordered.splice(index, 0, removed);
     setItems(reordered);
     setDraggedIndex(null);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    if (e.key === 'ArrowLeft' && index > 0) {
+      const next = [...items];
+      [next[index - 1], next[index]] = [next[index], next[index - 1]];
+      setItems(next);
+      // Restore focus to the moved item.
+      window.requestAnimationFrame(() => {
+        const el = document.getElementById(`reorder-item-${index - 1}`);
+        el?.focus();
+      });
+    } else if (e.key === 'ArrowRight' && index < items.length - 1) {
+      const next = [...items];
+      [next[index + 1], next[index]] = [next[index], next[index + 1]];
+      setItems(next);
+      window.requestAnimationFrame(() => {
+        const el = document.getElementById(`reorder-item-${index + 1}`);
+        el?.focus();
+      });
+    }
   };
 
   const resetOrder = () => {
@@ -120,14 +136,7 @@ export const ReorderPdfPage: React.FC = () => {
       );
 
       const blob = new Blob([parsedBytes as any], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `ordered_${selectedFile.name}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await downloadBlob(blob, `ordered_${selectedFile.name}`);
     } catch (err: any) {
       console.error('Reorder PDF failed:', err);
       setError(err?.message || 'Failed to reorder document layout. Confirm pages structure.');
@@ -154,11 +163,11 @@ export const ReorderPdfPage: React.FC = () => {
             Reorder PDF Pages
           </h1>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['delete-pages-pdf']?.maxSingleMB || 50}MB
+            Limit: {TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB}MB
           </span>
         </div>
         <p className="text-slate-500 dark:text-slate-400 text-sm">
-          Sort, rearrange, or shuffle PDF pages interactively. Drag and drop any slot to fine-tune your document order. Files must be under {TOOL_SIZE_LIMITS['delete-pages-pdf']?.maxSingleMB || 50} MB.
+          Sort, rearrange, or shuffle PDF pages interactively. Drag and drop any slot to fine-tune your document order. Files must be under {TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB} MB.
         </p>
       </div>
 
@@ -171,9 +180,9 @@ export const ReorderPdfPage: React.FC = () => {
               <FileUploader
                 onFilesSelected={handleFilesSelected}
                 title="Select a PDF to drag & reorder"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['delete-pages-pdf']?.maxSingleMB || 50}MB)`}
+                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB}MB)`}
                 accept="application/pdf"
-                maxSizeMB={TOOL_SIZE_LIMITS['delete-pages-pdf']?.maxSingleMB || 50}
+                maxSizeMB={TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB}
               />
             ) : (
               <div
@@ -190,6 +199,7 @@ export const ReorderPdfPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => {
+                    items.forEach((item) => URL.revokeObjectURL(item.dataUrl));
                     setSelectedFile(null);
                     setItems([]);
                   }}
@@ -234,17 +244,29 @@ export const ReorderPdfPage: React.FC = () => {
                   </p>
                 </div>
               ) : items.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6" id="reorder_draggable_grid">
+                <div
+                  className="grid grid-cols-2 sm:grid-cols-3 gap-6"
+                  id="reorder_draggable_grid"
+                  role="listbox"
+                  aria-label="Reorder PDF pages. Select an item and use arrow keys to move it."
+                >
                   {items.map((item, index) => {
                     const isDragging = draggedIndex === index;
                     return (
                       <div
                         key={`${item.page}-${index}`}
+                        id={`reorder-item-${index}`}
                         draggable
-                        onDragStart={() => handleDragStart(index)}
-                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDragStart={() => setDraggedIndex(index)}
+                        onDragOver={(e) => e.preventDefault()}
                         onDrop={() => handleDrop(index)}
-                        id={`draggable-page-${index}`}
+                        onDragEnd={() => setDraggedIndex(null)}
+                        onKeyDown={(e) => handleKeyDown(e, index)}
+                        tabIndex={0}
+                        role="option"
+                        aria-selected="false"
+                        aria-roledescription="draggable item"
+                        aria-label={`Page ${item.page}, position ${index + 1} of ${items.length}. Use left and right arrow keys to reorder.`}
                         className={`group relative aspect-[3/4] bg-slate-50 dark:bg-slate-950/40 border-2 rounded-xl p-1.5 flex flex-col justify-between cursor-grab active:cursor-grabbing transition-all select-none ${
                           isDragging
                             ? 'opacity-40 border-dashed border-emerald-500 scale-95'
@@ -258,8 +280,9 @@ export const ReorderPdfPage: React.FC = () => {
                           </span>
                         </div>
 
-                        <div className="absolute top-2 right-2 z-10 p-1 rounded-md bg-white border border-slate-200 opacity-0 group-hover:opacity-100 dark:bg-slate-950 dark:border-slate-800 text-slate-400 transition-opacity">
-                          <Move className="w-3.5 h-3.5" />
+                        <div className="absolute top-2 right-2 z-10 p-1 rounded-md bg-white border border-slate-200 dark:bg-slate-950 dark:border-slate-800 text-slate-400">
+                          {/* Always visible drag handle, not hover-only */}
+                          <span className="opacity-70 text-slate-400" aria-hidden="true">⠿</span>
                         </div>
 
                         <div className="w-full h-[85%] bg-white rounded-lg overflow-hidden flex items-center justify-center shadow-inner pointer-events-none">

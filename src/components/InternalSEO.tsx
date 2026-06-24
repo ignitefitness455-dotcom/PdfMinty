@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 import { SITE_URL } from '../config/routes';
+import { TOOLS } from '../config/seo-data';
 
 import { useLayout } from './Layout';
 
@@ -43,7 +44,7 @@ export default function InternalSEO() {
   const tool = toolsList.find((t) => `/${t.slug}` === location.pathname);
   if (!tool) return null;
   const APP_URL = SITE_URL;
-  const structuredData = [
+  const structuredData: unknown[] = [
     {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
@@ -74,5 +75,47 @@ export default function InternalSEO() {
     },
   ];
 
-  return <script type="application/ld+json">{JSON.stringify(structuredData)}</script>;
+  const seoInfo = TOOLS.find((t) => t.slug === tool.slug);
+  if (seoInfo && seoInfo.type === 'article') {
+    structuredData.push({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: seoInfo.h1,
+      description: seoInfo.metaDescription,
+      url: `${APP_URL}/${seoInfo.slug}`,
+      datePublished: seoInfo.datePublished || '2025-01-01',
+      dateModified: seoInfo.dateModified || new Date().toISOString(),
+      author: {
+        '@type': 'Organization',
+        name: 'PDFMinty',
+        url: APP_URL,
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'PDFMinty',
+        logo: {
+          '@type': 'ImageObject',
+          url: `${APP_URL}/logo.png`,
+        },
+      },
+      image: {
+        '@type': 'ImageObject',
+        url: seoInfo.ogImage ? `${APP_URL}${seoInfo.ogImage}` : `${APP_URL}/og-image.png`,
+        width: 1200,
+        height: 630,
+      },
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': `${APP_URL}/${seoInfo.slug}`,
+      },
+    });
+  }
+
+  const nonce = document.querySelector('meta[name="csp-nonce"]')?.getAttribute('content');
+
+  return (
+    <script type="application/ld+json" nonce={nonce || undefined}>
+      {JSON.stringify(structuredData)}
+    </script>
+  );
 }

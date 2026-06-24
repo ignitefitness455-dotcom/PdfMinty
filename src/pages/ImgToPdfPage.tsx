@@ -7,9 +7,11 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 
 export const ImgToPdfPage: React.FC = () => {
   const [images, setImages] = useState<{ file: File; id: string; url: string }[]>([]);
+  const [pageSize, setPageSize] = useState<'fit' | 'A4' | 'Letter'>('fit');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,18 +85,14 @@ export const ImgToPdfPage: React.FC = () => {
       );
       const pdfBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
         'imagesToPDF',
-        { imageBlobs },
+        {
+          imageBlobs,
+          options: pageSize === 'fit' ? undefined : { pageSize },
+        },
         imageBlobs.map((b) => b.buf.buffer)
       );
       const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `pdfminty_images_${Date.now()}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await downloadBlob(blob, `pdfminty_images_${Date.now()}.pdf`);
     } catch (err: any) {
       console.error('Image logic error:', err);
       setError(
@@ -210,10 +208,16 @@ export const ImgToPdfPage: React.FC = () => {
               <label className="block text-[11px] uppercase tracking-wide font-bold text-slate-500">
                 Page Size
               </label>
-              <select className="w-full text-sm p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-fuchsia-500 transition-colors">
+              <select
+                value={pageSize}
+                onChange={(e) => setPageSize(e.target.value as 'fit' | 'A4' | 'Letter')}
+                className="w-full text-sm p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-fuchsia-500 transition-colors"
+                aria-label="Page size for PDF pages"
+                disabled={loading}
+              >
                 <option value="fit">Fit identical to Image</option>
-                <option value="a4">A4 (Standard Document)</option>
-                <option value="letter">US Letter</option>
+                <option value="A4">A4 (Standard Document)</option>
+                <option value="Letter">US Letter</option>
               </select>
             </div>
 

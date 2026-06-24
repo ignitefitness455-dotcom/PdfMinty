@@ -7,7 +7,6 @@ import {
   RefreshCw,
   CheckCircle2,
 } from 'lucide-react';
-// @ts-expect-error - Vite will bundle the worker from the package and return its URL path
 import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -32,6 +31,7 @@ export const AiAnalyzePage: React.FC = () => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedText, setExtractedText] = useState<string>('');
   const [totalPages, setTotalPages] = useState<number>(0);
+  const [hasConsented, setHasConsented] = useState(false);
 
   // AI querying state
   const [query, setQuery] = useState('');
@@ -55,17 +55,21 @@ export const AiAnalyzePage: React.FC = () => {
       const pdf = await loadingTask.promise;
       setTotalPages(pdf.numPages);
 
-      let textBuffer = '';
-      const maxPages = Math.min(pdf.numPages, 12); // Extract first 12 pages to optimize payload
+      // Cap at 12 pages to keep payload reasonable and avoid token limits.
+      const maxPages = Math.min(pdf.numPages, 12);
 
+      let textBuffer = '';
       for (let i = 1; i <= maxPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
         const pageText = textContent.items.map((item: any) => item.str || '').join(' ');
         textBuffer += `--- PAGE ${i} ---\n${pageText}\n\n`;
+        page.cleanup();
       }
 
       setExtractedText(textBuffer);
+      // Destroy the PDF document to free WASM memory and canvas contexts.
+      await pdf.destroy();
     } catch (err: any) {
       console.error('Text extraction error:', err);
       setError(
@@ -198,9 +202,24 @@ export const AiAnalyzePage: React.FC = () => {
                     <span>Extracting PDF text locally...</span>
                   </div>
                 ) : extractedText ? (
-                  <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center space-x-1.5 text-xs text-emerald-800 font-medium">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    <span>Text indexes loaded successfully!</span>
+                  <div className="space-y-3">
+                    <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center space-x-1.5 text-xs text-emerald-800 font-medium">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                      <span>Text indexes loaded successfully!</span>
+                    </div>
+
+                    {extractedText && totalPages > 12 && (
+                      <div
+                        className="flex items-start space-x-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800"
+                        role="status"
+                      >
+                        <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                        <span>
+                          Analysis is based on the first 12 of {totalPages} pages ({((12 / totalPages) * 100).toFixed(0)}%
+                          of the document). Insights may not reflect the full content.
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ) : null}
               </div>
@@ -208,12 +227,30 @@ export const AiAnalyzePage: React.FC = () => {
           </div>
 
           <div className="bg-slate-100 p-4 rounded-xl space-y-2 border border-slate-200 text-xs text-slate-500 leading-normal">
-            <p className="font-bold text-slate-700">Privacy Information:</p>
+            <p className="font-bold text-slate-700">Privacy Information (read carefully):</p>
             <p>
-              Your document files are processed locally inside your web browser. Only the extracted
-              raw text of the document is sent securely to our Express server to utilize Gemini
-              APIs. Original PDF binaries never touch the clouds.
+              Your <strong>PDF file itself never leaves your browser</strong> — all rendering and text
+              extraction happens locally. However, the <strong>extracted text content</strong> (up to the
+              first 12 pages) is sent to our server and forwarded to <strong>Google Gemini</strong> for
+              analysis. If your document contains sensitive personal information (SSNs, passwords, financial
+              data, medical records), that text will be transmitted.
             </p>
+            <p>
+              By checking the box below you consent to this data flow. You can revoke consent at any time by
+              clearing the file.
+            </p>
+            <label className="flex items-start space-x-2 mt-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hasConsented}
+                onChange={(e) => setHasConsented(e.target.checked)}
+                className="mt-0.5"
+                aria-label="Consent to sending extracted text to Google Gemini for analysis"
+              />
+              <span className="text-slate-700 font-medium">
+                I understand the extracted text will be sent to Google Gemini and I consent.
+              </span>
+            </label>
           </div>
         </div>
 
@@ -228,9 +265,9 @@ export const AiAnalyzePage: React.FC = () => {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => submitQuery('summary')}
-                  disabled={!extractedText || aiLoading}
+                  disabled={!extractedText || aiLoading || !hasConsented}
                   className={`py-2 px-4 rounded-xl text-xs font-bold transition-all ${
-                    extractedText && !aiLoading
+                    extractedText && !aiLoading && hasConsented
                       ? 'bg-amber-100/50 hover:bg-amber-100 border border-amber-200 text-amber-800'
                       : 'bg-slate-100 border border-slate-200 text-slate-400 pointer-events-none'
                   }`}
@@ -259,16 +296,16 @@ export const AiAnalyzePage: React.FC = () => {
                         : 'Please load a file on the left first.'
                     }
                     className="w-full border border-slate-300 rounded-xl py-2.5 pl-3.5 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                    disabled={!extractedText || aiLoading}
+                    disabled={!extractedText || aiLoading || !hasConsented}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') submitQuery('qa');
                     }}
                   />
                   <button
                     onClick={() => submitQuery('qa')}
-                    disabled={!extractedText || !query.trim() || aiLoading}
+                    disabled={!extractedText || !query.trim() || aiLoading || !hasConsented}
                     className={`absolute right-1.5 top-1.5 p-1.5 rounded-lg text-white transition-colors ${
-                      query.trim() && !aiLoading
+                      query.trim() && !aiLoading && hasConsented
                         ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer'
                         : 'bg-slate-300 pointer-events-none'
                     }`}

@@ -9,7 +9,8 @@ interface Env {
 }
 
 const MAX_TEXT_LENGTH = 30000;
-const DEFAULT_MODEL = 'gemini-3.5-flash';
+const MAX_QUERY_LENGTH = 2000;
+const DEFAULT_MODEL = 'gemini-2.0-flash';
 
 // Ephemeral in-memory fallback rate-limiting store (per-isolate, not a global cluster-wide counter).
 const fallbackStore = new Map<string, { count: number; expiresAt: number }>();
@@ -87,29 +88,35 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
-  // Rate limit
+// Rate limit — uses a unique KV key per request to avoid the read-then-write
+  // TOCTOU race that affects the classic "increment a counter" pattern. We list
+  // all keys with the per-IP-per-hour prefix; if there are already >= LIMIT,
+  // reject. Otherwise we write a new unique key with TTL and proceed.
+  //
+  // Cost: one KV list + one KV put per request. list() is eventually consistent
+  // but the over-count window is ~60s, which is acceptable for an AI proxy.
   const ip = request.headers.get('cf-connecting-ip') || 'unknown-ip';
   const hourBlock = Math.floor(Date.now() / 3600000);
-  const rateLimitKey = `rate_limit:gemini:${ip}:${hourBlock}`;
+  const prefix = `rate_limit:gemini:${ip}:${hourBlock}:`;
+  const LIMIT_PER_HOUR = 30;
   let isAllowed = true;
 
   if (env.RATELIMIT_KV) {
     try {
-      const currentCountStr = await env.RATELIMIT_KV.get(rateLimitKey);
-      const currentCount = currentCountStr ? parseInt(currentCountStr, 10) : 0;
-      if (currentCount >= 30) {
+      const listed = await env.RATELIMIT_KV.list({ prefix, limit: LIMIT_PER_HOUR + 1 });
+      if (listed.keys.length >= LIMIT_PER_HOUR) {
         isAllowed = false;
       } else {
-        await env.RATELIMIT_KV.put(rateLimitKey, (currentCount + 1).toString(), {
-          expirationTtl: 3600,
-        });
+        // Write a unique key for this request. crypto.randomUUID() is available
+        // in the Workers runtime.
+        const uniqueKey = prefix + crypto.randomUUID();
+        await env.RATELIMIT_KV.put(uniqueKey, '1', { expirationTtl: 3600 });
       }
     } catch (kvErr) {
       console.error('KV rate limiting failed, reverting to memory map fallback:', kvErr);
       isAllowed = checkFallbackRateLimit(ip);
     }
   } else {
-    // No KV namespace, use fallbackMap
     isAllowed = checkFallbackRateLimit(ip);
   }
 
@@ -131,6 +138,36 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   try {
     const rawData = (await request.json()) as any;
     const { textContent, query, mode } = rawData;
+
+    // Validate query in 'qa' mode — prevent cost abuse via oversized prompts.
+    if (mode === 'qa') {
+      if (typeof query !== 'string' || !query.trim()) {
+        return new Response(
+          JSON.stringify({ error: 'A non-empty query is required in qa mode.' }),
+          {
+            status: 400,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            } as HeadersInit,
+          }
+        );
+      }
+      if (query.length > MAX_QUERY_LENGTH) {
+        return new Response(
+          JSON.stringify({
+            error: `Query is too long (max ${MAX_QUERY_LENGTH} characters).`,
+          }),
+          {
+            status: 400,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            } as HeadersInit,
+          }
+        );
+      }
+    }
 
     if (!textContent || typeof textContent !== 'string') {
       return new Response(JSON.stringify({ error: 'Missing or invalid textContent parameters.' }), {
@@ -179,11 +216,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // Use named parameter format { apiKey: ... }
     const ai = new GoogleGenAI({
       apiKey: geminiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        },
-      },
     });
 
     let systemInstruction = 'You are a professional PDF document analysis assistant.';

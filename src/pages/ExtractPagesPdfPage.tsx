@@ -1,6 +1,5 @@
 import {
   ArrowLeft,
-  Check,
   CheckSquare,
   Square,
   Download,
@@ -16,6 +15,7 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 
 export const ExtractPagesPdfPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -114,14 +114,7 @@ export const ExtractPagesPdfPage: React.FC = () => {
       );
 
       const blob = new Blob([extractedBytes as any], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `extracted_${selectedFile.name}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await downloadBlob(blob, `extracted_${selectedFile.name}`);
     } catch (err: any) {
       console.error('Extract error:', err);
       setError(err?.message || 'Failed to extract selected pages from the document.');
@@ -148,11 +141,11 @@ export const ExtractPagesPdfPage: React.FC = () => {
             Extract PDF Pages
           </h1>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['split-pdf']?.maxSingleMB || 50}MB
+            Limit: {TOOL_SIZE_LIMITS['extract-pages-pdf'].maxSingleMB}MB
           </span>
         </div>
         <p className="text-slate-500 dark:text-slate-400 text-sm">
-          Selectively extract and export individual pages into a separate, clean PDF document instantly. Files must be under {TOOL_SIZE_LIMITS['split-pdf']?.maxSingleMB || 50} MB.
+          Selectively extract and export individual pages into a separate, clean PDF document instantly. Files must be under {TOOL_SIZE_LIMITS['extract-pages-pdf'].maxSingleMB} MB.
         </p>
       </div>
 
@@ -165,9 +158,9 @@ export const ExtractPagesPdfPage: React.FC = () => {
               <FileUploader
                 onFilesSelected={handleFilesSelected}
                 title="Select a PDF to extract pages"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['split-pdf']?.maxSingleMB || 50}MB)`}
+                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['extract-pages-pdf'].maxSingleMB}MB)`}
                 accept="application/pdf"
-                maxSizeMB={TOOL_SIZE_LIMITS['split-pdf']?.maxSingleMB || 50}
+                maxSizeMB={TOOL_SIZE_LIMITS['extract-pages-pdf'].maxSingleMB}
               />
             ) : (
               <div
@@ -184,6 +177,7 @@ export const ExtractPagesPdfPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => {
+                    thumbnails.forEach((t) => URL.revokeObjectURL(t.dataUrl));
                     setSelectedFile(null);
                     setThumbnails([]);
                     setSelectedPages([]);

@@ -64,6 +64,9 @@ self.onmessage = async (e: MessageEvent) => {
         result = await ops.pdfToImage(payload.bytes, payload.originalName, payload.scale, payload.maxPages, payload.format);
         transferables = result.map((r: any) => r.imageBytes.buffer);
         break;
+      case 'getPageCount':
+        result = await ops.getPageCount(payload.bytes);
+        break;
       default:
         throw new Error(`Unknown operation: ${operation}`);
     }

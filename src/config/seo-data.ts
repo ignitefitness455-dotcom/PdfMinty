@@ -24,6 +24,9 @@ export interface ToolSEOInfo {
     steps: string[];
   };
   faqs?: { q: string; a: string }[];
+  ogImage?: string; // Path like '/og-merge-pdf.png'. Falls back to /og-image.png if absent.
+  datePublished?: string; // ISO date string, e.g. '2025-01-15'
+  dateModified?: string;  // ISO date string
 }
 
 export const TOOLS: ToolSEOInfo[] = [

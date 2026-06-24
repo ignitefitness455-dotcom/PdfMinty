@@ -1,10 +1,11 @@
 import confetti from 'canvas-confetti';
+import type * as PDFJSTypes from 'pdfjs-dist';
 
 import { PDFSanitizer } from './PDFSanitizer';
 
 export { WorkerManager } from './WorkerManager';
 
-let cachedPdfJs: any = null;
+let cachedPdfJs: typeof import('pdfjs-dist') | null = null;
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => { cachedPdfJs = null; });
@@ -22,8 +23,9 @@ export const getPdfJs = async () => {
   return pdfjs;
 };
 
-export const getFriendlyErrorMessage = (prefix: string, rawError: any): string => {
-  const errorStr = String(rawError?.message || rawError || '').toLowerCase();
+export const getFriendlyErrorMessage = (prefix: string, rawError: unknown): string => {
+  const message = rawError instanceof Error ? rawError.message : String(rawError || '');
+  const errorStr = message.toLowerCase();
   if (['secured_locked', '/encrypt', 'no pdf header found', 'failed to parse pdf document', 'invalid pdf', 'formaterror', 'encrypted content'].some(s => errorStr.includes(s))) {
     return `${prefix}: The file is encrypted or locked. Please use the "Unlock PDF" tool first to decrypt it.`;
   }
@@ -33,7 +35,7 @@ export const getFriendlyErrorMessage = (prefix: string, rawError: any): string =
   if (['incorrect password', 'decrypt', 'bad decrypt'].some(s => errorStr.includes(s))) {
     return `${prefix}: Incorrect password! Please verify and try again.`;
   }
-  return `${prefix}: ${rawError?.message || rawError}`;
+  return `${prefix}: ${message}`;
 };
 
 export function truncateTextGrapheme(text: string, maxGraphemes: number): string {
@@ -58,7 +60,7 @@ export const triggerDownload = (
   setCompletedResult?: (res: { url: string; filename: string; type: string } | null) => void
 ) => {
   const mimeType = filename.endsWith('.zip') ? 'application/zip' : 'application/pdf';
-  const blob = new Blob([bytes as BlobPart], { type: mimeType });
+  const blob = new Blob([bytes as unknown as BlobPart], { type: mimeType });
   const url = URL.createObjectURL(blob);
   
   if (setCompletedResult) {
@@ -84,7 +86,7 @@ export const triggerDownload = (
 };
 
 export interface PreprocessResult {
-  pdf: any;
+  pdf: unknown;
   sanitizedBytes: Uint8Array;
 }
 export interface PreprocessOptions {
@@ -96,12 +98,13 @@ export interface PreprocessOptions {
 
 export async function preprocessAndLoadPdf(file: File, options?: PreprocessOptions): Promise<PreprocessResult> {
   const arrayBuffer = await file.arrayBuffer();
-  let sanitizedBytes: any = new Uint8Array(arrayBuffer);
+  let sanitizedBytes = new Uint8Array(arrayBuffer) as any;
   try {
     const sanResult = PDFSanitizer.sanitize(sanitizedBytes, { skipEncryptionCheck: options?.skipEncryptionCheck });
-    sanitizedBytes = sanResult.bytes;
-  } catch (err: any) {
-    if (err?.message?.includes('SECURED_LOCKED')) {
+    sanitizedBytes = sanResult.bytes as Uint8Array;
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err || '');
+    if (message.includes('SECURED_LOCKED')) {
       options?.onEncrypted?.();
       options?.showToast?.(
         options?.customLockMessage || '🔒 Secured/locked PDF detected. Please use the Unlock tool first.',
@@ -110,8 +113,8 @@ export async function preprocessAndLoadPdf(file: File, options?: PreprocessOptio
     }
     throw err;
   }
-  const pdfjs = await getPdfJs();
-  const loadingTask = pdfjs.getDocument({ data: sanitizedBytes, useSystemFonts: true });
+  const pdfjs = (await getPdfJs()) as typeof PDFJSTypes;
+  const loadingTask = pdfjs.getDocument({ data: sanitizedBytes });
   const pdf = await loadingTask.promise;
   return { pdf, sanitizedBytes };
 }

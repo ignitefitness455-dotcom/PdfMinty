@@ -1,4 +1,4 @@
-import { ArrowLeft, FilePlus, Download, AlertCircle } from 'lucide-react';
+import { ArrowLeft, FilePlus, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -7,18 +7,27 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 
 export const AddBlankPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [positionType, setPositionType] = useState<'start' | 'end' | 'custom'>('end');
   const [customIndex, setCustomIndex] = useState<number>(2);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFilesSelected = (files: File[]) => {
-    if (files.length > 0) {
-      setSelectedFile(files[0]);
-      setError(null);
+  const handleFilesSelected = async (files: File[]) => {
+    if (files.length === 0) return;
+    setSelectedFile(files[0]);
+    setError(null);
+    try {
+      const bytes = new Uint8Array(await files[0].arrayBuffer());
+      const count = await WorkerManager.getInstance().runOperation<number>('getPageCount', { bytes });
+      setTotalPages(count);
+      if (customIndex > count + 1) setCustomIndex(count + 1);
+    } catch {
+      setError('Failed to read PDF. It may be corrupted.');
     }
   };
 
@@ -37,14 +46,7 @@ export const AddBlankPage: React.FC = () => {
         [fileBytes.buffer]
       );
       const blob = new Blob([updatedBytes as any], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `pdfminty_padded_${selectedFile.name}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await downloadBlob(blob, `pdfminty_padded_${selectedFile.name}`);
     } catch (err: any) {
       console.error('Add blank page error:', err);
       setError(err?.message || 'An unexpected error occurred while adding the blank page.');
@@ -103,7 +105,10 @@ export const AddBlankPage: React.FC = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => setSelectedFile(null)}
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setTotalPages(0);
+                  }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Change File
@@ -153,10 +158,19 @@ export const AddBlankPage: React.FC = () => {
                     id="custom_pg_index"
                     type="number"
                     min="1"
+                    max={totalPages + 1}
                     value={customIndex}
-                    onChange={(e) => setCustomIndex(Math.max(1, parseInt(e.target.value, 10)))}
+                    onChange={(e) => {
+                      // parseInt('') returns NaN. Math.max(1, NaN) returns NaN (not 1!).
+                      // Coerce with || 1 so an empty input always falls back to 1, never NaN.
+                      const parsed = parseInt(e.target.value, 10);
+                      setCustomIndex(Number.isNaN(parsed) ? 1 : Math.max(1, parsed));
+                    }}
                     className="w-full border border-slate-300 rounded-lg py-1.5 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-bold"
                   />
+                  <p className="text-xs text-slate-400">
+                    Document has {totalPages} pages. Insert position must be between 1 and {totalPages + 1}.
+                  </p>
                 </div>
               )}
             </div>

@@ -7,11 +7,12 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const CompressPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [level, setLevel] = useState<'basic' | 'maximum'>('basic');
+  const [level, setLevel] = useState<'basic' | 'medium' | 'maximum'>('basic');
   const [loading, setLoading] = useState(false);
   const [complete, setComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +50,7 @@ export const CompressPage: React.FC = () => {
       );
 
       // ✅ Use the REAL compressed bytes — not a fake zeroed Uint8Array
-      const blob = new Blob([compressedBytes], { type: 'application/pdf' });
+      const blob = new Blob([compressedBytes as unknown as BlobPart], { type: 'application/pdf' });
 
       const finalSize = blob.size;
       const ratio = Math.max(0, ((1 - finalSize / selectedFile.size) * 100)).toFixed(0);
@@ -70,20 +71,9 @@ export const CompressPage: React.FC = () => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!compressedBlob || !selectedFile) return;
-    const url = URL.createObjectURL(compressedBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `pdfminty_compressed_${selectedFile.name}`;
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    // 1000ms delay prevents mobile-browser download race condition; revokeObjectURL prevents memory leak
-    setTimeout(() => {
-      if (document.body.contains(link)) document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }, 1000);
+    await downloadBlob(compressedBlob, `pdfminty_compressed_${selectedFile.name}`);
   };
 
   return (
@@ -212,7 +202,23 @@ export const CompressPage: React.FC = () => {
               >
                 <span className="font-bold text-sm text-slate-900 block">Basic Optimization</span>
                 <span className="text-[11px] text-slate-500 block leading-normal mt-0.5">
-                  Cleans indexing streams while maintaining high visual layout resolution.
+                  Strips metadata and packs object streams. Lossless — best for text-only PDFs.
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setLevel('medium')}
+                className={`w-full p-3 rounded-xl border text-left transition-all ${
+                  level === 'medium'
+                    ? 'border-indigo-500 bg-indigo-50/50 ring-2 ring-indigo-500/15'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`}
+                disabled={!selectedFile}
+              >
+                <span className="font-bold text-sm text-slate-900 block">Medium Compression</span>
+                <span className="text-[11px] text-slate-500 block leading-normal mt-0.5">
+                  Re-renders image-heavy pages as JPEG quality 0.7. Best balance of size and clarity.
                 </span>
               </button>
 
@@ -228,7 +234,7 @@ export const CompressPage: React.FC = () => {
               >
                 <span className="font-bold text-sm text-slate-900 block">Maximum Compression</span>
                 <span className="text-[11px] text-slate-500 block leading-normal mt-0.5">
-                  Compresses font and image elements to provide minimum file scales.
+                  Re-renders all pages as JPEG quality 0.5. Smallest size, may reduce text clarity.
                 </span>
               </button>
             </div>

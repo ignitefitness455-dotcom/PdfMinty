@@ -1,4 +1,4 @@
-import { ArrowLeft, RotateCw, Download, AlertCircle } from 'lucide-react';
+import { ArrowLeft, RotateCw, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -7,6 +7,7 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 
 export const RotatePage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -34,14 +35,7 @@ export const RotatePage: React.FC = () => {
         [fileBytes.buffer]
       );
       const blob = new Blob([rotatedBytes as any], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `pdfminty_rotated_${selectedFile.name}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await downloadBlob(blob, `pdfminty_rotated_${selectedFile.name}`);
     } catch (err: any) {
       console.error('Rotate error:', err);
       setError(err?.message || 'An unexpected error occurred while rotating the PDF.');

@@ -165,6 +165,8 @@ export const TOOL_SIZE_LIMITS: Record<string, { maxSingleMB: number; maxTotalMB?
   'image-to-pdf': { maxSingleMB: 20, maxTotalMB: 100 },
   'pdf-to-image': { maxSingleMB: 35 },
   'ai-analyze': { maxSingleMB: 15 },
+  'extract-pages-pdf': { maxSingleMB: 50 },
+  'reorder-pdf': { maxSingleMB: 50 },
 };
 
 export const AI_LIMITS = {

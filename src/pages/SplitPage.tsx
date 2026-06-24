@@ -1,4 +1,4 @@
-import { ArrowLeft, Scissors, Download, AlertCircle, Info } from 'lucide-react';
+import { ArrowLeft, Scissors, AlertCircle, Info } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -7,6 +7,7 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlobsSequentially } from '../utils/download';
 
 export const SplitPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -39,21 +40,16 @@ export const SplitPage: React.FC = () => {
         [fileBytes.buffer]
       );
 
-      // Batch download sequentially
-      results.forEach((bytes, idx) => {
-        const url = URL.createObjectURL(new Blob([bytes as any], { type: 'application/pdf' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${selectedFile.name.replace(/\.pdf$/i, '')}_part_${idx + 1}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      });
-    } catch (err: any) {
+      const items = results.map((bytes, idx) => ({
+        blob: new Blob([bytes as unknown as BlobPart], { type: 'application/pdf' }),
+        filename: `${selectedFile.name.replace(/\.pdf$/i, '')}_part_${idx + 1}.pdf`,
+      }));
+      await downloadBlobsSequentially(items, 600);
+    } catch (err: unknown) {
       console.error('Split error:', err);
+      const errMsg = err instanceof Error ? err.message : String(err);
       setError(
-        err?.message ||
+        errMsg ||
           'An unexpected failure occurred while splitting the document. Verify bounds or password locks.'
       );
     } finally {

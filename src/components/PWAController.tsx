@@ -18,41 +18,52 @@ export const PWAController: React.FC = () => {
       return;
     }
 
+    let activeReg: ServiceWorkerRegistration | undefined;
+    let stateChangeHandler: (() => void) | undefined;
+
+    const updateFoundHandler = () => {
+      const newWorker = activeReg?.installing;
+      if (!newWorker) return;
+      stateChangeHandler = () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          setShowToast(true);
+        }
+      };
+      newWorker.addEventListener('statechange', stateChangeHandler);
+    };
+
+    const controllerChangeHandler = () => window.location.reload();
+
     navigator.serviceWorker
       .register('/sw.js')
       .then((reg) => {
+        activeReg = reg;
         setRegistration(reg);
 
         // Check for updates
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // There is a new updated service worker waiting to activate!
-                setShowToast(true);
-              }
-            });
-          }
-        });
+        reg.addEventListener('updatefound', updateFoundHandler);
 
         // If a service worker is already waiting to activate when we open the app
         if (reg.waiting) {
           setShowToast(true);
         }
       })
-      .catch((error) => {
-        console.error('Service worker registration failed:', error);
+      .catch(() => {
+        /* SW registration failure is non-fatal */
       });
 
-    // Handle controller change (service worker activated)
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        refreshing = true;
-        window.location.reload();
+    navigator.serviceWorker.addEventListener('controllerchange', controllerChangeHandler);
+
+    return () => {
+      if (activeReg) {
+        activeReg.removeEventListener('updatefound', updateFoundHandler);
+        const installingWorker = activeReg.installing;
+        if (installingWorker && stateChangeHandler) {
+          installingWorker.removeEventListener('statechange', stateChangeHandler);
+        }
       }
-    });
+      navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeHandler);
+    };
   }, []);
 
   const handleUpdate = () => {

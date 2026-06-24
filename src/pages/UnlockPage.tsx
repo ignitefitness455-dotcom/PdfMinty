@@ -1,4 +1,4 @@
-import { ArrowLeft, Lock, Download, AlertCircle, KeyRound } from 'lucide-react';
+import { ArrowLeft, Lock, AlertCircle, KeyRound } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -7,6 +7,7 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 
 export const UnlockPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -39,14 +40,7 @@ export const UnlockPage: React.FC = () => {
         [fileBytes.buffer]
       );
       const blob = new Blob([unlockedBytes as any], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `pdfminty_unlocked_${selectedFile.name}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await downloadBlob(blob, `pdfminty_unlocked_${selectedFile.name}`);
     } catch (err: any) {
       console.error('Unlock error:', err);
       setError(

@@ -1,5 +1,4 @@
 import {
-  FileText,
   Merge,
   Scissors,
   Minimize2,
@@ -13,24 +12,21 @@ import {
   Image,
   Eye,
   Sparkles,
-  Menu,
-  X,
-  Moon,
-  Sun,
-  Mail,
   HelpCircle,
-  MessageSquare,
-  Star,
   CheckSquare,
   Move,
 } from 'lucide-react';
-import React, { useState, createContext, useContext, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, createContext, useContext, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 
-import { ROUTES } from '../config/routes';
 import { TOOLS } from '../config/seo-data';
 
+import { ContactModal } from './ContactModal';
+import { FeedbackModal } from './FeedbackModal';
+import { Footer } from './Footer';
+import { Header } from './Header';
 import InternalSEO, { Breadcrumbs } from './InternalSEO';
+import { MobileDrawer } from './MobileDrawer';
 import { RelatedTools } from './RelatedTools';
 import { ToolGuide } from './ToolGuide';
 
@@ -61,24 +57,23 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
-  // Dialog State Control
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
-  const [contactSubmitted, setContactSubmitted] = useState(false);
-  const [feedbackRating, setFeedbackRating] = useState<number>(5);
-  const [isFeedbackSubmitting, setIsFeedbackSubmitting] = useState(false);
-  const [feedbackError, setFeedbackError] = useState<string | null>(null);
-  const [isContactSubmitting, setIsContactSubmitting] = useState(false);
-  const [contactError, setContactError] = useState<string | null>(null);
 
   // Theme management logic
   const [theme, setThemeSetting] = useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem('theme-preference');
-    if (saved === 'dark' || saved === 'light') return saved;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    try {
+      const saved = localStorage.getItem('theme-preference');
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch {
+      // localStorage may throw in Safari private mode or when cookies are blocked.
+    }
+    try {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } catch {
+      return 'light';
+    }
   });
 
   useEffect(() => {
@@ -87,10 +82,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     } else {
       document.documentElement.classList.remove('dark');
     }
-    localStorage.setItem('theme-preference', theme);
+    try {
+      localStorage.setItem('theme-preference', theme);
+    } catch {
+      // Ignore write errors in private browsing/blocked cookies.
+    }
   }, [theme]);
 
-  const iconMap: Record<string, React.ComponentType<any>> = {
+  const iconMap = useMemo<Record<string, React.ComponentType<{ className?: string }>>>(() => ({
     Merge,
     Scissors,
     CheckSquare,
@@ -106,24 +105,24 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     Image,
     Eye,
     Sparkles,
-  };
+  }), []);
 
-  const toolsList: ToolInfo[] = TOOLS
+  const toolsList = useMemo<ToolInfo[]>(() => TOOLS
     .filter((t) => t.type === 'tool')
     .map((t) => ({
       name: t.name,
       slug: t.slug,
       description: t.shortDescription,
-    }));
+    })), []);
 
-  const menuItems = TOOLS
+  const menuItems = useMemo(() => TOOLS
     .filter((t) => t.type === 'tool')
     .map((t) => ({
       name: t.name,
       path: `/${t.slug}`,
       icon: iconMap[t.icon] || HelpCircle,
       desc: t.shortDescription,
-    }));
+    })), [iconMap]);
 
   return (
     <LayoutContext.Provider value={{ toolsList }}>
@@ -131,234 +130,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         className="min-h-screen flex flex-col bg-background text-on-background font-sans transition-colors duration-200 selection:bg-primary-fixed/30 overflow-x-hidden w-full"
         id="app_shell"
       >
-        {/* Upper Navigation Header */}
-        <header
-          id="header-bar"
-          className="sticky top-0 bg-background/80 backdrop-blur-xl border-b border-border-muted z-50 transition-all shadow-[0_4px_20px_rgba(0,255,194,0.02)]"
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-            <Link
-              to="/"
-              className="flex items-center gap-3 cursor-pointer group select-none decoration-none"
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              <div className="flex items-center justify-center transition-all duration-300 group-hover:scale-115 shrink-0 bg-surface-container-low p-2 rounded-xl border border-border-muted shadow-lg shadow-black/40">
-                <svg
-                  className="w-8 h-8 drop-shadow-[0_0px_10px_rgba(0,255,194,0.4)] animate-pulse"
-                  viewBox="0 0 48 48"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect x="6" y="11" width="26" height="33" rx="6" fill="#0E0E0E" />
-                  <rect
-                    x="7"
-                    y="12"
-                    width="24"
-                    height="31"
-                    rx="5"
-                    stroke="rgba(255,255,255,0.15)"
-                    strokeWidth="1.2"
-                    fill="none"
-                  />
-                  <rect x="15" y="4" width="27" height="33" rx="6" fill="#00FFC2" />
-                  <rect
-                    x="16"
-                    y="5"
-                    width="25"
-                    height="31"
-                    rx="5"
-                    stroke="#FFFFFF"
-                    strokeWidth="1"
-                    strokeOpacity="0.3"
-                    fill="none"
-                  />
-                  <path d="M35 4L42 11H39C36.7909 11 35 9.20914 35 7V4Z" fill="#131313" />
-                  <rect x="21" y="15" width="15" height="2.2" rx="1.1" fill="#131313" />
-                  <rect x="21" y="21" width="15" height="2.2" rx="1.1" fill="#131313" />
-                  <rect
-                    x="21"
-                    y="27"
-                    width="9"
-                    height="2.2"
-                    rx="1.1"
-                    fill="#131313"
-                    opacity="0.8"
-                  />
-                </svg>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 align-middle">
-                  <span className="text-2xl font-black tracking-tight text-primary-fixed">
-                    PDF<span className="text-primary font-light">Minty</span>
-                  </span>
-                  <span className="text-[9px] font-black tracking-widest text-[#131313] bg-primary-fixed border border-primary-fixed px-1.5 py-0.5 rounded-md uppercase leading-none mt-0.5 animate-pulse">
-                    LOCAL
-                  </span>
-                </div>
-              </div>
-            </Link>
+        <Header
+          theme={theme}
+          setThemeSetting={setThemeSetting}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+        />
 
-            <nav className="hidden md:flex items-center gap-6 font-semibold text-sm">
-              <Link
-                to={ROUTES.MERGE}
-                className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.MERGE ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-              >
-                Merge
-              </Link>
-              <Link
-                to={ROUTES.SPLIT}
-                className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.SPLIT ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-              >
-                Split
-              </Link>
-              <Link
-                to={ROUTES.COMPRESS}
-                className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.COMPRESS ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-              >
-                Compress
-              </Link>
-              <Link
-                to={ROUTES.PROTECT}
-                className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.PROTECT ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-              >
-                Protect
-              </Link>
-              <Link
-                to={ROUTES.UNLOCK}
-                className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.UNLOCK ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-              >
-                Unlock
-              </Link>
-              <Link
-                to={ROUTES.IMG_TO_PDF}
-                className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.IMG_TO_PDF ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-              >
-                Convert
-              </Link>
-              <Link
-                to={ROUTES.AI_ANALYZE}
-                className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.AI_ANALYZE ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-              >
-                AI Analyze
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-4 font-sans">
-              <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 bg-surface-container-high rounded-full border border-border-muted shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-security-green pulse-mint"></span>
-                <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">
-                  LOCAL SANDBOX SECURE
-                </span>
-              </div>
-
-              {/* Theme Toggle Button */}
-              <button
-                onClick={() => setThemeSetting(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface transition-all active:scale-95 cursor-pointer shadow-sm relative group"
-                aria-label="Toggle theme mode"
-                id="theme_toggle_btn"
-              >
-                {theme === 'dark' ? (
-                  <Sun className="w-5 h-5 text-amber-500 fill-amber-500/10" />
-                ) : (
-                  <Moon className="w-5 h-5 text-slate-700 fill-slate-700/10" />
-                )}
-                <span className="absolute invisible group-hover:visible -bottom-9 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] whitespace-nowrap font-bold px-2 py-1 rounded shadow-md border border-slate-800 pointer-events-none z-50">
-                  {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
-                </span>
-              </button>
-
-              {/* Mobile Drawer Trigger */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface lg:hidden focus:outline-none transition-all"
-                aria-label="Toggle menu"
-                id="mobile_menu_toggle"
-              >
-                {mobileMenuOpen ? (
-                  <X className="w-5 h-5 text-security-green" />
-                ) : (
-                  <Menu className="w-5 h-5 text-on-surface-variant" />
-                )}
-              </button>
-            </div>
-          </div>
-        </header>
-
-        {/* Mobile Drawer Overlay */}
-        {mobileMenuOpen && (
-          <div
-            className="lg:hidden fixed inset-0 z-40 bg-background pt-20 flex flex-col animate-fadein"
-            id="mobile_drawer"
-          >
-            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
-              <Link
-                to={ROUTES.HOME}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-4 py-3 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white"
-              >
-                All PDF Tools
-              </Link>
-              <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-                <p className="px-4 text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">
-                  Individual Utilities
-                </p>
-                <div className="grid grid-cols-1 gap-2">
-                  {menuItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center space-x-3 p-3 rounded-xl border ${location.pathname === item.path ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300' : 'border-slate-100 dark:border-slate-800/60 hover:border-slate-200 text-slate-700 dark:text-slate-300'}`}
-                      >
-                        <span className="p-1.5 rounded-lg bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800">
-                          <Icon className="w-5 h-5 text-emerald-600" />
-                        </span>
-                        <div>
-                          <span className="font-semibold text-sm block">{item.name}</span>
-                          <span className="text-[11px] text-slate-500 dark:text-slate-400 block line-clamp-1">
-                            {item.desc}
-                          </span>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Mobile Display Settings */}
-              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
-                <p className="px-4 text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase mb-2">
-                  Display Settings
-                </p>
-                <button
-                  onClick={() => setThemeSetting(theme === 'dark' ? 'light' : 'dark')}
-                  className="w-full flex items-center justify-between p-3.5 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/60 font-semibold text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-left"
-                >
-                  <div className="flex items-center space-x-3">
-                    <span className="p-1.5 rounded-lg bg-white dark:bg-slate-950 shadow-sm border border-slate-200 dark:border-slate-800 flex items-center justify-center">
-                      {theme === 'dark' ? (
-                        <Sun className="w-4 h-4 text-amber-500 fill-amber-500/10" />
-                      ) : (
-                        <Moon className="w-4 h-4 text-slate-600 fill-slate-750/10" />
-                      )}
-                    </span>
-                    <span>
-                      {theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-                    </span>
-                  </div>
-                  <span className="text-xs text-slate-400 dark:text-slate-500 font-mono pr-2">
-                    Toggle
-                  </span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <MobileDrawer
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          theme={theme}
+          setThemeSetting={setThemeSetting}
+          menuItems={menuItems}
+        />
 
         {/* Primary Page Canvas Container */}
         <main
@@ -374,420 +159,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </main>
 
-        {/* Custom Footer */}
-        <footer
-          id="footer-menu"
-          className="border-t border-border-muted bg-surface-container-lowest py-16 transition-colors duration-200 font-sans"
-        >
-          <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center gap-8">
-            <div className="flex flex-wrap justify-center items-center gap-4 text-xs font-semibold">
-              <span className="px-3.5 py-1.5 bg-surface-container-high text-security-green rounded-full border border-border-muted flex items-center gap-1.5 shadow-sm">
-                🛡️ Privacy Secure
-              </span>
-              <span className="px-3.5 py-1.5 bg-surface-container-high text-primary-fixed rounded-full border border-border-muted flex items-center gap-1.5 shadow-sm">
-                📂 100% Offline Core
-              </span>
-              <span className="px-3.5 py-1.5 bg-surface-container-high text-tertiary-fixed-dim rounded-full border border-border-muted flex items-center gap-1.5 shadow-sm">
-                ✨ Free Forever
-              </span>
-            </div>
+        <Footer
+          setShowFeedbackModal={setShowFeedbackModal}
+          setShowContactModal={setShowContactModal}
+        />
 
-            <div className="flex flex-wrap items-center justify-center gap-8 text-sm font-bold text-on-surface-variant">
-              <button
-                id="open-feedback-modal"
-                onClick={() => setShowFeedbackModal(true)}
-                className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant cursor-pointer bg-transparent border-0 font-bold text-sm"
-              >
-                <MessageSquare className="w-4.5 h-4.5 text-security-green fill-security-green/10" />{' '}
-                Provide Feedback
-              </button>
-              <button
-                id="open-contact-modal"
-                onClick={() => setShowContactModal(true)}
-                className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant cursor-pointer bg-transparent border-0 font-bold text-sm"
-              >
-                <Mail className="w-4.5 h-4.5 text-sky-400 fill-sky-400/10" /> Contact Us
-              </button>
-              <button
-                onClick={() => {
-                  window.scrollTo(0, 0);
-                  if (location.pathname !== '/') {
-                    navigate('/');
-                  }
-                  setTimeout(() => {
-                    document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth' });
-                  }, 200);
-                }}
-                className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant cursor-pointer bg-transparent border-0 font-bold text-sm"
-              >
-                <HelpCircle className="w-4.5 h-4.5 text-warning-amber fill-warning-amber/10" />{' '}
-                Privacy & FAQ
-              </button>
-              <Link
-                to={ROUTES.TRUST_ARTICLE}
-                className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
-              >
-                <Shield className="w-4.5 h-4.5 text-emerald-500 fill-emerald-500/10" /> Is It Safe?
-              </Link>
-            </div>
+        <FeedbackModal
+          isOpen={showFeedbackModal}
+          onClose={() => setShowFeedbackModal(false)}
+        />
 
-            <div className="max-w-2xl text-xs text-on-surface-variant/80 space-y-3 leading-relaxed border-t border-border-muted pt-6 select-none leading-relaxed">
-              <p className="font-extrabold text-primary">PDFMinty Copyright & Safety Guarantee</p>
-              <p className="font-medium">
-                © 2026 PDFMinty. All rights reserved. PDFMinty is an independent, client-side
-                offline toolkit. We process all your PDF modifications entirely inside your
-                browser's memory using secure Web Worker technology, meaning your files never touch
-                a remote server and absolute device sovereignty is maintained.
-              </p>
-              <p className="font-medium">
-                Offering a friction-free, account-less alternative to online cloud converters, our
-                utilities let you merge, split, and compress your critical documents under full
-                local device control. PDFMinty is committed to persistent data privacy and
-                utility-grade performance, completely free of charge.
-              </p>
-              <p className="text-xs text-primary-fixed/80 font-semibold uppercase tracking-widest leading-none">
-                Developed by & under Proprietorship of PDFMinty. Secure, client-buffered local
-                suite.
-              </p>
-            </div>
-          </div>
-        </footer>
-
-        {/* Feedback Modal Overlay */}
-        {showFeedbackModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-fadein">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl border border-slate-200/60 dark:border-slate-800 p-6 shadow-2xl space-y-4 text-left">
-              <div className="flex justify-between items-center">
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-emerald-500" /> Share Your Feedback
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowFeedbackModal(false);
-                    setFeedbackSubmitted(false);
-                    setFeedbackError(null);
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {feedbackSubmitted ? (
-                <div className="text-center py-6 space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="3"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    Feedback Submitted!
-                  </h3>
-                  <p className="text-xs text-slate-550 dark:text-slate-400">
-                    Thank you for helping us make PDFMinty better.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setFeedbackSubmitted(false);
-                      setShowFeedbackModal(false);
-                    }}
-                    className="mt-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-extrabold cursor-pointer transition-all active:scale-95"
-                  >
-                    Close
-                  </button>
-                </div>
-              ) : (
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    setIsFeedbackSubmitting(true);
-                    setFeedbackError(null);
-
-                    try {
-                      const formData = new FormData(e.currentTarget);
-                      const email = formData.get('email');
-                      const comment = formData.get('comment');
-
-                      let isSuccess = false;
-                      try {
-                        const response = await fetch('/api/feedback', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ email, comment, rating: feedbackRating }),
-                        });
-
-                        const isJson = response.headers.get('content-type')?.includes('application/json');
-                        isSuccess = response.ok && !!isJson;
-                      } catch (e) {
-                        console.warn('API route not fully available in development environment:', e);
-                      }
-
-                      // If we are in local/sandbox sandbox or API isn't active, complete submission locally
-                      if (!isSuccess) {
-                        console.log('Sandbox/Dev Mode - Simulating Feedback Submission:', { email, comment, rating: feedbackRating });
-                        const current = JSON.parse(localStorage.getItem('pdfminty_sandbox_feedback') || '[]');
-                        current.push({ email, comment, rating: feedbackRating, timestamp: new Date().toISOString() });
-                        localStorage.setItem('pdfminty_sandbox_feedback', JSON.stringify(current));
-                      }
-
-                      setFeedbackSubmitted(true);
-                    } catch (err: any) {
-                      console.error('Feedback submit error:', err);
-                      setFeedbackError(
-                        err.message || 'An unexpected error occurred. Please try again.'
-                      );
-                    } finally {
-                      setIsFeedbackSubmitting(false);
-                    }
-                  }}
-                  className="space-y-4"
-                >
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
-                    We would love to hear your experiences or ideas to make PDFMinty even more
-                    secure and robust!
-                  </p>
-
-                  {feedbackError && (
-                    <div className="p-3 bg-red-50 dark:bg-red-950/25 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 rounded-xl text-xs font-semibold">
-                      {feedbackError}
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-                      Rating ({feedbackRating} / 5 stars)
-                    </label>
-                    <div className="flex gap-1.5">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setFeedbackRating(star)}
-                          disabled={isFeedbackSubmitting}
-                          className="text-amber-400 hover:scale-110 transition-transform cursor-pointer focus:outline-none disabled:opacity-50"
-                        >
-                          <Star
-                            className={`w-6 h-6 text-amber-400 ${star <= feedbackRating ? 'fill-amber-400' : 'fill-none'}`}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="you@example.com"
-                      disabled={isFeedbackSubmitting}
-                      className="w-full text-xs rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 p-3.5 dark:text-white disabled:opacity-50"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-                      Your Message
-                    </label>
-                    <textarea
-                      name="comment"
-                      rows={3}
-                      disabled={isFeedbackSubmitting}
-                      placeholder="Tell us what you like or how we can improve..."
-                      className="w-full text-xs rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 p-3.5 dark:text-white disabled:opacity-50"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={isFeedbackSubmitting}
-                    className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/60 text-white font-extrabold text-xs py-3 rounded-xl shadow-lg shadow-emerald-600/10 transition-all active:scale-95 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {isFeedbackSubmitting ? (
-                      <>
-                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                        Submitting...
-                      </>
-                    ) : (
-                      'Submit Feedback'
-                    )}
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Contact Modal Overlay */}
-        {showContactModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-fadein">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl border border-slate-200/60 dark:border-slate-800 p-6 shadow-2xl space-y-4 text-left">
-              <div className="flex justify-between items-center">
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-blue-500" /> Contact PDFMinty
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowContactModal(false);
-                    setContactSubmitted(false);
-                    setContactError(null);
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {contactSubmitted ? (
-                <div className="text-center py-6 space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="3"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    Message Sent!
-                  </h3>
-                  <p className="text-xs text-slate-550 dark:text-slate-400">
-                    We will get back to your query as soon as possible.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setContactSubmitted(false);
-                      setShowContactModal(false);
-                    }}
-                    className="mt-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold cursor-pointer transition-all active:scale-95"
-                  >
-                    Close
-                  </button>
-                </div>
-              ) : (
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    setIsContactSubmitting(true);
-                    setContactError(null);
-
-                    try {
-                      const formData = new FormData(e.currentTarget);
-                      const email = formData.get('email');
-                      const subject = formData.get('subject');
-                      const message = formData.get('message');
-
-                      let isSuccess = false;
-                      try {
-                        const response = await fetch('/api/contact', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ email, subject, message, name: 'Visitor' }),
-                        });
-
-                        const isJson = response.headers.get('content-type')?.includes('application/json');
-                        isSuccess = response.ok && !!isJson;
-                      } catch (e) {
-                        console.warn('API route not fully available in development environment:', e);
-                      }
-
-                      // If we are in local/sandbox sandbox or API isn't active, complete submission locally
-                      if (!isSuccess) {
-                        console.log('Sandbox/Dev Mode - Simulating Contact Submission:', { email, subject, message });
-                        const current = JSON.parse(localStorage.getItem('pdfminty_sandbox_contact') || '[]');
-                        current.push({ email, subject, message, timestamp: new Date().toISOString() });
-                        localStorage.setItem('pdfminty_sandbox_contact', JSON.stringify(current));
-                      }
-
-                      setContactSubmitted(true);
-                    } catch (err: any) {
-                      console.error('Contact send error:', err);
-                      setContactError(
-                        err.message || 'An unexpected error occurred. Please try again.'
-                      );
-                    } finally {
-                      setIsContactSubmitting(false);
-                    }
-                  }}
-                  className="space-y-4"
-                >
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
-                    Have questions about document security, partnerships, or local distributed
-                    technologies? Drop us a line.
-                  </p>
-
-                  {contactError && (
-                    <div className="p-3 bg-red-50 dark:bg-red-950/25 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 rounded-xl text-xs font-semibold">
-                      {contactError}
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      disabled={isContactSubmitting}
-                      placeholder="you@example.com"
-                      className="w-full text-xs rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 p-3.5 dark:text-white disabled:opacity-50"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-                      Subject
-                    </label>
-                    <input
-                      type="text"
-                      name="subject"
-                      disabled={isContactSubmitting}
-                      placeholder="How can we help?"
-                      className="w-full text-xs rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 p-3.5 dark:text-white disabled:opacity-50"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-                      Message
-                    </label>
-                    <textarea
-                      name="message"
-                      rows={3}
-                      disabled={isContactSubmitting}
-                      placeholder="Type your question or request here..."
-                      className="w-full text-xs rounded-xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 p-3.5 dark:text-white disabled:opacity-50"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={isContactSubmitting}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/60 text-white font-extrabold text-xs py-3 rounded-xl shadow-lg shadow-blue-600/10 transition-all active:scale-95 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {isContactSubmitting ? (
-                      <>
-                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                        Sending Msg...
-                      </>
-                    ) : (
-                      'Send Message'
-                    )}
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
-        )}
+        <ContactModal
+          isOpen={showContactModal}
+          onClose={() => setShowContactModal(false)}
+        />
       </div>
     </LayoutContext.Provider>
   );

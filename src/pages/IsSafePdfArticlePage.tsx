@@ -1,4 +1,4 @@
-import { ArrowLeft, Shield, CheckCircle, HelpCircle, Key, Lock, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Shield, CheckCircle, HelpCircle, Key, AlertTriangle } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -38,10 +38,10 @@ export const IsSafePdfArticlePage: React.FC = () => {
           <span>Security Analysis & Trust Insights</span>
         </div>
         <h1 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-          {article.h1}
+          {article.h1 ?? 'Is PDFMinty Safe?'}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-base md:text-lg leading-relaxed font-medium">
-          {article.metaDescription}
+          {article.metaDescription ?? 'Learn how PDFMinty keeps your files completely secure and private by processing everything locally inside your browser.'}
         </p>
       </div>
 
@@ -55,7 +55,7 @@ export const IsSafePdfArticlePage: React.FC = () => {
         <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950/40 dark:to-slate-900/40 p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 space-y-4">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 m-0">
             <span className="p-1 rounded-lg bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
-              <Shield className="w-4.5 h-4.5" />
+              <Shield className="w-4 h-4" />
             </span>
             Our Privacy Imperative
           </h2>
@@ -110,8 +110,8 @@ export const IsSafePdfArticlePage: React.FC = () => {
             </Link>
             , the parsing algorithms run strictly within your memory buffer.
           </p>
-          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400 font-medium animate-pulse">
-            💡 <strong>Offline Verification Test:</strong> You can load this web portal, pull your
+          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
+            <span aria-hidden="true">💡</span><span className="sr-only">Tip: </span> <strong>Offline Verification Test:</strong> You can load this web portal, pull your
             WiFi plug or engage Airplane Mode on your phone, and continue to compress drafts, delete
             pages, or rotate layouts perfectly. No packets are sent, keeping your files completely
             secluded.
@@ -120,7 +120,7 @@ export const IsSafePdfArticlePage: React.FC = () => {
 
         <section className="space-y-4 bg-slate-50 dark:bg-slate-950/30 p-6 rounded-2xl border border-slate-100 dark:border-slate-900">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 leading-none">
-            <Key className="w-4.5 h-4.5 text-amber-500" />
+            <Key className="w-4 h-4 text-amber-500" />
             Owner Passwords vs. User Passwords: What's the Real Difference?
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
@@ -132,7 +132,7 @@ export const IsSafePdfArticlePage: React.FC = () => {
               <span className="text-xs font-extrabold text-amber-600 dark:text-amber-400 block uppercase tracking-wider">
                 User Password (Open Key)
               </span>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                 Restricts the opening of the PDF itself. Unless the viewer provides this secret key,
                 the raw document remains fully encrypted on disc, protecting it from visual
                 inspection. You can implement this using our{' '}
@@ -149,7 +149,7 @@ export const IsSafePdfArticlePage: React.FC = () => {
               <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-300 block uppercase tracking-wider">
                 Owner Password (Permissions Key)
               </span>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                 Restricts printing, cloning paragraphs, layout changes, or editing. Viewers can open
                 and read the page text fine, but software blocks editing. If you need to lift
                 permissions constraints, use our offline{' '}
@@ -194,7 +194,7 @@ export const IsSafePdfArticlePage: React.FC = () => {
           </ol>
         </section>
 
-        <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/40 dark:bg-amber-950/20 dark:border-amber-900/40 text-amber-700 dark:text-amber-400 text-xs flex gap-2">
+        <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900/40 text-amber-700 dark:text-amber-400 text-xs flex gap-2">
           <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
           <p className="m-0 leading-normal font-semibold">
             Remember: Your document is your digital currency. Avoid processing highly confidential

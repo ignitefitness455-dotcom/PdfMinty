@@ -10,10 +10,17 @@ interface SEOProps {
   descriptionOverride?: string;
 }
 
+/**
+ * Renders <title>, meta description, canonical, Open Graph, and Twitter card tags.
+ *
+ * JSON-LD structured data is intentionally NOT emitted here — that is owned by
+ * <InternalSEO /> to avoid duplicate/conflicting schema on tool pages. The
+ * homepage's WebSite schema is emitted by index.html and not duplicated here.
+ */
 export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverride }) => {
   const location = useLocation();
 
-  // Find tool or article by slug prop or derive from current pathname
+  // Find tool or article by slug prop or derive from current pathname.
   let currentSlug = slug;
   if (!currentSlug) {
     const cleanPath = location.pathname.replace(/^\//, '').replace(/\/$/, '');
@@ -22,115 +29,23 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
 
   const item = TOOLS.find((t) => t.slug === currentSlug);
 
-  // Set default values for homepage or custom non-tool pathways
-  let title = titleOverride || 'PDFMinty — Privacy-First Free PDF Toolkit & Editor';
-  let description =
+  // Default values for homepage or custom non-tool pathways.
+  const title = titleOverride || item?.metaTitle || 'PDFMinty — Privacy-First Free PDF Toolkit & Editor';
+  const description =
     descriptionOverride ||
+    item?.metaDescription ||
     'Free, privacy-first offline-capable PDF toolkit. Combine, split, compress, protect, rotate and convert PDFs 100% inside your browser safely with zero server uploads.';
-  let h1Text = 'Privacy-First PDF Tools';
-  let canonicalUrl = `${SITE_URL}`;
-  let jsonLd: Record<string, any> | null = null;
+  const canonicalUrl = item ? `${SITE_URL}/${item.slug}` : SITE_URL;
   const ogType = item?.type === 'article' ? 'article' : 'website';
 
-  let keywords = 'ilovepdf alternative, free pdf editor, pdf tools offline, compress pdf no upload, merge pdf online free, smallpdf free alternative, split pdf pages free, convert image to pdf, pdf watermark free, secure local pdf converter, adobe acrobat alternative, offline pdf toolkit, browser based pdf editor';
-
-  if (item) {
-    title = titleOverride || item.metaTitle;
-    description = descriptionOverride || item.metaDescription;
-    h1Text = item.h1;
-    canonicalUrl = `${SITE_URL}/${item.slug}`;
-    const nameLow = item.name.toLowerCase();
-    keywords = `${nameLow}, free ${nameLow} online, offline ${nameLow}, secure ${nameLow}, ${nameLow} alternative, ${keywords}`;
-
-    if (item.type === 'tool') {
-      jsonLd = [
-        {
-          '@context': 'https://schema.org',
-          '@type': 'WebApplication',
-          name: `${SITE_NAME} - ${item.name}`,
-          url: canonicalUrl,
-          description: description,
-          applicationCategory: 'BusinessApplication',
-          operatingSystem: 'All',
-          browserRequirements: 'Requires HTML5, WebAssembly',
-        },
-        {
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            {
-              '@type': 'ListItem',
-              position: 1,
-              name: 'Home',
-              item: SITE_URL,
-            },
-            {
-              '@type': 'ListItem',
-              position: 2,
-              name: item.name,
-              item: canonicalUrl,
-            },
-          ],
-        }
-      ];
-    } else if (item.type === 'article') {
-      jsonLd = [
-        {
-          '@context': 'https://schema.org',
-          '@type': 'Article',
-          headline: h1Text,
-          description: description,
-          url: canonicalUrl,
-          publisher: {
-            '@type': 'Organization',
-            name: 'PDFMinty',
-            logo: {
-              '@type': 'ImageObject',
-              url: `${SITE_URL}/og-image.png`,
-            },
-          },
-          mainEntityOfPage: {
-            '@type': 'WebPage',
-            '@id': canonicalUrl,
-          },
-        },
-        {
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            {
-              '@type': 'ListItem',
-              position: 1,
-              name: 'Home',
-              item: SITE_URL,
-            },
-            {
-              '@type': 'ListItem',
-              position: 2,
-              name: item.name,
-              item: canonicalUrl,
-            },
-          ],
-        }
-      ];
-    }
-  } else if (location.pathname === '/') {
-    // Standard homepage schema markup
-    jsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: SITE_NAME,
-      url: SITE_URL,
-      description: description,
-    };
-  }
+  // Per-tool og:image if declared in seo-data, else generic.
+  const ogImage = item?.ogImage ? `${SITE_URL}${item.ogImage}` : `${SITE_URL}/og-image.png`;
 
   return (
     <Helmet>
       {/* General Title and Meta */}
       <title>{title}</title>
       <meta name="description" content={description} />
-      <meta name="keywords" content={keywords} />
       <link rel="canonical" href={canonicalUrl} />
 
       {/* Open Graph Tags */}
@@ -138,16 +53,14 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:site_name" content={SITE_NAME} />
 
       {/* Twitter Cards */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
-
-      {/* JSON-LD Structured Data Schema */}
-      {jsonLd && <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>}
+      <meta name="twitter:image" content={ogImage} />
     </Helmet>
   );
 };

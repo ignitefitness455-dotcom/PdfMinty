@@ -1,109 +1,160 @@
+import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
+import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import React, { useEffect, useRef, useState } from 'react';
 
+let pdfjsLib: typeof import('pdfjs-dist') | null = null;
+const loadPdfjs = async () => {
+  if (!pdfjsLib) {
+    pdfjsLib = await import('pdfjs-dist');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
+  }
+  return pdfjsLib;
+};
+
 interface LazyPDFPageProps {
-  pdfDoc: any;
-  pageIndex: number;
+  pdfDoc: PDFDocumentProxy;
+  pageNumber: number;
   rotation?: number;
-  isSelected?: boolean;
-  onSelect?: (index: number) => void;
   scale?: number;
+  onSelect?: (pageIndex: number, event?: React.MouseEvent | React.KeyboardEvent) => void;
+  isSelected?: boolean;
+  pageIndex?: number;
 }
+
+const PLACEHOLDER_BG = '#f1f5f9';
 
 export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
   pdfDoc,
-  pageIndex,
+  pageNumber,
   rotation = 0,
-  isSelected = false,
   onSelect,
-  scale = 0.3,
+  isSelected = false,
+  pageIndex,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const renderTaskRef = useRef<RenderTask | null>(null);
+  const [visible, setVisible] = useState(false);
   const [rendered, setRendered] = useState(false);
-  const [rendering, setRendering] = useState(false);
 
-  // Use refs to avoid stale closure in IntersectionObserver callback
-  const pageIndexRef = useRef(pageIndex);
-  const rotationRef = useRef(rotation);
-  const scaleRef = useRef(scale);
-  useEffect(() => { pageIndexRef.current = pageIndex; }, [pageIndex]);
-  useEffect(() => { rotationRef.current = rotation; }, [rotation]);
-  useEffect(() => { scaleRef.current = scale; }, [scale]);
-
-  const renderPage = async () => {
-    if (!canvasRef.current || !pdfDoc || rendering) return;
-    setRendering(true);
-    try {
-      const page = await pdfDoc.getPage(pageIndexRef.current + 1);
-      const viewport = page.getViewport({
-        scale: scaleRef.current,
-        rotation: rotationRef.current,
-      });
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      await page.render({ canvasContext: ctx, viewport }).promise;
-      setRendered(true);
-    } catch (err) {
-      console.debug('[LazyPDFPage] render error:', err);
-    } finally {
-      setRendering(false);
-    }
-  };
-
+  // Observe visibility to lazy-render.
   useEffect(() => {
-    if (!containerRef.current) return;
-
+    const container = containerRef.current;
+    if (!container) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setVisible(true);
+      return;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !rendered && !rendering) {
-          renderPage();
-        }
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            observer.disconnect();
+          }
+        });
       },
-      { threshold: 0.1 }
+      { rootMargin: '200px' }
     );
-
-    observer.observe(containerRef.current);
+    observer.observe(container);
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rendered, rendering]);
+  }, []);
 
-  // Re-render when rotation changes after initial render
+  // Render when visible or rotation changes. Cancel any in-flight render first.
   useEffect(() => {
-    if (rendered) {
-      setRendered(false);
-      renderPage();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rotation]);
+    if (!visible || !canvasRef.current) return;
+
+    let cancelled = false;
+
+    const render = async () => {
+      await loadPdfjs();
+      const page = await pdfDoc.getPage(pageNumber);
+      if (cancelled) return;
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const context = canvas.getContext('2d');
+      if (!context) return;
+
+      // HiDPI rendering: scale backing store by devicePixelRatio, keep CSS
+      // size at logical pixels.
+      const dpr = window.devicePixelRatio || 1;
+      const viewport = page.getViewport({ scale: 1, rotation });
+      const cssWidth = Math.floor(viewport.width);
+      const cssHeight = Math.floor(viewport.height);
+      canvas.width = Math.floor(cssWidth * dpr);
+      canvas.height = Math.floor(cssHeight * dpr);
+      canvas.style.width = `${cssWidth}px`;
+      canvas.style.height = `${cssHeight}px`;
+
+      // Cancel any previously in-flight render before starting a new one.
+      if (renderTaskRef.current) {
+        try {
+          renderTaskRef.current.cancel();
+        } catch {
+          // Ignore — task may have already finished.
+        }
+      }
+
+      const renderTask = page.render({
+        canvasContext: context,
+        viewport: page.getViewport({ scale: dpr, rotation }),
+      });
+      renderTaskRef.current = renderTask;
+
+      try {
+        await renderTask.promise;
+        if (!cancelled) setRendered(true);
+      } catch (err: unknown) {
+        // Cancellation throws — that's expected, not an error.
+        const msg = err instanceof Error ? err.message : '';
+        if (!msg.toLowerCase().includes('cancel')) {
+          console.error('PDF render failed:', err);
+        }
+      } finally {
+        // Best-effort cleanup of pdfjs page resources.
+        page.cleanup();
+      }
+    };
+
+    render();
+
+    return () => {
+      cancelled = true;
+      if (renderTaskRef.current) {
+        try {
+          renderTaskRef.current.cancel();
+        } catch {
+          // Ignore.
+        }
+        renderTaskRef.current = null;
+      }
+    };
+  }, [visible, pdfDoc, pageNumber, rotation]);
 
   return (
     <div
       ref={containerRef}
-      onClick={() => onSelect?.(pageIndex)}
-      className={`relative cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-200 ${
-        isSelected
-          ? 'border-[color:var(--color-security-green)] shadow-lg shadow-[color:var(--color-security-green)]/20'
-          : 'border-border-muted hover:border-[color:var(--color-security-green)]/50'
-      }`}
+      className="relative"
+      onClick={(e) => onSelect?.(pageIndex ?? pageNumber - 1, e)}
+      role={onSelect ? 'button' : undefined}
+      aria-pressed={onSelect ? isSelected : undefined}
+      aria-label={onSelect ? `Page ${pageNumber}${isSelected ? ', selected' : ''}` : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (onSelect && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onSelect(pageIndex ?? pageNumber - 1, e);
+        }
+      }}
     >
+      <canvas
+        ref={canvasRef}
+        className={`block ${isSelected ? 'ring-4 ring-emerald-500' : ''}`}
+        style={{ background: PLACEHOLDER_BG }}
+      />
       {!rendered && (
-        <div className="absolute inset-0 flex items-center justify-center bg-surface-container-low animate-pulse">
-          <span className="text-xs text-on-surface-variant">p.{pageIndex + 1}</span>
-        </div>
-      )}
-      <canvas ref={canvasRef} className="w-full block" />
-      <div className="absolute bottom-0 inset-x-0 bg-surface-container-high/80 backdrop-blur-sm text-center py-0.5">
-        <span className="text-[10px] font-bold text-on-surface-variant">{pageIndex + 1}</span>
-      </div>
-      {isSelected && (
-        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[color:var(--color-security-green)] flex items-center justify-center">
-          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
+        <div className="absolute inset-0 animate-pulse bg-slate-200" aria-hidden="true" />
       )}
     </div>
   );

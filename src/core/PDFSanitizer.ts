@@ -1,10 +1,37 @@
+import { PDFDocument } from 'pdf-lib';
+
 import { UPLOAD_LIMITS } from '../config/constants';
 
+export interface SanitizeOptions {
+  skipEncryptionCheck?: boolean;
+}
+
+export interface SanitizeResult {
+  bytes: Uint8Array;
+  warnings: string[];
+}
+
+/**
+ * Validate and sanitize a PDF byte buffer.
+ *
+ * Validation:
+ * 1. Enforce maximum file size limit.
+ * 2. Check for `%PDF-` header.
+ * 3. Check for `%%EOF` trailer (warning if missing).
+ *
+ * Sanitization (best-effort, non-destructive):
+ * - Neutralize `/JavaScript`, `/JS`, `/Launch` action dictionaries by
+ *   overwriting the keyword bytes with spaces.
+ *
+ * Encryption detection is done by the caller via `PDFSanitizer.isEncrypted`
+ * (which uses pdf-lib's native `isEncrypted` property — more reliable than
+ * byte-scanning, which misses encrypted dicts hidden in compressed object streams).
+ */
 export class PDFSanitizer {
   public static sanitize(
     bytes: Uint8Array,
-    options?: { skipEncryptionCheck?: boolean }
-  ): { bytes: Uint8Array; warnings: string[] } {
+    _options?: SanitizeOptions
+  ): SanitizeResult {
     const warnings: string[] = [];
 
     if (bytes.byteLength > UPLOAD_LIMITS.MAX_SINGLE_FILE) {
@@ -13,14 +40,12 @@ export class PDFSanitizer {
       );
     }
 
-    // Read the first 200 bytes for header checking
     const headerBytes = bytes.slice(0, Math.min(200, bytes.length));
     const startStr = new TextDecoder('ascii', { fatal: false }).decode(headerBytes);
     if (!startStr.includes('%PDF-')) {
       throw new Error('This does not appear to be a valid PDF file. Missing PDF header.');
     }
 
-    // Read trailer for standard EOF checks
     const trailerSize = Math.min(200, bytes.length);
     const trailerBytes = bytes.slice(bytes.length - trailerSize);
     const endStr = new TextDecoder('ascii', { fatal: false }).decode(trailerBytes);
@@ -30,81 +55,44 @@ export class PDFSanitizer {
 
     const sanitizedBytes = new Uint8Array(bytes);
 
-    // High performance binary sequences scanning (avoids mammoth UTF-8 string allocations)
-    const encryptBytes = new TextEncoder().encode('/Encrypt');
-    const jsLongBytes = new TextEncoder().encode('/JavaScript');
-    const jsShortBytes = new TextEncoder().encode('/JS');
-    const launchBytes = new TextEncoder().encode('/Launch');
+    // Patterns to neutralize (longest first so /JavaScript is matched before /JS).
+    const patterns: Uint8Array[] = [
+      new TextEncoder().encode('/JavaScript'),
+      new TextEncoder().encode('/Launch'),
+      new TextEncoder().encode('/JS'),
+    ];
 
-    let hasEncryption = false;
     let neutralized = false;
-
-    const matchSequence = (arr: Uint8Array, seq: Uint8Array, index: number): boolean => {
-      if (index + seq.length > arr.length) return false;
-      for (let j = 0; j < seq.length; j++) {
-        if (arr[index + j] !== seq[j]) return false;
-      }
-      return true;
+    const isWordBoundary = (byte: number | undefined): boolean => {
+      if (byte === undefined || Number.isNaN(byte)) return true;
+      return [0x20, 0x0a, 0x0d, 0x09, 0x2f, 0x5b, 0x5d, 0x3c, 0x3e, 0x28, 0x29].includes(byte);
     };
 
-    const isWordBoundary = (afterByte: number): boolean => {
-      return (
-        afterByte === undefined ||
-        [0x20, 0x0a, 0x0d, 0x09, 0x2f, 0x5b, 0x5d, 0x3c, 0x3e, 0x28, 0x29].includes(afterByte) ||
-        Number.isNaN(afterByte)
-      );
-    };
-
-    // Single-pass scanner over raw buffers
+    // Single-pass scan. Skip positions where byte isn't `/` (0x2F) — no pattern can match.
     for (let i = 0; i < sanitizedBytes.length - 3; i++) {
-      if (!options?.skipEncryptionCheck && !hasEncryption) {
-        if (matchSequence(sanitizedBytes, encryptBytes, i)) {
-          const nextByte = sanitizedBytes[i + encryptBytes.length];
-          if (isWordBoundary(nextByte)) {
-            hasEncryption = true;
+      if (sanitizedBytes[i] !== 0x2f) continue;
+
+      for (const seq of patterns) {
+        if (i + seq.length > sanitizedBytes.length) continue;
+        let matched = true;
+        for (let j = 0; j < seq.length; j++) {
+          if (sanitizedBytes[i + j] !== seq[j]) {
+            matched = false;
+            break;
           }
         }
-      }
+        if (!matched) continue;
 
-      if (matchSequence(sanitizedBytes, jsLongBytes, i)) {
-        const nextByte = sanitizedBytes[i + jsLongBytes.length];
-        if (isWordBoundary(nextByte)) {
-          neutralized = true;
-          for (let j = 0; j < jsLongBytes.length; j++) {
-            sanitizedBytes[i + j] = 0x20;
-          }
-          i += jsLongBytes.length - 1;
-          continue;
+        const nextByte = sanitizedBytes[i + seq.length];
+        if (!isWordBoundary(nextByte)) continue;
+
+        for (let j = 0; j < seq.length; j++) {
+          sanitizedBytes[i + j] = 0x20;
         }
+        neutralized = true;
+        i += seq.length - 1;
+        break;
       }
-
-      if (matchSequence(sanitizedBytes, jsShortBytes, i)) {
-        const nextByte = sanitizedBytes[i + jsShortBytes.length];
-        if (isWordBoundary(nextByte)) {
-          neutralized = true;
-          for (let j = 0; j < jsShortBytes.length; j++) {
-            sanitizedBytes[i + j] = 0x20;
-          }
-          i += jsShortBytes.length - 1;
-          continue;
-        }
-      }
-
-      if (matchSequence(sanitizedBytes, launchBytes, i)) {
-        const nextByte = sanitizedBytes[i + launchBytes.length];
-        if (isWordBoundary(nextByte)) {
-          neutralized = true;
-          for (let j = 0; j < launchBytes.length; j++) {
-            sanitizedBytes[i + j] = 0x20;
-          }
-          i += launchBytes.length - 1;
-          continue;
-        }
-      }
-    }
-
-    if (hasEncryption) {
-      throw new Error('SECURED_LOCKED: This PDF appears to be password protected — please use Unlock PDF first.');
     }
 
     if (neutralized) {
@@ -112,5 +100,17 @@ export class PDFSanitizer {
     }
 
     return { bytes: sanitizedBytes, warnings };
+  }
+
+  /**
+   * Check if a PDF is encrypted using pdf-lib's native API.
+   */
+  public static async isEncrypted(bytes: Uint8Array): Promise<boolean> {
+    try {
+      const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+      return doc.isEncrypted;
+    } catch {
+      return true;
+    }
   }
 }

@@ -1,12 +1,15 @@
 import { logger } from '../utils/logger';
 
+interface WorkerPromise {
+  resolve: (val: unknown) => void;
+  reject: (err: Error) => void;
+  timer: ReturnType<typeof setTimeout>;
+}
+
 export class WorkerManager {
   private static instance: WorkerManager;
   private worker: Worker | null = null;
-  private promises: Map<
-    string,
-    { resolve: (val: any) => void; reject: (err: any) => void; timer: any }
-  > = new Map();
+  private promises: Map<string, WorkerPromise> = new Map();
   private isSupported: boolean;
 
   private constructor() {
@@ -49,7 +52,7 @@ export class WorkerManager {
 
   public async runOperation<T>(
     operation: string,
-    payload: any,
+    payload: unknown,
     transferables: Transferable[] = []
   ): Promise<T> {
     if (!this.isSupported) {
@@ -64,7 +67,7 @@ export class WorkerManager {
 
     const id = Date.now().toString() + Math.random().toString(36).substring(2);
 
-    return new Promise((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       const timer = setTimeout(() => {
         if (this.promises.has(id)) {
           this.promises.delete(id);
@@ -72,14 +75,18 @@ export class WorkerManager {
         }
       }, 120 * 1000); // 120 seconds timeout
 
-      this.promises.set(id, { resolve, reject, timer });
+      this.promises.set(id, {
+        resolve: resolve as (val: unknown) => void,
+        reject,
+        timer,
+      });
 
       try {
         worker.postMessage({ id, operation, payload }, transferables);
-      } catch (err: any) {
+      } catch (err: unknown) {
         clearTimeout(timer);
         this.promises.delete(id);
-        reject(err);
+        reject(err instanceof Error ? err : new Error(String(err)));
       }
     });
   }
@@ -120,13 +127,15 @@ export class WorkerManager {
       case 'imagesToPDF':
         return await ops.imagesToPDF(payload.imageBlobs, payload.options);
       case 'compressPDF':
-        return await ops.compressPDF(payload.bytes);
+        return await ops.compressPDF(payload.bytes, payload.level);
       case 'protectPDF':
         return await ops.protectPDF(payload);
       case 'unlockPDF':
         return await ops.unlockPDF(payload);
       case 'pdfToImage':
         return await ops.pdfToImage(payload.bytes, payload.originalName, payload.scale, payload.maxPages, payload.format);
+      case 'getPageCount':
+        return await ops.getPageCount(payload.bytes);
       default:
         throw new Error(`Unknown operation: ${operation}`);
     }

@@ -1,33 +1,42 @@
 import { ShieldAlert, RefreshCw } from 'lucide-react';
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo } from 'react';
 
 import { reportErrorToTelemetry } from '../error-handler';
 
-interface Props {
-  children: ReactNode;
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  resetKey?: string;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
+  errorInfo: ErrorInfo | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
   public state: State = {
     hasError: false,
     error: null,
+    errorInfo: null,
   };
 
   public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    return { hasError: true, error, errorInfo: null };
+  }
+
+  public componentDidUpdate(prevProps: Readonly<ErrorBoundaryProps>) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false, error: null, errorInfo: null });
+    }
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error caught by ErrorBoundary:', error, errorInfo);
-    reportErrorToTelemetry(
-      error.message || 'Error caught in React render',
-      error.stack || errorInfo.componentStack || ''
-    );
+    if (import.meta.env.PROD) {
+      reportErrorToTelemetry(error.message, errorInfo?.componentStack || error.stack || '');
+    } else {
+      console.error('[ErrorBoundary dev]', error, errorInfo);
+    }
   }
 
   private handleReload = () => {

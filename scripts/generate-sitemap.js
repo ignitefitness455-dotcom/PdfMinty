@@ -1,113 +1,97 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import os from 'os';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Single Source of Truth Loader:
-// Reads the plain TypeScript 'seo-data.ts' file, strips TS type definitions dynamically,
-// writes it to a temporary module, imports it, and cleans up immediately.
-// This is the simplest, most lightweight way to share typed data with Node scripts
-// in a standard ES module environment without needing heavy compilation tools.
-async function loadSeoData() {
-  const seoPath = path.join(__dirname, '../src/config/seo-data.ts');
-  const tempJsPath = path.join(__dirname, './seo-data-temp.js');
-  
-  try {
-    let content = fs.readFileSync(seoPath, 'utf8');
-    
-    // Crop out the interface declaration cleanly by finding position markers
-    const interfaceStart = content.indexOf('export interface');
-    const toolsStart = content.indexOf('export const TOOLS');
-    
-    if (interfaceStart !== -1 && toolsStart !== -1) {
-      content = content.substring(0, interfaceStart) + content.substring(toolsStart);
-    }
-    
-    // Remove individual type bindings
-    content = content.replace(': ToolSEOInfo[]', '');
-    
-    fs.writeFileSync(tempJsPath, content, 'utf8');
-    
-    // Native ESM import requires complete absolute file URL structure
-    const moduleUrl = pathToFileURL(tempJsPath).href;
-    const data = await import(moduleUrl);
-    
-    return data;
-  } finally {
-    if (fs.existsSync(tempJsPath)) {
-      fs.unlinkSync(tempJsPath);
-    }
-  }
+async function loadToolsFromTs() {
+  const tsPath = path.resolve(__dirname, '../src/config/seo-data.ts');
+  const tsContent = fs.readFileSync(tsPath, 'utf-8');
+  let stripped = tsContent.replace(/export\s+interface[\s\S]*?\n\}\s*\n/g, '');
+  stripped = stripped.replace(/: ToolSEOInfo\[\]/g, '');
+  const tempPath = path.join(os.tmpdir(), `pdfminty-seo-data-${Date.now()}.mjs`);
+  fs.writeFileSync(tempPath, stripped);
+  const mod = await import(tempPath);
+  fs.unlinkSync(tempPath);
+  return mod.TOOLS;
 }
 
-async function run() {
-  const seoData = await loadSeoData();
-  const { SITE_URL, TOOLS } = seoData;
-  
-  console.log(`Generating sitemap for ${SITE_URL} with ${TOOLS.length} items...`);
-  
-  // Format the lastmod dates to standard YYYY-MM-DD
-  const today = new Date().toISOString().split('T')[0];
-  
-  // Standard homepage url block
-  let sitemapLines = [
-    '  <url>',
-    `    <loc>${SITE_URL}/</loc>`,
-    `    <lastmod>${today}</lastmod>`,
-    '    <changefreq>daily</changefreq>',
-    '    <priority>1.0</priority>',
-    '  </url>'
-  ];
-  
-  // Append XML entries for each tool and article
-  TOOLS.forEach((item) => {
-    sitemapLines.push(
-      '  <url>',
-      `    <loc>${SITE_URL}/${item.slug}</loc>`,
-      `    <lastmod>${today}</lastmod>`,
-      `    <changefreq>${item.changefreq || 'monthly'}</changefreq>`,
-      `    <priority>${item.priority.toFixed(2)}</priority>`,
-      '  </url>'
-    );
+function slugToPageFile(slug) {
+  const map = {
+    'merge-pdf': 'MergePage',
+    'split-pdf': 'SplitPage',
+    'compress-pdf': 'CompressPage',
+    'rotate-pdf': 'RotatePage',
+    'delete-pages-pdf': 'DeletePagesPage',
+    'extract-pages-pdf': 'ExtractPagesPdfPage',
+    'reorder-pdf': 'ReorderPdfPage',
+    'watermark-pdf': 'WatermarkPage',
+    'add-page-numbers': 'PageNumbersPage',
+    'add-blank-page': 'AddBlankPage',
+    'protect-pdf': 'ProtectPage',
+    'unlock-pdf': 'UnlockPage',
+    'image-to-pdf': 'ImgToPdfPage',
+    'pdf-to-image': 'PdfToImgPage',
+    'intelligence': 'AiAnalyzePage',
+    'is-it-safe-to-upload-pdf-to-online-tools': 'IsSafePdfArticlePage',
+  };
+  return map[slug] || slug;
+}
+
+(async () => {
+  const TOOLS = await loadToolsFromTs();
+  const distDir = path.resolve(__dirname, '../dist');
+  if (!fs.existsSync(distDir)) {
+    fs.mkdirSync(distDir, { recursive: true });
+  }
+
+  const SITE_URL = 'https://pdfminty.com';
+  const urls = [];
+
+  for (const tool of TOOLS) {
+    const slug = tool.slug;
+    const pageSourcePath = path.resolve(__dirname, `../src/pages/${slugToPageFile(slug)}.tsx`);
+    let lastmod;
+    try {
+      const stat = fs.statSync(pageSourcePath);
+      lastmod = stat.mtime.toISOString().split('T')[0];
+    } catch {
+      lastmod = new Date().toISOString().split('T')[0];
+    }
+    urls.push({
+      loc: `${SITE_URL}/${slug}`,
+      lastmod,
+      changefreq: 'monthly',
+      priority: tool.type === 'tool' ? '0.8' : '0.7',
+      image: tool.ogImage ? `${SITE_URL}${tool.ogImage}` : `${SITE_URL}/og-image.png`,
+    });
+  }
+
+  urls.unshift({
+    loc: SITE_URL,
+    lastmod: new Date().toISOString().split('T')[0],
+    changefreq: 'weekly',
+    priority: '1.0',
+    image: `${SITE_URL}/og-image.png`,
   });
-  
+
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemapLines.join('\n')}
-</urlset>`;
-
-  const robotsTxt = `User-agent: *
-Allow: /
-
-Sitemap: ${SITE_URL}/sitemap.xml
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${urls.map((u) => `  <url>
+    <loc>${u.loc}</loc>
+    <lastmod>${u.lastmod}</lastmod>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+    <image:image>
+      <image:loc>${u.image}</image:loc>
+    </image:image>
+  </url>`).join('\n')}
+</urlset>
 `;
 
-  // Write content to /public and /dist (if it exists) to guarantee reliability regardless of build ordering
-  const pathsToWrite = [
-    path.join(__dirname, '../public'),
-    path.join(__dirname, '../dist')
-  ];
-  
-  pathsToWrite.forEach((dir) => {
-    if (fs.existsSync(dir)) {
-      fs.writeFileSync(path.join(dir, 'sitemap.xml'), sitemapXml, 'utf8');
-      fs.writeFileSync(path.join(dir, 'robots.txt'), robotsTxt, 'utf8');
-      console.log(`Successfully generated sitemap and robots.txt in: ${dir}`);
-    } else {
-      // Create if it's public/ folder which must exist
-      if (dir.endsWith('public')) {
-        fs.mkdirSync(dir, { recursive: true });
-        fs.writeFileSync(path.join(dir, 'sitemap.xml'), sitemapXml, 'utf8');
-        fs.writeFileSync(path.join(dir, 'robots.txt'), robotsTxt, 'utf8');
-        console.log(`Successfully created public folder and wrote sitemap/robots.txt`);
-      }
-    }
-  });
-}
-
-run().catch((err) => {
-  console.error("FATAL: Failed to generate sitemap:", err);
-  process.exit(1);
-});
+  fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemapXml);
+  console.log(`✓ Generated sitemap.xml with ${urls.length} URLs`);
+})();

@@ -38,17 +38,16 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
-  // Rate Limiting
+  // Rate Limiting — unique-key-per-request pattern (atomic, race-free).
   const ip = request.headers.get('cf-connecting-ip') || 'unknown-ip';
   const hourBlock = Math.floor(Date.now() / 3600000);
-  const rateLimitKey = `rate_limit:contact:${ip}:${hourBlock}`;
+  const prefix = `rate_limit:contact:${ip}:${hourBlock}:`;
+  const LIMIT_PER_HOUR = 3;
 
   if (env.RATELIMIT_KV) {
     try {
-      const currentCountStr = await env.RATELIMIT_KV.get(rateLimitKey);
-      const currentCount = currentCountStr ? parseInt(currentCountStr, 10) : 0;
-
-      if (currentCount >= 3) {
+      const listed = await env.RATELIMIT_KV.list({ prefix, limit: LIMIT_PER_HOUR + 1 });
+      if (listed.keys.length >= LIMIT_PER_HOUR) {
         return new Response(
           JSON.stringify({
             error:
@@ -63,20 +62,23 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           }
         );
       }
-
-      await env.RATELIMIT_KV.put(rateLimitKey, (currentCount + 1).toString(), {
-        expirationTtl: 3600, // Expire in 1 hour
-      });
+      const uniqueKey = prefix + crypto.randomUUID();
+      await env.RATELIMIT_KV.put(uniqueKey, '1', { expirationTtl: 3600 });
     } catch (kvError) {
       console.error('KV rate limiting read/write error:', kvError);
+      // Fail-open: log but allow the request through. We do NOT want to silently
+      // reject legitimate contact submissions because of a transient KV issue.
     }
   }
 
   try {
     const rawData = (await request.json()) as any;
-    const name = sanitizeForStorage(rawData.name || '');
+    // Strip CR/LF to prevent email header injection. sanitizeForStorage preserves
+    // \r and \r\n because they're legal inside message bodies, but they MUST NOT
+    // appear in any field that becomes an email header (subject, from, to).
+    const name = sanitizeForStorage(rawData.name || '').replace(/[\r\n]+/g, ' ').trim();
     const email = sanitizeForStorage(rawData.email || '');
-    const subject = sanitizeForStorage(rawData.subject || '');
+    const subject = sanitizeForStorage(rawData.subject || '').replace(/[\r\n]+/g, ' ').trim();
     const message = sanitizeForStorage(rawData.message || '');
 
     // Validation

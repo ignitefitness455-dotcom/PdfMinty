@@ -1,40 +1,52 @@
 import { getCorsOrigin, getCorsHeaders } from '../utils/cors';
+import { MAX_STACK_LENGTH } from '../utils/validation';
+
+interface Env {
+  RATELIMIT_KV?: KVNamespace;
+}
 
 interface ClientErrorPayload {
-  message?: string;
-  stack?: string;
-  timestamp?: string;
-  url?: string;
+  message?: unknown;
+  stack?: unknown;
+  timestamp?: unknown;
+  url?: unknown;
 }
 
-function scrubPII(input: string): string {
-  if (!input) return '';
+const MAX_MESSAGE_LENGTH = 2000;
+const MAX_URL_LENGTH = 500;
+const MAX_BODY_BYTES = 16 * 1024; // 16 KB hard cap on request body
+const RATE_LIMIT_PER_HOUR = 30;
 
-  // 1. Email address pattern redirection
-  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-
-  // 2. IPv4 Address pattern redirection
-  const ipv4Regex = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g;
-
-  // 3. Unix/macOS personal home folders (e.g. /Users/john_doe or /home/john_doe)
-  const unixHomeRegex = /(\/(?:Users|home)\/)[a-zA-Z0-9._-]+/g;
-
-  // 4. Windows user profile directories (e.g. C:\Users\john_doe)
-  const windowsHomeRegex = /([a-zA-Z]:\\Users\\)[a-zA-Z0-9._-]+/g;
-
-  return input
-    .replace(emailRegex, '[REDACTED_EMAIL]')
-    .replace(ipv4Regex, '[REDACTED_IP]')
-    .replace(unixHomeRegex, '$1[REDACTED_USER]')
-    .replace(windowsHomeRegex, '$1[REDACTED_USER]');
+/**
+ * Strip CR/LF from a string to prevent log-injection (attacker crafting a
+ * `message` with embedded newlines that forge fake log lines).
+ */
+function stripNewlines(s: string): string {
+  return s.replace(/[\r\n]+/g, ' ');
 }
 
-export const onRequest: PagesFunction = async (context) => {
-  const { request } = context;
+/**
+ * Convert an unknown payload field to a length-capped, newline-stripped string.
+ */
+function sanitize(value: unknown, maxLen: number): string {
+  if (typeof value !== 'string') {
+    if (value === null || value === undefined) return '';
+    try {
+      value = JSON.stringify(value);
+    } catch {
+      return '';
+    }
+  }
+  const truncated = value.length > maxLen ? value.slice(0, maxLen) : value;
+  return stripNewlines(truncated);
+}
+
+export const onRequest: PagesFunction<Env> = async (context) => {
+  const { request, env } = context;
   const origin = getCorsOrigin(request);
   const corsHeaders = getCorsHeaders(origin);
 
-  // preflight check
+  // Preflight
   if (request.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -43,34 +55,79 @@ export const onRequest: PagesFunction = async (context) => {
   }
 
   if (request.method !== 'POST') {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders as HeadersInit,
+    return new Response(JSON.stringify({ error: 'Method not allowed. Use POST.' }), {
+      status: 405,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+        Allow: 'POST, OPTIONS',
+      } as HeadersInit,
     });
   }
 
+  // Body size guard — reject oversized payloads before parsing.
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(null, { status: 413, headers: corsHeaders as HeadersInit });
+  }
+
+  // Rate limit (same KV-based pattern as contact/feedback).
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown-ip';
+  const hourBlock = Math.floor(Date.now() / 3600000);
+  const rateLimitKey = `rate_limit:error:${ip}:${hourBlock}`;
+
+  if (env.RATELIMIT_KV) {
+    try {
+      const currentCountStr = await env.RATELIMIT_KV.get(rateLimitKey);
+      const currentCount = currentCountStr ? parseInt(currentCountStr, 10) : 0;
+      if (currentCount >= RATE_LIMIT_PER_HOUR) {
+        return new Response(null, { status: 429, headers: corsHeaders as HeadersInit });
+      }
+      await env.RATELIMIT_KV.put(rateLimitKey, (currentCount + 1).toString(), {
+        expirationTtl: 3600,
+      });
+    } catch (kvErr) {
+      // Best-effort: continue ingestion but log the KV failure.
+      console.error('KV rate limit check failed:', kvErr);
+    }
+  }
+
   try {
-    const data = (await request.json()) as ClientErrorPayload;
-    const rawMessage = data.message || 'Unknown error';
-    const rawStack = data.stack || '';
-    const timestamp = data.timestamp || new Date().toISOString();
-    const url = data.url || 'unknown-url';
+    const rawText = await request.text();
+    if (rawText.length > MAX_BODY_BYTES) {
+      return new Response(null, { status: 413, headers: corsHeaders as HeadersInit });
+    }
 
-    const cleanMessage = scrubPII(rawMessage);
-    const cleanStack = scrubPII(rawStack);
+    let data: ClientErrorPayload;
+    try {
+      data = JSON.parse(rawText) as ClientErrorPayload;
+    } catch {
+      return new Response(null, { status: 204, headers: corsHeaders as HeadersInit });
+    }
 
-    console.error(`[CLIENT-ERROR-INGESTION]
-Timestamp: ${timestamp}
-URL: ${url}
-Message: ${cleanMessage}
-Stack: ${cleanStack}
----------------------------------------------`);
+    const cleanMessage = sanitize(data.message, MAX_MESSAGE_LENGTH);
+    const cleanStack = sanitize(data.stack, MAX_STACK_LENGTH);
+    const cleanUrl = sanitize(data.url, MAX_URL_LENGTH);
+    const cleanTimestamp = sanitize(
+      data.timestamp || new Date().toISOString(),
+      50
+    );
+
+    // Structured JSON log — no free-text interpolation, no injection surface.
+    console.error(
+      JSON.stringify({
+        type: 'client-error',
+        timestamp: cleanTimestamp,
+        url: cleanUrl,
+        message: cleanMessage,
+        stack: cleanStack,
+      })
+    );
   } catch (err) {
-    // Suppress ingestion errors, return 240/204 always
+    // Never leak internal errors. Always return 204.
     console.error('Error ingestion service failure:', err);
   }
 
-  // Always return 204 No Content quickly, per specification
   return new Response(null, {
     status: 204,
     headers: corsHeaders as HeadersInit,

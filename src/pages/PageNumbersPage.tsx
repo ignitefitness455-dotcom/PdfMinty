@@ -7,10 +7,12 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 
 export const PageNumbersPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [pattern, setPattern] = useState<string>('Page {n} of {total}');
+  const [patternWarning, setPatternWarning] = useState<string | null>(null);
   const [position, setPosition] = useState<string>('bottom-right');
   const [startFrom, setStartFrom] = useState<number>(1);
   const [skipFirstPage, setSkipFirstPage] = useState<boolean>(false);
@@ -42,14 +44,7 @@ export const PageNumbersPage: React.FC = () => {
         [fileBytes.buffer]
       );
       const blob = new Blob([updatedBytes as any], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `pdfminty_numbered_${selectedFile.name}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await downloadBlob(blob, `pdfminty_numbered_${selectedFile.name}`);
     } catch (err: any) {
       console.error('Page numbers error:', err);
       setError(err?.message || 'An unexpected failure occurred while numbering pages.');
@@ -136,12 +131,27 @@ export const PageNumbersPage: React.FC = () => {
                 id="pattern_input"
                 type="text"
                 value={pattern}
-                onChange={(e) => setPattern(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setPattern(value);
+                  if (value && !value.includes('{n}')) {
+                    setPatternWarning('Pattern does not include {n}. Every page will show identical text.');
+                  } else {
+                    setPatternWarning(null);
+                  }
+                }}
                 placeholder="Page {n} of {total}"
                 className="w-full border border-slate-300 rounded-xl py-2 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 disabled={!selectedFile}
               />
             </div>
+
+            {patternWarning && (
+              <div className="flex items-start space-x-1.5 p-2.5 rounded-lg border border-amber-100 bg-amber-50 text-amber-800 text-xs" role="status">
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <span>{patternWarning}</span>
+              </div>
+            )}
 
             <p className="text-xs text-slate-400 leading-normal">
               Use{' '}
@@ -189,6 +199,7 @@ export const PageNumbersPage: React.FC = () => {
                 id="start_from_input"
                 type="number"
                 min="0"
+                max="10000"
                 value={startFrom}
                 onChange={(e) => setStartFrom(Math.max(0, parseInt(e.target.value, 10) || 0))}
                 className="w-full border border-slate-300 rounded-xl py-2 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
