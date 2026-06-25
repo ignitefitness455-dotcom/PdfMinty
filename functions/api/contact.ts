@@ -171,7 +171,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             subject,
             message,
             timestamp: new Date().toISOString(),
-          })
+          }),
+          { expirationTtl: 30 * 86400 } // 30 days
         );
       } catch (kvStoreError) {
         console.error('KV fallback storage failure:', kvStoreError);

@@ -60,7 +60,7 @@ export const triggerDownload = (
   setCompletedResult?: (res: { url: string; filename: string; type: string } | null) => void
 ) => {
   const mimeType = filename.endsWith('.zip') ? 'application/zip' : 'application/pdf';
-  const blob = new Blob([bytes as unknown as BlobPart], { type: mimeType });
+  const blob = new Blob([bytes], { type: mimeType });
   const url = URL.createObjectURL(blob);
   
   if (setCompletedResult) {
@@ -98,7 +98,7 @@ export interface PreprocessOptions {
 
 export async function preprocessAndLoadPdf(file: File, options?: PreprocessOptions): Promise<PreprocessResult> {
   const arrayBuffer = await file.arrayBuffer();
-  let sanitizedBytes = new Uint8Array(arrayBuffer) as any;
+  let sanitizedBytes: Uint8Array = new Uint8Array(arrayBuffer);
   try {
     const sanResult = PDFSanitizer.sanitize(sanitizedBytes, { skipEncryptionCheck: options?.skipEncryptionCheck });
     sanitizedBytes = sanResult.bytes as Uint8Array;

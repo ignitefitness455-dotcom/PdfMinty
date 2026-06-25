@@ -16,6 +16,7 @@ export const DeletePagesPage: React.FC = () => {
   const [renderingThumbnails, setRenderingThumbnails] = useState(false);
   const [thumbnails, setThumbnails] = useState<{ page: number; dataUrl: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState<number>(0);
 
   const urlsRef = React.useRef<string[]>([]);
 
@@ -41,6 +42,22 @@ export const DeletePagesPage: React.FC = () => {
       setPagesStr('');
       setThumbnails([]);
 
+      try {
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        // Get page count independently of thumbnail rendering so manual deletion
+        // still works even if pdfToImage fails.
+        const count = await WorkerManager.getInstance().runOperation<number>(
+          'getPageCount',
+          { bytes }
+        );
+        setTotalPages(count);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Failed to read PDF.';
+        setError(`Failed to read PDF: ${message}`);
+        setTotalPages(0);
+        return;
+      }
+
       setRenderingThumbnails(true);
       try {
         const fileBytes = new Uint8Array(await file.arrayBuffer());
@@ -50,14 +67,14 @@ export const DeletePagesPage: React.FC = () => {
           fileBytes.buffer,
         ]);
         const mapped = rendered.map((item) => {
-          const blob = new Blob([item.imageBytes as any], { type: 'image/png' });
+          const blob = new Blob([item.imageBytes as unknown as BlobPart], { type: 'image/png' });
           return {
             page: item.page,
             dataUrl: URL.createObjectURL(blob),
           };
         });
         setThumbnails(mapped);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to render previews:', err);
         setError('Previews could not be rendered, but you can still delete pages using standard input.');
       } finally {
@@ -104,7 +121,13 @@ export const DeletePagesPage: React.FC = () => {
     setError(null);
 
     try {
-      const totalPages = thumbnails.length;
+      // Use the totalPages state (fetched via getPageCount), not thumbnails.length.
+      // This ensures manual deletion works even when preview rendering fails.
+      if (totalPages === 0) {
+        setError('Could not determine document page count. Please try re-uploading.');
+        setLoading(false);
+        return;
+      }
       const parsed = pagesStr
         .split(',')
         .map((p) => parseInt(p.trim(), 10))
@@ -152,12 +175,13 @@ export const DeletePagesPage: React.FC = () => {
         { bytes: fileBytes, pageIndices: validPages },
         [fileBytes.buffer]
       );
-      const blob = new Blob([parsedBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([parsedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_stripped_${selectedFile.name}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Delete pages error:', err);
+      const message = err instanceof Error ? err.message : String(err);
       setError(
-        err?.message || 'An unexpected failure occurred. Verify indices match document dimensions.'
+        message || 'An unexpected failure occurred. Verify indices match document dimensions.'
       );
     } finally {
       setLoading(false);
@@ -221,6 +245,7 @@ export const DeletePagesPage: React.FC = () => {
                     setSelectedFile(null);
                     setThumbnails([]);
                     setPagesStr('');
+                    setTotalPages(0); // Reset page count
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
@@ -276,7 +301,7 @@ export const DeletePagesPage: React.FC = () => {
                         key={item.page}
                         id={`delete-page-thumbnail-btn-${item.page}`}
                         onClick={() => togglePageDeletion(item.page)}
-                        className={`group relative aspect-[3/4] bg-slate-50 border-2 rounded-xl overflow-hidden focus:outline-none transition-all p-1 flex flex-col justify-between ${
+                        className={`group relative aspect-[3/4] bg-slate-50 border-2 rounded-xl overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transition-all p-1 flex flex-col justify-between ${
                           isSelected
                             ? 'border-rose-500 ring-4 ring-rose-500/10'
                             : 'border-slate-200 hover:border-slate-300'
@@ -375,7 +400,7 @@ export const DeletePagesPage: React.FC = () => {
               disabled={!selectedFile || loading}
               className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide text-white flex items-center justify-center space-x-2 transition-all shadow-md shadow-rose-600/10 ${
                 selectedFile && !loading
-                  ? 'bg-rose-600 hover:bg-rose-750 cursor-pointer hover:-translate-y-0.5'
+                  ? 'bg-rose-600 hover:bg-rose-700 cursor-pointer hover:-translate-y-0.5'
                   : 'bg-slate-300 pointer-events-none shadow-none'
               }`}
             >

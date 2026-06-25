@@ -91,12 +91,13 @@ export const ImgToPdfPage: React.FC = () => {
         },
         imageBlobs.map((b) => b.buf.buffer)
       );
-      const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([pdfBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_images_${Date.now()}.pdf`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Image logic error:', err);
+      const message = err instanceof Error ? err.message : String(err);
       setError(
-        err?.message || 'Failed to convert selected images to PDF. Ensure standard PNG/JPG formats.'
+        message || 'Failed to convert selected images to PDF. Ensure standard PNG/JPG formats.'
       );
     } finally {
       setLoading(false);
@@ -177,6 +178,7 @@ export const ImgToPdfPage: React.FC = () => {
                           onClick={() => handleRemove(idx)}
                           className="absolute top-1.5 right-1.5 p-1.5 bg-rose-600 hover:bg-rose-700 hover:scale-110 active:scale-95 text-white rounded-lg shadow-sm transition-transform"
                           title="Remove image"
+                          aria-label={`Remove image ${img.file.name}`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

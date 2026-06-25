@@ -16,6 +16,20 @@
  *    cleanup if they really want to.
  */
 
+interface FileSystemFileHandle {
+  createWritable: () => Promise<{
+    write: (data: Blob) => Promise<void>;
+    close: () => Promise<void>;
+  }>;
+}
+
+interface WindowWithSavePicker extends Window {
+  showSaveFilePicker?: (opts: {
+    suggestedName?: string;
+    types?: Array<{ description?: string; accept: Record<string, string[]> }>;
+  }) => Promise<FileSystemFileHandle>;
+}
+
 const REVOKE_DELAY_MS = 60_000;
 
 export async function downloadBlob(
@@ -23,10 +37,12 @@ export async function downloadBlob(
   filename: string,
   options?: { fallbackOnly?: boolean }
 ): Promise<void> {
+  const w = window as WindowWithSavePicker;
+
   // File System Access API path (Chromium desktop only).
-  if (!options?.fallbackOnly && typeof (window as any).showSaveFilePicker === 'function') {
+  if (!options?.fallbackOnly && typeof w.showSaveFilePicker === 'function') {
     try {
-      const handle = await (window as any).showSaveFilePicker({
+      const handle = await w.showSaveFilePicker({
         suggestedName: filename,
         types: [
           {

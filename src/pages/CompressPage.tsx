@@ -53,19 +53,25 @@ export const CompressPage: React.FC = () => {
       const blob = new Blob([compressedBytes as unknown as BlobPart], { type: 'application/pdf' });
 
       const finalSize = blob.size;
-      const ratio = Math.max(0, ((1 - finalSize / selectedFile.size) * 100)).toFixed(0);
+      let ratio: string;
+      if (selectedFile.size === 0) {
+        ratio = '0%';
+      } else {
+        ratio = Math.max(0, ((1 - finalSize / selectedFile.size) * 100)).toFixed(0) + '%';
+      }
 
       setStats({
         original: (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB',
         compressed: (finalSize / 1024 / 1024).toFixed(2) + ' MB',
-        ratio: ratio + '%',
+        ratio: ratio,
       });
 
       setCompressedBlob(blob);
       setComplete(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('Compress error:', err);
-      setError(err?.message || 'An unexpected failure occurred while compressing the document.');
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'An unexpected failure occurred while compressing the document.');
     } finally {
       setLoading(false);
     }
@@ -193,6 +199,8 @@ export const CompressPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setLevel('basic')}
+                aria-pressed={level === 'basic'}
+                aria-label="Basic optimization"
                 className={`w-full p-3 rounded-xl border text-left transition-all ${
                   level === 'basic'
                     ? 'border-indigo-500 bg-indigo-50/50 ring-2 ring-indigo-500/15'
@@ -209,6 +217,8 @@ export const CompressPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setLevel('medium')}
+                aria-pressed={level === 'medium'}
+                aria-label="Medium compression"
                 className={`w-full p-3 rounded-xl border text-left transition-all ${
                   level === 'medium'
                     ? 'border-indigo-500 bg-indigo-50/50 ring-2 ring-indigo-500/15'
@@ -225,6 +235,8 @@ export const CompressPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setLevel('maximum')}
+                aria-pressed={level === 'maximum'}
+                aria-label="Maximum compression"
                 className={`w-full p-3 rounded-xl border text-left transition-all ${
                   level === 'maximum'
                     ? 'border-indigo-500 bg-indigo-50/50 ring-2 ring-indigo-500/15'

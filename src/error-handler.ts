@@ -25,8 +25,8 @@ export function scrubPII(input: string): string {
     [/\beyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\b/g, '[REDACTED_JWT]'],
     // Authorization: Bearer ...
     [/\bBearer\s+[A-Za-z0-9._~+/=-]+/gi, 'Bearer [REDACTED_TOKEN]'],
-    // Generic key=... / token=... / api_key=...
-    [/\b(?:api[_-]?key|access[_-]?token|refresh[_-]?token|secret|password|token)\s*[:=]\s*[^\s&]+/gi, '$1=[REDACTED]'],
+    // Use capturing group (not non-capturing) so $1 refers to the key name.
+    [/\b(api[_-]?key|access[_-]?token|refresh[_-]?token|secret|password|token)\s*[:=]\s*[^\s&]+/gi, '$1=[REDACTED]'],
     // Email.
     [/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[REDACTED_EMAIL]'],
     // IPv4.

@@ -20,8 +20,12 @@ export const Header: React.FC<HeaderProps> = ({
   const location = useLocation();
 
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Only prevent default (and do scroll-to-top) if we're already on the homepage.
+    // Otherwise, let the React Router Link navigate to '/'.
+    if (location.pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (

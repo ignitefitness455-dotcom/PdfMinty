@@ -55,14 +55,14 @@ export const ReorderPdfPage: React.FC = () => {
           fileBytes.buffer,
         ]);
         const mapped = rendered.map((item) => {
-          const blob = new Blob([item.imageBytes as any], { type: 'image/png' });
+          const blob = new Blob([item.imageBytes as unknown as BlobPart], { type: 'image/png' });
           return {
             page: item.page,
             dataUrl: URL.createObjectURL(blob),
           };
         });
         setItems(mapped);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to render previews:', err);
         setError(
           'Error generating page layouts. You can still confirm standard sequencing if required.'
@@ -135,11 +135,12 @@ export const ReorderPdfPage: React.FC = () => {
         [fileBytes.buffer]
       );
 
-      const blob = new Blob([parsedBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([parsedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `ordered_${selectedFile.name}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Reorder PDF failed:', err);
-      setError(err?.message || 'Failed to reorder document layout. Confirm pages structure.');
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'Failed to reorder document layout. Confirm pages structure.');
     } finally {
       setLoading(false);
     }
@@ -264,7 +265,7 @@ export const ReorderPdfPage: React.FC = () => {
                         onKeyDown={(e) => handleKeyDown(e, index)}
                         tabIndex={0}
                         role="option"
-                        aria-selected="false"
+                        aria-selected={isDragging}
                         aria-roledescription="draggable item"
                         aria-label={`Page ${item.page}, position ${index + 1} of ${items.length}. Use left and right arrow keys to reorder.`}
                         className={`group relative aspect-[3/4] bg-slate-50 dark:bg-slate-950/40 border-2 rounded-xl p-1.5 flex flex-col justify-between cursor-grab active:cursor-grabbing transition-all select-none ${

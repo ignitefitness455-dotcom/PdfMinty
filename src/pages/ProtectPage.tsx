@@ -39,11 +39,12 @@ export const ProtectPage: React.FC = () => {
         { fileBytes, userPassword: password },
         [fileBytes.buffer]
       );
-      const blob = new Blob([encryptedBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([encryptedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_locked_${selectedFile.name}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Protect error:', err);
-      setError(err?.message || 'An unexpected failure occurred while securing the document.');
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'An unexpected failure occurred while securing the document.');
     } finally {
       setLoading(false);
     }

@@ -40,6 +40,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
       ref={modalRef}
       role="dialog"
       aria-modal="true"
+      aria-label="Navigation menu"
       onKeyDown={onKeyDown}
       tabIndex={-1}
       className="lg:hidden fixed inset-0 z-40 bg-background pt-20 flex flex-col animate-fadein outline-none"

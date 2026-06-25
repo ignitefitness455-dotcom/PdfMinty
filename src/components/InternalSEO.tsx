@@ -41,6 +41,20 @@ export const Breadcrumbs: React.FC = () => {
 export default function InternalSEO() {
   const location = useLocation();
   const { toolsList } = useLayout();
+
+  // Read the nonce from the first inline script tag that middleware injected.
+  // Memoize so we don't query the DOM on every render.
+  const nonce = React.useMemo(() => {
+    if (typeof document === 'undefined') return undefined;
+    const scriptWithNonce = document.querySelector('script[nonce]') as HTMLScriptElement | null;
+    // In modern browsers, script.nonce returns the nonce value (or empty string).
+    // In older browsers, we fall back to reading the attribute.
+    if (scriptWithNonce) {
+      return scriptWithNonce.nonce || scriptWithNonce.getAttribute('nonce') || undefined;
+    }
+    return undefined;
+  }, []);
+
   const tool = toolsList.find((t) => `/${t.slug}` === location.pathname);
   if (!tool) return null;
   const APP_URL = SITE_URL;
@@ -111,11 +125,11 @@ export default function InternalSEO() {
     });
   }
 
-  const nonce = document.querySelector('meta[name="csp-nonce"]')?.getAttribute('content');
-
   return (
-    <script type="application/ld+json" nonce={nonce || undefined}>
-      {JSON.stringify(structuredData)}
-    </script>
+    <script
+      type="application/ld+json"
+      nonce={nonce}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
   );
 }

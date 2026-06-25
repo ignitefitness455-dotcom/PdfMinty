@@ -27,6 +27,7 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
   pdfDoc,
   pageNumber,
   rotation = 0,
+  scale = 1,
   onSelect,
   isSelected = false,
   pageIndex,
@@ -77,11 +78,11 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
       if (!context) return;
 
       // HiDPI rendering: scale backing store by devicePixelRatio, keep CSS
-      // size at logical pixels.
+      // size at logical pixels (scaled by the `scale` prop).
       const dpr = window.devicePixelRatio || 1;
-      const viewport = page.getViewport({ scale: 1, rotation });
-      const cssWidth = Math.floor(viewport.width);
-      const cssHeight = Math.floor(viewport.height);
+      const cssViewport = page.getViewport({ scale, rotation });
+      const cssWidth = Math.floor(cssViewport.width);
+      const cssHeight = Math.floor(cssViewport.height);
       canvas.width = Math.floor(cssWidth * dpr);
       canvas.height = Math.floor(cssHeight * dpr);
       canvas.style.width = `${cssWidth}px`;
@@ -96,9 +97,10 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
         }
       }
 
+      const backingViewport = page.getViewport({ scale: scale * dpr, rotation });
       const renderTask = page.render({
         canvasContext: context,
-        viewport: page.getViewport({ scale: dpr, rotation }),
+        viewport: backingViewport,
       });
       renderTaskRef.current = renderTask;
 
@@ -130,7 +132,7 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
         renderTaskRef.current = null;
       }
     };
-  }, [visible, pdfDoc, pageNumber, rotation]);
+  }, [visible, pdfDoc, pageNumber, rotation, scale]);
 
   return (
     <div

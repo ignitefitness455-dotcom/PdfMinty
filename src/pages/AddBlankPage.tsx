@@ -33,9 +33,18 @@ export const AddBlankPage: React.FC = () => {
 
   const handleInsert = async () => {
     if (!selectedFile) return;
+    setError(null);
+
+    // Validate customIndex against totalPages before calling worker.
+    if (positionType === 'custom') {
+      const upperBound = totalPages > 0 ? totalPages + 1 : 1;
+      if (customIndex < 1 || customIndex > upperBound) {
+        setError(`Position must be between 1 and ${upperBound}.`);
+        return;
+      }
+    }
 
     setLoading(true);
-    setError(null);
 
     try {
       const targetPos = positionType === 'custom' ? customIndex : positionType;
@@ -45,11 +54,12 @@ export const AddBlankPage: React.FC = () => {
         { bytes: fileBytes, position: targetPos },
         [fileBytes.buffer]
       );
-      const blob = new Blob([updatedBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([updatedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_padded_${selectedFile.name}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Add blank page error:', err);
-      setError(err?.message || 'An unexpected error occurred while adding the blank page.');
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'An unexpected error occurred while adding the blank page.');
     } finally {
       setLoading(false);
     }
@@ -108,6 +118,9 @@ export const AddBlankPage: React.FC = () => {
                   onClick={() => {
                     setSelectedFile(null);
                     setTotalPages(0);
+                    setCustomIndex(1);  // Reset to default
+                    setPositionType('end');  // Reset position type too
+                    setError(null);
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
@@ -127,14 +140,16 @@ export const AddBlankPage: React.FC = () => {
 
             <div className="space-y-3">
               {[
-                { type: 'start', label: 'Start', desc: 'Prepend at very beginning of file' },
-                { type: 'end', label: 'End', desc: 'Append at final trailing page' },
-                { type: 'custom', label: 'Custom Index', desc: 'Insert at specific page offset' },
+                { type: 'start' as const, label: 'Start', desc: 'Prepend at very beginning of file' },
+                { type: 'end' as const, label: 'End', desc: 'Append at final trailing page' },
+                { type: 'custom' as const, label: 'Custom Index', desc: 'Insert at specific page offset' },
               ].map((pos) => (
                 <button
                   key={pos.type}
                   type="button"
-                  onClick={() => setPositionType(pos.type as any)}
+                  onClick={() => setPositionType(pos.type)}
+                  aria-pressed={positionType === pos.type}
+                  aria-label={`Insert at ${pos.label}`}
                   className={`w-full p-3 rounded-xl border text-left transition-all ${
                     positionType === pos.type
                       ? 'border-sky-500 bg-sky-50/50 ring-2 ring-sky-500/15'
@@ -161,10 +176,14 @@ export const AddBlankPage: React.FC = () => {
                     max={totalPages + 1}
                     value={customIndex}
                     onChange={(e) => {
-                      // parseInt('') returns NaN. Math.max(1, NaN) returns NaN (not 1!).
-                      // Coerce with || 1 so an empty input always falls back to 1, never NaN.
                       const parsed = parseInt(e.target.value, 10);
-                      setCustomIndex(Number.isNaN(parsed) ? 1 : Math.max(1, parsed));
+                      if (Number.isNaN(parsed)) {
+                        setCustomIndex(1);
+                      } else {
+                        // Enforce both lower bound (1) and upper bound (totalPages + 1).
+                        const upperBound = totalPages > 0 ? totalPages + 1 : 1;
+                        setCustomIndex(Math.min(Math.max(1, parsed), upperBound));
+                      }
                     }}
                     className="w-full border border-slate-300 rounded-lg py-1.5 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-bold"
                   />
@@ -189,7 +208,7 @@ export const AddBlankPage: React.FC = () => {
               disabled={!selectedFile || loading}
               className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide text-white flex items-center justify-center space-x-2 transition-all shadow-md shadow-sky-600/10 ${
                 selectedFile && !loading
-                  ? 'bg-sky-600 hover:bg-sky-750 cursor-pointer hover:-translate-y-0.5'
+                  ? 'bg-sky-600 hover:bg-sky-700 cursor-pointer hover:-translate-y-0.5'
                   : 'bg-slate-300 pointer-events-none shadow-none'
               }`}
             >

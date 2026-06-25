@@ -39,12 +39,13 @@ export const UnlockPage: React.FC = () => {
         { fileBytes, password },
         [fileBytes.buffer]
       );
-      const blob = new Blob([unlockedBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([unlockedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_unlocked_${selectedFile.name}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Unlock error:', err);
+      const message = err instanceof Error ? err.message : String(err);
       setError(
-        err?.message || 'Decryption failed. Please verify the keys match target structures.'
+        message || 'Decryption failed. Please verify the keys match target structures.'
       );
     } finally {
       setLoading(false);

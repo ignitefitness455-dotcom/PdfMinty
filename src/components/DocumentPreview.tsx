@@ -107,7 +107,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             pageIndex={i}
             rotation={rotations[i] ?? 0}
             isSelected={currentSelection.has(i)}
-            onSelect={(idx, e) => handleSelect(idx, e)}
+            onSelect={handleSelect}
             scale={scale}
           />
         ))}

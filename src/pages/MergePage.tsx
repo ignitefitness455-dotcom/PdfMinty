@@ -66,12 +66,13 @@ export const MergePage: React.FC = () => {
         { filesBytes },
         filesBytes.map((b) => b.buffer)
       );
-      const blob = new Blob([mergedBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([mergedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_merged_${Date.now()}.pdf`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Merge error:', err);
+      const message = err instanceof Error ? err.message : String(err);
       setError(
-        err?.message ||
+        message ||
           'An unexpected failure occurred while merging documents. Make sure they are not encrypted.'
       );
     } finally {

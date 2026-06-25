@@ -43,11 +43,12 @@ export const PageNumbersPage: React.FC = () => {
         { bytes: fileBytes, options: { format: pattern, position, startFrom, skipFirstPage } },
         [fileBytes.buffer]
       );
-      const blob = new Blob([updatedBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([updatedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_numbered_${selectedFile.name}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Page numbers error:', err);
-      setError(err?.message || 'An unexpected failure occurred while numbering pages.');
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'An unexpected failure occurred while numbering pages.');
     } finally {
       setLoading(false);
     }
@@ -238,7 +239,7 @@ export const PageNumbersPage: React.FC = () => {
               disabled={!selectedFile || loading}
               className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide text-white flex items-center justify-center space-x-2 transition-all shadow-md shadow-cyan-600/10 ${
                 selectedFile && !loading
-                  ? 'bg-cyan-600 hover:bg-cyan-750 cursor-pointer hover:-translate-y-0.5'
+                  ? 'bg-cyan-600 hover:bg-cyan-700 cursor-pointer hover:-translate-y-0.5'
                   : 'bg-slate-300 pointer-events-none shadow-none'
               }`}
             >

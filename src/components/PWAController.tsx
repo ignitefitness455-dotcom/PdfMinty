@@ -1,118 +1,111 @@
-import { RefreshCw, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export const PWAController: React.FC = () => {
-  const [showToast, setShowToast] = useState(false);
-  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const [showUpdateToast, setShowUpdateToast] = useState(false);
+  const userRequestedUpdateRef = useRef(false);
 
   useEffect(() => {
-    // 1. Guard conditions: No iframe (window.self === window.top) and support verification
+    // Don't register SW inside iframes, in non-secure contexts, or unsupported browsers.
     const isInsideIframe = window.self !== window.top;
-    const isServiceWorkerSupported = 'serviceWorker' in navigator;
-    const isSecureContext =
-      window.location.protocol === 'https:' ||
-      window.location.hostname === 'localhost' ||
-      window.location.hostname === '127.0.0.1';
-
-    if (isInsideIframe || !isServiceWorkerSupported || !isSecureContext) {
+    if (isInsideIframe || !('serviceWorker' in navigator) || !window.isSecureContext) {
       return;
     }
 
-    let activeReg: ServiceWorkerRegistration | undefined;
-    let stateChangeHandler: (() => void) | undefined;
+    let registration: ServiceWorkerRegistration | undefined;
+    let trackedWorker: ServiceWorker | null = null;
 
     const updateFoundHandler = () => {
-      const newWorker = activeReg?.installing;
+      const newWorker = registration?.installing;
       if (!newWorker) return;
-      stateChangeHandler = () => {
+      trackedWorker = newWorker;
+
+      const stateChangeHandler = () => {
+        // Only show update toast if there's an existing controller (i.e., this is an UPDATE,
+        // not a first-time install). First-time installs should NOT prompt reload.
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          setShowToast(true);
+          setShowUpdateToast(true);
         }
       };
       newWorker.addEventListener('statechange', stateChangeHandler);
     };
 
-    const controllerChangeHandler = () => window.location.reload();
+    const controllerChangeHandler = () => {
+      // Only reload if the user explicitly requested the update.
+      // First-time installs (controller was null before) should NOT reload.
+      if (userRequestedUpdateRef.current) {
+        window.location.reload();
+      }
+    };
 
     navigator.serviceWorker
       .register('/sw.js')
       .then((reg) => {
-        activeReg = reg;
-        setRegistration(reg);
-
-        // Check for updates
+        registration = reg;
         reg.addEventListener('updatefound', updateFoundHandler);
-
-        // If a service worker is already waiting to activate when we open the app
-        if (reg.waiting) {
-          setShowToast(true);
-        }
       })
       .catch(() => {
-        /* SW registration failure is non-fatal */
+        // SW registration failure is non-fatal.
       });
 
     navigator.serviceWorker.addEventListener('controllerchange', controllerChangeHandler);
 
     return () => {
-      if (activeReg) {
-        activeReg.removeEventListener('updatefound', updateFoundHandler);
-        const installingWorker = activeReg.installing;
-        if (installingWorker && stateChangeHandler) {
-          installingWorker.removeEventListener('statechange', stateChangeHandler);
-        }
+      if (registration) {
+        registration.removeEventListener('updatefound', updateFoundHandler);
+      }
+      if (trackedWorker) {
+        // trackedWorker may have GC'd its listeners by now; removeEventListener is safe no-op.
       }
       navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeHandler);
     };
   }, []);
 
   const handleUpdate = () => {
-    if (registration && registration.waiting) {
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
-    setShowToast(false);
+    userRequestedUpdateRef.current = true;
+    setShowUpdateToast(false);
+    // Tell the waiting SW to skip waiting so it activates immediately.
+    navigator.serviceWorker.getRegistration().then((reg) => {
+      const waiting = reg?.waiting;
+      if (waiting) {
+        waiting.postMessage({ type: 'SKIP_WAITING' });
+      } else {
+        // No waiting worker; reload to pick up latest.
+        window.location.reload();
+      }
+    });
   };
 
-  if (!showToast) {
-    return null;
-  }
+  if (!showUpdateToast) return null;
 
   return (
-    <div
-      className="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-slate-900 text-white rounded-2xl shadow-2xl border border-slate-700/50 p-4 animate-in fade-in slide-in-from-bottom-4 duration-300"
-      id="pwa_update_toast"
-    >
-      <div className="flex items-start space-x-3">
-        <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg">
-          <RefreshCw className="w-5 h-5 animate-spin-slow" />
-        </div>
-        <div className="flex-1 space-y-1">
-          <p className="text-sm font-bold tracking-tight">App Update Available</p>
-          <p className="text-xs text-slate-400 leading-normal">
-            A newer version has loaded in the background. Refresh now to experience the latest upgrades.
-          </p>
-          <div className="pt-2 flex items-center space-x-3">
-            <button
-              onClick={handleUpdate}
-              className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-xs font-bold text-slate-900 rounded-lg transition-all"
-            >
-              Update Now
-            </button>
-            <button
-              onClick={() => setShowToast(false)}
-              className="text-xs font-semibold text-slate-400 hover:text-white transition-colors"
-            >
-              Dismiss
-            </button>
-          </div>
-        </div>
-        <button
-          onClick={() => setShowToast(false)}
-          className="text-slate-500 hover:text-slate-300 transition-colors"
+    <>
+      {showUpdateToast && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="fixed bottom-6 right-6 z-50 max-w-sm bg-slate-900 text-white p-4 rounded-xl shadow-lg flex items-start space-x-3"
         >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
+          <span className="flex-1 text-sm">
+            A new version is available. Update now to get the latest features.
+          </span>
+          <button
+            type="button"
+            onClick={handleUpdate}
+            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-xs font-semibold whitespace-nowrap"
+          >
+            Update Now
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowUpdateToast(false)}
+            aria-label="Dismiss update notification"
+            className="text-slate-400 hover:text-white"
+          >
+            ×
+          </button>
+        </div>
+      )}
+    </>
   );
 };
+

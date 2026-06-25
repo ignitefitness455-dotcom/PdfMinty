@@ -150,7 +150,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             comment,
             email: emailRaw,
             timestamp: new Date().toISOString(),
-          })
+          }),
+          { expirationTtl: 30 * 86400 } // 30 days
         );
       } catch (kvStoreError) {
         console.error('KV feedback storage failure:', kvStoreError);

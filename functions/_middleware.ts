@@ -18,7 +18,7 @@ export const onRequest: PagesFunction = async (context) => {
     const originalText = await response.text();
     // Inject nonce attribute into script tags that don't already have one.
     const injected = originalText
-      .replace('NONCE_PLACEHOLDER', nonce)
+      .replaceAll('NONCE_PLACEHOLDER', nonce)
       .replace(/<script(?![^>]*\snonce=)([^>]*)>/g, `<script nonce="${nonce}"$1>`)
       .replace(/<style(?![^>]*\snonce=)([^>]*)>/g, `<style nonce="${nonce}"$1>`);
     body = new ReadableStream({
@@ -32,6 +32,11 @@ export const onRequest: PagesFunction = async (context) => {
   }
 
   const newResponse = new Response(body, response);
+  // Content-Length is now stale because we injected nonces into the HTML.
+  // Delete it so the runtime recompute or omits it.
+  if (!hasNoBody && contentType.includes('text/html')) {
+    newResponse.headers.delete('Content-Length');
+  }
 
   newResponse.headers.set('X-Content-Type-Options', 'nosniff');
   newResponse.headers.set('X-Frame-Options', 'DENY');
@@ -45,7 +50,6 @@ export const onRequest: PagesFunction = async (context) => {
     'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()'
   );
   newResponse.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
-  newResponse.headers.set('X-Nonce', nonce); // Expose nonce to client for runtime-injected scripts.
 
   // CSP with nonce instead of 'unsafe-inline'. Note: 'unsafe-inline' is ignored
   // by browsers when a nonce is present, but we remove it for clarity.
@@ -55,7 +59,7 @@ export const onRequest: PagesFunction = async (context) => {
     `style-src 'self' 'nonce-${nonce}'`,
     "font-src 'self' data:",
     "img-src 'self' blob: data:",
-    "connect-src 'self' https://*.googleapis.com https://generativelanguage.googleapis.com https://api.resend.com",
+    "connect-src 'self' https://generativelanguage.googleapis.com https://api.resend.com",
     "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",

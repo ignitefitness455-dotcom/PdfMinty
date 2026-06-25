@@ -31,6 +31,20 @@ export class WorkerManager {
       this.worker.onmessage = this.handleMessage.bind(this);
       this.worker.onerror = (err) => {
         logger.error('Worker error:', err);
+        // Reject ALL pending promises so callers don't hang until the 120s timeout.
+        // Then null out the worker so the next operation re-initializes a fresh one.
+        for (const [id, promise] of this.promises.entries()) {
+          clearTimeout(promise.timer);
+          promise.reject(new Error('Worker crashed during processing. Please try again.'));
+          this.promises.delete(id);
+        }
+        // Mark worker as dead so next runOperation re-creates it.
+        try {
+          this.worker?.terminate();
+        } catch {
+          // Ignore — may already be terminated.
+        }
+        this.worker = null;
       };
     }
     return this.worker;
@@ -103,39 +117,42 @@ export class WorkerManager {
     this.promises.clear();
   }
 
-  private async runOnMainThread(operation: string, payload: any): Promise<any> {
+  private async runOnMainThread(operation: string, payload: unknown): Promise<unknown> {
     const ops = await import('../core/pdf-operations');
+    // Narrow payload per-operation. We trust the caller to pass the right shape
+    // (same as the worker does), but TypeScript can't verify it at the boundary.
+    const p = payload as Record<string, unknown>;
     switch (operation) {
       case 'mergePDFs':
-        return await ops.mergePDFs(payload.filesBytes);
+        return await ops.mergePDFs(p.filesBytes as Uint8Array[]);
       case 'splitPDF':
-        return await ops.splitPDF(payload.bytes, payload.ranges);
+        return await ops.splitPDF(p.bytes as Uint8Array, p.ranges as string);
       case 'extractPages':
-        return await ops.extractPages(payload.bytes, payload.pageNumbers);
+        return await ops.extractPages(p.bytes as Uint8Array, p.pageNumbers as number[]);
       case 'rotatePDF':
-        return await ops.rotatePDF(payload.bytes, payload.degreesValue, payload.pageIndices);
+        return await ops.rotatePDF(p.bytes as Uint8Array, p.degreesValue as number, p.pageIndices as number[] | undefined);
       case 'deletePagesPDF':
-        return await ops.deletePagesPDF(payload.bytes, payload.pageIndices);
+        return await ops.deletePagesPDF(p.bytes as Uint8Array, p.pageIndices as number[]);
       case 'reorderPDF':
-        return await ops.reorderPDF(payload.bytes, payload.newOrder);
+        return await ops.reorderPDF(p.bytes as Uint8Array, p.newOrder as number[]);
       case 'watermarkPDF':
-        return await ops.watermarkPDF(payload.bytes, payload.text, payload.options);
+        return await ops.watermarkPDF(p.bytes as Uint8Array, p.text as string, p.options as { opacity?: number; size?: number; rotationDegrees?: number; colorHex?: string } | undefined);
       case 'addPageNumbersPDF':
-        return await ops.addPageNumbersPDF(payload.bytes, payload.options);
+        return await ops.addPageNumbersPDF(p.bytes as Uint8Array, p.options as { format?: string; position?: string; startFrom?: number; skipFirstPage?: boolean } | undefined);
       case 'addBlankPagePDF':
-        return await ops.addBlankPagePDF(payload.bytes, payload.position, payload.pageSizeKey);
+        return await ops.addBlankPagePDF(p.bytes as Uint8Array, p.position as 'start' | 'end' | number, p.pageSizeKey as keyof typeof import('../config/constants').PDF_PAGE_SIZES | undefined);
       case 'imagesToPDF':
-        return await ops.imagesToPDF(payload.imageBlobs, payload.options);
+        return await ops.imagesToPDF(p.imageBlobs as { buf: Uint8Array; type: string; name?: string }[], p.options as { pageSize?: keyof typeof import('../config/constants').PDF_PAGE_SIZES } | undefined);
       case 'compressPDF':
-        return await ops.compressPDF(payload.bytes, payload.level);
+        return await ops.compressPDF(p.bytes as Uint8Array, p.level as 'basic' | 'medium' | 'maximum' | undefined);
       case 'protectPDF':
-        return await ops.protectPDF(payload);
+        return await ops.protectPDF(p as { fileBytes: Uint8Array; userPassword: string });
       case 'unlockPDF':
-        return await ops.unlockPDF(payload);
+        return await ops.unlockPDF(p as { fileBytes: Uint8Array; password: string });
       case 'pdfToImage':
-        return await ops.pdfToImage(payload.bytes, payload.originalName, payload.scale, payload.maxPages, payload.format);
+        return await ops.pdfToImage(p.bytes as Uint8Array, p.originalName as string, p.scale as number | undefined, p.maxPages as number | undefined, p.format as 'image/png' | 'image/jpeg' | undefined);
       case 'getPageCount':
-        return await ops.getPageCount(payload.bytes);
+        return await ops.getPageCount(p.bytes as Uint8Array);
       default:
         throw new Error(`Unknown operation: ${operation}`);
     }

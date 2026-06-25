@@ -47,11 +47,12 @@ export const WatermarkPage: React.FC = () => {
         [fileBytes.buffer]
       );
 
-      const blob = new Blob([watermarkedBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([watermarkedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_stamped_${selectedFile.name}`);
-    } catch (err: any) {
-      console.error('Watermark error:', err);
-      setError(err?.message || 'An unexpected error occurred while adding the watermark.');
+    } catch (err: unknown) {
+       console.error('Watermark error:', err);
+       const message = err instanceof Error ? err.message : String(err);
+       setError(message || 'An unexpected error occurred while adding the watermark.');
     } finally {
       setLoading(false);
     }
@@ -232,7 +233,7 @@ export const WatermarkPage: React.FC = () => {
               disabled={!selectedFile || loading}
               className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide text-white flex items-center justify-center space-x-2 transition-all shadow-md shadow-purple-600/10 ${
                 selectedFile && !loading
-                  ? 'bg-purple-600 hover:bg-purple-750 cursor-pointer hover:-translate-y-0.5'
+                  ? 'bg-purple-600 hover:bg-purple-700 cursor-pointer hover:-translate-y-0.5'
                   : 'bg-slate-300 pointer-events-none shadow-none'
               }`}
             >

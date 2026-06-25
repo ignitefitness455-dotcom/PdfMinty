@@ -31,6 +31,7 @@ export const PdfToImgPage: React.FC = () => {
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
 
   const urlsRef = React.useRef<string[]>([]);
+  const operationTokenRef = React.useRef(0);
 
   React.useEffect(() => {
     urlsRef.current = imageUrls.map((item) => item.dataUrl);
@@ -47,6 +48,7 @@ export const PdfToImgPage: React.FC = () => {
 
   const handleFilesSelected = (files: File[]) => {
     if (files.length > 0) {
+      operationTokenRef.current++;  // Invalidate in-flight render
       imageUrls.forEach((item) => URL.revokeObjectURL(item.dataUrl));
       setSelectedFile(files[0]);
       setImageUrls([]);
@@ -56,6 +58,7 @@ export const PdfToImgPage: React.FC = () => {
 
   const handleExport = async () => {
     if (!selectedFile) return;
+    const myToken = ++operationTokenRef.current;
 
     imageUrls.forEach((item) => URL.revokeObjectURL(item.dataUrl));
     setError(null);
@@ -72,11 +75,17 @@ export const PdfToImgPage: React.FC = () => {
       const total = maxPagesVal ? Math.min(pdf.numPages, maxPagesVal) : pdf.numPages;
       await pdf.destroy();
 
+      if (myToken !== operationTokenRef.current) return;
       setProgress({ current: 0, total });
       setLoading(true);
 
       const collected: { page: number; dataUrl: string; format: string }[] = [];
       for (let pageNum = 1; pageNum <= total; pageNum++) {
+        if (myToken !== operationTokenRef.current) {
+          // Stale — user changed file or cleared. Abort loop.
+          return;
+        }
+
         // Extract the single page first to keep memory footprint incredibly low and avoid neutering source bytes buffer
         const singlePagePdfBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
           'extractPages',
@@ -111,14 +120,17 @@ export const PdfToImgPage: React.FC = () => {
         const filename = `pdfminty_page_${pageNum}_${selectedFile.name.replace(/\.pdf$/i, '')}.${ext}`;
         await downloadBlob(blob, filename, { fallbackOnly: true });
 
+        if (myToken !== operationTokenRef.current) return;
         setProgress({ current: pageNum, total });
         if (pageNum < total) {
           await new Promise((r) => setTimeout(r, 400));
         }
       }
 
+      if (myToken !== operationTokenRef.current) return;
       setImageUrls(collected);
     } catch (err: unknown) {
+      if (myToken !== operationTokenRef.current) return;
       console.error('Export images failed:', err);
       const errMsg = err instanceof Error ? err.message : String(err);
       setError(
@@ -126,8 +138,10 @@ export const PdfToImgPage: React.FC = () => {
           'Error occurred during PDF parsing. Encrypted documents are not supported for canvas extraction.'
       );
     } finally {
-      setLoading(false);
-      setProgress(null);
+      if (myToken === operationTokenRef.current) {
+        setLoading(false);
+        setProgress(null);
+      }
     }
   };
 
@@ -192,7 +206,13 @@ export const PdfToImgPage: React.FC = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => setSelectedFile(null)}
+                  onClick={() => {
+                    operationTokenRef.current++;  // Invalidate any in-flight rendering
+                    setSelectedFile(null);
+                    imageUrls.forEach((item) => URL.revokeObjectURL(item.dataUrl));
+                    setImageUrls([]);
+                    setError(null);
+                  }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Change File

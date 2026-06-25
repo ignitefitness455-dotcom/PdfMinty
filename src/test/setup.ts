@@ -95,14 +95,25 @@ Object.defineProperty(global, 'OffscreenCanvas', {
   },
 });
 
-// crypto.randomUUID
-if (!global.crypto) {
-  Object.defineProperty(global, 'crypto', {
-    value: {
-      randomUUID: () => `test-uuid-${Math.random().toString(36).slice(2)}`,
-    },
-  });
-}
+// Override crypto.randomUUID directly — jsdom provides crypto but we want
+// deterministic UUIDs in tests.
+Object.defineProperty(global.crypto, 'randomUUID', {
+  writable: true,
+  value: vi.fn().mockReturnValue('test-uuid-mock'),
+});
+
+// Global fetch mock — components like FeedbackModal/ContactModal call /api/*
+// endpoints. Default to a failed response; individual tests can override.
+global.fetch = vi.fn().mockResolvedValue({
+  ok: false,
+  status: 500,
+  headers: new Headers(),
+  json: vi.fn().mockResolvedValue({ error: 'Mock fetch default' }),
+  text: vi.fn().mockResolvedValue(''),
+}) as unknown as typeof global.fetch;
+
+// Mock HTMLAnchorElement.click for download tests.
+HTMLAnchorElement.prototype.click = vi.fn();
 
 afterEach(() => {
   cleanup();

@@ -7,6 +7,7 @@ import {
   RefreshCw,
   CheckCircle2,
 } from 'lucide-react';
+import type * as PDFJSTypes from 'pdfjs-dist';
 import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -16,11 +17,12 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 
-let pdfjsLib: any = null;
+let pdfjsLib: typeof PDFJSTypes | null = null;
 
 const loadPdfjs = async () => {
   if (!pdfjsLib) {
-    pdfjsLib = await import('pdfjs-dist');
+    const mod = await import('pdfjs-dist');
+    pdfjsLib = mod as unknown as typeof PDFJSTypes;
     pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
   }
   return pdfjsLib;
@@ -39,8 +41,11 @@ export const AiAnalyzePage: React.FC = () => {
   const [aiResult, setAiResult] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
+  const operationTokenRef = React.useRef(0);
+
   const handleFilesSelected = async (files: File[]) => {
     if (files.length === 0) return;
+    const myToken = ++operationTokenRef.current;
     const file = files[0];
     setSelectedFile(file);
     setIsExtracting(true);
@@ -48,11 +53,13 @@ export const AiAnalyzePage: React.FC = () => {
     setAiResult('');
     setError(null);
 
+    let pdf: { destroy: () => Promise<void>; numPages: number; getPage: (n: number) => Promise<any> } | null = null;
     try {
       const pdfjs = await loadPdfjs();
       const bytes = await file.arrayBuffer();
       const loadingTask = pdfjs.getDocument({ data: bytes });
-      const pdf = await loadingTask.promise;
+      pdf = await loadingTask.promise;
+      if (myToken !== operationTokenRef.current) return;
       setTotalPages(pdf.numPages);
 
       // Cap at 12 pages to keep payload reasonable and avoid token limits.
@@ -60,24 +67,38 @@ export const AiAnalyzePage: React.FC = () => {
 
       let textBuffer = '';
       for (let i = 1; i <= maxPages; i++) {
+        if (myToken !== operationTokenRef.current) {
+          break;
+        }
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item: any) => item.str || '').join(' ');
+        const pageText = textContent.items.map((item: unknown) => (item as { str?: string }).str || '').join(' ');
         textBuffer += `--- PAGE ${i} ---\n${pageText}\n\n`;
         page.cleanup();
       }
 
+      if (myToken !== operationTokenRef.current) return;
       setExtractedText(textBuffer);
-      // Destroy the PDF document to free WASM memory and canvas contexts.
-      await pdf.destroy();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (myToken !== operationTokenRef.current) return;
+      const message = err instanceof Error ? err.message : 'Unknown error';
       console.error('Text extraction error:', err);
       setError(
-        err?.message ||
+        message ||
           'Failed to extract text structures. Make sure document does not contain image-only pages or lock passwords.'
       );
     } finally {
-      setIsExtracting(false);
+      if (myToken === operationTokenRef.current) {
+        setIsExtracting(false);
+      }
+      // Always destroy the PDF document to free WASM memory, even if extraction failed.
+      if (pdf) {
+        try {
+          await pdf.destroy();
+        } catch {
+          // Ignore destroy errors — best-effort cleanup.
+        }
+      }
     }
   };
 
@@ -113,10 +134,11 @@ export const AiAnalyzePage: React.FC = () => {
       }
 
       setAiResult(data.result || 'No response returned.');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('AI Error:', err);
+      const message = err instanceof Error ? err.message : String(err);
       setError(
-        err?.message ||
+        message ||
           'An unexpected server error occurred during AI analysis. Verify GEMINI_API_KEY in secrets.'
       );
     } finally {
@@ -183,9 +205,11 @@ export const AiAnalyzePage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => {
+                      operationTokenRef.current++;  // Invalidate any in-flight extraction
                       setSelectedFile(null);
                       setExtractedText('');
                       setAiResult('');
+                      setHasConsented(false);
                     }}
                     className="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-2.5 rounded-lg"
                   >

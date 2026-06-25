@@ -78,8 +78,13 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
 
   const handleDownload = useCallback(async () => {
     if (!result) return;
-    await downloadBlob(result, `${downloadFilenamePrefix}_${Date.now()}.pdf`);
-  }, [result, downloadFilenamePrefix]);
+    try {
+      await downloadBlob(result, `${downloadFilenamePrefix}_${Date.now()}.pdf`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Download failed.';
+      showToast(message, 'error');
+    }
+  }, [result, downloadFilenamePrefix, showToast]);
 
   return (
     <div className="space-y-4">

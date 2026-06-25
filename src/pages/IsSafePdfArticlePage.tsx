@@ -199,7 +199,7 @@ export const IsSafePdfArticlePage: React.FC = () => {
           <p className="m-0 leading-normal font-semibold">
             Remember: Your document is your digital currency. Avoid processing highly confidential
             bank papers, private clinical logs, or copyright protected patents on unvetted servers.
-            Always favor local local sandboxing tools when dealing with private customer records.
+            Always favor local sandboxing tools when dealing with private customer records.
           </p>
         </div>
       </article>

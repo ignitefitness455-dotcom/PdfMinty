@@ -31,6 +31,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       const expectedTypes = accept.split(',').map((t) => t.trim());
       const limitBytes = maxSizeMB * 1024 * 1024;
 
+      const rejectedFiles: { name: string; reason: string }[] = [];
+
       for (let i = 0; i < filesList.length; i++) {
         const file = filesList[i];
 
@@ -49,21 +51,26 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         });
 
         if (!matchesType) {
-          setError(`Unsupported file format ignored: "${file.name}". Expected: ${accept}`);
+          rejectedFiles.push({ name: file.name, reason: 'unsupported format' });
           continue;
         }
 
         // 2. Validate maximum file size limit
         if (file.size > limitBytes) {
-          setError(
-            `Uploading failed! "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(
-              2
-            )} MB). The maximum allowed limit for this tool is exactly ${maxSizeMB} MB.`
-          );
+          rejectedFiles.push({ name: file.name, reason: `too large (${(file.size / 1024 / 1024).toFixed(2)} MB, max ${maxSizeMB} MB)` });
           continue;
         }
 
         validFiles.push(file);
+      }
+
+      if (rejectedFiles.length > 0) {
+        if (rejectedFiles.length === 1) {
+          setError(`"${rejectedFiles[0].name}" rejected: ${rejectedFiles[0].reason}.`);
+        } else {
+          const first = rejectedFiles[0];
+          setError(`${rejectedFiles.length} files rejected. First: "${first.name}" (${first.reason}).`);
+        }
       }
 
       if (validFiles.length > 0) {

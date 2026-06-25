@@ -33,9 +33,19 @@ export function useModal(isOpen: boolean, onClose: () => void) {
     const id = window.requestAnimationFrame(() => {
       const container = containerRef.current;
       if (!container) return;
-      const firstFocusable = container.querySelector<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
+      const allFocusable = Array.from(
+        container.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => {
+        if (el.hasAttribute('disabled')) return false;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) return false;
+        return true;
+      });
+      const firstFocusable = allFocusable[0];
       firstFocusable?.focus();
     });
     return () => window.cancelAnimationFrame(id);
@@ -56,7 +66,16 @@ export function useModal(isOpen: boolean, onClose: () => void) {
           container.querySelectorAll<HTMLElement>(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
           )
-        ).filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
+        ).filter((el) => {
+          if (el.hasAttribute('disabled')) return false;
+          // Robust visibility check that works for position: fixed elements
+          // (offsetParent is null for fixed elements even when visible).
+          const style = window.getComputedStyle(el);
+          if (style.display === 'none' || style.visibility === 'hidden') return false;
+          const rect = el.getBoundingClientRect();
+          if (rect.width === 0 && rect.height === 0) return false;
+          return true;
+        });
         if (focusables.length === 0) return;
         const first = focusables[0];
         const last = focusables[focusables.length - 1];

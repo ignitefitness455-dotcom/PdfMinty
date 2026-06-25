@@ -34,11 +34,12 @@ export const RotatePage: React.FC = () => {
         { bytes: fileBytes, degreesValue: degrees },
         [fileBytes.buffer]
       );
-      const blob = new Blob([rotatedBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([rotatedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_rotated_${selectedFile.name}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Rotate error:', err);
-      setError(err?.message || 'An unexpected error occurred while rotating the PDF.');
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'An unexpected error occurred while rotating the PDF.');
     } finally {
       setLoading(false);
     }
@@ -117,6 +118,8 @@ export const RotatePage: React.FC = () => {
                   key={deg}
                   type="button"
                   onClick={() => setDegrees(deg)}
+                  aria-pressed={degrees === deg}
+                  aria-label={`Rotate ${deg} degrees`}
                   className={`py-3.5 rounded-xl border font-bold text-sm transition-all ${
                     degrees === deg
                       ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-500/15'

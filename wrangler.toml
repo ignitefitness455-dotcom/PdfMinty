@@ -1,6 +1,6 @@
 name = "pdfminty"
 pages_build_output_dir = "dist"
-compatibility_date = "2026-01-01"
+compatibility_date = "2025-06-25"
 compatibility_flags = ["nodejs_compat"]
 
 # KV namespace for rate-limiting and form-submission fallback storage.
@@ -9,4 +9,6 @@ compatibility_flags = ["nodejs_compat"]
 [[kv_namespaces]]
 binding = "RATELIMIT_KV"
 id = "a43016cede9e4e92bc4ee8776b952cfb"
-preview_id = "a43016cede9e4e92bc4ee8776b952cfb"
+# Create a separate preview namespace in Cloudflare dashboard and paste its ID below.
+# This prevents preview deployments from polluting production rate-limit counters.
+preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"

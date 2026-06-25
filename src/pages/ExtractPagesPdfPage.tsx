@@ -59,14 +59,14 @@ export const ExtractPagesPdfPage: React.FC = () => {
           fileBytes.buffer,
         ]);
         const mapped = rendered.map((item) => {
-          const blob = new Blob([item.imageBytes as any], { type: 'image/png' });
+          const blob = new Blob([item.imageBytes as unknown as BlobPart], { type: 'image/png' });
           return {
             page: item.page,
             dataUrl: URL.createObjectURL(blob),
           };
         });
         setThumbnails(mapped);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to render previews:', err);
         setError(
           'Previews could not be rendered, but you can still run extraction using standard page parameters.'
@@ -113,11 +113,12 @@ export const ExtractPagesPdfPage: React.FC = () => {
         [fileBytes.buffer]
       );
 
-      const blob = new Blob([extractedBytes as any], { type: 'application/pdf' });
+      const blob = new Blob([extractedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `extracted_${selectedFile.name}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Extract error:', err);
-      setError(err?.message || 'Failed to extract selected pages from the document.');
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'Failed to extract selected pages from the document.');
     } finally {
       setLoading(false);
     }
@@ -236,7 +237,7 @@ export const ExtractPagesPdfPage: React.FC = () => {
                         key={item.page}
                         id={`page-thumbnail-btn-${item.page}`}
                         onClick={() => togglePageSelection(item.page)}
-                        className={`group relative aspect-[3/4] bg-slate-50 dark:bg-slate-950/40 border-2 rounded-xl overflow-hidden focus:outline-none transition-all p-1 flex flex-col justify-between ${
+                        className={`group relative aspect-[3/4] bg-slate-50 dark:bg-slate-950/40 border-2 rounded-xl overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transition-all p-1 flex flex-col justify-between ${
                           isSelected
                             ? 'border-emerald-500 ring-4 ring-emerald-500/10'
                             : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'

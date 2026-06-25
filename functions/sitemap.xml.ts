@@ -24,11 +24,13 @@ export const onRequest: PagesFunction<Env> = async () => {
     { path: '/is-it-safe-to-upload-pdf-to-online-tools', priority: '0.7', freq: 'monthly' }
   ];
 
-  const buildDate = new Date().toISOString();
+  // Use a build-time constant so all requests within a deployment return the same lastmod.
+  // Bump this manually on each deploy, or inject via CI/CD env var.
+  const BUILD_DATE = '2025-06-25'; // Update on each deploy
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
   for (const route of coreRoutes) {
-    xml += `  <url>\n    <loc>${siteUrl}${route.path}</loc>\n    <lastmod>${buildDate}</lastmod>\n    <changefreq>${route.freq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
+    xml += `  <url>\n    <loc>${siteUrl}${route.path}</loc>\n    <lastmod>${BUILD_DATE}</lastmod>\n    <changefreq>${route.freq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
   }
   xml += '</urlset>\n';
 

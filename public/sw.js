@@ -14,20 +14,29 @@
  * In development this defaults to 'dev'.
  */
 
-const CACHE_VERSION = self.__SW_VERSION__ || 'dev-' + Date.now();
-const STATIC_CACHE = `pdfminty-static-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `pdfminty-runtime-${CACHE_VERSION}`;
+// Bump this version on every deploy to bust the SW cache.
+// Format: build-YYYYMMDD-NN (date + sequential number for multiple deploys same day).
+const SW_CACHE_VERSION = 'build-20250625-01';
+const STATIC_CACHE = `pdfminty-static-${SW_CACHE_VERSION}`;
+const RUNTIME_CACHE = `pdfminty-runtime-${SW_CACHE_VERSION}`;
 
 // Only cache GET requests to same-origin assets that match these patterns.
-const STATIC_ASSET_PATTERN = /\.(?:js|css|woff2?|ttf|otf|svg|png|jpg|jpeg|webp|avif|gif|ico|map)$/i;
+// Note: .map (source maps) intentionally excluded — don't cache them in production.
+const STATIC_ASSET_PATTERN = /\.(?:js|css|woff2?|ttf|otf|svg|png|jpg|jpeg|webp|avif|gif|ico)$/i;
 const STATIC_PATH_PATTERN = /^\/(?:assets|fonts|icons)\//i;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(STATIC_CACHE)
-      .then((cache) => cache.addAll(['/index.html', '/manifest.json', '/logo.svg']))
-      .then(() => self.skipWaiting())
+    (async () => {
+      const cache = await caches.open(STATIC_CACHE);
+      // Use allSettled so a single 404 doesn't fail the entire install.
+      await Promise.allSettled([
+        cache.add('/index.html'),
+        cache.add('/manifest.json'),
+        cache.add('/logo.svg'),
+      ]);
+      await self.skipWaiting();
+    })()
   );
 });
 
@@ -37,7 +46,7 @@ self.addEventListener('activate', (event) => {
       const keys = await caches.keys();
       await Promise.all(
         keys
-          .filter((key) => !key.endsWith(CACHE_VERSION))
+          .filter((key) => !key.endsWith(SW_CACHE_VERSION))
           .map((key) => caches.delete(key))
       );
       await self.clients.claim();
