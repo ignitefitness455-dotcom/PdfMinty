@@ -171,7 +171,7 @@ export const TOOL_SIZE_LIMITS: Record<string, { maxSingleMB: number; maxTotalMB?
 
 export const AI_LIMITS = {
   MAX_TEXT_LENGTH: 30000,
-  DEFAULT_MODEL: 'gemini-3.5-flash',
+  DEFAULT_MODEL: 'gemini-2.0-flash',
 };
 
 export const RATE_LIMITS = {

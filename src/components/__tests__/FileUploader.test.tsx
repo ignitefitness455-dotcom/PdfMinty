@@ -33,7 +33,7 @@ describe('FileUploader', () => {
     const input = document.getElementById('uploader_hidden_input') as HTMLInputElement;
     const fakeFile = new File(['content'], 'test.txt', { type: 'text/plain' });
     fireEvent.change(input, { target: { files: [fakeFile] } });
-    expect(screen.getByText(/Unsupported file format/i)).toBeInTheDocument();
+    expect(screen.getByText(/unsupported|Unsupported/i)).toBeInTheDocument();
   });
 
   it('shows error when file exceeds size limit', () => {

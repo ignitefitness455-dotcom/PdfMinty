@@ -18,6 +18,7 @@ export const DeletePagesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0);
 
+  const operationTokenRef = React.useRef(0);
   const urlsRef = React.useRef<string[]>([]);
 
   React.useEffect(() => {
@@ -26,6 +27,7 @@ export const DeletePagesPage: React.FC = () => {
 
   React.useEffect(() => {
     return () => {
+      operationTokenRef.current++;
       // Clean up all generated URLs when leaving page
       urlsRef.current.forEach((url) => {
         URL.revokeObjectURL(url);
@@ -35,6 +37,7 @@ export const DeletePagesPage: React.FC = () => {
 
   const handleFilesSelected = async (files: File[]) => {
     if (files.length > 0) {
+      const myToken = ++operationTokenRef.current;
       thumbnails.forEach((t) => URL.revokeObjectURL(t.dataUrl));
       const file = files[0];
       setSelectedFile(file);
@@ -44,14 +47,17 @@ export const DeletePagesPage: React.FC = () => {
 
       try {
         const bytes = new Uint8Array(await file.arrayBuffer());
+        if (myToken !== operationTokenRef.current) return;
         // Get page count independently of thumbnail rendering so manual deletion
         // still works even if pdfToImage fails.
         const count = await WorkerManager.getInstance().runOperation<number>(
           'getPageCount',
           { bytes }
         );
+        if (myToken !== operationTokenRef.current) return;
         setTotalPages(count);
       } catch (err: unknown) {
+        if (myToken !== operationTokenRef.current) return;
         const message = err instanceof Error ? err.message : 'Failed to read PDF.';
         setError(`Failed to read PDF: ${message}`);
         setTotalPages(0);
@@ -61,11 +67,13 @@ export const DeletePagesPage: React.FC = () => {
       setRenderingThumbnails(true);
       try {
         const fileBytes = new Uint8Array(await file.arrayBuffer());
+        if (myToken !== operationTokenRef.current) return;
         const rendered = await WorkerManager.getInstance().runOperation<
           { page: number; imageBytes: Uint8Array }[]
         >('pdfToImage', { bytes: fileBytes, originalName: file.name, scale: 0.3 }, [
           fileBytes.buffer,
         ]);
+        if (myToken !== operationTokenRef.current) return;
         const mapped = rendered.map((item) => {
           const blob = new Blob([item.imageBytes as unknown as BlobPart], { type: 'image/png' });
           return {
@@ -73,12 +81,16 @@ export const DeletePagesPage: React.FC = () => {
             dataUrl: URL.createObjectURL(blob),
           };
         });
+        if (myToken !== operationTokenRef.current) return;
         setThumbnails(mapped);
       } catch (err: unknown) {
+        if (myToken !== operationTokenRef.current) return;
         console.error('Failed to render previews:', err);
         setError('Previews could not be rendered, but you can still delete pages using standard input.');
       } finally {
-        setRenderingThumbnails(false);
+        if (myToken === operationTokenRef.current) {
+          setRenderingThumbnails(false);
+        }
       }
     }
   };
@@ -240,6 +252,7 @@ export const DeletePagesPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => {
+                    operationTokenRef.current++; // Invalidate in-flight rendering
                     // Revoke existing blob URLs to prevent memory leaks.
                     thumbnails.forEach((t) => URL.revokeObjectURL(t.dataUrl));
                     setSelectedFile(null);

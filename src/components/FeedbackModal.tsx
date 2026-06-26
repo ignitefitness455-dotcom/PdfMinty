@@ -147,10 +147,13 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
                     type="button"
                     onClick={() => setFeedbackRating(star)}
                     disabled={isFeedbackSubmitting}
+                    aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                    aria-pressed={feedbackRating === star}
                     className="text-amber-400 hover:scale-110 transition-transform cursor-pointer focus:outline-none disabled:opacity-50"
                   >
                     <Star
                       className={`w-6 h-6 text-amber-400 ${star <= feedbackRating ? 'fill-amber-400' : 'fill-none'}`}
+                      aria-hidden="true"
                     />
                   </button>
                 ))}

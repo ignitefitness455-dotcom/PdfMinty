@@ -1,5 +1,4 @@
 import { ArrowLeft, Eye, Download, AlertCircle, Sparkles } from 'lucide-react';
-import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -7,18 +6,9 @@ import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
+import { getPdfJs } from '../core/index';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
-
-let pdfjsLib: unknown = null;
-
-const loadPdfjs = async (): Promise<any> => {
-  if (!pdfjsLib) {
-    pdfjsLib = await import('pdfjs-dist');
-    (pdfjsLib as any).GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
-  }
-  return pdfjsLib;
-};
 
 export const PdfToImgPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -69,7 +59,7 @@ export const PdfToImgPage: React.FC = () => {
       const maxPagesVal = maxPagesLimit === 'all' ? undefined : parseInt(maxPagesLimit, 10);
 
       // Get total page count for progress display.
-      const pdfjs = await loadPdfjs();
+      const pdfjs = await getPdfJs();
       const loadingTask = pdfjs.getDocument({ data: fileBytes.slice() });
       const pdf = await loadingTask.promise;
       const total = maxPagesVal ? Math.min(pdf.numPages, maxPagesVal) : pdf.numPages;

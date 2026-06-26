@@ -7,8 +7,7 @@ import {
   RefreshCw,
   CheckCircle2,
 } from 'lucide-react';
-import type * as PDFJSTypes from 'pdfjs-dist';
-import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import type { PDFDocumentProxy } from 'pdfjs-dist';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -16,17 +15,7 @@ import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
-
-let pdfjsLib: typeof PDFJSTypes | null = null;
-
-const loadPdfjs = async () => {
-  if (!pdfjsLib) {
-    const mod = await import('pdfjs-dist');
-    pdfjsLib = mod as unknown as typeof PDFJSTypes;
-    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
-  }
-  return pdfjsLib;
-};
+import { getPdfJs } from '../core/index';
 
 export const AiAnalyzePage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -42,6 +31,8 @@ export const AiAnalyzePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const operationTokenRef = React.useRef(0);
+  const aiQueryTokenRef = React.useRef(0);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
 
   const handleFilesSelected = async (files: File[]) => {
     if (files.length === 0) return;
@@ -53,9 +44,9 @@ export const AiAnalyzePage: React.FC = () => {
     setAiResult('');
     setError(null);
 
-    let pdf: { destroy: () => Promise<void>; numPages: number; getPage: (n: number) => Promise<any> } | null = null;
+    let pdf: PDFDocumentProxy | null = null;
     try {
-      const pdfjs = await loadPdfjs();
+      const pdfjs = await getPdfJs();
       const bytes = await file.arrayBuffer();
       const loadingTask = pdfjs.getDocument({ data: bytes });
       pdf = await loadingTask.promise;
@@ -112,6 +103,15 @@ export const AiAnalyzePage: React.FC = () => {
       return;
     }
 
+    // Abort any in-flight AI request and invalidate its token.
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const myToken = ++aiQueryTokenRef.current;
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const timeoutId = setTimeout(() => controller.abort(), 60_000); // 60s timeout
+
     setAiLoading(true);
     setError(null);
 
@@ -124,7 +124,11 @@ export const AiAnalyzePage: React.FC = () => {
           query: mode === 'qa' ? query : '',
           mode,
         }),
+        signal: controller.signal,
       });
+
+      // Discard stale response if a newer request was started.
+      if (myToken !== aiQueryTokenRef.current) return;
 
       const data = await response.json();
       if (!response.ok) {
@@ -133,16 +137,25 @@ export const AiAnalyzePage: React.FC = () => {
         );
       }
 
+      if (myToken !== aiQueryTokenRef.current) return;
       setAiResult(data.result || 'No response returned.');
     } catch (err: unknown) {
-      console.error('AI Error:', err);
+      if (myToken !== aiQueryTokenRef.current) return;
+      // Don't show error if this was aborted by a newer request.
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return;
+      }
       const message = err instanceof Error ? err.message : String(err);
-      setError(
-        message ||
-          'An unexpected server error occurred during AI analysis. Verify GEMINI_API_KEY in secrets.'
-      );
+      console.error('AI Error:', err);
+      setError(message || 'An unexpected server error occurred during AI analysis.');
     } finally {
-      setAiLoading(false);
+      clearTimeout(timeoutId);
+      if (myToken === aiQueryTokenRef.current) {
+        setAiLoading(false);
+      }
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
@@ -205,7 +218,12 @@ export const AiAnalyzePage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => {
-                      operationTokenRef.current++;  // Invalidate any in-flight extraction
+                      operationTokenRef.current++; // Invalidate extraction
+                      aiQueryTokenRef.current++; // Invalidate AI query
+                      if (abortControllerRef.current) {
+                        abortControllerRef.current.abort();
+                        abortControllerRef.current = null;
+                      }
                       setSelectedFile(null);
                       setExtractedText('');
                       setAiResult('');

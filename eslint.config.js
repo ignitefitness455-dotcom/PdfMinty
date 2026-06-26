@@ -41,7 +41,7 @@ export default tseslint.config(
       'no-control-regex': 'off',
       'react-hooks/set-state-in-effect': 'off',
       'preserve-caught-error': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'import-x/order': [
         'error',

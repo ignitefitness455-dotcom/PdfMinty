@@ -12,11 +12,20 @@ export const PWAController: React.FC = () => {
     }
 
     let registration: ServiceWorkerRegistration | undefined;
+    // Track the latest statechange handler + worker so cleanup can remove it.
+    // We lift the handler out of updateFoundHandler so the cleanup closure can access it.
     let trackedWorker: ServiceWorker | null = null;
+    let trackedStateChangeHandler: (() => void) | null = null;
 
     const updateFoundHandler = () => {
       const newWorker = registration?.installing;
       if (!newWorker) return;
+
+      // If a previous worker was tracked, clean up its listener first.
+      if (trackedWorker && trackedStateChangeHandler) {
+        trackedWorker.removeEventListener('statechange', trackedStateChangeHandler);
+      }
+
       trackedWorker = newWorker;
 
       const stateChangeHandler = () => {
@@ -26,6 +35,7 @@ export const PWAController: React.FC = () => {
           setShowUpdateToast(true);
         }
       };
+      trackedStateChangeHandler = stateChangeHandler;
       newWorker.addEventListener('statechange', stateChangeHandler);
     };
 
@@ -53,8 +63,9 @@ export const PWAController: React.FC = () => {
       if (registration) {
         registration.removeEventListener('updatefound', updateFoundHandler);
       }
-      if (trackedWorker) {
-        // trackedWorker may have GC'd its listeners by now; removeEventListener is safe no-op.
+      // Remove the statechange listener from the tracked worker to prevent leaks.
+      if (trackedWorker && trackedStateChangeHandler) {
+        trackedWorker.removeEventListener('statechange', trackedStateChangeHandler);
       }
       navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeHandler);
     };
@@ -67,7 +78,8 @@ export const PWAController: React.FC = () => {
     navigator.serviceWorker.getRegistration().then((reg) => {
       const waiting = reg?.waiting;
       if (waiting) {
-        waiting.postMessage({ type: 'SKIP_WAITING' });
+        // Send a typed message object. sw.js checks `event.data?.type === 'SKIP_WAITING'`.
+        waiting.postMessage({ type: 'SKIP_WAITING' } as { type: 'SKIP_WAITING' });
       } else {
         // No waiting worker; reload to pick up latest.
         window.location.reload();

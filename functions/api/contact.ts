@@ -38,6 +38,22 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
+  // Request body size guard — reject oversized payloads before parsing.
+  const MAX_BODY_BYTES = 32 * 1024; // 32 KB (contact form data is small)
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(
+      JSON.stringify({ error: 'Request body too large.' }),
+      {
+        status: 413,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } as HeadersInit,
+      }
+    );
+  }
+
   // Rate Limiting — unique-key-per-request pattern (atomic, race-free).
   const ip = request.headers.get('cf-connecting-ip') || 'unknown-ip';
   const hourBlock = Math.floor(Date.now() / 3600000);
@@ -72,14 +88,20 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   }
 
   try {
-    const rawData = (await request.json()) as any;
+    interface ContactPayload {
+      name?: unknown;
+      email?: unknown;
+      subject?: unknown;
+      message?: unknown;
+    }
+    const rawData = (await request.json()) as ContactPayload;
     // Strip CR/LF to prevent email header injection. sanitizeForStorage preserves
     // \r and \r\n because they're legal inside message bodies, but they MUST NOT
     // appear in any field that becomes an email header (subject, from, to).
-    const name = sanitizeForStorage(rawData.name || '').replace(/[\r\n]+/g, ' ').trim();
-    const email = sanitizeForStorage(rawData.email || '');
-    const subject = sanitizeForStorage(rawData.subject || '').replace(/[\r\n]+/g, ' ').trim();
-    const message = sanitizeForStorage(rawData.message || '');
+    const name = sanitizeForStorage(typeof rawData.name === 'string' ? rawData.name : '').replace(/[\r\n]+/g, ' ').trim();
+    const email = sanitizeForStorage(typeof rawData.email === 'string' ? rawData.email : '');
+    const subject = sanitizeForStorage(typeof rawData.subject === 'string' ? rawData.subject : '').replace(/[\r\n]+/g, ' ').trim();
+    const message = sanitizeForStorage(typeof rawData.message === 'string' ? rawData.message : '');
 
     // Validation
     const errors: Record<string, string> = {};

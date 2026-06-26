@@ -14,9 +14,19 @@
  * In development this defaults to 'dev'.
  */
 
-// Bump this version on every deploy to bust the SW cache.
-// Format: build-YYYYMMDD-NN (date + sequential number for multiple deploys same day).
-const SW_CACHE_VERSION = 'build-20250625-01';
+/**
+ * @typedef {undefined} __SW_CACHE_VERSION__
+ * Injected at build time by vite.config.ts injectSwVersion plugin.
+ * Falls back to 'dev-' + Date.now() in development.
+ */
+
+// SW cache version. In production builds, vite.config.ts injects a unique
+// build timestamp via the `injectSwVersion` plugin (writeBundle hook).
+// In dev, the placeholder falls back to a per-reload unique value so
+// each page load gets a fresh cache (acceptable for development).
+const SW_CACHE_VERSION = typeof __SW_CACHE_VERSION__ !== 'undefined'
+  ? __SW_CACHE_VERSION__
+  : 'dev-' + Date.now();
 const STATIC_CACHE = `pdfminty-static-${SW_CACHE_VERSION}`;
 const RUNTIME_CACHE = `pdfminty-runtime-${SW_CACHE_VERSION}`;
 
@@ -75,19 +85,34 @@ self.addEventListener('fetch', (event) => {
   // Never cache PDF responses — critical for a PDF-tool site.
   if (url.pathname.toLowerCase().endsWith('.pdf')) return;
 
-  // Navigation requests (HTML page loads): network-first with /index.html fallback.
+  // Navigation requests (HTML page loads): network-first with app-shell fallback.
+  // Cache each navigation URL under its own key (not all under '/index.html')
+  // so pre-rendered per-route HTML (from generate-static-pages.js) is preserved.
   if (request.mode === 'navigate') {
     event.respondWith(
       (async () => {
         try {
           const fresh = await fetch(request);
-          const cache = await caches.open(RUNTIME_CACHE);
-          cache.put('/index.html', fresh.clone()).catch(() => {});
+          // Cache the response under the request URL so each route has its own entry.
+          const runtimeCache = await caches.open(RUNTIME_CACHE);
+          runtimeCache.put(request.url, fresh.clone()).catch(() => {});
           return fresh;
         } catch {
-          const cache = await caches.open(RUNTIME_CACHE);
-          const cached = await cache.match('/index.html');
-          return cached || new Response('Offline', { status: 503, statusText: 'Offline' });
+          // Offline: try the exact URL first (pre-rendered or previously visited).
+          const runtimeCache = await caches.open(RUNTIME_CACHE);
+          const exactMatch = await runtimeCache.match(request.url);
+          if (exactMatch) return exactMatch;
+
+          // Fall back to the app shell from STATIC_CACHE (installed at SW install).
+          const staticCache = await caches.open(STATIC_CACHE);
+          const shellMatch = await staticCache.match('/index.html');
+          if (shellMatch) return shellMatch;
+
+          // Last resort: any cached navigation response.
+          const anyNav = await runtimeCache.match('/index.html');
+          if (anyNav) return anyNav;
+
+          return new Response('Offline', { status: 503, statusText: 'Offline' });
         }
       })()
     );
@@ -120,6 +145,14 @@ self.addEventListener('fetch', (event) => {
 });
 
 // Allow page to trigger immediate activation on update.
+// Accept both string ('SKIP_WAITING') and object ({ type: 'SKIP_WAITING' })
+// message formats for backwards compatibility.
 self.addEventListener('message', (event) => {
-  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+  const data = event.data;
+  const isSkipWaiting =
+    data === 'SKIP_WAITING' ||
+    (typeof data === 'object' && data !== null && data.type === 'SKIP_WAITING');
+  if (isSkipWaiting) {
+    self.skipWaiting();
+  }
 });

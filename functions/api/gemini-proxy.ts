@@ -29,11 +29,11 @@ function checkFallbackRateLimit(ip: string): boolean {
   return true;
 }
 
-function mapGeminiError(err: any): string {
+function mapGeminiError(err: unknown): string {
   if (!err) {
     return 'An unknown error occurred during AI analysis.';
   }
-  const msg = String(err.message || err).toLowerCase();
+  const msg = String(err instanceof Error ? err.message : err).toLowerCase();
   if (
     msg.includes('api key') ||
     msg.includes('auth') ||
@@ -88,6 +88,23 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
+  // Request body size guard — reject oversized payloads before parsing.
+  // Allow up to 64 KB for extracted PDF text + query.
+  const MAX_BODY_BYTES = 64 * 1024;
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(
+      JSON.stringify({ error: 'Request body too large. Reduce the document text length.' }),
+      {
+        status: 413,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } as HeadersInit,
+      }
+    );
+  }
+
 // Rate limit — uses a unique KV key per request to avoid the read-then-write
   // TOCTOU race that affects the classic "increment a counter" pattern. We list
   // all keys with the per-IP-per-hour prefix; if there are already >= LIMIT,
@@ -136,7 +153,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   }
 
   try {
-    const rawData = (await request.json()) as any;
+    interface GeminiProxyPayload {
+      textContent?: unknown;
+      query?: unknown;
+      mode?: unknown;
+    }
+    const rawData = (await request.json()) as GeminiProxyPayload;
     const { textContent, query, mode } = rawData;
 
     // Validate query in 'qa' mode — prevent cost abuse via oversized prompts.
@@ -260,7 +282,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         } as HeadersInit,
       }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Gemini API Proxy Exception:', err);
     const safeMsg = mapGeminiError(err);
     return new Response(JSON.stringify({ error: safeMsg }), {

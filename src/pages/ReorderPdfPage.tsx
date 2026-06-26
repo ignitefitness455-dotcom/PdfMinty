@@ -22,6 +22,7 @@ export const ReorderPdfPage: React.FC = () => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const operationTokenRef = React.useRef(0);
   const urlsRef = React.useRef<string[]>([]);
 
   React.useEffect(() => {
@@ -30,6 +31,7 @@ export const ReorderPdfPage: React.FC = () => {
 
   React.useEffect(() => {
     return () => {
+      operationTokenRef.current++;
       // Clean up all generated URLs when leaving page
       urlsRef.current.forEach((url) => {
         URL.revokeObjectURL(url);
@@ -39,6 +41,7 @@ export const ReorderPdfPage: React.FC = () => {
 
   const handleFilesSelected = async (files: File[]) => {
     if (files.length > 0) {
+      const myToken = ++operationTokenRef.current;
       // Revoke any existing URLs before resetting / rendering new
       items.forEach((item) => URL.revokeObjectURL(item.dataUrl));
       const file = files[0];
@@ -49,11 +52,13 @@ export const ReorderPdfPage: React.FC = () => {
       setRenderingThumbnails(true);
       try {
         const fileBytes = new Uint8Array(await file.arrayBuffer());
+        if (myToken !== operationTokenRef.current) return;
         const rendered = await WorkerManager.getInstance().runOperation<
           { page: number; imageBytes: Uint8Array }[]
         >('pdfToImage', { bytes: fileBytes, originalName: file.name, scale: 0.3 }, [
           fileBytes.buffer,
         ]);
+        if (myToken !== operationTokenRef.current) return;
         const mapped = rendered.map((item) => {
           const blob = new Blob([item.imageBytes as unknown as BlobPart], { type: 'image/png' });
           return {
@@ -61,14 +66,18 @@ export const ReorderPdfPage: React.FC = () => {
             dataUrl: URL.createObjectURL(blob),
           };
         });
+        if (myToken !== operationTokenRef.current) return;
         setItems(mapped);
       } catch (err: unknown) {
+        if (myToken !== operationTokenRef.current) return;
         console.error('Failed to render previews:', err);
         setError(
           'Error generating page layouts. You can still confirm standard sequencing if required.'
         );
       } finally {
-        setRenderingThumbnails(false);
+        if (myToken === operationTokenRef.current) {
+          setRenderingThumbnails(false);
+        }
       }
     }
   };
@@ -200,6 +209,7 @@ export const ReorderPdfPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => {
+                    operationTokenRef.current++; // Invalidate in-flight rendering
                     items.forEach((item) => URL.revokeObjectURL(item.dataUrl));
                     setSelectedFile(null);
                     setItems([]);

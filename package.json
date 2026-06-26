@@ -8,6 +8,7 @@
     "build": "vite build && node scripts/generate-static-pages.js && node scripts/generate-sitemap.js",
     "pages:dev": "wrangler pages dev dist --compatibility-date=2026-01-01",
     "generate:icons": "node scripts/gen-favicons.js",
+    "generate:screenshots": "node scripts/generate-screenshots.js",
     "generate:images": "node scripts/optimize-images.js",
     "download:font": "node scripts/download-font.js",
     "preview": "vite preview",

@@ -8,12 +8,18 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    include: [
+      'src/**/*.{test,spec}.{ts,tsx}',
+      'functions/**/*.{test,spec}.{ts,tsx}',
+    ],
     exclude: ['node_modules', 'dist'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
-      include: ['src/**/*.{ts,tsx}'],
+      include: [
+        'src/**/*.{ts,tsx}',
+        'functions/**/*.ts',
+      ],
       exclude: [
         'src/**/*.test.{ts,tsx}',
         'src/**/*.spec.{ts,tsx}',
@@ -21,6 +27,9 @@ export default defineConfig({
         'src/vite-env.d.ts',
         'src/types.ts',
         'src/**/*.d.ts',
+        'functions/**/*.test.ts',
+        'functions/**/*.spec.ts',
+        'functions/tsconfig.json',
       ],
       thresholds: {
         lines: 70,

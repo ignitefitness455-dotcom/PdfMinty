@@ -41,17 +41,39 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           if (type === 'application/pdf') {
             return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
           }
-          if (type.startsWith('image/')) {
-            return (
-              file.type.startsWith('image/') ||
-              /\.(jpg|jpeg|png|webp|gif|bmp|heic|heif|avif)$/i.test(file.name)
-            );
+          if (type === 'image/png') {
+            return file.type === 'image/png' || /\.png$/i.test(file.name);
+          }
+          if (type === 'image/jpeg' || type === 'image/jpg') {
+            return file.type === 'image/jpeg' || /\.(jpg|jpeg)$/i.test(file.name);
+          }
+          if (type === 'image/webp') {
+            return file.type === 'image/webp' || /\.webp$/i.test(file.name);
+          }
+          if (type === 'image/gif') {
+            return file.type === 'image/gif' || /\.gif$/i.test(file.name);
+          }
+          if (type === 'image/bmp') {
+            return file.type === 'image/bmp' || /\.bmp$/i.test(file.name);
+          }
+          if (type === 'image/avif') {
+            return file.type === 'image/avif' || /\.avif$/i.test(file.name);
+          }
+          if (type === 'image/heic') {
+            return file.type === 'image/heic' || /\.heic$/i.test(file.name);
+          }
+          if (type === 'image/heif') {
+            return file.type === 'image/heif' || /\.heif$/i.test(file.name);
+          }
+          // Generic image/* fallback — accept any image type.
+          if (type === 'image/*' || type === 'image/') {
+            return file.type.startsWith('image/');
           }
           return true;
         });
 
         if (!matchesType) {
-          rejectedFiles.push({ name: file.name, reason: 'unsupported format' });
+          rejectedFiles.push({ name: file.name, reason: `Unsupported file format. Expected: ${accept}` });
           continue;
         }
 

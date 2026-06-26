@@ -18,7 +18,6 @@ export const onRequest: PagesFunction = async (context) => {
     const originalText = await response.text();
     // Inject nonce attribute into script tags that don't already have one.
     const injected = originalText
-      .replaceAll('NONCE_PLACEHOLDER', nonce)
       .replace(/<script(?![^>]*\snonce=)([^>]*)>/g, `<script nonce="${nonce}"$1>`)
       .replace(/<style(?![^>]*\snonce=)([^>]*)>/g, `<style nonce="${nonce}"$1>`);
     body = new ReadableStream({
@@ -59,7 +58,7 @@ export const onRequest: PagesFunction = async (context) => {
     `style-src 'self' 'nonce-${nonce}'`,
     "font-src 'self' data:",
     "img-src 'self' blob: data:",
-    "connect-src 'self' https://generativelanguage.googleapis.com https://api.resend.com",
+    "connect-src 'self'",
     "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",

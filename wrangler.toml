@@ -1,6 +1,6 @@
 name = "pdfminty"
 pages_build_output_dir = "dist"
-compatibility_date = "2025-06-25"
+compatibility_date = "2026-01-01"
 compatibility_flags = ["nodejs_compat"]
 
 # KV namespace for rate-limiting and form-submission fallback storage.

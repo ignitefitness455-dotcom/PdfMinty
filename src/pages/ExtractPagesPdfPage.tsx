@@ -25,6 +25,7 @@ export const ExtractPagesPdfPage: React.FC = () => {
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const operationTokenRef = React.useRef(0);
   const urlsRef = React.useRef<string[]>([]);
 
   React.useEffect(() => {
@@ -33,6 +34,7 @@ export const ExtractPagesPdfPage: React.FC = () => {
 
   React.useEffect(() => {
     return () => {
+      operationTokenRef.current++;
       // Clean up all generated URLs when leaving page
       urlsRef.current.forEach((url) => {
         URL.revokeObjectURL(url);
@@ -42,6 +44,7 @@ export const ExtractPagesPdfPage: React.FC = () => {
 
   const handleFilesSelected = async (files: File[]) => {
     if (files.length > 0) {
+      const myToken = ++operationTokenRef.current;
       // Revoke any existing URLs before resetting/rendering new
       thumbnails.forEach((t) => URL.revokeObjectURL(t.dataUrl));
       const file = files[0];
@@ -53,11 +56,13 @@ export const ExtractPagesPdfPage: React.FC = () => {
       setRenderingThumbnails(true);
       try {
         const fileBytes = new Uint8Array(await file.arrayBuffer());
+        if (myToken !== operationTokenRef.current) return;
         const rendered = await WorkerManager.getInstance().runOperation<
           { page: number; imageBytes: Uint8Array }[]
         >('pdfToImage', { bytes: fileBytes, originalName: file.name, scale: 0.3 }, [
           fileBytes.buffer,
         ]);
+        if (myToken !== operationTokenRef.current) return;
         const mapped = rendered.map((item) => {
           const blob = new Blob([item.imageBytes as unknown as BlobPart], { type: 'image/png' });
           return {
@@ -65,14 +70,18 @@ export const ExtractPagesPdfPage: React.FC = () => {
             dataUrl: URL.createObjectURL(blob),
           };
         });
+        if (myToken !== operationTokenRef.current) return;
         setThumbnails(mapped);
       } catch (err: unknown) {
+        if (myToken !== operationTokenRef.current) return;
         console.error('Failed to render previews:', err);
         setError(
           'Previews could not be rendered, but you can still run extraction using standard page parameters.'
         );
       } finally {
-        setRenderingThumbnails(false);
+        if (myToken === operationTokenRef.current) {
+          setRenderingThumbnails(false);
+        }
       }
     }
   };
@@ -178,6 +187,7 @@ export const ExtractPagesPdfPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => {
+                    operationTokenRef.current++; // Invalidate in-flight rendering
                     thumbnails.forEach((t) => URL.revokeObjectURL(t.dataUrl));
                     setSelectedFile(null);
                     setThumbnails([]);

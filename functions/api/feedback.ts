@@ -36,6 +36,22 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
+  // Request body size guard — reject oversized payloads before parsing.
+  const MAX_BODY_BYTES = 32 * 1024; // 32 KB (feedback form data is small)
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(
+      JSON.stringify({ error: 'Request body too large.' }),
+      {
+        status: 413,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } as HeadersInit,
+      }
+    );
+  }
+
   // Rate Limiting — unique-key-per-request pattern (atomic, race-free).
   const ip = request.headers.get('cf-connecting-ip') || 'unknown-ip';
   const hourBlock = Math.floor(Date.now() / 3600000);
@@ -68,10 +84,15 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   }
 
   try {
-    const rawData = (await request.json()) as any;
-    const ratingRaw = parseInt(rawData.rating, 10);
-    const comment = sanitizeForStorage(rawData.comment || '');
-    const emailRaw = rawData.email ? sanitizeForStorage(rawData.email) : '';
+    interface FeedbackPayload {
+      rating?: unknown;
+      comment?: unknown;
+      email?: unknown;
+    }
+    const rawData = (await request.json()) as FeedbackPayload;
+    const ratingRaw = parseInt(typeof rawData.rating === 'string' || typeof rawData.rating === 'number' ? String(rawData.rating) : '', 10);
+    const comment = sanitizeForStorage(typeof rawData.comment === 'string' ? rawData.comment : '');
+    const emailRaw = typeof rawData.email === 'string' ? sanitizeForStorage(rawData.email) : '';
 
     const errors: Record<string, string> = {};
 
