@@ -38,7 +38,7 @@ export const TOOLS: ToolSEOInfo[] = [
     shortDescription: 'Combine multiple PDFs into one document',
     metaTitle: 'Merge PDF Free - Combine PDFs Online Instantly | PDFMinty',
     metaDescription:
-      'Merge PDF files online for free. Combine multiple PDF documents into one single secure file right inside your web browser. No server uploads, keeping your data confidential.',
+      'Merge PDF files free online. Combine multiple PDFs into one secure document right in your browser. No server uploads — your files stay private on your device.',
     h1: 'Merge PDF Files Online with Absolute Privacy',
     icon: 'Merge',
     iconColor: 'text-security-green',
@@ -1002,6 +1002,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'trust-article',
     slug: 'is-it-safe-to-upload-pdf-to-online-tools',
     name: 'Is It Safe?',
+    ogImage: '/og-is-it-safe-to-upload-pdf-to-online-tools.png',
     shortDescription: 'Safety analysis and trust details',
     metaTitle: 'Is It Safe to Upload PDFs to Online Tools? | PDFMinty',
     metaDescription:
@@ -1013,6 +1014,9 @@ export const TOOLS: ToolSEOInfo[] = [
     changefreq: 'monthly',
     type: 'article',
     longFormBody: `
+<h1>Is It Safe to Upload PDF Files to Online Tools? A Complete Security Analysis</h1>
+<p>Every day, millions of people upload sensitive PDF documents to free online tools without considering the privacy implications. Tax returns, medical records, financial statements, and legal contracts flow through unknown servers worldwide. This comprehensive analysis examines the real security risks of online PDF tools and explains why client-side browser processing is fundamentally safer.</p>
+
 <h2>The Risks of Remote PDF Compiling</h2>
 <p>When you upload a PDF file to a traditional online PDF tool, you're sending that file to a remote server you don't control. This creates several serious privacy and security risks that most users never consider. The file travels across the internet, gets stored on someone else's server, gets processed by software you can't audit, and then gets sent back to you. At every step, your data is exposed.</p>
 
