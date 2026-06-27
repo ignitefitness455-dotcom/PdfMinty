@@ -9,6 +9,7 @@
     <title>PDFMinty — Free Privacy-First PDF Toolkit</title>
     <meta name="description" content="Privacy-first, client-side PDF toolkit. Combine, split, compress, protect, unlock, and edit PDF files offline instantly within your browser with complete confidentiality." />
     <link rel="canonical" href="https://pdfminty.com" />
+    <link rel="alternate" media="only screen and (max-width: 640px)" href="https://pdfminty.com/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -26,9 +27,6 @@
     <meta name="twitter:description" content="Privacy-first, client-side PDF toolkit. Combine, split, compress, protect, unlock, and edit PDF files offline instantly within your browser with complete confidentiality." />
     <meta name="twitter:image" content="https://pdfminty.com/og-image.png" />
 
-    <!-- Hreflang alternates -->
-    <link rel="alternate" hreflang="en" href="https://pdfminty.com/" />
-    <link rel="alternate" hreflang="x-default" href="https://pdfminty.com/" />
 
     <!-- JSON-LD Structured Data Schema -->
     <script type="application/ld+json">
@@ -62,7 +60,27 @@
           "@id": "https://pdfminty.com/#organization",
           "name": "PDFMinty",
           "url": "https://pdfminty.com",
-          "logo": "https://pdfminty.com/logo-512.png"
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://pdfminty.com/logo-512.png",
+            "width": 512,
+            "height": 512
+          },
+          "image": "https://pdfminty.com/og-image.png",
+          "description": "Privacy-first, client-side PDF toolkit with 15 free tools.",
+          "foundingDate": "2025",
+          "sameAs": [
+            "https://twitter.com/pdfminty",
+            "https://github.com/pdfminty",
+            "https://www.linkedin.com/company/pdfminty",
+            "https://www.facebook.com/pdfminty"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer support",
+            "url": "https://pdfminty.com/",
+            "availableLanguage": ["English"]
+          }
         },
         {
           "@type": "WebSite",
@@ -88,8 +106,26 @@
       ]
     }
     </script>
+    <!-- DNS prefetch and preconnect for performance -->
+    <link rel="dns-prefetch" href="//pdfminty.com" />
+    <link rel="preconnect" href="https://pdfminty.com" crossorigin />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="dns-prefetch" href="//generativelanguage.googleapis.com" />
+    <link rel="preconnect" href="https://generativelanguage.googleapis.com" crossorigin />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#059669" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#059669" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a" />
+    <!-- iOS PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PDFMinty" />
+    <meta name="apple-mobile-web-app-status-bar-style" media="(prefers-color-scheme: light)" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" media="(prefers-color-scheme: dark)" content="black-translucent" />
+    <link rel="apple-touch-icon" href="/logo-192.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/logo-192.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/logo-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo-192.png" />
   </head>
   <body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500/30">
     <div id="root"></div>

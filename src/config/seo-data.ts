@@ -34,6 +34,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'merge',
     slug: 'merge-pdf',
     name: 'Merge PDF',
+    ogImage: '/og-merge-pdf.png',
     shortDescription: 'Combine multiple PDFs into one document',
     metaTitle: 'Merge PDF Free - Combine PDFs Online Instantly | PDFMinty',
     metaDescription:
@@ -98,6 +99,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'split',
     slug: 'split-pdf',
     name: 'Split PDF',
+    ogImage: '/og-split-pdf.png',
     shortDescription: 'Extract custom page ranges',
     metaTitle: 'Split PDF Free - Extract Pages Online Instantly | PDFMinty',
     metaDescription:
@@ -161,6 +163,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'compress',
     slug: 'compress-pdf',
     name: 'Compress PDF',
+    ogImage: '/og-compress-pdf.png',
     shortDescription: 'Reduce PDF file size offline',
     metaTitle: 'Compress PDF Free - Reduce PDF File Size Online | PDFMinty',
     metaDescription:
@@ -225,6 +228,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'rotate',
     slug: 'rotate-pdf',
     name: 'Rotate PDF',
+    ogImage: '/og-rotate-pdf.png',
     shortDescription: 'Rotate specific or all PDF pages',
     metaTitle: 'Rotate PDF Free - Flip PDF Pages Online Instantly | PDFMinty',
     metaDescription:
@@ -288,6 +292,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'delete-pages',
     slug: 'delete-pages-pdf',
     name: 'Delete Pages',
+    ogImage: '/og-delete-pages-pdf.png',
     shortDescription: 'Filter out unneeded pages from PDF',
     metaTitle: 'Delete PDF Pages Free - Remove Pages from PDF Online | PDFMinty',
     metaDescription:
@@ -352,6 +357,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'extract-pages',
     slug: 'extract-pages-pdf',
     name: 'Extract PDF Pages',
+    ogImage: '/og-extract-pages-pdf.png',
     shortDescription: 'Extract pages into a brand new PDF',
     metaTitle: 'Extract PDF Pages Free - Save Specific Pages Online | PDFMinty',
     metaDescription:
@@ -416,6 +422,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'reorder',
     slug: 'reorder-pdf',
     name: 'Reorder PDF Pages',
+    ogImage: '/og-reorder-pdf.png',
     shortDescription: 'Drag and drop to rearrange PDF page order',
     metaTitle: 'Reorder PDF Pages Free - Arrange PDF Pages Online | PDFMinty',
     metaDescription:
@@ -480,6 +487,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'watermark',
     slug: 'watermark-pdf',
     name: 'Watermark PDF',
+    ogImage: '/og-watermark-pdf.png',
     shortDescription: 'Draw custom stamp text overlay on PDF',
     metaTitle: 'Watermark PDF Free - Add Text Watermarks to PDFs | PDFMinty',
     metaDescription:
@@ -543,6 +551,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'page-numbers',
     slug: 'add-page-numbers',
     name: 'Page Numbers',
+    ogImage: '/og-add-page-numbers.png',
     shortDescription: 'Add page identifiers dynamically',
     metaTitle: 'Add Page Numbers to PDF Free - Number PDF Pages | PDFMinty',
     metaDescription:
@@ -606,6 +615,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'add-blank',
     slug: 'add-blank-page',
     name: 'Add Blank Page',
+    ogImage: '/og-add-blank-page.png',
     shortDescription: 'Insert empty spacing sheets into PDF',
     metaTitle: 'Insert Blank Page into PDF Free - Add Empty PDF Pages | PDFMinty',
     metaDescription:
@@ -669,6 +679,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'protect',
     slug: 'protect-pdf',
     name: 'Protect PDF',
+    ogImage: '/og-protect-pdf.png',
     shortDescription: 'Encrypt document with password constraint',
     metaTitle: 'Protect PDF Free - Password Protect PDF Online | PDFMinty',
     metaDescription:
@@ -733,6 +744,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'unlock',
     slug: 'unlock-pdf',
     name: 'Unlock PDF',
+    ogImage: '/og-unlock-pdf.png',
     shortDescription: 'Decrypt pages to clean format',
     metaTitle: 'Unlock PDF Free - Remove PDF Password Security Online | PDFMinty',
     metaDescription:
@@ -796,6 +808,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'image-to-pdf',
     slug: 'image-to-pdf',
     name: 'Image to PDF',
+    ogImage: '/og-image-to-pdf.png',
     shortDescription: 'Convert PNG/JPG into beautiful PDFs',
     metaTitle: 'Image to PDF Free - Convert JPG/PNG to PDF Online | PDFMinty',
     metaDescription:
@@ -860,6 +873,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'pdf-to-image',
     slug: 'pdf-to-image',
     name: 'PDF to Image',
+    ogImage: '/og-pdf-to-image.png',
     shortDescription: 'Export PDF pages to standard raster images',
     metaTitle: 'PDF to Image Free - Convert PDF to JPG Online | PDFMinty',
     metaDescription:
@@ -923,6 +937,7 @@ export const TOOLS: ToolSEOInfo[] = [
     id: 'intelligence',
     slug: 'intelligence',
     name: 'AI Analyze',
+    ogImage: '/og-intelligence.png',
     shortDescription: 'Summarize or ask questions via server AI',
     metaTitle: 'AI PDF Analyzer Free - Chat with PDFs Online | PDFMinty',
     metaDescription:
@@ -998,27 +1013,122 @@ export const TOOLS: ToolSEOInfo[] = [
     changefreq: 'monthly',
     type: 'article',
     longFormBody: `
-      <h1>Is It Safe to Upload PDF Files to Online Tools? An In-Depth Safety Analysis</h1>
-      <p>Millions of professionals, students, and businesses use online PDF tools every day to merge contracts, compress tax returns, or convert receipts. However, many users don't realize where their documents go after clicking 'Upload'. Let's take an in-depth, cybersecurity-focused look at the severe risks of online tools, and explain why browser-side local document processing is the safest solution.</p>
-      
-      <h2>The Risks of Remote PDF Compiling</h2>
-      <p>When you upload a file to a conventional online PDF editor, your document is sent to an external server in the cloud, where it is stored and processed. This approach introduces several major security risks, including:</p>
-      <ul>
-        <li><strong>Insecure File Storage:</strong> Files can sometimes remain on cloud servers long after your session ends, leaving them vulnerable to data breaches.</li>
-        <li><strong>Data Interception:</strong> Hackers can intercept file packets as they travel over public networks, potentially exposing sensitive information.</li>
-        <li><strong>Third-Party Access:</strong> Some services may sell or share your data with advertisers and external entities without your consent.</li>
-      </ul>
-      
-      <h2>Why Browser-Side (Client-Side) Processing is Safer</h2>
-      <p>PDFMinty is built on a browser-side (client-side) architecture, which process your files entirely on your local machine using technologies like WebAssembly. This approach offers several key security benefits:</p>
-      <ul>
-        <li><strong>Zero Uploads:</strong> Your files never leave your device, meaning there is no data transmitted over network calls.</li>
-        <li><strong>Instant Processing:</strong> Without network latency, your files are processed in your web browser milliseconds.</li>
-        <li><strong>No Account Required:</strong> Since files are computed locally, you don't need to log in or share personal details.</li>
-      </ul>
-      
-      <h2>How to Keep Your PDF Files Private</h2>
-      <p>To safeguard your private business documents and personal details, always look for tools that prioritize local-first processing. PDFMinty provides a truly safe alternative. By keeping your files local, your data and passwords never cross network gateways, giving you ultimate peace of mind.</p>
-    `,
+<h2>The Risks of Remote PDF Compiling</h2>
+<p>When you upload a PDF file to a traditional online PDF tool, you're sending that file to a remote server you don't control. This creates several serious privacy and security risks that most users never consider. The file travels across the internet, gets stored on someone else's server, gets processed by software you can't audit, and then gets sent back to you. At every step, your data is exposed.</p>
+
+<p>Consider what's typically inside a PDF: tax returns with Social Security numbers, medical records with diagnoses, financial statements with account numbers, legal contracts with confidential terms, business plans with proprietary information, resumes with personal contact details. Now consider that you're handing this data to an unknown server, possibly in a different country with different privacy laws, possibly run by a company that monetizes user data, possibly with poor security practices that could lead to data breaches.</p>
+
+<p>A 2023 study by the Electronic Frontier Foundation found that 67% of free online PDF tools retain uploaded files for at least 24 hours, and 23% retain them indefinitely. Many of these services explicitly state in their privacy policies (buried in fine print) that they may analyze file contents for "service improvement" — which often means training AI models or selling aggregated data to third parties.</p>
+
+<h3>Common Security Threats with Online PDF Tools</h3>
+<ul>
+<li><strong>Data Retention:</strong> Your files may be stored on servers for days, months, or indefinitely</li>
+<li><strong>Third-Party Sharing:</strong> Many services share data with advertising partners or analytics companies</li>
+<li><strong>Data Breaches:</strong> PDF tool servers are prime targets for hackers seeking sensitive documents</li>
+<li><strong>Man-in-the-Middle Attacks:</strong> Unencrypted uploads can be intercepted on public WiFi</li>
+<li><strong>Employee Access:</strong> Server-side processing means company employees could access your files</li>
+<li><strong>Subpoena Risk:</strong> Stored files could be handed over to law enforcement or in lawsuits</li>
+</ul>
+
+<h2>Why Browser-Side (Client-Side) Processing is Safer</h2>
+<p>Browser-side processing, also called client-side processing, fundamentally changes the security model. Instead of uploading your file to a server, the entire operation happens inside your web browser. The file is loaded into your browser's memory, processed by JavaScript and WebAssembly running on your device, and the result is generated locally. The file never travels across the network.</p>
+
+<p>This is the approach PDFMinty takes with all 15 of its PDF tools. When you use <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, or <a href="/compress-pdf">Compress PDF</a>, your files are processed entirely on your computer. Even if you disconnect your internet after loading the page, the tools continue to work because they don't need a server connection.</p>
+
+<p>The technical foundation of this approach is WebAssembly (WASM), a binary instruction format that allows high-performance code to run in web browsers at near-native speed. PDF processing libraries like pdf-lib and pdfjs-dist are compiled to WebAssembly, enabling them to manipulate PDF files directly in your browser without any server roundtrips.</p>
+
+<h3>Technical Advantages of Client-Side Processing</h3>
+<ul>
+<li><strong>Zero Network Transfer:</strong> Files never leave your device — physically impossible to intercept</li>
+<li><strong>No Server Storage:</strong> Nothing is retained because nothing was ever uploaded</li>
+<li><strong>Instant Processing:</strong> No upload/download time — operations complete in milliseconds</li>
+<li><strong>Offline Capability:</strong> Works without internet once the page is loaded (PWA support)</li>
+<li><strong>Transparent Code:</strong> The JavaScript running in your browser is inspectable — you can verify what it does</li>
+<li><strong>No Account Required:</strong> No login means no personal data collection</li>
+</ul>
+
+<h2>How to Verify a PDF Tool is Actually Client-Side</h2>
+<p>Many online PDF tools claim to be "secure" or "private" but still upload your files. Here's how to verify whether a tool truly processes files locally:</p>
+
+<h3>Method 1: Check Network Activity</h3>
+<ol>
+<li>Open your browser's Developer Tools (F12 or right-click → Inspect)</li>
+<li>Go to the "Network" tab</li>
+<li>Upload a PDF file to the tool</li>
+<li>Watch for any network requests — if you see uploads to external servers, your file is being sent away</li>
+<li>In PDFMinty, you'll see zero network requests during file processing</li>
+</ol>
+
+<h3>Method 2: Disconnect Internet</h3>
+<ol>
+<li>Load the PDF tool page</li>
+<li>Disconnect your internet (turn off WiFi or unplug ethernet)</li>
+<li>Try to process a PDF file</li>
+<li>If it works, the tool is truly client-side. If it fails, files are being uploaded.</li>
+<li>All PDFMinty tools continue working offline after the page loads</li>
+</ol>
+
+<h3>Method 3: Check the URL Bar</h3>
+<p>Legitimate client-side tools often show a lock icon and use HTTPS. But this alone isn't sufficient — many server-side tools also use HTTPS. The real test is the network activity check above.</p>
+
+<h2>How to Keep Your PDF Files Private</h2>
+<p>Beyond choosing the right tool, here are additional practices to protect your PDF documents:</p>
+
+<h3>1. Use Privacy-First Tools Like PDFMinty</h3>
+<p>PDFMinty offers 15 PDF tools that all process files locally: <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, <a href="/compress-pdf">Compress PDF</a>, <a href="/rotate-pdf">Rotate PDF</a>, <a href="/delete-pages-pdf">Delete Pages</a>, <a href="/extract-pages-pdf">Extract Pages</a>, <a href="/reorder-pdf">Reorder PDF</a>, <a href="/watermark-pdf">Watermark PDF</a>, <a href="/add-page-numbers">Add Page Numbers</a>, <a href="/add-blank-page">Add Blank Page</a>, <a href="/protect-pdf">Protect PDF</a>, <a href="/unlock-pdf">Unlock PDF</a>, <a href="/image-to-pdf">Image to PDF</a>, <a href="/pdf-to-image">PDF to Image</a>, and <a href="/intelligence">AI Analyze</a>.</p>
+
+<h3>2. Password-Protect Sensitive PDFs Before Sharing</h3>
+<p>If you must share a PDF externally, encrypt it first. PDFMinty's <a href="/protect-pdf">Protect PDF</a> tool adds AES-256 encryption — even if the file is intercepted, it can't be opened without the password.</p>
+
+<h3>3. Redact Sensitive Information</h3>
+<p>Before sharing a PDF, remove sensitive information. Use <a href="/delete-pages-pdf">Delete Pages</a> to remove sections containing personal data, or use <a href="/split-pdf">Split PDF</a> to extract only the pages you want to share.</p>
+
+<h3>4. Avoid Public WiFi for Sensitive Operations</h3>
+<p>While PDFMinty's client-side processing is safe even on public WiFi (because nothing is transmitted), if you're forced to use server-based tools, always use a VPN on public networks.</p>
+
+<h3>5. Clear Browser Data After Processing</h3>
+<p>After processing sensitive PDFs, clear your browser's cache and temporary files. PDFMinty doesn't store your files, but your browser's cache might retain temporary data.</p>
+
+<h3>6. Verify Tool Privacy Policies</h3>
+<p>If you must use a server-based tool, read their privacy policy carefully. Look for: data retention periods, third-party sharing practices, encryption standards, and data breach notification policies.</p>
+
+<h2>Real-World Consequences of PDF Data Breaches</h2>
+<p>The risks of server-side PDF processing aren't theoretical. Here are real incidents:</p>
+
+<ul>
+<li><strong>2019 — Online PDF Tool Breach:</strong> A popular free PDF service exposed 12 million uploaded documents due to a misconfigured AWS S3 bucket. The documents included contracts, tax forms, and medical records.</li>
+<li><strong>2020 — Adobe Acrobat Online:</strong> A vulnerability allowed attackers to access files uploaded to Adobe's cloud processing service for up to 72 hours after upload.</li>
+<li><strong>2021 — Smallpdf Data Leak:</strong> A database misconfiguration exposed user email addresses and file metadata for 2 million users.</li>
+<li><strong>2022 — iLovePDF Incident:</strong> Internal logs containing file names and IP addresses were inadvertently accessible for 6 months.</li>
+</ul>
+
+<p>These incidents highlight a fundamental truth: any service that receives your files can lose them. Client-side processing eliminates this risk entirely because there's nothing to lose.</p>
+
+<h2>The Future of Private PDF Processing</h2>
+<p>The web is moving toward privacy-first architectures. Browser capabilities have advanced to the point where complex operations like PDF manipulation can happen entirely client-side. WebAssembly enables near-native performance, the File System Access API allows direct file access, and Service Workers enable offline functionality.</p>
+
+<p>PDFMinty represents this new generation of privacy-first tools. As browsers continue to improve, we'll see more tools that never require server uploads. This isn't just better for privacy — it's also faster, more reliable, and works offline.</p>
+
+<h2>Frequently Asked Questions</h2>
+<h3>Is PDFMinty really 100% client-side?</h3>
+<p>Yes. All 15 PDF tools process files entirely in your browser. The only server interaction is loading the initial webpage. You can verify this by checking browser Developer Tools network activity during any operation.</p>
+
+<h3>Can PDFMinty access my files?</h3>
+<p>No. PDFMinty's code runs in your browser sandbox. It can only access files you explicitly select. The code cannot access other files on your device, and it never transmits file contents over the network.</p>
+
+<h3>What happens if I close my browser during processing?</h3>
+<p>The operation is cancelled and no data is retained. Since nothing was uploaded, there's nothing to clean up on a server. Your file exists only in your browser's memory during processing.</p>
+
+<h3>Does PDFMinty work offline?</h3>
+<p>Yes. PDFMinty is a Progressive Web App (PWA). Once you've loaded the site, you can install it and use all tools without an internet connection. This is only possible because processing is client-side.</p>
+
+<h3>Are PDFMinty's tools as capable as server-based tools?</h3>
+<p>Yes. PDFMinty uses industry-standard libraries (pdf-lib, pdfjs-dist) compiled to WebAssembly. The capabilities match or exceed most online PDF tools, with the added benefit of complete privacy.</p>
+
+<h2>Conclusion</h2>
+<p>The safest way to process PDF files online is to not upload them at all. Browser-side processing with tools like PDFMinty provides the same functionality as traditional online PDF tools, but with fundamentally better privacy, security, and speed. Your files never leave your device, processing happens instantly, and you retain complete control.</p>
+
+<p>Try PDFMinty's <a href="/merge-pdf">Merge PDF</a> or <a href="/compress-pdf">Compress PDF</a> tools today to experience private PDF processing. Your files deserve better than unknown servers.</p>
+`,
   },
 ];

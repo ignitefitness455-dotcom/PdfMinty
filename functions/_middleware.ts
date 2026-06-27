@@ -39,6 +39,16 @@ export const onRequest: PagesFunction = async (context) => {
 
   newResponse.headers.set('X-Content-Type-Options', 'nosniff');
   newResponse.headers.set('X-Frame-Options', 'DENY');
+
+  const url = new URL(context.request.url);
+  // Explicitly tell search engines to index and follow links on all HTML pages.
+  // For non-HTML responses (API, assets), use noindex to prevent indexing of internal endpoints.
+  if (contentType.includes('text/html')) {
+    newResponse.headers.set('X-Robots-Tag', 'index, follow');
+    newResponse.headers.set('Content-Language', 'en');
+  } else if (contentType.includes('application/json') || url.pathname.startsWith('/api/')) {
+    newResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  }
   newResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   newResponse.headers.set(
     'Strict-Transport-Security',

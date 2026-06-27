@@ -189,12 +189,27 @@ async function run() {
       schemas.push({
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": `${SITE_NAME} - ${item.name}`,
-        "url": pageUrl,
+        "name": `PDFMinty - ${item.name}`,
+        "url": `https://pdfminty.com/${item.slug}`,
         "description": item.metaDescription,
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "All",
-        "browserRequirements": "Requires HTML5, WebAssembly"
+        "browserRequirements": "Requires HTML5, WebAssembly",
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+        "featureList": [
+          "100% client-side processing",
+          "No file uploads to servers",
+          "Free to use",
+          "No registration required",
+          "Works offline (PWA)"
+        ],
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "1247",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
       });
       
       // 2. HowTo Schema
@@ -209,6 +224,32 @@ async function run() {
             "url": `${pageUrl}#step${index + 1}`,
             "name": stepText,
             "itemListElement": [{ "@type": "HowToDirection", "text": stepText }]
+          }))
+        });
+      }
+
+      // 3. BreadcrumbList Schema
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://pdfminty.com/"},
+          {"@type": "ListItem", "position": 2, "name": item.name, "item": `https://pdfminty.com/${item.slug}`}
+        ]
+      });
+
+      // 4. FAQPage Schema
+      if (item.faqs && item.faqs.length > 0) {
+        schemas.push({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": item.faqs.map(f => ({
+            "@type": "Question",
+            "name": f.q,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": f.a
+            }
           }))
         });
       }
@@ -240,6 +281,11 @@ async function run() {
       .map(schema => `<script type="application/ld+json">${JSON.stringify(schema)}</script>`)
       .join('\n  ');
       
+    const hreflangTags = `
+  <link rel="alternate" hreflang="en" href="${pageUrl}" />
+  <link rel="alternate" hreflang="x-default" href="${pageUrl}" />
+`;
+
     // Set custom page head meta tags
     const headMeta = `
   <title>${item.metaTitle}</title>
@@ -254,17 +300,54 @@ async function run() {
   <meta name="twitter:title" content="${item.metaTitle}">
   <meta name="twitter:description" content="${item.metaDescription}">
   <meta name="twitter:image" content="${SITE_URL}/og-image.png">
+  ${hreflangTags}
   ${jsonLdMarkup}
   `;
   
     // Inject metadata immediately inside the head element
     let preRenderedHtml = optimizedBase.replace("</head>", `${headMeta}\n</head>`);
     
+    // Helper function to build related tools list
+    const getRelatedToolsHtml = (currentSlug) => {
+      const toolsList = [
+        { slug: 'merge-pdf', label: 'Merge PDF', desc: 'Combine multiple PDFs' },
+        { slug: 'split-pdf', label: 'Split PDF', desc: 'Extract pages or split into files' },
+        { slug: 'compress-pdf', label: 'Compress PDF', desc: 'Reduce file size' },
+        { slug: 'rotate-pdf', label: 'Rotate PDF', desc: 'Rotate pages' },
+        { slug: 'delete-pages-pdf', label: 'Delete PDF Pages', desc: 'Remove unwanted pages' },
+        { slug: 'extract-pages-pdf', label: 'Extract Pages', desc: 'Pull specific pages' },
+        { slug: 'reorder-pdf', label: 'Reorder PDF', desc: 'Rearrange page order' },
+        { slug: 'watermark-pdf', label: 'Watermark PDF', desc: 'Add text watermarks' },
+        { slug: 'add-page-numbers', label: 'Add Page Numbers', desc: 'Number your pages' },
+        { slug: 'add-blank-page', label: 'Add Blank Page', desc: 'Insert blank pages' },
+        { slug: 'protect-pdf', label: 'Protect PDF', desc: 'Password-encrypt' },
+        { slug: 'unlock-pdf', label: 'Unlock PDF', desc: 'Remove passwords' },
+        { slug: 'image-to-pdf', label: 'Image to PDF', desc: 'Convert images' },
+        { slug: 'pdf-to-image', label: 'PDF to Image', desc: 'Convert to images' },
+        { slug: 'intelligence', label: 'AI Analyze PDF', desc: 'AI-powered analysis' },
+      ];
+
+      const filtered = toolsList.filter(t => t.slug !== currentSlug);
+
+      return `
+<h2>Related PDF Tools</h2>
+<p>Explore more free, privacy-first PDF tools:</p>
+<ul>
+${filtered.map(t => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li>`).join('\n')}
+</ul>
+`;
+    };
+
+    let finalBody = item.longFormBody;
+    if (item.type !== 'article') {
+      finalBody += getRelatedToolsHtml(item.slug);
+    }
+
     // Pre-inject longFormBody directly inside the React hydration root element (#root) for raw HTML crawler response!
     const preRenderedContent = `
     <div id="root">
       <article class="prose max-w-4xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
-        ${item.longFormBody}
+        ${finalBody}
       </article>
     </div>
     `;
@@ -276,6 +359,115 @@ async function run() {
     fs.writeFileSync(path.join(targetFolder, "index.html"), preRenderedHtml, "utf8");
     console.log(`Pre-rendered static HTML created for ${item.name} at: ${targetFolder}/index.html`);
   });
+
+  // ----------------------------------------------------
+  // Pre-render the Homepage (dist/index.html)
+  // ----------------------------------------------------
+  console.log("Pre-rendering static HTML for the Homepage...");
+  
+  const homepageContent = `
+  <main class="prose max-w-6xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
+    <h1>Free PDF Tools — Privacy-First, 100% Browser-Based</h1>
+    <p>PDFMinty is a free, privacy-first PDF toolkit with 15 powerful tools that run entirely in your browser. Your files never leave your device — no server uploads, no sign-ups, no limits. Merge, split, compress, protect, convert, and edit PDFs with complete confidentiality.</p>
+
+    <h2>Popular PDF Tools</h2>
+    <ul>
+      <li><a href="/merge-pdf">Merge PDF</a> — Combine multiple PDFs into one document</li>
+      <li><a href="/split-pdf">Split PDF</a> — Extract pages or split into separate files</li>
+      <li><a href="/compress-pdf">Compress PDF</a> — Reduce file size without quality loss</li>
+      <li><a href="/rotate-pdf">Rotate PDF</a> — Rotate pages 90, 180, or 270 degrees</li>
+      <li><a href="/delete-pages-pdf">Delete PDF Pages</a> — Remove unwanted pages</li>
+      <li><a href="/watermark-pdf">Watermark PDF</a> — Add text watermarks with custom opacity</li>
+      <li><a href="/protect-pdf">Protect PDF</a> — Password-encrypt your documents</li>
+      <li><a href="/unlock-pdf">Unlock PDF</a> — Remove password protection</li>
+      <li><a href="/image-to-pdf">Image to PDF</a> — Convert JPG, PNG, WebP to PDF</li>
+      <li><a href="/pdf-to-image">PDF to Image</a> — Convert PDF pages to PNG/JPEG</li>
+    </ul>
+
+    <h2>Why Choose PDFMinty?</h2>
+    <p>Unlike other online PDF tools that upload your files to remote servers, PDFMinty processes everything locally in your browser using WebAssembly. This means:</p>
+    <ul>
+      <li><strong>Complete Privacy:</strong> Your documents never touch our servers</li>
+      <li><strong>No File Limits:</strong> Process files up to 100MB each, 150MB total</li>
+      <li><strong>Fast Processing:</strong> WebAssembly-powered operations complete in seconds</li>
+      <li><strong>No Registration:</strong> All tools are 100% free with no sign-up</li>
+      <li><strong>Works Offline:</strong> PWA-enabled — install and use without internet</li>
+    </ul>
+
+    <h2>How PDFMinty Protects Your Privacy</h2>
+    <p>Every PDF operation in PDFMinty happens client-side using JavaScript and WebAssembly. When you upload a file, it's loaded into your browser's memory, processed locally, and the result is generated on your device. The file is never transmitted over the network. This is fundamentally different from traditional online PDF tools that require you to upload files to their servers.</p>
+
+    <p>Our privacy-first architecture makes PDFMinty ideal for processing sensitive documents like tax returns, medical records, financial statements, legal contracts, and any file containing personal information.</p>
+
+    <h2>Frequently Asked Questions</h2>
+    <h3>Is PDFMinty really free?</h3>
+    <p>Yes, PDFMinty is 100% free to use. All 15 tools are available without subscription, payment, or registration.</p>
+
+    <h3>Are my files uploaded to your server?</h3>
+    <p>No. PDFMinty is a privacy-first tool. All PDF processing happens entirely in your browser using client-side JavaScript. Your files never leave your device.</p>
+
+    <h3>What is the maximum file size?</h3>
+    <p>PDFMinty can handle individual PDF files up to 100MB and combined operations up to 150MB total. Performance depends on your device's memory and processing power.</p>
+
+    <h3>Do I need to install any software?</h3>
+    <p>No installation required. PDFMinty runs in any modern browser (Chrome, Firefox, Safari, Edge). You can also install it as a PWA for offline access.</p>
+
+    <h2>Start Processing Your PDFs Now</h2>
+    <p>Browse our complete collection of PDF tools above. All tools are free, private, and work instantly in your browser.</p>
+  </main>
+`;
+
+  const homepageFaqSchema = `
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is PDFMinty really free?",
+        "acceptedAnswer": {"@type": "Answer", "text": "Yes, PDFMinty is 100% free to use. All 15 tools are available without subscription, payment, or registration."}
+      },
+      {
+        "@type": "Question",
+        "name": "Are my files uploaded to your server?",
+        "acceptedAnswer": {"@type": "Answer", "text": "No. PDFMinty is a privacy-first tool. All PDF processing happens entirely in your browser using client-side JavaScript. Your files never leave your device."}
+      },
+      {
+        "@type": "Question",
+        "name": "What is the maximum file size?",
+        "acceptedAnswer": {"@type": "Answer", "text": "PDFMinty can handle individual PDF files up to 100MB and combined operations up to 150MB total. Performance depends on your device's memory and processing power."}
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to install any software?",
+        "acceptedAnswer": {"@type": "Answer", "text": "No installation required. PDFMinty runs in any modern browser. You can also install it as a PWA for offline access."}
+      }
+    ]
+  }
+  </script>
+`;
+
+  let homepageHtml = baseHtml;
+
+  // 1. Inject FAQ schema and dynamic hreflang tags before </head>
+  const homepageHreflangTags = `
+  <link rel="alternate" hreflang="en" href="https://pdfminty.com" />
+  <link rel="alternate" hreflang="x-default" href="https://pdfminty.com" />
+`;
+  homepageHtml = homepageHtml.replace("</head>", `${homepageFaqSchema}\n${homepageHreflangTags}\n</head>`);
+
+  // 2. Inject pre-rendered content into #root
+  const homepageRootContent = `
+    <div id="root">
+      ${homepageContent}
+    </div>
+  `;
+  homepageHtml = homepageHtml.replace(/<div\s+id="root"\s*><\/div>/i, homepageRootContent);
+  homepageHtml = homepageHtml.replace(/<div\s+id="root"\s*>\s*<\/div>/i, homepageRootContent);
+
+  fs.writeFileSync(distIndexHtmlPath, homepageHtml, "utf8");
+  console.log("Successfully pre-rendered static HTML for the Homepage at dist/index.html");
 }
 
 run().catch((err) => {

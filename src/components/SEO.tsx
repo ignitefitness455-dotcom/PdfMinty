@@ -29,6 +29,10 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
 
   const item = TOOLS.find((t) => t.slug === currentSlug);
 
+  const currentToolIndex = TOOLS.findIndex((t) => t.slug === currentSlug);
+  const prevTool = currentToolIndex > 0 ? TOOLS[currentToolIndex - 1] : null;
+  const nextTool = currentToolIndex >= 0 && currentToolIndex < TOOLS.length - 1 ? TOOLS[currentToolIndex + 1] : null;
+
   // Default values for homepage or custom non-tool pathways.
   const title = titleOverride || item?.metaTitle || 'PDFMinty — Privacy-First Free PDF Toolkit & Editor';
   const description =
@@ -46,7 +50,14 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
       {/* General Title and Meta */}
       <title>{title}</title>
       <meta name="description" content={description} />
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      <meta name="author" content="PDFMinty" />
+      <meta name="publisher" content="PDFMinty" />
+      <meta name="language" content="English" />
+      <meta name="revisit-after" content="7 days" />
       <link rel="canonical" href={canonicalUrl} />
+      {prevTool && <link rel="prev" href={`${SITE_URL}/${prevTool.slug}`} />}
+      {nextTool && <link rel="next" href={`${SITE_URL}/${nextTool.slug}`} />}
 
       {/* Open Graph Tags */}
       <meta property="og:type" content={ogType} />
