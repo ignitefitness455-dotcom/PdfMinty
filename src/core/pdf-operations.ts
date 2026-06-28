@@ -596,64 +596,106 @@ export async function compressPDF(
       const pdfjs = await getPdfJs();
       const loadingTask = pdfjs.getDocument({ data: new Uint8Array(safeBytes) });
       const srcPdf = await loadingTask.promise;
-      const totalPages = srcPdf.numPages;
 
-      const newPdf = await PlainPDFDocument.create();
+      try {
+        const totalPages = srcPdf.numPages;
+        const newPdf = await PlainPDFDocument.create();
 
-      for (let i = 1; i <= totalPages; i++) {
-        const page = await srcPdf.getPage(i);
-        const viewport = page.getViewport({ scale: renderScale });
-
+        // 1. Pre-allocate a single canvas to reuse, preventing memory leaks and limits on mobile
         let canvas: OffscreenCanvas | HTMLCanvasElement;
-        let context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null;
         if (typeof OffscreenCanvas !== 'undefined') {
-          canvas = new OffscreenCanvas(viewport.width, viewport.height);
-          context = canvas.getContext('2d');
+          canvas = new OffscreenCanvas(1, 1);
         } else {
           canvas = document.createElement('canvas');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          context = canvas.getContext('2d');
         }
-        if (!context) {
-          throw new Error('Canvas 2D context unavailable; cannot compress images.');
+
+        const canvasToBlob = async (
+          canv: OffscreenCanvas | HTMLCanvasElement,
+          quality: number
+        ): Promise<Blob> => {
+          if (typeof OffscreenCanvas !== 'undefined' && canv instanceof OffscreenCanvas) {
+            return await canv.convertToBlob({ type: 'image/jpeg', quality });
+          } else {
+            return new Promise<Blob>((resolve, reject) => {
+              (canv as HTMLCanvasElement).toBlob(
+                (blob) => {
+                  if (blob) resolve(blob);
+                  else reject(new Error('Canvas toBlob failed'));
+                },
+                'image/jpeg',
+                quality
+              );
+            });
+          }
+        };
+
+        for (let i = 1; i <= totalPages; i++) {
+          const page = await srcPdf.getPage(i);
+          try {
+            // Get unscaled dimensions first to apply a safe maximum cap (prevents OOM on high-res pages)
+            const unscaledViewport = page.getViewport({ scale: 1 });
+            const maxDimension = 2048; // Max width or height for standard web-quality compression
+            let scale = renderScale;
+            if (
+              unscaledViewport.width * scale > maxDimension ||
+              unscaledViewport.height * scale > maxDimension
+            ) {
+              scale = Math.min(
+                maxDimension / unscaledViewport.width,
+                maxDimension / unscaledViewport.height
+              );
+            }
+
+            const viewport = page.getViewport({ scale });
+
+            // Resize existing canvas to current page size (resets its canvas buffer context)
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            const context = canvas.getContext('2d');
+            if (!context) {
+              throw new Error('Canvas 2D context unavailable; cannot compress images.');
+            }
+
+            // White background — JPEG has no alpha.
+            context.fillStyle = '#ffffff';
+            context.fillRect(0, 0, viewport.width, viewport.height);
+
+            await page.render({ canvasContext: context as CanvasRenderingContext2D, viewport }).promise;
+
+            const blob = await canvasToBlob(canvas, jpegQuality);
+            const jpegBytes = new Uint8Array(await blob.arrayBuffer());
+
+            const embedded = await newPdf.embedJpg(jpegBytes);
+            const newPage = newPdf.addPage([viewport.width, viewport.height]);
+            newPage.drawImage(embedded, {
+              x: 0,
+              y: 0,
+              width: viewport.width,
+              height: viewport.height,
+            });
+          } finally {
+            // Guarantee page cleanup
+            page.cleanup();
+          }
+
+          // Yield to browser event loop to let GC clean up memory and prevent tab freeze
+          await new Promise((resolve) => setTimeout(resolve, 0));
         }
-        // White background — JPEG has no alpha.
-        context.fillStyle = '#ffffff';
-        context.fillRect(0, 0, viewport.width, viewport.height);
 
-        await page.render({ canvasContext: context as CanvasRenderingContext2D, viewport }).promise;
+        // Re-apply stripped metadata on the new doc.
+        newPdf.setProducer('PDFMinty');
+        newPdf.setCreator('PDFMinty');
 
-        const blob: Blob = await (canvas as OffscreenCanvas).convertToBlob({
-          type: 'image/jpeg',
-          quality: jpegQuality,
+        return await newPdf.save({
+          useObjectStreams: true,
+          addDefaultPage: false,
+          objectsPerTick: 50,
         });
-        const jpegBytes = new Uint8Array(await blob.arrayBuffer());
-
-        const embedded = await newPdf.embedJpg(jpegBytes);
-        const newPage = newPdf.addPage([viewport.width, viewport.height]);
-        newPage.drawImage(embedded, {
-          x: 0,
-          y: 0,
-          width: viewport.width,
-          height: viewport.height,
-        });
-
-        // Free pdf.js page resources.
-        page.cleanup();
+      } finally {
+        // Guarantee source document destruction
+        await srcPdf.destroy();
       }
-
-      // Re-apply stripped metadata on the new doc.
-      newPdf.setProducer('PDFMinty');
-      newPdf.setCreator('PDFMinty');
-
-      await srcPdf.destroy();
-
-      return await newPdf.save({
-        useObjectStreams: true,
-        addDefaultPage: false,
-        objectsPerTick: 50,
-      });
     }
 
     // basic level — just object streams + stripped metadata.
