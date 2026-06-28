@@ -108,7 +108,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                 {theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
               </span>
             </div>
-            <span className="text-xs text-slate-400 dark:text-slate-500 font-mono pr-2">
+            <span className="hidden text-xs text-slate-400 dark:text-slate-500 font-mono pr-2">
               Toggle
             </span>
           </button>
