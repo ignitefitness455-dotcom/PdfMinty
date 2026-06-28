@@ -110,7 +110,7 @@ export class PDFSanitizer {
       const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
       return doc.isEncrypted;
     } catch {
-      return true;
+      return false;
     }
   }
 }

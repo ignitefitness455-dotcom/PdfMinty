@@ -1,4 +1,5 @@
 import { PDFDocument as PDFDocumentEncrypt } from '@cantoo/pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument as PlainPDFDocument, rgb, degrees } from 'pdf-lib';
 
 import notoSansRegularBytes from '../../public/fonts/NotoSans-Regular.ttf?arraybuffer';
@@ -45,10 +46,38 @@ async function loadPlainPDF(bytes: Uint8Array, skipEncryptionCheck = false) {
       }
     }
 
-    return await PlainPDFDocument.load(safeBytes);
+    const pdfDoc = await PlainPDFDocument.load(safeBytes);
+    pdfDoc.registerFontkit(fontkit);
+    return pdfDoc;
   } catch (err: unknown) {
     handlePdfLibError(err, 'Failed to read PDF document. It may be corrupted.');
   }
+}
+
+let fontBytes: Uint8Array | null = null;
+
+async function getFontBytes(): Promise<Uint8Array> {
+  if (fontBytes) return fontBytes;
+
+  if (
+    typeof notoSansRegularBytes === 'string' ||
+    typeof window === 'undefined' ||
+    (typeof process !== 'undefined' && process.env.NODE_ENV === 'test')
+  ) {
+    try {
+      const fs = await import('node:fs');
+      const path = await import('node:path');
+      const fontPath = path.resolve(process.cwd(), 'public/fonts/NotoSans-Regular.ttf');
+      const fileBuffer = fs.readFileSync(fontPath);
+      fontBytes = new Uint8Array(fileBuffer);
+      return fontBytes;
+    } catch (err) {
+      logger.error('Failed to read font from filesystem in test environment:', err);
+    }
+  }
+
+  fontBytes = new Uint8Array(notoSansRegularBytes as unknown as ArrayBuffer);
+  return fontBytes;
 }
 
 export async function mergePDFs(filesBytes: Uint8Array[]): Promise<Uint8Array> {
@@ -223,7 +252,8 @@ export async function watermarkPDF(
   const pdfDoc = await loadPlainPDF(bytes);
   try {
     // Embed Noto Sans for Unicode support (CJK, Arabic, Cyrillic, emoji, etc.).
-    const font = await pdfDoc.embedFont(notoSansRegularBytes, {
+    const fontData = await getFontBytes();
+    const font = await pdfDoc.embedFont(fontData, {
       customName: 'NotoSans',
       subset: true,
     });
@@ -297,7 +327,8 @@ export async function addPageNumbersPDF(
   try {
     // Embed Noto Sans for Unicode support (page-number format strings may
     // contain non-Latin characters like "第 {n} 页" or "עמוד {n}").
-    const font = await pdfDoc.embedFont(notoSansRegularBytes, {
+    const fontData = await getFontBytes();
+    const font = await pdfDoc.embedFont(fontData, {
       customName: 'NotoSans',
       subset: true,
     });
