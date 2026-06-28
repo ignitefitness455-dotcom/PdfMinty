@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 import FaqSchema from './components/FaqSchema';
@@ -31,7 +31,6 @@ const AiAnalyzePage = React.lazy(() => import('./pages/AiAnalyzePage').then((m) 
 const IsSafePdfArticlePage = React.lazy(() => import('./pages/IsSafePdfArticlePage').then((m) => ({ default: m.IsSafePdfArticlePage })));
 
 export const App: React.FC = () => {
-  const location = useLocation();
   return (
     <>
       <SkipToContent />
@@ -39,31 +38,141 @@ export const App: React.FC = () => {
         <PWAController />
         <HowToSchema />
         <FaqSchema />
-        <ErrorBoundary resetKey={location.pathname}>
-          <Suspense fallback={<ToolSkeleton />}>
-            <Routes>
-              <Route path={ROUTES.HOME} element={<HomePage />} />
-              <Route path={ROUTES.MERGE} element={<MergePage />} />
-              <Route path={ROUTES.SPLIT} element={<SplitPage />} />
-              <Route path={ROUTES.COMPRESS} element={<CompressPage />} />
-              <Route path={ROUTES.ROTATE} element={<RotatePage />} />
-              <Route path={ROUTES.DELETE_PAGES} element={<DeletePagesPage />} />
-              <Route path={ROUTES.EXTRACT_PAGES} element={<ExtractPagesPdfPage />} />
-              <Route path={ROUTES.REORDER} element={<ReorderPdfPage />} />
-              <Route path={ROUTES.WATERMARK} element={<WatermarkPage />} />
-              <Route path={ROUTES.PAGE_NUMBERS} element={<PageNumbersPage />} />
-              <Route path={ROUTES.ADD_BLANK} element={<AddBlankPage />} />
-              <Route path={ROUTES.PROTECT} element={<ProtectPage />} />
-              <Route path={ROUTES.UNLOCK} element={<UnlockPage />} />
-              <Route path={ROUTES.IMG_TO_PDF} element={<ImgToPdfPage />} />
-              <Route path={ROUTES.PDF_TO_IMG} element={<PdfToImgPage />} />
-              <Route path={ROUTES.AI_ANALYZE} element={<AiAnalyzePage />} />
-              <Route path={ROUTES.TRUST_ARTICLE} element={<IsSafePdfArticlePage />} />
-              {/* Safe fallback */}
-              <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
-            </Routes>
-          </Suspense>
-        </ErrorBoundary>
+        <Suspense fallback={<ToolSkeleton />}>
+          <Routes>
+            <Route path={ROUTES.HOME} element={<HomePage />} />
+            <Route
+              path={ROUTES.MERGE}
+              element={
+                <ErrorBoundary resetKey="merge">
+                  <MergePage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.SPLIT}
+              element={
+                <ErrorBoundary resetKey="split">
+                  <SplitPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.COMPRESS}
+              element={
+                <ErrorBoundary resetKey="compress">
+                  <CompressPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.ROTATE}
+              element={
+                <ErrorBoundary resetKey="rotate">
+                  <RotatePage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.DELETE_PAGES}
+              element={
+                <ErrorBoundary resetKey="delete-pages">
+                  <DeletePagesPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.EXTRACT_PAGES}
+              element={
+                <ErrorBoundary resetKey="extract-pages">
+                  <ExtractPagesPdfPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.REORDER}
+              element={
+                <ErrorBoundary resetKey="reorder">
+                  <ReorderPdfPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.WATERMARK}
+              element={
+                <ErrorBoundary resetKey="watermark">
+                  <WatermarkPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.PAGE_NUMBERS}
+              element={
+                <ErrorBoundary resetKey="page-numbers">
+                  <PageNumbersPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.ADD_BLANK}
+              element={
+                <ErrorBoundary resetKey="add-blank">
+                  <AddBlankPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.PROTECT}
+              element={
+                <ErrorBoundary resetKey="protect">
+                  <ProtectPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.UNLOCK}
+              element={
+                <ErrorBoundary resetKey="unlock">
+                  <UnlockPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.IMG_TO_PDF}
+              element={
+                <ErrorBoundary resetKey="img-to-pdf">
+                  <ImgToPdfPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.PDF_TO_IMG}
+              element={
+                <ErrorBoundary resetKey="pdf-to-img">
+                  <PdfToImgPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.AI_ANALYZE}
+              element={
+                <ErrorBoundary resetKey="ai-analyze">
+                  <AiAnalyzePage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.TRUST_ARTICLE}
+              element={
+                <ErrorBoundary resetKey="trust-article">
+                  <IsSafePdfArticlePage />
+                </ErrorBoundary>
+              }
+            />
+            {/* Safe fallback */}
+            <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+          </Routes>
+        </Suspense>
       </Layout>
     </>
   );

@@ -174,10 +174,24 @@ export const AI_LIMITS = {
   DEFAULT_MODEL: 'gemini-2.0-flash',
 };
 
+/**
+ * Rate limit constants.
+ *
+ * NOTE: These values are documentation-only. The actual rate limits are
+ * enforced in the Cloudflare Pages Functions under functions/api/. The
+ * values here MUST be kept in sync with:
+ *   - functions/api/gemini-proxy.ts → LIMIT_PER_HOUR (default 30)
+ *   - functions/api/contact.ts     → LIMIT_PER_HOUR (default 3)
+ *   - functions/api/feedback.ts    → LIMIT_PER_HOUR (default 3)
+ *   - functions/api/error.ts       → RATE_LIMIT_PER_HOUR (default 30)
+ *
+ * If you change a limit in a Worker function, update this constant too.
+ */
 export const RATE_LIMITS = {
-  GEMINI_PROXY: 50,
-  CONTACT: 10,
-  FEEDBACK: 10,
+  GEMINI_PROXY: 30,
+  CONTACT: 3,
+  FEEDBACK: 3,
+  ERROR: 30,
 };
 
 export const APP_INFO = {

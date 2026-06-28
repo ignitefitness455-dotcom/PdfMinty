@@ -8,6 +8,7 @@ import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
+import { logger } from '../utils/logger';
 
 interface PageItem {
   page: number; // Original 1-based page index
@@ -70,7 +71,7 @@ export const ReorderPdfPage: React.FC = () => {
         setItems(mapped);
       } catch (err: unknown) {
         if (myToken !== operationTokenRef.current) return;
-        console.error('Failed to render previews:', err);
+        logger.error('Failed to render previews:', err);
         setError(
           'Error generating page layouts. You can still confirm standard sequencing if required.'
         );
@@ -147,7 +148,7 @@ export const ReorderPdfPage: React.FC = () => {
       const blob = new Blob([parsedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `ordered_${selectedFile.name}`);
     } catch (err: unknown) {
-      console.error('Reorder PDF failed:', err);
+      logger.error('Reorder PDF failed:', err);
       const message = err instanceof Error ? err.message : String(err);
       setError(message || 'Failed to reorder document layout. Confirm pages structure.');
     } finally {

@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import React from 'react';
 
+import { logger } from '../utils/logger';
+
 export const prefetchMap: Record<string, () => Promise<unknown>> = {
   'merge-pdf': () => import('../pages/MergePage'),
   'split-pdf': () => import('../pages/SplitPage'),
@@ -43,7 +45,7 @@ export const prefetchToolChunk = (slug: string): void => {
   prefetchedSet.add(key);
   const loader = prefetchMap[key];
   if (loader) {
-    loader().catch((err: unknown) => console.debug('[prefetch] chunk error:', err));
+    loader().catch((err: unknown) => logger.debug('[prefetch] chunk error:', err));
   }
 };
 

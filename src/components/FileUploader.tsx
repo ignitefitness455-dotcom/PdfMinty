@@ -23,7 +23,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const processFiles = useCallback(
-    (filesList: FileList | null) => {
+    async (filesList: FileList | null) => {
       if (!filesList || filesList.length === 0) return;
       setError(null);
 
@@ -36,7 +36,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       for (let i = 0; i < filesList.length; i++) {
         const file = filesList[i];
 
-        // 1. Validate file format
+        // 1. Validate file format (extension + MIME type)
         const matchesType = expectedTypes.some((type) => {
           if (type === 'application/pdf') {
             return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
@@ -73,14 +73,47 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         });
 
         if (!matchesType) {
-          rejectedFiles.push({ name: file.name, reason: `Unsupported file format. Expected: ${accept}` });
+          rejectedFiles.push({
+            name: file.name,
+            reason: `Unsupported file format. Expected: ${accept}`,
+          });
           continue;
         }
 
         // 2. Validate maximum file size limit
         if (file.size > limitBytes) {
-          rejectedFiles.push({ name: file.name, reason: `too large (${(file.size / 1024 / 1024).toFixed(2)} MB, max ${maxSizeMB} MB)` });
+          rejectedFiles.push({
+            name: file.name,
+            reason: `too large (${(file.size / 1024 / 1024).toFixed(2)} MB, max ${maxSizeMB} MB)`,
+          });
           continue;
+        }
+
+        // 3. For PDFs only, validate magic bytes (%PDF- header).
+        // This catches renamed non-PDF files early, before they reach the
+        // sanitizer or pdfjs. Image files are validated by the engine's
+        // createImageBitmap / embedPng / embedJpg calls.
+        if (
+          expectedTypes.includes('application/pdf') &&
+          (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) &&
+          file.size >= 5
+        ) {
+          try {
+            const slice = file.slice(0, 5);
+            const buf = new Uint8Array(await slice.arrayBuffer());
+            const header = new TextDecoder('ascii', { fatal: false }).decode(buf);
+            if (header !== '%PDF-') {
+              rejectedFiles.push({
+                name: file.name,
+                reason: 'file does not have a valid PDF header (%PDF-)',
+              });
+              continue;
+            }
+          } catch {
+            // If we can't read the header, let the downstream sanitizer handle it.
+            // Don't reject here — the file might be readable by pdfjs even if
+            // our slice read failed (e.g., streaming uploads in some browsers).
+          }
         }
 
         validFiles.push(file);
@@ -91,7 +124,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           setError(`"${rejectedFiles[0].name}" rejected: ${rejectedFiles[0].reason}.`);
         } else {
           const first = rejectedFiles[0];
-          setError(`${rejectedFiles.length} files rejected. First: "${first.name}" (${first.reason}).`);
+          setError(
+            `${rejectedFiles.length} files rejected. First: "${first.name}" (${first.reason}).`
+          );
         }
       }
 
@@ -117,19 +152,19 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   }, []);
 
   const handleDrop = useCallback(
-    (e: React.DragEvent) => {
+    async (e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
       setIsDragActive(false);
-      processFiles(e.dataTransfer.files);
+      await processFiles(e.dataTransfer.files);
     },
     [processFiles]
   );
 
   const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
-      processFiles(e.target.files);
+      await processFiles(e.target.files);
       // Reset value so selecting the same file again (e.g. retry after error)
       // still fires onChange.
       e.target.value = '';

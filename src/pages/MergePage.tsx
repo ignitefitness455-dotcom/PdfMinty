@@ -8,6 +8,7 @@ import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
+import { logger } from '../utils/logger';
 
 export const MergePage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -69,7 +70,7 @@ export const MergePage: React.FC = () => {
       const blob = new Blob([mergedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_merged_${Date.now()}.pdf`);
     } catch (err: unknown) {
-      console.error('Merge error:', err);
+      logger.error('Merge error:', err);
       const message = err instanceof Error ? err.message : String(err);
       setError(
         message ||

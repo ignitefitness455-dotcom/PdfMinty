@@ -16,6 +16,8 @@ import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { getPdfJs } from '../core/index';
+import { PDFSanitizer } from '../core/PDFSanitizer';
+import { logger } from '../utils/logger';
 
 export const AiAnalyzePage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -47,8 +49,26 @@ export const AiAnalyzePage: React.FC = () => {
     let pdf: PDFDocumentProxy | null = null;
     try {
       const pdfjs = await getPdfJs();
-      const bytes = await file.arrayBuffer();
-      const loadingTask = pdfjs.getDocument({ data: bytes });
+      const rawBytes = new Uint8Array(await file.arrayBuffer());
+
+      // Sanitize the PDF before handing it to pdfjs. This neutralizes
+      // /JavaScript, /JS, and /Launch action dictionaries by overwriting
+      // those keyword bytes with spaces. Defense-in-depth: pdfjs is
+      // generally sandboxed, but the sanitizer is a safety net that every
+      // other tool in PdfMinty uses. The AI page previously bypassed it.
+      let sanitizedBytes: Uint8Array;
+      try {
+        const sanResult = PDFSanitizer.sanitize(rawBytes);
+        sanitizedBytes = sanResult.bytes;
+      } catch (sanErr: unknown) {
+        if (myToken !== operationTokenRef.current) return;
+        const message = sanErr instanceof Error ? sanErr.message : 'Failed to sanitize PDF.';
+        setError(message);
+        setIsExtracting(false);
+        return;
+      }
+
+      const loadingTask = pdfjs.getDocument({ data: sanitizedBytes });
       pdf = await loadingTask.promise;
       if (myToken !== operationTokenRef.current) return;
       setTotalPages(pdf.numPages);
@@ -63,7 +83,9 @@ export const AiAnalyzePage: React.FC = () => {
         }
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item: unknown) => (item as { str?: string }).str || '').join(' ');
+        const pageText = textContent.items
+          .map((item: unknown) => (item as { str?: string }).str || '')
+          .join(' ');
         textBuffer += `--- PAGE ${i} ---\n${pageText}\n\n`;
         page.cleanup();
       }
@@ -73,11 +95,23 @@ export const AiAnalyzePage: React.FC = () => {
     } catch (err: unknown) {
       if (myToken !== operationTokenRef.current) return;
       const message = err instanceof Error ? err.message : 'Unknown error';
-      console.error('Text extraction error:', err);
-      setError(
-        message ||
-          'Failed to extract text structures. Make sure document does not contain image-only pages or lock passwords.'
-      );
+      logger.error('Text extraction error:', err);
+      // Surface a friendly message for encrypted PDFs, mirroring other tools.
+      const lowerMsg = message.toLowerCase();
+      if (
+        lowerMsg.includes('encrypted') ||
+        lowerMsg.includes('password') ||
+        lowerMsg.includes('secured')
+      ) {
+        setError(
+          'This PDF is encrypted or password-protected. Please use the Unlock PDF tool first, then try again.'
+        );
+      } else {
+        setError(
+          message ||
+            'Failed to extract text structures. Make sure document does not contain image-only pages or lock passwords.'
+        );
+      }
     } finally {
       if (myToken === operationTokenRef.current) {
         setIsExtracting(false);
@@ -146,7 +180,7 @@ export const AiAnalyzePage: React.FC = () => {
         return;
       }
       const message = err instanceof Error ? err.message : String(err);
-      console.error('AI Error:', err);
+      logger.error('AI Error:', err);
       setError(message || 'An unexpected server error occurred during AI analysis.');
     } finally {
       clearTimeout(timeoutId);

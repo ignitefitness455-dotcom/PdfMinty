@@ -8,6 +8,7 @@ import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
+import { logger } from '../utils/logger';
 
 export const ImgToPdfPage: React.FC = () => {
   const [images, setImages] = useState<{ file: File; id: string; url: string }[]>([]);
@@ -94,7 +95,7 @@ export const ImgToPdfPage: React.FC = () => {
       const blob = new Blob([pdfBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_images_${Date.now()}.pdf`);
     } catch (err: unknown) {
-      console.error('Image logic error:', err);
+      logger.error('Image logic error:', err);
       const message = err instanceof Error ? err.message : String(err);
       setError(
         message || 'Failed to convert selected images to PDF. Ensure standard PNG/JPG formats.'

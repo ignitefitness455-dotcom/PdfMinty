@@ -2,6 +2,7 @@ import { Mail, X } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
 
 import { useModal } from '../hooks/useModal';
+import { logger } from '../utils/logger';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -43,25 +44,25 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         const isJson = response.headers.get('content-type')?.includes('application/json');
         isSuccess = response.ok && !!isJson;
       } catch (err) {
-        console.warn('API route not fully available in development environment:', err);
+        logger.warn('API route not fully available in development environment:', err);
       }
 
       // If we are in local/sandbox sandbox or API isn't active, complete submission locally
       if (!isSuccess) {
-        console.log('Sandbox/Dev Mode - Simulating Contact Submission:', { email, subject, message });
+        /* no-op: Sandbox/Dev Mode submission simulated */
         try {
           const existing = JSON.parse(localStorage.getItem('pdfminty_sandbox_contact') || '[]');
           existing.push({ email, subject, message, timestamp: new Date().toISOString() });
           const capped = existing.slice(-50);
           localStorage.setItem('pdfminty_sandbox_contact', JSON.stringify(capped));
         } catch (storageErr) {
-          console.error('Sandbox fallback storage failed:', storageErr);
+          logger.error('Sandbox fallback storage failed:', storageErr);
         }
       }
 
       setContactSubmitted(true);
     } catch (err: unknown) {
-      console.error('Contact send error:', err);
+      logger.error('Contact send error:', err);
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.';
       setContactError(errorMessage);
     } finally {

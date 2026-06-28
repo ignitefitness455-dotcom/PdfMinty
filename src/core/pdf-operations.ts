@@ -47,7 +47,8 @@ async function loadPlainPDF(bytes: Uint8Array, skipEncryptionCheck = false) {
     }
 
     const pdfDoc = await PlainPDFDocument.load(safeBytes);
-    pdfDoc.registerFontkit(fontkit);
+    const realFontkit = (fontkit as any).default || fontkit;
+    pdfDoc.registerFontkit(realFontkit);
     return pdfDoc;
   } catch (err: unknown) {
     handlePdfLibError(err, 'Failed to read PDF document. It may be corrupted.');
@@ -59,24 +60,28 @@ let fontBytes: Uint8Array | null = null;
 async function getFontBytes(): Promise<Uint8Array> {
   if (fontBytes) return fontBytes;
 
-  if (
-    typeof notoSansRegularBytes === 'string' ||
-    typeof window === 'undefined' ||
-    (typeof process !== 'undefined' && process.env.NODE_ENV === 'test')
-  ) {
+  // Try reading from filesystem if we are in a Node/test environment (like Vitest, even with jsdom/happy-dom)
+  if (typeof process !== 'undefined') {
     try {
       const fs = await import('node:fs');
       const path = await import('node:path');
       const fontPath = path.resolve(process.cwd(), 'public/fonts/NotoSans-Regular.ttf');
-      const fileBuffer = fs.readFileSync(fontPath);
-      fontBytes = new Uint8Array(fileBuffer);
-      return fontBytes;
+      if (fs.existsSync(fontPath)) {
+        const fileBuffer = fs.readFileSync(fontPath);
+        const arrayBuffer = fileBuffer.buffer.slice(
+          fileBuffer.byteOffset,
+          fileBuffer.byteOffset + fileBuffer.byteLength
+        );
+        fontBytes = new Uint8Array(arrayBuffer);
+        return fontBytes;
+      }
     } catch (err) {
-      logger.error('Failed to read font from filesystem in test environment:', err);
+      // Fallback
     }
   }
 
-  fontBytes = new Uint8Array(notoSansRegularBytes as unknown as ArrayBuffer);
+  const rawData = (notoSansRegularBytes as any)?.default || notoSansRegularBytes;
+  fontBytes = new Uint8Array(rawData as unknown as ArrayBuffer);
   return fontBytes;
 }
 

@@ -8,6 +8,7 @@ import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
+import { logger } from '../utils/logger';
 
 export const UnlockPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -42,7 +43,7 @@ export const UnlockPage: React.FC = () => {
       const blob = new Blob([unlockedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_unlocked_${selectedFile.name}`);
     } catch (err: unknown) {
-      console.error('Unlock error:', err);
+      logger.error('Unlock error:', err);
       const message = err instanceof Error ? err.message : String(err);
       setError(
         message || 'Decryption failed. Please verify the keys match target structures.'

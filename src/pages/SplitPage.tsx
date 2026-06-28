@@ -8,6 +8,7 @@ import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlobsSequentially } from '../utils/download';
+import { logger } from '../utils/logger';
 
 export const SplitPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -46,7 +47,7 @@ export const SplitPage: React.FC = () => {
       }));
       await downloadBlobsSequentially(items, 600);
     } catch (err: unknown) {
-      console.error('Split error:', err);
+      logger.error('Split error:', err);
       const errMsg = err instanceof Error ? err.message : String(err);
       setError(
         errMsg ||

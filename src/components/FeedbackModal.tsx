@@ -2,6 +2,7 @@ import { MessageSquare, X, Star } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
 
 import { useModal } from '../hooks/useModal';
+import { logger } from '../utils/logger';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -43,25 +44,25 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
         const isJson = response.headers.get('content-type')?.includes('application/json');
         isSuccess = response.ok && !!isJson;
       } catch (err) {
-        console.warn('API route not fully available in development environment:', err);
+        logger.warn('API route not fully available in development environment:', err);
       }
 
       // If we are in local/sandbox sandbox or API isn't active, complete submission locally
       if (!isSuccess) {
-        console.log('Sandbox/Dev Mode - Simulating Feedback Submission:', { email, comment, rating: feedbackRating });
+        /* no-op: Sandbox/Dev Mode submission simulated */
         try {
           const existing = JSON.parse(localStorage.getItem('pdfminty_sandbox_feedback') || '[]');
           existing.push({ email, comment, rating: feedbackRating, timestamp: new Date().toISOString() });
           const capped = existing.slice(-50);
           localStorage.setItem('pdfminty_sandbox_feedback', JSON.stringify(capped));
         } catch (storageErr) {
-          console.error('Sandbox fallback storage failed:', storageErr);
+          logger.error('Sandbox fallback storage failed:', storageErr);
         }
       }
 
       setFeedbackSubmitted(true);
     } catch (err: unknown) {
-      console.error('Feedback submit error:', err);
+      logger.error('Feedback submit error:', err);
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.';
       setFeedbackError(errorMessage);
     } finally {

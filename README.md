@@ -15,9 +15,13 @@ View your app in AI Studio: https://ai.studio/apps/ff1d94ca-8844-480c-a061-c7a76
 1. Install dependencies:
    `npm install`
 2. Set up environment variables (see `.env.example`). Note that `GEMINI_API_KEY` is a Cloudflare secret in production.
-3. Run the Vite frontend app:
+3. **Set up KV namespace for local development (Optional but recommended):**
+   - Create a preview KV namespace in the Cloudflare dashboard (Workers & Pages → KV → Create namespace, name it `pdfminty-preview-ratelimit`).
+   - Copy the namespace ID.
+   - Paste it into `wrangler.toml` as the `preview_id` (line 14).
+4. Run the Vite frontend app:
    `npm run dev`
-4. Test Cloudflare Pages Functions locally:
+5. Test Cloudflare Pages Functions locally:
    `npm run pages:dev`
-5. Create a production build:
+6. Create a production build:
    `npm run build`

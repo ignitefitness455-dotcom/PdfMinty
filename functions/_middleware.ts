@@ -68,7 +68,7 @@ export const onRequest: PagesFunction = async (context) => {
     `style-src 'self' 'nonce-${nonce}'`,
     "font-src 'self' data:",
     "img-src 'self' blob: data:",
-    "connect-src 'self'",
+    "connect-src 'self' blob:",
     "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",

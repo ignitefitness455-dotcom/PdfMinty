@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
 import { FileUploader } from '../FileUploader';
@@ -54,7 +54,7 @@ describe('FileUploader', () => {
     expect(screen.getByText(/too large/i)).toBeInTheDocument();
   });
 
-  it('calls onFilesSelected with valid PDF', () => {
+  it('calls onFilesSelected with valid PDF', async () => {
     const onFilesSelected = vi.fn();
     render(
       <FileUploader
@@ -66,7 +66,9 @@ describe('FileUploader', () => {
     const input = document.getElementById('uploader_hidden_input') as HTMLInputElement;
     const fakePdf = new File(['%PDF-1.4 content'], 'test.pdf', { type: 'application/pdf' });
     fireEvent.change(input, { target: { files: [fakePdf] } });
-    expect(onFilesSelected).toHaveBeenCalledWith([fakePdf]);
+    await waitFor(() => {
+      expect(onFilesSelected).toHaveBeenCalledWith([fakePdf]);
+    });
   });
 
   it('resets input value after selection so same file can be re-selected', () => {

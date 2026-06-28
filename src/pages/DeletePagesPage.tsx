@@ -8,6 +8,7 @@ import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
+import { logger } from '../utils/logger';
 
 export const DeletePagesPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -85,7 +86,7 @@ export const DeletePagesPage: React.FC = () => {
         setThumbnails(mapped);
       } catch (err: unknown) {
         if (myToken !== operationTokenRef.current) return;
-        console.error('Failed to render previews:', err);
+        logger.error('Failed to render previews:', err);
         setError('Previews could not be rendered, but you can still delete pages using standard input.');
       } finally {
         if (myToken === operationTokenRef.current) {
@@ -190,7 +191,7 @@ export const DeletePagesPage: React.FC = () => {
       const blob = new Blob([parsedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_stripped_${selectedFile.name}`);
     } catch (err: unknown) {
-      console.error('Delete pages error:', err);
+      logger.error('Delete pages error:', err);
       const message = err instanceof Error ? err.message : String(err);
       setError(
         message || 'An unexpected failure occurred. Verify indices match document dimensions.'

@@ -8,6 +8,7 @@ import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
+import { logger } from '../utils/logger';
 
 export const ProtectPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -42,7 +43,7 @@ export const ProtectPage: React.FC = () => {
       const blob = new Blob([encryptedBytes as unknown as BlobPart], { type: 'application/pdf' });
       await downloadBlob(blob, `pdfminty_locked_${selectedFile.name}`);
     } catch (err: unknown) {
-      console.error('Protect error:', err);
+      logger.error('Protect error:', err);
       const message = err instanceof Error ? err.message : String(err);
       setError(message || 'An unexpected failure occurred while securing the document.');
     } finally {

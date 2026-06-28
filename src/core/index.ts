@@ -1,4 +1,3 @@
-import confetti from 'canvas-confetti';
 import type * as PDFJSTypes from 'pdfjs-dist';
 
 import { PDFSanitizer } from './PDFSanitizer';
@@ -53,37 +52,6 @@ export function truncateTextGrapheme(text: string, maxGraphemes: number): string
     return normalized.substring(0, maxGraphemes);
   }
 }
-
-export const triggerDownload = (
-  bytes: Uint8Array,
-  filename: string,
-  setCompletedResult?: (res: { url: string; filename: string; type: string } | null) => void
-) => {
-  const mimeType = filename.endsWith('.zip') ? 'application/zip' : 'application/pdf';
-  const blob = new Blob([bytes], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  
-  if (setCompletedResult) {
-    setCompletedResult({ url, filename, type: mimeType });
-  }
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.style.display = 'none';
-  document.body.appendChild(link);
-  link.click();
-  // 1000ms delay + explicit revokeObjectURL: prevents a mobile-browser download race condition
-  // AND a memory leak from un-revoked blob URLs that was previously hit in production.
-  setTimeout(() => {
-    if (document.body.contains(link)) document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }, 1000);
-
-  try {
-    confetti({ particleCount: 120, spread: 70, origin: { y: 0.8 } });
-  } catch { /* non-critical */ }
-};
 
 export interface PreprocessResult {
   pdf: unknown;
