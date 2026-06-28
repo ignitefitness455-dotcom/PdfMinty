@@ -62,7 +62,14 @@ self.onmessage = async (e: MessageEvent) => {
         transferables = [(result as Uint8Array).buffer];
         break;
       case 'pdfToImage':
-        result = await ops.pdfToImage(payload.bytes, payload.originalName, payload.scale, payload.maxPages, payload.format);
+        result = await ops.pdfToImage(
+          payload.bytes,
+          payload.originalName,
+          payload.scale,
+          payload.maxPages,
+          payload.format,
+          payload.startPage
+        );
         transferables = (result as { imageBytes: Uint8Array }[]).map((r) => r.imageBytes.buffer);
         break;
       case 'getPageCount':

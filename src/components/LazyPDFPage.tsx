@@ -1,15 +1,8 @@
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
-import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import React, { useEffect, useRef, useState } from 'react';
 
-let pdfjsLib: typeof import('pdfjs-dist') | null = null;
-const loadPdfjs = async () => {
-  if (!pdfjsLib) {
-    pdfjsLib = await import('pdfjs-dist');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
-  }
-  return pdfjsLib;
-};
+import { getPdfJs } from '../core/index';
+import { logger } from '../utils/logger';
 
 interface LazyPDFPageProps {
   pdfDoc: PDFDocumentProxy;
@@ -68,7 +61,7 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
     let cancelled = false;
 
     const render = async () => {
-      await loadPdfjs();
+      await getPdfJs();
       const page = await pdfDoc.getPage(pageNumber);
       if (cancelled) return;
 
@@ -111,7 +104,7 @@ export const LazyPDFPage: React.FC<LazyPDFPageProps> = ({
         // Cancellation throws — that's expected, not an error.
         const msg = err instanceof Error ? err.message : '';
         if (!msg.toLowerCase().includes('cancel')) {
-          console.error('PDF render failed:', err);
+          logger.error('PDF render failed:', err);
         }
       } finally {
         // Best-effort cleanup of pdfjs page resources.

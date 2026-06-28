@@ -1,3 +1,4 @@
+import JSZip from 'jszip';
 import { ArrowLeft, Eye, Download, AlertCircle, Sparkles } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -9,6 +10,7 @@ import { ROUTES } from '../config/routes';
 import { getPdfJs } from '../core/index';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
+import { logger } from '../utils/logger';
 
 export const PdfToImgPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -70,33 +72,29 @@ export const PdfToImgPage: React.FC = () => {
       setLoading(true);
 
       const collected: { page: number; dataUrl: string; format: string }[] = [];
+      const zipEntries: { filename: string; blob: Blob }[] = [];
+
       for (let pageNum = 1; pageNum <= total; pageNum++) {
         if (myToken !== operationTokenRef.current) {
-          // Stale — user changed file or cleared. Abort loop.
           return;
         }
 
-        // Extract the single page first to keep memory footprint incredibly low and avoid neutering source bytes buffer
-        const singlePagePdfBytes = await WorkerManager.getInstance().runOperation<Uint8Array>(
-          'extractPages',
-          {
-            bytes: fileBytes,
-            pageNumbers: [pageNum],
-          }
-        );
-
+        // SINGLE worker roundtrip per page — render this page directly from
+        // the source PDF. The sanitizer inside pdfToImage copies the buffer,
+        // so fileBytes is never detached and can be reused across iterations.
         const rendered = await WorkerManager.getInstance().runOperation<
           { page: number; imageBytes: Uint8Array }[]
         >(
           'pdfToImage',
           {
-            bytes: singlePagePdfBytes,
-            originalName: `page_${pageNum}.pdf`,
+            bytes: fileBytes,
+            originalName: selectedFile.name,
             scale,
             maxPages: 1,
             format: exportFormat,
-          },
-          [singlePagePdfBytes.buffer]
+            startPage: pageNum,
+          }
+          // NOTE: do NOT transfer fileBytes.buffer — we need it for the next iteration.
         );
 
         if (rendered.length === 0) break;
@@ -108,20 +106,34 @@ export const PdfToImgPage: React.FC = () => {
 
         const ext = exportFormat === 'image/jpeg' ? 'jpeg' : 'png';
         const filename = `pdfminty_page_${pageNum}_${selectedFile.name.replace(/\.pdf$/i, '')}.${ext}`;
-        await downloadBlob(blob, filename, { fallbackOnly: true });
+        zipEntries.push({ filename, blob });
 
         if (myToken !== operationTokenRef.current) return;
         setProgress({ current: pageNum, total });
-        if (pageNum < total) {
-          await new Promise((r) => setTimeout(r, 400));
-        }
+        // Yield to the event loop so the UI can repaint the progress bar.
+        await new Promise((r) => setTimeout(r, 0));
       }
 
       if (myToken !== operationTokenRef.current) return;
+
+      // Package all images into a single ZIP for one-shot download.
+      // This avoids Chrome's "1 download per user gesture" popup-blocker rule.
+      if (zipEntries.length === 1) {
+        await downloadBlob(zipEntries[0].blob, zipEntries[0].filename);
+      } else {
+        const zip = new JSZip();
+        for (const entry of zipEntries) {
+          zip.file(entry.filename, entry.blob);
+        }
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        const zipFilename = `pdfminty_${selectedFile.name.replace(/\.pdf$/i, '')}_images.zip`;
+        await downloadBlob(zipBlob, zipFilename);
+      }
+
       setImageUrls(collected);
     } catch (err: unknown) {
       if (myToken !== operationTokenRef.current) return;
-      console.error('Export images failed:', err);
+      logger.error('Export images failed:', err);
       const errMsg = err instanceof Error ? err.message : String(err);
       setError(
         errMsg ||

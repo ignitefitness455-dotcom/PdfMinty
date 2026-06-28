@@ -1,30 +1,25 @@
 import { PDFDocument as PDFDocumentEncrypt } from '@cantoo/pdf-lib';
-import { PDFDocument as PlainPDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib';
-import type * as PDFJSTypes from 'pdfjs-dist';
-import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import { PDFDocument as PlainPDFDocument, rgb, degrees } from 'pdf-lib';
 
+import notoSansRegularBytes from '../../public/fonts/NotoSans-Regular.ttf?arraybuffer';
 import { PDF_PAGE_SIZES, WATERMARK_DEFAULTS, PAGE_NUMBER_DEFAULTS } from '../config/constants';
+import { logger } from '../utils/logger';
 
 import { PDFSanitizer } from './PDFSanitizer';
 
-let pdfjsLib: typeof PDFJSTypes | null = null;
-
-const loadPdfjs = async () => {
-  if (!pdfjsLib) {
-    const mod = await import('pdfjs-dist');
-    pdfjsLib = mod as unknown as typeof PDFJSTypes;
-    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
-  }
-  return pdfjsLib;
-};
+import { getPdfJs } from './index';
 
 /**
  * Helper to standardise pdf-lib errors to user-friendly ones
  */
 function handlePdfLibError(err: unknown, defaultMessage: string): never {
-  console.error('PDF Operation Error:', err);
+  logger.error('PDF Operation Error:', err);
   if (err instanceof Error) {
-    if (err.message.includes('encrypted') || err.message.includes('SECURED_LOCKED') || err.message.includes('password protected')) {
+    if (
+      err.message.includes('encrypted') ||
+      err.message.includes('SECURED_LOCKED') ||
+      err.message.includes('password protected')
+    ) {
       throw new Error('This PDF is password protected. Please unlock it first.');
     }
     if (err.message.includes('Invalid index') || err.message.includes('out of bounds')) {
@@ -44,7 +39,9 @@ async function loadPlainPDF(bytes: Uint8Array, skipEncryptionCheck = false) {
     if (!skipEncryptionCheck) {
       const encrypted = await PDFSanitizer.isEncrypted(safeBytes);
       if (encrypted) {
-        throw new Error('SECURED_LOCKED: This PDF appears to be password protected — please use Unlock PDF first.');
+        throw new Error(
+          'SECURED_LOCKED: This PDF appears to be password protected — please use Unlock PDF first.'
+        );
       }
     }
 
@@ -225,7 +222,11 @@ export async function watermarkPDF(
 ): Promise<Uint8Array> {
   const pdfDoc = await loadPlainPDF(bytes);
   try {
-    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    // Embed Noto Sans for Unicode support (CJK, Arabic, Cyrillic, emoji, etc.).
+    const font = await pdfDoc.embedFont(notoSansRegularBytes, {
+      customName: 'NotoSans',
+      subset: true,
+    });
 
     const size = options?.size || WATERMARK_DEFAULTS.size;
     const opacity = options?.opacity !== undefined ? options?.opacity : WATERMARK_DEFAULTS.opacity;
@@ -248,25 +249,25 @@ export async function watermarkPDF(
     const cosTheta = Math.cos(angleRad);
     const sinTheta = Math.sin(angleRad);
 
-    const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+    const lines = text
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
 
     for (const page of pages) {
       const { width, height } = page.getSize();
 
       lines.forEach((lineText, index) => {
         const textWidth = font.widthOfTextAtSize(lineText, size);
-        const textHeight = size * 0.8; // Safe approximation for Helvetica Bold
+        const textHeight = size * 0.8;
 
-        // Center offsets before rotation
         const lineOffsetLocalY = (lines.length / 2 - index - 0.5) * (size * 1.2);
         const localCenterX = textWidth / 2;
         const localCenterY = textHeight / 2 - lineOffsetLocalY;
 
-        // Rotated offsets
         const rotatedCenterX = localCenterX * cosTheta - localCenterY * sinTheta;
         const rotatedCenterY = localCenterX * sinTheta + localCenterY * cosTheta;
 
-        // Perfect starting anchor so the rotated center is dead-on page center
         const x = width / 2 - rotatedCenterX;
         const y = height / 2 - rotatedCenterY;
 
@@ -294,13 +295,22 @@ export async function addPageNumbersPDF(
 ): Promise<Uint8Array> {
   const pdfDoc = await loadPlainPDF(bytes);
   try {
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    // Embed Noto Sans for Unicode support (page-number format strings may
+    // contain non-Latin characters like "第 {n} 页" or "עמוד {n}").
+    const font = await pdfDoc.embedFont(notoSansRegularBytes, {
+      customName: 'NotoSans',
+      subset: true,
+    });
     const total = pdfDoc.getPageCount();
     const pages = pdfDoc.getPages();
 
     const format = options?.format || PAGE_NUMBER_DEFAULTS.format;
-    const skipFirstPage = options?.skipFirstPage !== undefined ? options.skipFirstPage : PAGE_NUMBER_DEFAULTS.skipFirstPage;
-    let currentCount = options?.startFrom !== undefined ? options.startFrom : PAGE_NUMBER_DEFAULTS.startFrom;
+    const skipFirstPage =
+      options?.skipFirstPage !== undefined
+        ? options.skipFirstPage
+        : PAGE_NUMBER_DEFAULTS.skipFirstPage;
+    let currentCount =
+      options?.startFrom !== undefined ? options.startFrom : PAGE_NUMBER_DEFAULTS.startFrom;
     const position = options?.position || PAGE_NUMBER_DEFAULTS.position;
 
     const size = 10;
@@ -547,7 +557,7 @@ export async function compressPDF(
 
       // Use pdfjs-dist to render each page to a JPEG, then build a fresh doc
       // with one image per page. This guarantees image-heavy PDFs shrink.
-      const pdfjs = await loadPdfjs();
+      const pdfjs = await getPdfJs();
       const loadingTask = pdfjs.getDocument({ data: new Uint8Array(safeBytes) });
       const srcPdf = await loadingTask.promise;
       const totalPages = srcPdf.numPages;
@@ -723,31 +733,67 @@ export async function unlockPDF(payload: {
   // Save with encryption explicitly removed.
   const outputBytes = await pdfDoc.save({ useObjectStreams: true });
 
+  // Verify the output is actually unencrypted by scanning for the /Encrypt
+  // dictionary marker. The marker can appear in either the trailer (most
+  // common) or, rarely, in an xref stream header — so we check both ends
+  // of the file. This guards against any future library regression where
+  // .save() silently preserves the /Encrypt dict.
+  const checkSliceForEncrypt = (offset: number, len: number): boolean => {
+    const slice = outputBytes.subarray(offset, offset + len);
+    return new TextDecoder('ascii', { fatal: false }).decode(slice).includes('/Encrypt');
+  };
+  const headHasEncrypt = checkSliceForEncrypt(0, Math.min(200, outputBytes.length));
+  const tailHasEncrypt = checkSliceForEncrypt(
+    Math.max(0, outputBytes.length - 200),
+    Math.min(200, outputBytes.length)
+  );
+  if (headHasEncrypt || tailHasEncrypt) {
+    throw new Error(
+      'Decryption verification failed: output still contains /Encrypt marker. ' +
+        'The document may use an unsupported encryption scheme.'
+    );
+  }
+
   return outputBytes;
 }
 
 /**
  * Extract images using pdfjs-dist for rendering
+ *
+ * Memory safety: the pdfjs document is destroyed in a `finally` block to
+ * guarantee cleanup on both success and failure paths. The WorkerManager
+ * is a singleton — leaking pdfjs documents would eventually OOM-crash the
+ * shared worker and reject ALL pending operations across the SPA.
  */
 export async function pdfToImage(
   bytes: Uint8Array,
   originalName: string,
   scale: number = 1.5,
   maxPages?: number,
-  format: 'image/png' | 'image/jpeg' = 'image/png'
+  format: 'image/png' | 'image/jpeg' = 'image/png',
+  startPage: number = 1
 ): Promise<{ page: number; imageBytes: Uint8Array }[]> {
+  let pdf: { getPage: (n: number) => Promise<unknown>; numPages: number; destroy: () => Promise<void> } | null = null;
   try {
     const { bytes: safeBytes } = PDFSanitizer.sanitize(bytes);
-    const pdf_js = await loadPdfjs();
+    const pdf_js = await getPdfJs();
 
     const loadingTask = pdf_js.getDocument({ data: safeBytes });
-    const pdf = await loadingTask.promise;
+    pdf = await loadingTask.promise;
 
-    const totalPages = maxPages !== undefined ? Math.min(pdf.numPages, maxPages) : pdf.numPages;
+    // When startPage is specified, render `maxPages` pages starting from startPage.
+    // Otherwise, render from page 1 (original behavior).
+    const effectiveStart = Math.max(1, Math.min(startPage, pdf.numPages));
+    const maxToRender = maxPages !== undefined ? Math.min(maxPages, pdf.numPages - effectiveStart + 1) : pdf.numPages - effectiveStart + 1;
     const rendered: { page: number; imageBytes: Uint8Array }[] = [];
 
-    for (let i = 1; i <= totalPages; i++) {
-      const page = await pdf.getPage(i);
+    for (let offset = 0; offset < maxToRender; offset++) {
+      const i = effectiveStart + offset;
+      const page = (await pdf.getPage(i)) as {
+        getViewport: (opts: { scale: number }) => { width: number; height: number };
+        render: (opts: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }) => { promise: Promise<void> };
+        cleanup: () => void;
+      };
       const viewport = page.getViewport({ scale });
 
       let canvas: OffscreenCanvas | HTMLCanvasElement;
@@ -767,31 +813,50 @@ export async function pdfToImage(
       if (context) {
         await page.render({ canvasContext: context as CanvasRenderingContext2D, viewport }).promise;
         if (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas) {
-          const blob = await canvas.convertToBlob({ type: format, quality: format === 'image/jpeg' ? 0.9 : undefined });
+          const blob = await canvas.convertToBlob({
+            type: format,
+            quality: format === 'image/jpeg' ? 0.9 : undefined,
+          });
           rendered.push({
             page: i,
             imageBytes: new Uint8Array(await blob.arrayBuffer()),
           });
         } else if (canvas instanceof HTMLCanvasElement) {
           const blob = await new Promise<Blob>((resolve, reject) =>
-            canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('blob null'))), format, format === 'image/jpeg' ? 0.9 : undefined)
+            canvas.toBlob(
+              (b) => (b ? resolve(b) : reject(new Error('blob null'))),
+              format,
+              format === 'image/jpeg' ? 0.9 : undefined
+            )
           );
           rendered.push({
             page: i,
             imageBytes: new Uint8Array(await blob.arrayBuffer()),
           });
         }
+        // Free per-page pdfjs resources after each render.
+        page.cleanup();
       }
     }
 
     return rendered;
   } catch (err: unknown) {
-    console.error('Export images failed:', err);
+    logger.error('Export images failed:', err);
     const message = err instanceof Error ? err.message : 'Unknown error';
     throw new Error(
       message ||
         'Error occurred during PDF parsing. Encrypted documents are not supported for canvas extraction.'
     );
+  } finally {
+    // ALWAYS destroy the pdfjs document, even on error. This prevents the
+    // singleton WorkerManager from accumulating leaked documents.
+    if (pdf) {
+      try {
+        await pdf.destroy();
+      } catch (destroyErr: unknown) {
+        logger.error('pdf.destroy() failed during cleanup:', destroyErr);
+      }
+    }
   }
 }
 

@@ -137,9 +137,9 @@ export const ImgToPdfPage: React.FC = () => {
             <FileUploader
               onFilesSelected={handleFilesSelected}
               multiple
-              accept="image/png, image/jpeg, image/jpg"
+              accept="image/png, image/jpeg, image/jpg, image/webp, image/avif, image/gif, image/bmp, image/heic, image/heif"
               title="Select images to convert"
-              subtitle={`Drag PNG, JPG or JPEG files here or browse (Max limit: ${TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB}MB per image)`}
+              subtitle={`Drag PNG, JPG, WebP, AVIF, GIF, BMP, or HEIC files here or browse (Max limit: ${TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB}MB per image)`}
               maxSizeMB={TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB}
             />
           </div>

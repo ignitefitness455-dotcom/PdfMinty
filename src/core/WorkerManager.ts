@@ -150,7 +150,14 @@ export class WorkerManager {
       case 'unlockPDF':
         return await ops.unlockPDF(p as { fileBytes: Uint8Array; password: string });
       case 'pdfToImage':
-        return await ops.pdfToImage(p.bytes as Uint8Array, p.originalName as string, p.scale as number | undefined, p.maxPages as number | undefined, p.format as 'image/png' | 'image/jpeg' | undefined);
+        return await ops.pdfToImage(
+          p.bytes as Uint8Array,
+          p.originalName as string,
+          p.scale as number | undefined,
+          p.maxPages as number | undefined,
+          p.format as 'image/png' | 'image/jpeg' | undefined,
+          p.startPage as number | undefined
+        );
       case 'getPageCount':
         return await ops.getPageCount(p.bytes as Uint8Array);
       default:

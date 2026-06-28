@@ -1,5 +1,10 @@
 /// <reference types="vite/client" />
 
+declare module '*.ttf?arraybuffer' {
+  const buffer: ArrayBuffer;
+  export default buffer;
+}
+
 declare module '*?worker' {
   const WorkerFactory: { new (): Worker };
   export default WorkerFactory;
