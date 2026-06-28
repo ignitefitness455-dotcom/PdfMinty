@@ -346,9 +346,11 @@ ${filtered.map(t => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li
     // Pre-inject longFormBody directly inside the React hydration root element (#root) for raw HTML crawler response!
     const preRenderedContent = `
     <div id="root">
-      <article class="prose max-w-4xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
-        ${finalBody}
-      </article>
+      <noscript>
+        <article class="prose max-w-4xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
+          ${finalBody}
+        </article>
+      </noscript>
     </div>
     `;
     
@@ -460,7 +462,9 @@ ${filtered.map(t => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li
   // 2. Inject pre-rendered content into #root
   const homepageRootContent = `
     <div id="root">
-      ${homepageContent}
+      <noscript>
+        ${homepageContent}
+      </noscript>
     </div>
   `;
   homepageHtml = homepageHtml.replace(/<div\s+id="root"\s*><\/div>/i, homepageRootContent);
