@@ -1,19 +1,22 @@
-import sharp from 'sharp';
+import fs from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import fs from 'node:fs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const publicDir = resolve(__dirname, '../public');
+import sharp from 'sharp';
+
+import { logger } from '../src/utils/logger';
+
+const __filename: string = fileURLToPath(import.meta.url);
+const __dirname: string = dirname(__filename);
+const publicDir: string = resolve(__dirname, '../public');
 
 /**
  * Generate PWA screenshots for the Chrome install dialog.
  * These are simple branded placeholders — replace with real screenshots
  * captured from the deployed app for production use.
  */
-async function generateScreenshots() {
-  const brand = '#059669'; // emerald-600
+async function generateScreenshots(): Promise<void> {
+  const brand: string = '#059669'; // emerald-600
 
   // Desktop screenshot: 1280x720 (16:9)
   await sharp({
@@ -69,10 +72,10 @@ async function generateScreenshots() {
     .png()
     .toFile(resolve(publicDir, 'screenshot-mobile.png'));
 
-  console.log('✓ Generated screenshot-desktop.png and screenshot-mobile.png');
+  logger.info('✓ Generated screenshot-desktop.png and screenshot-mobile.png');
 }
 
-generateScreenshots().catch((err) => {
-  console.error('Screenshot generation failed:', err);
+generateScreenshots().catch((err: unknown) => {
+  logger.error('Screenshot generation failed:', err);
   process.exit(1);
 });

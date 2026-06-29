@@ -1,13 +1,24 @@
-import sharp from 'sharp';
+import fs from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import fs from 'node:fs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const publicDir = resolve(__dirname, '../public');
+import sharp from 'sharp';
 
-const tools = [
+import { logger } from '../src/utils/logger';
+
+const __filename: string = fileURLToPath(import.meta.url);
+const __dirname: string = dirname(__filename);
+const publicDir: string = resolve(__dirname, '../public');
+
+interface Tool {
+  slug: string;
+  name: string;
+  tagline: string;
+  color: string;
+  icon: string;
+}
+
+const tools: Tool[] = [
   { slug: 'merge-pdf', name: 'Merge PDF', tagline: 'Combine multiple PDFs into one', color: '#10b981', icon: 'M' },
   { slug: 'split-pdf', name: 'Split PDF', tagline: 'Extract pages or split into files', color: '#f59e0b', icon: 'S' },
   { slug: 'compress-pdf', name: 'Compress PDF', tagline: 'Reduce file size without quality loss', color: '#6366f1', icon: 'C' },
@@ -25,15 +36,15 @@ const tools = [
   { slug: 'intelligence', name: 'AI PDF Analyzer', tagline: 'Chat with your PDF using AI', color: '#f59e0b', icon: 'A' },
 ];
 
-function buildSvg(tool, isDefault = false) {
-  const bgColor = tool.color;
-  const displayName = isDefault ? 'PDFMinty' : tool.name;
-  const tagline = isDefault ? 'Privacy-First PDF Toolkit' : tool.tagline;
-  const url = isDefault ? 'pdfminty.com' : `pdfminty.com/${tool.slug}`;
-  const iconSize = isDefault ? 100 : 90;
-  const iconY = isDefault ? 260 : 270;
-  const nameY = isDefault ? 390 : 400;
-  const taglineY = isDefault ? 445 : 455;
+function buildSvg(tool: Tool, isDefault: boolean = false): string {
+  const bgColor: string = tool.color;
+  const displayName: string = isDefault ? 'PDFMinty' : tool.name;
+  const tagline: string = isDefault ? 'Privacy-First PDF Toolkit' : tool.tagline;
+  const url: string = isDefault ? 'pdfminty.com' : `pdfminty.com/${tool.slug}`;
+  const iconSize: number = isDefault ? 100 : 90;
+  const iconY: number = isDefault ? 260 : 270;
+  const nameY: number = isDefault ? 390 : 400;
+  const taglineY: number = isDefault ? 445 : 455;
 
   return `<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -60,20 +71,20 @@ function buildSvg(tool, isDefault = false) {
 </svg>`;
 }
 
-async function generateOGImage(tool, filename) {
+async function generateOGImage(tool: Tool, filename: string): Promise<void> {
   await sharp(Buffer.from(buildSvg(tool, filename === 'og-image.png')))
     .png()
     .toFile(resolve(publicDir, filename));
 }
 
-async function generateAll() {
+async function generateAll(): Promise<void> {
   // Default homepage OG image
   await generateOGImage({ slug: '', name: 'PDFMinty', tagline: '15 Free Privacy-First PDF Tools', color: '#059669', icon: 'P' }, 'og-image.png');
-  console.log('✓ Generated og-image.png (homepage)');
+  logger.info('✓ Generated og-image.png (homepage)');
 
   for (const tool of tools) {
     await generateOGImage(tool, `og-${tool.slug}.png`);
-    console.log(`✓ Generated og-${tool.slug}.png`);
+    logger.info(`✓ Generated og-${tool.slug}.png`);
   }
 
   // Article OG image
@@ -81,12 +92,12 @@ async function generateAll() {
     { slug: 'is-it-safe-to-upload-pdf-to-online-tools', name: 'Is It Safe?', tagline: 'PDF Security Analysis', color: '#dc2626', icon: '?' },
     'og-is-it-safe-to-upload-pdf-to-online-tools.png'
   );
-  console.log('✓ Generated og-is-it-safe-to-upload-pdf-to-online-tools.png (article)');
+  logger.info('✓ Generated og-is-it-safe-to-upload-pdf-to-online-tools.png (article)');
 
-  console.log(`\n✓ Generated ${tools.length + 2} OG images total`);
+  logger.info(`\n✓ Generated ${tools.length + 2} OG images total`);
 }
 
-generateAll().catch((err) => {
-  console.error('OG image generation failed:', err);
+generateAll().catch((err: unknown) => {
+  logger.error('OG image generation failed:', err);
   process.exit(1);
 });

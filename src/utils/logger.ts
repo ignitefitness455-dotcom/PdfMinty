@@ -1,7 +1,14 @@
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 class Logger {
-  private isDev = import.meta.env.DEV;
+  private isDev = (() => {
+    try {
+      const meta = import.meta as unknown as { env?: { DEV: boolean } };
+      return meta && meta.env ? meta.env.DEV : process.env.NODE_ENV !== 'production';
+    } catch {
+      return typeof process !== 'undefined' && process.env ? process.env.NODE_ENV !== 'production' : true;
+    }
+  })();
 
   private log(level: LogLevel, message: string, ...args: unknown[]) {
     const timestamp = new Date().toISOString();

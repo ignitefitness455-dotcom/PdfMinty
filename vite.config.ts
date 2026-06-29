@@ -25,7 +25,7 @@ function injectSwVersion() {
   return {
     name: 'pdfminty-inject-sw-version',
     apply: 'build' as const,
-    writeBundle(this: { emitFile: (asset: { type: string; fileName: string }) => void }, options: { dir?: string }) {
+    writeBundle(options: { dir?: string }) {
       const outDir = options.dir;
       if (!outDir) return;
       const swPath = resolve(outDir, 'sw.js');

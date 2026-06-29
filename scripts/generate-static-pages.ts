@@ -1,26 +1,30 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import sharp from 'sharp';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { SITE_URL, SITE_NAME, TOOLS, ToolSEOInfo } from '../src/config/seo-data';
+import { logger } from '../src/utils/logger';
+
+const __filename: string = fileURLToPath(import.meta.url);
+const __dirname: string = path.dirname(__filename);
 
 // Ensure favicons, touch-icons, and OG sharing images are generated on every build
-async function generateAllAssets(publicDir, distDir) {
-  const iconSource = path.join(publicDir, 'logo.svg');
+async function generateAllAssets(publicDir: string, distDir: string): Promise<void> {
+  const iconSource: string = path.join(publicDir, 'logo.svg');
   if (!fs.existsSync(iconSource)) {
-    console.warn('Warning: Source logo.svg not found in public directory. Unable to generate assets.');
+    logger.warn('Warning: Source logo.svg not found in public directory. Unable to generate assets.');
     return;
   }
 
-  console.log('Generating website logos, favicons, and metadata graphics...');
+  logger.info('Generating website logos, favicons, and metadata graphics...');
   try {
     // Ensure both output targets exist
     if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
     if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
 
-    const targets = [publicDir, distDir];
+    const targets: string[] = [publicDir, distDir];
 
     for (const target of targets) {
       if (!fs.existsSync(target)) continue;
@@ -93,72 +97,36 @@ async function generateAllAssets(publicDir, distDir) {
         .toFile(path.join(target, 'og-image.png'));
     }
 
-    console.log('Successfully completed generateAllAssets procedure.');
-  } catch (err) {
-    console.error('Error during asset generation pipeline:', err);
+    logger.info('Successfully completed generateAllAssets procedure.');
+  } catch (err: unknown) {
+    logger.error('Error during asset generation pipeline:', err);
   }
 }
 
-// Single Source of Truth TypeScript File Loader:
-// Compiles/strips TS markers at runtime to load metadata cleanly inside standard Node.js
-async function loadSeoData() {
-  const seoPath = path.join(__dirname, '../src/config/seo-data.ts');
-  const tempJsPath = path.join(__dirname, './seo-static-temp.js');
-  
-  try {
-    let content = fs.readFileSync(seoPath, 'utf8');
-    
-    // Crop out the interface declaration cleanly by finding position markers
-    const interfaceStart = content.indexOf('export interface');
-    const toolsStart = content.indexOf('export const TOOLS');
-    
-    if (interfaceStart !== -1 && toolsStart !== -1) {
-      content = content.substring(0, interfaceStart) + content.substring(toolsStart);
-    }
-    
-    // Remove individual type bindings
-    content = content.replace(': ToolSEOInfo[]', '');
-    
-    fs.writeFileSync(tempJsPath, content, 'utf8');
-    
-    const moduleUrl = pathToFileURL(tempJsPath).href;
-    const data = await import(moduleUrl);
-    
-    return data;
-  } finally {
-    if (fs.existsSync(tempJsPath)) {
-      fs.unlinkSync(tempJsPath);
-    }
-  }
-}
-
-async function run() {
-  const distDir = path.join(__dirname, "../dist");
-  const publicDir = path.join(__dirname, "../public");
+async function run(): Promise<void> {
+  const distDir: string = path.join(__dirname, "../dist");
+  const publicDir: string = path.join(__dirname, "../public");
   
   // Create logos & icons first on every build dynamically
   await generateAllAssets(publicDir, distDir);
 
-  const seoData = await loadSeoData();
-  const { SITE_URL, SITE_NAME, TOOLS } = seoData;
-  
-  const distIndexHtmlPath = path.join(distDir, "index.html");
-  const rootIndexHtmlPath = path.join(__dirname, "../index.html");
+  const distIndexHtmlPath: string = path.join(distDir, "index.html");
+  const rootIndexHtmlPath: string = path.join(__dirname, "../index.html");
   
   let baseHtml = "";
   if (fs.existsSync(distIndexHtmlPath)) {
     baseHtml = fs.readFileSync(distIndexHtmlPath, "utf8");
-    console.log("Reading template from compiled dist/index.html");
+    logger.info("Reading template from compiled dist/index.html");
   } else if (fs.existsSync(rootIndexHtmlPath)) {
     baseHtml = fs.readFileSync(rootIndexHtmlPath, "utf8");
-    console.log("Reading template from root index.html");
+    logger.info("Reading template from root index.html");
   } else {
     throw new Error("Unable to locate any base index.html template file for static generation.");
   }
   
   // Clean base HTML to avoid double definitions (purging titles, descriptions, canonicals, OGs, Twitters, and JSON-LD markup)
-  function cleanBaseTemplate(html) {
-    let clean = html;
+  function cleanBaseTemplate(html: string): string {
+    let clean: string = html;
     clean = clean.replace(/<title>[^<]*<\/title>/gi, "");
     clean = clean.replace(/<meta\s+name="description"[^>]*>/gi, "");
     clean = clean.replace(/<link\s+rel="canonical"[^>]*>/gi, "");
@@ -171,18 +139,18 @@ async function run() {
     return clean;
   }
   
-  const optimizedBase = cleanBaseTemplate(baseHtml);
+  const optimizedBase: string = cleanBaseTemplate(baseHtml);
   
-  TOOLS.forEach((item) => {
-    const pageUrl = `${SITE_URL}/${item.slug}`;
-    const targetFolder = path.join(distDir, item.slug);
+  TOOLS.forEach((item: ToolSEOInfo) => {
+    const pageUrl: string = `${SITE_URL}/${item.slug}`;
+    const targetFolder: string = path.join(distDir, item.slug);
     
     if (!fs.existsSync(targetFolder)) {
       fs.mkdirSync(targetFolder, { recursive: true });
     }
     
     // Construct route-specific JSON-LD blocks
-    const schemas = [];
+    const schemas: Record<string, unknown>[] = [];
     
     if (item.type === 'tool') {
       // 1. WebApplication Schema
@@ -219,7 +187,7 @@ async function run() {
           "@type": "HowTo",
           "name": item.howTo.name,
           "totalTime": item.howTo.totalTime,
-          "step": item.howTo.steps.map((stepText, index) => ({
+          "step": item.howTo.steps.map((stepText: string, index: number) => ({
             "@type": "HowToStep",
             "url": `${pageUrl}#step${index + 1}`,
             "name": stepText,
@@ -243,7 +211,7 @@ async function run() {
         schemas.push({
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          "mainEntity": item.faqs.map(f => ({
+          "mainEntity": item.faqs.map((f: { q: string; a: string }) => ({
             "@type": "Question",
             "name": f.q,
             "acceptedAnswer": {
@@ -277,17 +245,17 @@ async function run() {
     }
     
     // Generate JSON-LD Script tag bundle
-    const jsonLdMarkup = schemas
-      .map(schema => `<script type="application/ld+json">${JSON.stringify(schema)}</script>`)
+    const jsonLdMarkup: string = schemas
+      .map((schema: Record<string, unknown>) => `<script type="application/ld+json">${JSON.stringify(schema)}</script>`)
       .join('\n  ');
       
-    const hreflangTags = `
+    const hreflangTags: string = `
   <link rel="alternate" hreflang="en" href="${pageUrl}" />
   <link rel="alternate" hreflang="x-default" href="${pageUrl}" />
 `;
 
     // Set custom page head meta tags
-    const headMeta = `
+    const headMeta: string = `
   <title>${item.metaTitle}</title>
   <meta name="description" content="${item.metaDescription}">
   <link rel="canonical" href="${pageUrl}">
@@ -305,10 +273,10 @@ async function run() {
   `;
   
     // Inject metadata immediately inside the head element
-    let preRenderedHtml = optimizedBase.replace("</head>", `${headMeta}\n</head>`);
+    let preRenderedHtml: string = optimizedBase.replace("</head>", `${headMeta}\n</head>`);
     
     // Helper function to build related tools list
-    const getRelatedToolsHtml = (currentSlug) => {
+    const getRelatedToolsHtml = (currentSlug: string): string => {
       const toolsList = [
         { slug: 'merge-pdf', label: 'Merge PDF', desc: 'Combine multiple PDFs' },
         { slug: 'split-pdf', label: 'Split PDF', desc: 'Extract pages or split into files' },
@@ -327,24 +295,24 @@ async function run() {
         { slug: 'intelligence', label: 'AI Analyze PDF', desc: 'AI-powered analysis' },
       ];
 
-      const filtered = toolsList.filter(t => t.slug !== currentSlug);
+      const filtered = toolsList.filter((t: { slug: string; label: string; desc: string }) => t.slug !== currentSlug);
 
       return `
 <h2>Related PDF Tools</h2>
 <p>Explore more free, privacy-first PDF tools:</p>
 <ul>
-${filtered.map(t => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li>`).join('\n')}
+${filtered.map((t: { slug: string; label: string; desc: string }) => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li>`).join('\n')}
 </ul>
 `;
     };
 
-    let finalBody = item.longFormBody;
+    let finalBody: string = item.longFormBody;
     if (item.type !== 'article') {
       finalBody += getRelatedToolsHtml(item.slug);
     }
 
     // Pre-inject longFormBody directly inside the React hydration root element (#root) for raw HTML crawler response!
-    const preRenderedContent = `
+    const preRenderedContent: string = `
     <div id="root">
       <noscript>
         <article class="prose max-w-4xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
@@ -359,19 +327,19 @@ ${filtered.map(t => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li
     preRenderedHtml = preRenderedHtml.replace(/<div\s+id="root"\s*>\s*<\/div>/i, preRenderedContent);
     
     fs.writeFileSync(path.join(targetFolder, "index.html"), preRenderedHtml, "utf8");
-    console.log(`Pre-rendered static HTML created for ${item.name} at: ${targetFolder}/index.html`);
+    logger.info(`Pre-rendered static HTML created for ${item.name} at: ${targetFolder}/index.html`);
   });
 
   // ----------------------------------------------------
   // Pre-render the Homepage (dist/index.html)
   // ----------------------------------------------------
-  console.log("Pre-rendering static HTML for the Homepage...");
+  logger.info("Pre-rendering static HTML for the Homepage...");
   
   const homepageContent = `
   <main class="prose max-w-6xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
     <h1>Free PDF Tools — Privacy-First, 100% Browser-Based</h1>
     <p>PDFMinty is a free, privacy-first PDF toolkit with 15 powerful tools that run entirely in your browser. Your files never leave your device — no server uploads, no sign-ups, no limits. Merge, split, compress, protect, convert, and edit PDFs with complete confidentiality.</p>
-
+ 
     <h2>Popular PDF Tools</h2>
     <ul>
       <li><a href="/merge-pdf">Merge PDF</a> — Combine multiple PDFs into one document</li>
@@ -385,7 +353,7 @@ ${filtered.map(t => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li
       <li><a href="/image-to-pdf">Image to PDF</a> — Convert JPG, PNG, WebP to PDF</li>
       <li><a href="/pdf-to-image">PDF to Image</a> — Convert PDF pages to PNG/JPEG</li>
     </ul>
-
+ 
     <h2>Why Choose PDFMinty?</h2>
     <p>Unlike other online PDF tools that upload your files to remote servers, PDFMinty processes everything locally in your browser using WebAssembly. This means:</p>
     <ul>
@@ -395,25 +363,25 @@ ${filtered.map(t => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li
       <li><strong>No Registration:</strong> All tools are 100% free with no sign-up</li>
       <li><strong>Works Offline:</strong> PWA-enabled — install and use without internet</li>
     </ul>
-
+ 
     <h2>How PDFMinty Protects Your Privacy</h2>
     <p>Every PDF operation in PDFMinty happens client-side using JavaScript and WebAssembly. When you upload a file, it's loaded into your browser's memory, processed locally, and the result is generated on your device. The file is never transmitted over the network. This is fundamentally different from traditional online PDF tools that require you to upload files to their servers.</p>
-
+ 
     <p>Our privacy-first architecture makes PDFMinty ideal for processing sensitive documents like tax returns, medical records, financial statements, legal contracts, and any file containing personal information.</p>
-
+ 
     <h2>Frequently Asked Questions</h2>
     <h3>Is PDFMinty really free?</h3>
     <p>Yes, PDFMinty is 100% free to use. All 15 tools are available without subscription, payment, or registration.</p>
-
+ 
     <h3>Are my files uploaded to your server?</h3>
     <p>No. PDFMinty is a privacy-first tool. All PDF processing happens entirely in your browser using client-side JavaScript. Your files never leave your device.</p>
-
+ 
     <h3>What is the maximum file size?</h3>
     <p>PDFMinty can handle individual PDF files up to 100MB and combined operations up to 150MB total. Performance depends on your device's memory and processing power.</p>
-
+ 
     <h3>Do I need to install any software?</h3>
     <p>No installation required. PDFMinty runs in any modern browser (Chrome, Firefox, Safari, Edge). You can also install it as a PWA for offline access.</p>
-
+ 
     <h2>Start Processing Your PDFs Now</h2>
     <p>Browse our complete collection of PDF tools above. All tools are free, private, and work instantly in your browser.</p>
   </main>
@@ -450,7 +418,7 @@ ${filtered.map(t => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li
   </script>
 `;
 
-  let homepageHtml = baseHtml;
+  let homepageHtml: string = baseHtml;
 
   // 1. Inject FAQ schema and dynamic hreflang tags before </head>
   const homepageHreflangTags = `
@@ -471,10 +439,10 @@ ${filtered.map(t => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li
   homepageHtml = homepageHtml.replace(/<div\s+id="root"\s*>\s*<\/div>/i, homepageRootContent);
 
   fs.writeFileSync(distIndexHtmlPath, homepageHtml, "utf8");
-  console.log("Successfully pre-rendered static HTML for the Homepage at dist/index.html");
+  logger.info("Successfully pre-rendered static HTML for the Homepage at dist/index.html");
 }
 
-run().catch((err) => {
-  console.error("FATAL: Failed to pre-render static HTML pages:", err);
+run().catch((err: unknown) => {
+  logger.error("FATAL: Failed to pre-render static HTML pages:", err);
   process.exit(1);
 });

@@ -1,25 +1,28 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import sharp from 'sharp';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const publicDir = path.join(__dirname, '../public');
+import { logger } from '../src/utils/logger';
 
-const iconSource = fs.existsSync(path.join(publicDir, 'logo.svg'))
+const __filename: string = fileURLToPath(import.meta.url);
+const __dirname: string = path.dirname(__filename);
+const publicDir: string = path.join(__dirname, '../public');
+
+const iconSource: string | null = fs.existsSync(path.join(publicDir, 'logo.svg'))
   ? path.join(publicDir, 'logo.svg')
   : fs.existsSync(path.join(publicDir, 'logo.png'))
     ? path.join(publicDir, 'logo.png')
     : null;
 
-async function generateFavicons() {
+async function generateFavicons(): Promise<void> {
   if (!iconSource) {
-    console.warn('No logo.svg or logo.png found in public directory. Skipping favicon generation.');
+    logger.warn('No logo.svg or logo.png found in public directory. Skipping favicon generation.');
     return;
   }
 
-  console.log(`Generating favicons from ${iconSource}...`);
+  logger.info(`Generating favicons from ${iconSource}...`);
   try {
     // 192x192
     await sharp(iconSource)
@@ -40,16 +43,14 @@ async function generateFavicons() {
       .toFile(path.join(publicDir, 'apple-touch-icon.png'));
 
     // favicon.ico (32x32)
-    // Note: sharp doesn't output .ico natively easily without an older format, so we just output a 32x32 png
-    // and rename to .ico, browsers support this or use link rel="icon" type="image/png"
     await sharp(iconSource)
       .resize(32, 32)
       .png()
       .toFile(path.join(publicDir, 'favicon.ico'));
 
-    console.log('Favicon generation complete.');
-  } catch (error) {
-    console.error('Failed to generate favicons:', error);
+    logger.info('Favicon generation complete.');
+  } catch (error: unknown) {
+    logger.error('Failed to generate favicons:', error);
   }
 }
 

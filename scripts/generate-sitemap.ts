@@ -1,25 +1,15 @@
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { TOOLS, ToolSEOInfo } from '../src/config/seo-data';
+import { logger } from '../src/utils/logger';
 
-async function loadToolsFromTs() {
-  const tsPath = path.resolve(__dirname, '../src/config/seo-data.ts');
-  const tsContent = fs.readFileSync(tsPath, 'utf-8');
-  let stripped = tsContent.replace(/export\s+interface[\s\S]*?\n\}\s*\n/g, '');
-  stripped = stripped.replace(/: ToolSEOInfo\[\]/g, '');
-  const tempPath = path.join(os.tmpdir(), `pdfminty-seo-data-${Date.now()}.mjs`);
-  fs.writeFileSync(tempPath, stripped);
-  const mod = await import(tempPath);
-  fs.unlinkSync(tempPath);
-  return mod.TOOLS;
-}
+const __filename: string = fileURLToPath(import.meta.url);
+const __dirname: string = path.dirname(__filename);
 
-function slugToPageFile(slug) {
-  const map = {
+function slugToPageFile(slug: string): string {
+  const map: Record<string, string> = {
     'merge-pdf': 'MergePage',
     'split-pdf': 'SplitPage',
     'compress-pdf': 'CompressPage',
@@ -40,22 +30,29 @@ function slugToPageFile(slug) {
   return map[slug] || slug;
 }
 
-(async () => {
-  const TOOLS = await loadToolsFromTs();
-  const distDir = path.resolve(__dirname, '../dist');
+interface SitemapUrl {
+  loc: string;
+  lastmod: string;
+  changefreq: string;
+  priority: string;
+  image: string;
+}
+
+async function run(): Promise<void> {
+  const distDir: string = path.resolve(__dirname, '../dist');
   if (!fs.existsSync(distDir)) {
     fs.mkdirSync(distDir, { recursive: true });
   }
 
   const SITE_URL = 'https://pdfminty.com';
-  const urls = [];
+  const urls: SitemapUrl[] = [];
 
   for (const tool of TOOLS) {
-    const slug = tool.slug;
-    const pageSourcePath = path.resolve(__dirname, `../src/pages/${slugToPageFile(slug)}.tsx`);
-    let lastmod;
+    const slug: string = tool.slug;
+    const pageSourcePath: string = path.resolve(__dirname, `../src/pages/${slugToPageFile(slug)}.tsx`);
+    let lastmod: string;
     try {
-      const stat = fs.statSync(pageSourcePath);
+      const stat: fs.Stats = fs.statSync(pageSourcePath);
       lastmod = stat.mtime.toISOString().split('T')[0];
     } catch {
       lastmod = new Date().toISOString().split('T')[0];
@@ -80,7 +77,7 @@ function slugToPageFile(slug) {
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-${urls.map((u) => `  <url>
+${urls.map((u: SitemapUrl) => `  <url>
     <loc>${u.loc}</loc>
     <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
@@ -93,5 +90,10 @@ ${urls.map((u) => `  <url>
 `;
 
   fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemapXml);
-  console.log(`✓ Generated sitemap.xml with ${urls.length} URLs`);
-})();
+  logger.info(`✓ Generated sitemap.xml with ${urls.length} URLs`);
+}
+
+run().catch((err: unknown) => {
+  logger.error('Sitemap generation failed:', err);
+  process.exit(1);
+});
