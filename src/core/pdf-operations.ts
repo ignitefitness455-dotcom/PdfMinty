@@ -601,12 +601,8 @@ export async function compressPDF(
         const totalPages = srcPdf.numPages;
         const newPdf = await PlainPDFDocument.create();
 
-        // 1. Pre-allocate a single canvas to reuse, preventing memory leaks and limits on mobile
-        let canvas: OffscreenCanvas | HTMLCanvasElement;
-        if (typeof OffscreenCanvas !== 'undefined') {
-          canvas = new OffscreenCanvas(1, 1);
-        } else {
-          canvas = document.createElement('canvas');
+        interface HTMLCanvasLike {
+          toBlob(callback: (blob: Blob | null) => void, type?: string, quality?: number): void;
         }
 
         const canvasToBlob = async (
@@ -616,16 +612,20 @@ export async function compressPDF(
           if (typeof OffscreenCanvas !== 'undefined' && canv instanceof OffscreenCanvas) {
             return await canv.convertToBlob({ type: 'image/jpeg', quality });
           } else {
-            return new Promise<Blob>((resolve, reject) => {
-              (canv as HTMLCanvasElement).toBlob(
-                (blob) => {
-                  if (blob) resolve(blob);
-                  else reject(new Error('Canvas toBlob failed'));
-                },
-                'image/jpeg',
-                quality
-              );
-            });
+            const maybeHtmlCanvas = canv as unknown as HTMLCanvasLike;
+            if (typeof maybeHtmlCanvas.toBlob === 'function') {
+              return new Promise<Blob>((resolve, reject) => {
+                maybeHtmlCanvas.toBlob(
+                  (blob) => {
+                    if (blob) resolve(blob);
+                    else reject(new Error('Canvas toBlob failed'));
+                  },
+                  'image/jpeg',
+                  quality
+                );
+              });
+            }
+            throw new Error('Canvas conversion method (toBlob) is not supported in this environment.');
           }
         };
 
@@ -648,11 +648,22 @@ export async function compressPDF(
 
             const viewport = page.getViewport({ scale });
 
-            // Resize existing canvas to current page size (resets its canvas buffer context)
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
+            // Create a brand new canvas for each page to avoid context reset issues/corruption on OffscreenCanvas
+            let canvas: OffscreenCanvas | HTMLCanvasElement;
+            let context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
 
-            const context = canvas.getContext('2d');
+            if (typeof OffscreenCanvas !== 'undefined') {
+              canvas = new OffscreenCanvas(viewport.width, viewport.height);
+              context = canvas.getContext('2d');
+            } else if (typeof document !== 'undefined') {
+              canvas = document.createElement('canvas');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              context = canvas.getContext('2d');
+            } else {
+              throw new Error('No canvas implementation found.');
+            }
+
             if (!context) {
               throw new Error('Canvas 2D context unavailable; cannot compress images.');
             }
