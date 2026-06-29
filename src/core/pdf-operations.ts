@@ -58,7 +58,7 @@ async function loadPlainPDF(bytes: Uint8Array, skipEncryptionCheck = false) {
 let fontBytes: Uint8Array | null = null;
 
 async function getFontBytes(): Promise<Uint8Array> {
-  if (fontBytes) return fontBytes;
+  if (fontBytes && fontBytes.length > 50000) return fontBytes;
 
   // Try reading from filesystem if we are in a Node/test environment (like Vitest, even with jsdom/happy-dom)
   if (typeof process !== 'undefined') {
@@ -68,20 +68,28 @@ async function getFontBytes(): Promise<Uint8Array> {
       const fontPath = path.resolve(process.cwd(), 'public/fonts/NotoSans-Regular.ttf');
       if (fs.existsSync(fontPath)) {
         const fileBuffer = fs.readFileSync(fontPath);
-        const arrayBuffer = fileBuffer.buffer.slice(
-          fileBuffer.byteOffset,
-          fileBuffer.byteOffset + fileBuffer.byteLength
-        );
-        fontBytes = new Uint8Array(arrayBuffer);
-        return fontBytes;
+        if (fileBuffer.length > 50000) {
+          const cleanBytes = new Uint8Array(fileBuffer);
+          fontBytes = cleanBytes;
+          return fontBytes;
+        }
       }
     } catch (err) {
-      // Fallback
+      console.error('getFontBytes error:', err);
     }
   }
 
   const rawData = (notoSansRegularBytes as any)?.default || notoSansRegularBytes;
-  fontBytes = new Uint8Array(rawData as unknown as ArrayBuffer);
+  if (rawData) {
+    const fallbackBytes = new Uint8Array(rawData as unknown as ArrayBuffer);
+    if (fallbackBytes.length > 50000) {
+      fontBytes = fallbackBytes;
+      return fontBytes;
+    }
+  }
+
+  // Final fallback to a mock/empty if nothing else is available
+  fontBytes = new Uint8Array(0);
   return fontBytes;
 }
 
