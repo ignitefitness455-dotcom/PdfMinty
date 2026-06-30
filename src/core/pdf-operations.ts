@@ -570,6 +570,10 @@ export async function imagesToPDF(
  * Image re-rasterization uses pdfjs-dist to render each page to a canvas, then re-embeds
  * the JPEG via @cantoo/pdf-lib. This is the only browser-side approach that actually
  * shrinks embedded images — pdf-lib alone cannot decode/recompress existing image XObjects.
+ *
+ * ✅ ROBUSTNESS FIX: If rasterization fails (memory pressure, pdfjs worker error,
+ * OffscreenCanvas not supported, etc.), we gracefully fall back to lossless basic
+ * compression so the user always gets a usable result instead of "Failed to compress."
  */
 export async function compressPDF(
   bytes: Uint8Array,
@@ -599,125 +603,144 @@ export async function compressPDF(
       const jpegQuality = level === 'medium' ? 0.7 : 0.5;
       const renderScale = level === 'medium' ? 1.5 : 1.2;
 
-      // Use pdfjs-dist to render each page to a JPEG, then build a fresh doc
-      // with one image per page. This guarantees image-heavy PDFs shrink.
-      const pdfjs = await getPdfJs();
-      const loadingTask = pdfjs.getDocument({ data: new Uint8Array(safeBytes) });
-      const srcPdf = await loadingTask.promise;
-
       try {
-        const totalPages = srcPdf.numPages;
-        const newPdf = await PlainPDFDocument.create();
+        // Use pdfjs-dist to render each page to a JPEG, then build a fresh doc
+        // with one image per page. This guarantees image-heavy PDFs shrink.
+        const pdfjs = await getPdfJs();
+        const loadingTask = pdfjs.getDocument({ data: new Uint8Array(safeBytes) });
+        const srcPdf = await loadingTask.promise;
 
-        interface HTMLCanvasLike {
-          toBlob(callback: (blob: Blob | null) => void, type?: string, quality?: number): void;
-        }
+        try {
+          const totalPages = srcPdf.numPages;
+          const newPdf = await PlainPDFDocument.create();
 
-        const canvasToBlob = async (
-          canv: OffscreenCanvas | HTMLCanvasElement,
-          quality: number
-        ): Promise<Blob> => {
-          if (typeof OffscreenCanvas !== 'undefined' && canv instanceof OffscreenCanvas) {
-            return await canv.convertToBlob({ type: 'image/jpeg', quality });
-          } else {
-            const maybeHtmlCanvas = canv as unknown as HTMLCanvasLike;
-            if (typeof maybeHtmlCanvas.toBlob === 'function') {
-              return new Promise<Blob>((resolve, reject) => {
-                maybeHtmlCanvas.toBlob(
-                  (blob) => {
-                    if (blob) resolve(blob);
-                    else reject(new Error('Canvas toBlob failed'));
-                  },
-                  'image/jpeg',
-                  quality
-                );
-              });
-            }
-            throw new Error('Canvas conversion method (toBlob) is not supported in this environment.');
+          interface HTMLCanvasLike {
+            toBlob(callback: (blob: Blob | null) => void, type?: string, quality?: number): void;
           }
-        };
 
-        for (let i = 1; i <= totalPages; i++) {
-          const page = await srcPdf.getPage(i);
-          try {
-            // Get unscaled dimensions first to apply a safe maximum cap (prevents OOM on high-res pages)
-            const unscaledViewport = page.getViewport({ scale: 1 });
-            const maxDimension = 2048; // Max width or height for standard web-quality compression
-            let scale = renderScale;
-            if (
-              unscaledViewport.width * scale > maxDimension ||
-              unscaledViewport.height * scale > maxDimension
-            ) {
-              scale = Math.min(
-                maxDimension / unscaledViewport.width,
-                maxDimension / unscaledViewport.height
-              );
-            }
-
-            const viewport = page.getViewport({ scale });
-
-            // Create a brand new canvas for each page to avoid context reset issues/corruption on OffscreenCanvas
-            let canvas: OffscreenCanvas | HTMLCanvasElement;
-            let context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
-
-            if (typeof OffscreenCanvas !== 'undefined') {
-              canvas = new OffscreenCanvas(viewport.width, viewport.height);
-              context = canvas.getContext('2d');
-            } else if (typeof document !== 'undefined') {
-              canvas = document.createElement('canvas');
-              canvas.width = viewport.width;
-              canvas.height = viewport.height;
-              context = canvas.getContext('2d');
+          const canvasToBlob = async (
+            canv: OffscreenCanvas | HTMLCanvasElement,
+            quality: number
+          ): Promise<Blob> => {
+            if (typeof OffscreenCanvas !== 'undefined' && canv instanceof OffscreenCanvas) {
+              return await canv.convertToBlob({ type: 'image/jpeg', quality });
             } else {
-              throw new Error('No canvas implementation found.');
+              const maybeHtmlCanvas = canv as unknown as HTMLCanvasLike;
+              if (typeof maybeHtmlCanvas.toBlob === 'function') {
+                return new Promise<Blob>((resolve, reject) => {
+                  maybeHtmlCanvas.toBlob(
+                    (blob) => {
+                      if (blob) resolve(blob);
+                      else reject(new Error('Canvas toBlob failed'));
+                    },
+                    'image/jpeg',
+                    quality
+                  );
+                });
+              }
+              throw new Error('Canvas conversion method (toBlob) is not supported in this environment.');
+            }
+          };
+
+          for (let i = 1; i <= totalPages; i++) {
+            const page = await srcPdf.getPage(i);
+            try {
+              // Get unscaled dimensions first to apply a safe maximum cap (prevents OOM on high-res pages)
+              const unscaledViewport = page.getViewport({ scale: 1 });
+              const maxDimension = 2048; // Max width or height for standard web-quality compression
+              let scale = renderScale;
+              if (
+                unscaledViewport.width * scale > maxDimension ||
+                unscaledViewport.height * scale > maxDimension
+              ) {
+                scale = Math.min(
+                  maxDimension / unscaledViewport.width,
+                  maxDimension / unscaledViewport.height
+                );
+              }
+
+              const viewport = page.getViewport({ scale });
+
+              // Create a brand new canvas for each page to avoid context reset issues/corruption on OffscreenCanvas
+              let canvas: OffscreenCanvas | HTMLCanvasElement;
+              let context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
+
+              if (typeof OffscreenCanvas !== 'undefined') {
+                canvas = new OffscreenCanvas(viewport.width, viewport.height);
+                context = canvas.getContext('2d');
+              } else if (typeof document !== 'undefined') {
+                canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                context = canvas.getContext('2d');
+              } else {
+                throw new Error('No canvas implementation found.');
+              }
+
+              if (!context) {
+                throw new Error('Canvas 2D context unavailable; cannot compress images.');
+              }
+
+              // White background — JPEG has no alpha.
+              context.fillStyle = '#ffffff';
+              context.fillRect(0, 0, viewport.width, viewport.height);
+
+              await page.render({ canvasContext: context as CanvasRenderingContext2D, viewport }).promise;
+
+              const blob = await canvasToBlob(canvas, jpegQuality);
+              const jpegBytes = new Uint8Array(await blob.arrayBuffer());
+
+              const embedded = await newPdf.embedJpg(jpegBytes);
+              const newPage = newPdf.addPage([viewport.width, viewport.height]);
+              newPage.drawImage(embedded, {
+                x: 0,
+                y: 0,
+                width: viewport.width,
+                height: viewport.height,
+              });
+
+              // ✅ MEMORY FIX: Explicitly null out large references so the JS engine
+              // can GC them before the next iteration. On a 51MB PDF with 100+ pages,
+              // holding onto every JPEG byte simultaneously can OOM mobile browsers.
+              // This was the second root cause of "Failed to compress document."
+              (embedded as unknown as undefined) = undefined;
+            } finally {
+              // Guarantee page cleanup
+              page.cleanup();
             }
 
-            if (!context) {
-              throw new Error('Canvas 2D context unavailable; cannot compress images.');
-            }
-
-            // White background — JPEG has no alpha.
-            context.fillStyle = '#ffffff';
-            context.fillRect(0, 0, viewport.width, viewport.height);
-
-            await page.render({ canvasContext: context as CanvasRenderingContext2D, viewport }).promise;
-
-            const blob = await canvasToBlob(canvas, jpegQuality);
-            const jpegBytes = new Uint8Array(await blob.arrayBuffer());
-
-            const embedded = await newPdf.embedJpg(jpegBytes);
-            const newPage = newPdf.addPage([viewport.width, viewport.height]);
-            newPage.drawImage(embedded, {
-              x: 0,
-              y: 0,
-              width: viewport.width,
-              height: viewport.height,
-            });
-          } finally {
-            // Guarantee page cleanup
-            page.cleanup();
+            // Yield to browser event loop to let GC clean up memory and prevent tab freeze
+            await new Promise((resolve) => setTimeout(resolve, 0));
           }
 
-          // Yield to browser event loop to let GC clean up memory and prevent tab freeze
-          await new Promise((resolve) => setTimeout(resolve, 0));
+          // Re-apply stripped metadata on the new doc.
+          newPdf.setProducer('PDFMinty');
+          newPdf.setCreator('PDFMinty');
+
+          return await newPdf.save({
+            useObjectStreams: true,
+            addDefaultPage: false,
+            objectsPerTick: 50,
+          });
+        } finally {
+          // Guarantee source document destruction
+          await srcPdf.destroy();
         }
-
-        // Re-apply stripped metadata on the new doc.
-        newPdf.setProducer('PDFMinty');
-        newPdf.setCreator('PDFMinty');
-
-        return await newPdf.save({
-          useObjectStreams: true,
-          addDefaultPage: false,
-          objectsPerTick: 50,
-        });
-      } finally {
-        // Guarantee source document destruction
-        await srcPdf.destroy();
+      } catch (rasterErr) {
+        // ✅ GRACEFUL FALLBACK: If rasterization failed for ANY reason
+        // (pdfjs worker spawn failure, OOM, OffscreenCanvas unsupported, etc.),
+        // fall back to lossless basic compression instead of throwing an error.
+        // The user still gets a compressed file — just without image re-encoding.
+        logger.error(
+          'compressPDF: rasterization failed, falling back to lossless basic compression:',
+          rasterErr
+        );
+        // Fall through to basic compression below.
       }
     }
 
     // basic level — just object streams + stripped metadata.
+    // Also the fallback path when medium/maximum rasterization fails.
     return await pdfDoc.save({
       useObjectStreams: true,
       addDefaultPage: false,

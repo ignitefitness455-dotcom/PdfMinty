@@ -1,23 +1,51 @@
 import type * as PDFJSTypes from 'pdfjs-dist';
+// ✅ FIX (Bug #1): Use Vite's static `?url` import.
+// This is resolved at BUILD TIME by Vite, producing the correct hashed URL
+// for the pdfjs worker bundle. It works in BOTH the main thread AND inside
+// a Web Worker (nested worker case).
+//
+// The old code used:
+//   const workerUrl = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+//
+// That pattern is ONLY supported by Vite for files in the local source tree
+// (relative paths). For node_modules paths like 'pdfjs-dist/build/pdf.worker.min.mjs',
+// Vite does NOT rewrite the URL — it stays as a literal string. Inside our
+// Web Worker (src/workers/pdf-worker.ts → bundled as /assets/pdf-worker-[hash].js),
+// `import.meta.url` points to the worker's own URL, so the resolved URL
+// became `/assets/pdfjs-dist/build/pdf.worker.min.mjs` — which does not exist.
+// pdfjs then failed to spawn its sub-worker, getDocument() rejected, and
+// CompressPage showed "Failed to compress document."
+//
+// Using `?url` is the officially recommended Vite pattern for referencing
+// assets from node_modules. See: https://vitejs.dev/guide/assets.html#url-imports
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 import { PDFSanitizer } from './PDFSanitizer';
 
 export { WorkerManager } from './WorkerManager';
 
 let cachedPdfJs: typeof import('pdfjs-dist') | null = null;
+let workerInitialized = false;
 
 if (import.meta.hot) {
-  import.meta.hot.dispose(() => { cachedPdfJs = null; });
+  import.meta.hot.dispose(() => {
+    cachedPdfJs = null;
+    workerInitialized = false;
+  });
 }
 
 export const getPdfJs = async () => {
   if (cachedPdfJs) return cachedPdfJs;
   const pdfjs = await import('pdfjs-dist');
+
   // Worker must be initialized in exactly ONE place. Duplicate GlobalWorkerOptions.workerSrc
   // assignments across multiple page components previously caused the worker to never attach
   // correctly, hanging loadingTask.promise forever and silently dropping uploaded files.
-  const workerUrl = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
-  pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+  if (!workerInitialized) {
+    pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+    workerInitialized = true;
+  }
+
   cachedPdfJs = pdfjs;
   return pdfjs;
 };
