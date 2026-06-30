@@ -570,18 +570,33 @@ export async function imagesToPDF(
  * Image re-rasterization uses pdfjs-dist to render each page to a canvas, then re-embeds
  * the JPEG via @cantoo/pdf-lib. This is the only browser-side approach that actually
  * shrinks embedded images — pdf-lib alone cannot decode/recompress existing image XObjects.
- *
- * ✅ ROBUSTNESS FIX: If rasterization fails (memory pressure, pdfjs worker error,
- * OffscreenCanvas not supported, etc.), we gracefully fall back to lossless basic
- * compression so the user always gets a usable result instead of "Failed to compress."
  */
 export async function compressPDF(
   bytes: Uint8Array,
   level: 'basic' | 'medium' | 'maximum' = 'basic'
 ): Promise<Uint8Array> {
-  // Always start by sanitizing + loading with the plain loader (we don't need encryption here).
+  // Sanitize once and reuse `safeBytes` below for both pdf-lib and, in the
+  // medium/maximum branch, pdfjs-dist. Compression doesn't need decryption
+  // support, but — like every other operation in this file — it must still
+  // detect an encrypted input up front and fail with the same friendly,
+  // actionable message instead of letting pdf-lib's raw internal error reach
+  // the user unwrapped (the previous version skipped this check entirely and
+  // loaded outside any try/catch, so a corrupted/encrypted file here bypassed
+  // handlePdfLibError() completely instead of getting the friendly message
+  // every other tool gives).
   const { bytes: safeBytes } = PDFSanitizer.sanitize(bytes);
-  const pdfDoc = await PlainPDFDocument.load(safeBytes);
+  let pdfDoc: PlainPDFDocument;
+  try {
+    const encrypted = await PDFSanitizer.isEncrypted(safeBytes);
+    if (encrypted) {
+      throw new Error(
+        'SECURED_LOCKED: This PDF appears to be password protected — please use Unlock PDF first.'
+      );
+    }
+    pdfDoc = await PlainPDFDocument.load(safeBytes);
+  } catch (err) {
+    handlePdfLibError(err, 'Failed to read PDF document. It may be corrupted.');
+  }
 
   try {
     // Step 1 — strip metadata that bloats the file.
@@ -603,151 +618,188 @@ export async function compressPDF(
       const jpegQuality = level === 'medium' ? 0.7 : 0.5;
       const renderScale = level === 'medium' ? 1.5 : 1.2;
 
+      // Use pdfjs-dist to render each page to a JPEG, then build a fresh doc
+      // with one image per page. This guarantees image-heavy PDFs shrink.
+      const pdfjs = await getPdfJs();
+      const loadingTask = pdfjs.getDocument({ data: new Uint8Array(safeBytes) });
+      const srcPdf = await loadingTask.promise;
+
       try {
-        // Use pdfjs-dist to render each page to a JPEG, then build a fresh doc
-        // with one image per page. This guarantees image-heavy PDFs shrink.
-        const pdfjs = await getPdfJs();
-        const loadingTask = pdfjs.getDocument({ data: new Uint8Array(safeBytes) });
-        const srcPdf = await loadingTask.promise;
+        const totalPages = srcPdf.numPages;
+        const newPdf = await PlainPDFDocument.create();
 
-        try {
-          const totalPages = srcPdf.numPages;
-          const newPdf = await PlainPDFDocument.create();
-
-          interface HTMLCanvasLike {
-            toBlob(callback: (blob: Blob | null) => void, type?: string, quality?: number): void;
-          }
-
-          const canvasToBlob = async (
-            canv: OffscreenCanvas | HTMLCanvasElement,
-            quality: number
-          ): Promise<Blob> => {
-            if (typeof OffscreenCanvas !== 'undefined' && canv instanceof OffscreenCanvas) {
-              return await canv.convertToBlob({ type: 'image/jpeg', quality });
-            } else {
-              const maybeHtmlCanvas = canv as unknown as HTMLCanvasLike;
-              if (typeof maybeHtmlCanvas.toBlob === 'function') {
-                return new Promise<Blob>((resolve, reject) => {
-                  maybeHtmlCanvas.toBlob(
-                    (blob) => {
-                      if (blob) resolve(blob);
-                      else reject(new Error('Canvas toBlob failed'));
-                    },
-                    'image/jpeg',
-                    quality
-                  );
-                });
-              }
-              throw new Error('Canvas conversion method (toBlob) is not supported in this environment.');
-            }
-          };
-
-          for (let i = 1; i <= totalPages; i++) {
-            const page = await srcPdf.getPage(i);
-            try {
-              // Get unscaled dimensions first to apply a safe maximum cap (prevents OOM on high-res pages)
-              const unscaledViewport = page.getViewport({ scale: 1 });
-              const maxDimension = 2048; // Max width or height for standard web-quality compression
-              let scale = renderScale;
-              if (
-                unscaledViewport.width * scale > maxDimension ||
-                unscaledViewport.height * scale > maxDimension
-              ) {
-                scale = Math.min(
-                  maxDimension / unscaledViewport.width,
-                  maxDimension / unscaledViewport.height
-                );
-              }
-
-              const viewport = page.getViewport({ scale });
-
-              // Create a brand new canvas for each page to avoid context reset issues/corruption on OffscreenCanvas
-              let canvas: OffscreenCanvas | HTMLCanvasElement;
-              let context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
-
-              if (typeof OffscreenCanvas !== 'undefined') {
-                canvas = new OffscreenCanvas(viewport.width, viewport.height);
-                context = canvas.getContext('2d');
-              } else if (typeof document !== 'undefined') {
-                canvas = document.createElement('canvas');
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                context = canvas.getContext('2d');
-              } else {
-                throw new Error('No canvas implementation found.');
-              }
-
-              if (!context) {
-                throw new Error('Canvas 2D context unavailable; cannot compress images.');
-              }
-
-              // White background — JPEG has no alpha.
-              context.fillStyle = '#ffffff';
-              context.fillRect(0, 0, viewport.width, viewport.height);
-
-              await page.render({ canvasContext: context as CanvasRenderingContext2D, viewport }).promise;
-
-              const blob = await canvasToBlob(canvas, jpegQuality);
-              const jpegBytes = new Uint8Array(await blob.arrayBuffer());
-
-              const embedded = await newPdf.embedJpg(jpegBytes);
-              const newPage = newPdf.addPage([viewport.width, viewport.height]);
-              newPage.drawImage(embedded, {
-                x: 0,
-                y: 0,
-                width: viewport.width,
-                height: viewport.height,
-              });
-
-              // ✅ MEMORY FIX: Explicitly null out large references so the JS engine
-              // can GC them before the next iteration. On a 51MB PDF with 100+ pages,
-              // holding onto every JPEG byte simultaneously can OOM mobile browsers.
-              // This was the second root cause of "Failed to compress document."
-              (embedded as unknown as undefined) = undefined;
-            } finally {
-              // Guarantee page cleanup
-              page.cleanup();
-            }
-
-            // Yield to browser event loop to let GC clean up memory and prevent tab freeze
-            await new Promise((resolve) => setTimeout(resolve, 0));
-          }
-
-          // Re-apply stripped metadata on the new doc.
-          newPdf.setProducer('PDFMinty');
-          newPdf.setCreator('PDFMinty');
-
-          return await newPdf.save({
-            useObjectStreams: true,
-            addDefaultPage: false,
-            objectsPerTick: 50,
-          });
-        } finally {
-          // Guarantee source document destruction
-          await srcPdf.destroy();
+        interface HTMLCanvasLike {
+          toBlob(callback: (blob: Blob | null) => void, type?: string, quality?: number): void;
         }
-      } catch (rasterErr) {
-        // ✅ GRACEFUL FALLBACK: If rasterization failed for ANY reason
-        // (pdfjs worker spawn failure, OOM, OffscreenCanvas unsupported, etc.),
-        // fall back to lossless basic compression instead of throwing an error.
-        // The user still gets a compressed file — just without image re-encoding.
-        logger.error(
-          'compressPDF: rasterization failed, falling back to lossless basic compression:',
-          rasterErr
-        );
-        // Fall through to basic compression below.
+
+        const canvasToBlob = async (
+          canv: OffscreenCanvas | HTMLCanvasElement,
+          quality: number
+        ): Promise<Blob> => {
+          if (typeof OffscreenCanvas !== 'undefined' && canv instanceof OffscreenCanvas) {
+            return await canv.convertToBlob({ type: 'image/jpeg', quality });
+          } else {
+            const maybeHtmlCanvas = canv as unknown as HTMLCanvasLike;
+            if (typeof maybeHtmlCanvas.toBlob === 'function') {
+              return new Promise<Blob>((resolve, reject) => {
+                maybeHtmlCanvas.toBlob(
+                  (blob) => {
+                    if (blob) resolve(blob);
+                    else reject(new Error('Canvas toBlob failed'));
+                  },
+                  'image/jpeg',
+                  quality
+                );
+              });
+            }
+            throw new Error('Canvas conversion method (toBlob) is not supported in this environment.');
+          }
+        };
+
+        for (let i = 1; i <= totalPages; i++) {
+          const page = await srcPdf.getPage(i);
+          // Per-page work is isolated in its own try/catch so a failure on ANY
+          // single page (corrupt image stream, allocation failure, etc.) is
+          // reported with the page number attached instead of surfacing as an
+          // unattributed failure somewhere inside a multi-hundred-page loop.
+          try {
+            // Get unscaled dimensions first to apply a safe maximum cap (prevents OOM on high-res pages)
+            const unscaledViewport = page.getViewport({ scale: 1 });
+            const maxDimension = 2048; // Max width or height for standard web-quality compression
+            let scale = renderScale;
+            if (
+              unscaledViewport.width * scale > maxDimension ||
+              unscaledViewport.height * scale > maxDimension
+            ) {
+              scale = Math.min(
+                maxDimension / unscaledViewport.width,
+                maxDimension / unscaledViewport.height
+              );
+            }
+
+            const viewport = page.getViewport({ scale });
+
+            // Create a brand new canvas for each page to avoid context reset issues/corruption on OffscreenCanvas
+            let canvas: OffscreenCanvas | HTMLCanvasElement;
+            let context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
+
+            if (typeof OffscreenCanvas !== 'undefined') {
+              canvas = new OffscreenCanvas(viewport.width, viewport.height);
+              context = canvas.getContext('2d');
+            } else if (typeof document !== 'undefined') {
+              canvas = document.createElement('canvas');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              context = canvas.getContext('2d');
+            } else {
+              throw new Error('No canvas implementation found.');
+            }
+
+            if (!context) {
+              throw new Error('Canvas 2D context unavailable; cannot compress images.');
+            }
+
+            // White background — JPEG has no alpha.
+            context.fillStyle = '#ffffff';
+            context.fillRect(0, 0, viewport.width, viewport.height);
+
+            await page.render({ canvasContext: context as CanvasRenderingContext2D, viewport }).promise;
+
+            const blob = await canvasToBlob(canvas, jpegQuality);
+            const jpegBytes = new Uint8Array(await blob.arrayBuffer());
+
+            const embedded = await newPdf.embedJpg(jpegBytes);
+            const newPage = newPdf.addPage([viewport.width, viewport.height]);
+            newPage.drawImage(embedded, {
+              x: 0,
+              y: 0,
+              width: viewport.width,
+              height: viewport.height,
+            });
+
+            // Immediately release the canvas's backing pixel buffer instead of
+            // waiting for garbage collection. Each canvas here can hold several
+            // MB of raw, uncompressed pixel data; on large multi-page documents
+            // at the Standard/Extreme levels, dozens of these can accumulate
+            // faster than GC reclaims them — the most likely cause of the
+            // generic "Failed to compress document." failure on big files. The
+            // setTimeout(0) below already yields to let GC run; this makes sure
+            // there's actually something small for it to collect by then.
+            canvas.width = 0;
+            canvas.height = 0;
+          } catch (pageErr: unknown) {
+            const pageMessage = pageErr instanceof Error ? pageErr.message : String(pageErr);
+            throw new Error(`Failed while compressing page ${i} of ${totalPages}: ${pageMessage}`);
+          } finally {
+            // Guarantee page cleanup
+            page.cleanup();
+          }
+
+          // Yield to browser event loop to let GC clean up memory and prevent tab freeze
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+
+        // Re-apply stripped metadata on the new doc.
+        newPdf.setProducer('PDFMinty');
+        newPdf.setCreator('PDFMinty');
+
+        return await newPdf.save({
+          useObjectStreams: true,
+          addDefaultPage: false,
+          objectsPerTick: 50,
+        });
+      } finally {
+        // Guarantee source document destruction
+        await srcPdf.destroy();
       }
     }
 
     // basic level — just object streams + stripped metadata.
-    // Also the fallback path when medium/maximum rasterization fails.
     return await pdfDoc.save({
       useObjectStreams: true,
       addDefaultPage: false,
       objectsPerTick: 50,
     });
-  } catch (err) {
-    handlePdfLibError(err, 'Failed to compress document.');
+  } catch (err: unknown) {
+    logger.error('Compress operation failed:', err);
+
+    // Compression deliberately does NOT fall back to the shared
+    // handlePdfLibError() catch-all used elsewhere in this file. That helper
+    // discards any message it doesn't specifically recognise and always shows
+    // the same opaque "Failed to compress document." text — which is exactly
+    // the dead-end error this function used to produce for every failure
+    // mode, regardless of cause. We classify the real error instead so the
+    // user (and Matrix, debugging from the console) gets a specific,
+    // actionable reason rather than a generic dead end.
+    const rawMessage = err instanceof Error ? err.message : String(err);
+    const lower = rawMessage.toLowerCase();
+
+    if (
+      lower.includes('encrypted') ||
+      lower.includes('secured_locked') ||
+      lower.includes('password protected')
+    ) {
+      throw new Error('This PDF is password protected. Please unlock it first.');
+    }
+
+    if (
+      lower.includes('out of memory') ||
+      lower.includes('allocation failed') ||
+      lower.includes('allocation size overflow') ||
+      lower.includes('canvas') ||
+      lower.includes('rangeerror')
+    ) {
+      const levelLabel = level === 'maximum' ? 'Extreme' : level === 'medium' ? 'Standard' : 'Low';
+      throw new Error(
+        `${rawMessage} — this usually means the document is too large or has too many pages to ` +
+          `re-render at the "${levelLabel}" level within your browser's available memory. Try a ` +
+          `lower compression level, or split the file into smaller parts first.`
+      );
+    }
+
+    // Fall back to the real underlying message instead of a generic string
+    // with no diagnostic value.
+    throw new Error(`Failed to compress document: ${rawMessage}`);
   }
 }
 
@@ -984,4 +1036,3 @@ export async function getPageCount(bytes: Uint8Array): Promise<number> {
   const pdfDoc = await loadPlainPDF(bytes);
   return pdfDoc.getPageCount();
 }
-
