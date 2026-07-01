@@ -68,7 +68,7 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">{toolsCount} Tools</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Get complete document coverage with {toolsCount} local tools including Merge, Split, Compress,
+              Get complete document coverage with {toolsCount} local tools including Merge, Split,
               Rotate, Watermark, and even private AI PDF Analysis.
             </p>
           </div>

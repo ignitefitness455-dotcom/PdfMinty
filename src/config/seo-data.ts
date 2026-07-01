@@ -160,71 +160,6 @@ export const TOOLS: ToolSEOInfo[] = [
     `,
   },
   {
-    id: 'compress',
-    slug: 'compress-pdf',
-    name: 'Compress PDF',
-    ogImage: '/og-compress-pdf.png',
-    shortDescription: 'Reduce PDF file size offline',
-    metaTitle: 'Compress PDF Free - Reduce PDF File Size Online | PDFMinty',
-    metaDescription:
-      'Reduce your PDF file size online without losing quality. Complete offline-first compression on your machine, securing confidential files.',
-    h1: 'Compress PDF Online - Reduce PDF File Size Securely',
-    icon: 'Minimize2',
-    iconColor: 'text-security-green',
-    badge: 'smart_reduction',
-    homeRank: 2,
-    category: 'utilities',
-    priority: 0.9,
-    changefreq: 'monthly',
-    type: 'tool',
-    howTo: {
-      name: 'How to Compress PDF Size',
-      totalTime: 'PT20S',
-      steps: [
-        'Upload your high-resolution PDF file.',
-        'Select your compression intensity (Light or Medium settings).',
-        "Click the 'Compress PDF' button to trigger the reduction routine.",
-        'Download your optimized, much smaller PDF file.',
-      ],
-    },
-    faqs: [
-      {
-        q: 'How does the optimizer reduce PDF size without losing quality?',
-        a: 'It removes redundant document metadata, compresses raw coordinate structures, and optimizes subset fonts while keeping core content completely legible.',
-      },
-      {
-        q: 'Will the images in my PDF become blurry?',
-        a: 'Our medium setting balances quality and compression by keeping standard preview resolutions. Use the light setting to optimize without touching any image scales.',
-      },
-      {
-        q: 'Can I compress active electronic forms?',
-        a: 'Yes. Form fields, digital signatures, and interactive overlays remain intact and responsive during compression.',
-      },
-      {
-        q: 'Does PDFMinty keep a copy of my compressed records?',
-        a: 'Never. All compression operations run locally inside your device\'s browser memory. No data is uploaded or stored on any external server.',
-      },
-    ],
-    longFormBody: `
-      <h1>Compress PDF Online - Reduce PDF File Size Securely</h1>
-      <p>High-resolution graphics or heavy embedded fonts can inflate a PDF's size, triggering email bounce-backs and slow upload speeds. PDFMinty's offline PDF compression optimizes document footprints without degrading readability. The optimizer works inside your browser, so you never hand confidential slides or corporate reports to third-party databases.</p>
-      
-      <h2>Fine-Tuned Reduction Settings</h2>
-      <p>Our compression engine includes several compression pipelines. From standard downsampling of bloated vector coordinates, down to clearing unneeded redundant metadata and duplicate font subsets, we achieve maximum reduction ratios. The output files keep legible text definitions and clean document structures while shedding megabytes of useless overhead.</p>
-      
-      <h2>How to Safely Compress PDF Footprints</h2>
-      <ol>
-        <li>Drag your heavy PDF document into the browser workspace panel.</li>
-        <li>Pick your desired optimization mode depending on how small you need the file.</li>
-        <li>Select 'Compress PDF'. The browser processor optimizes streams locally.</li>
-        <li>Download the compressed file. Perfect for email attachments and portal submissions.</li>
-      </ol>
-      
-      <h2>Offline-First Performance Built for Business</h2>
-      <p>By keeping document bytes local, business teams can safely optimize files even containing employee payroll, sensitive customer records, or financial disclosures. Enjoy immediate, secure, zero-cloud compression with PDFMinty.</p>
-    `,
-  },
-  {
     id: 'rotate',
     slug: 'rotate-pdf',
     name: 'Rotate PDF',
@@ -999,6 +934,189 @@ export const TOOLS: ToolSEOInfo[] = [
     `,
   },
   {
+    id: 'grayscale-pdf',
+    slug: 'grayscale-pdf',
+    name: 'Grayscale PDF',
+    ogImage: '/og-grayscale-pdf.png',
+    shortDescription: 'Convert color PDFs to black & white',
+    metaTitle: 'Grayscale PDF - Convert Color PDFs to Black & White Online | PDFMinty',
+    metaDescription:
+      'Convert color PDFs to grayscale online for free. Make your PDF files black and white to save printer ink. 100% private in-browser tool.',
+    h1: 'Convert Color PDFs to Black & White (Grayscale)',
+    icon: 'Printer',
+    iconColor: 'text-security-green',
+    badge: 'fast_convert',
+    homeRank: 11,
+    category: 'convert',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'tool',
+    howTo: {
+      name: 'How to Convert a PDF to Grayscale',
+      totalTime: 'PT20S',
+      steps: [
+        'Upload your PDF file to the local grayscale tool.',
+        'Choose your desired rendering quality resolution (Normal, High, Ultra).',
+        'Click the "Convert & Download" button.',
+        'Instantly save your monochrome, ink-saving PDF file.',
+      ],
+    },
+    faqs: [
+      {
+        q: 'Does converting a PDF to grayscale save printer ink?',
+        a: 'Yes, converting your documents to black and white or monochrome removes color cartridges usage completely, saving expensive color print toner and ink.',
+      },
+      {
+        q: 'Will my PDF lose its original text or format?',
+        a: 'No. The text, formatting, alignments, and vectors remain completely preserved, just rendered in high-contrast gray levels instead of colors.',
+      },
+      {
+        q: 'Is my data safe during the grayscale conversion?',
+        a: 'Absolutely. The entire grayscale mapping runs locally on your machine using standard browser sandboxes. No network calls or uploads are made.',
+      },
+    ],
+    longFormBody: `
+      <h1>Convert Color PDFs to Black & White (Grayscale)</h1>
+      <p>Printing document packets, research papers, or shipping labels can consume significant color ink volumes. PDFMinty's grayscale PDF tool allows you to instantly convert color PDF assets to pure monochrome black-and-white layouts locally in your browser.</p>
+      
+      <h2>Eco-Friendly and Cost-Efficient Document Printing</h2>
+      <p>Converting color plates to gray levels is a standard practice to extend cartridge lifetimes. PDFMinty simplifies this by executing high-performance pixel-level conversions directly inside your client environment via WebAssembly, preserving text legibility and page layouts.</p>
+      
+      <h2>How to Turn PDFs to Monochrome</h2>
+      <ol>
+        <li>Drag your PDF file into our local workspace panel.</li>
+        <li>Set your output quality scale (Standard, High, or Ultra) depending on your needs.</li>
+        <li>Select 'Convert & Download'. The page streams are mapped in milliseconds.</li>
+        <li>Download your new ink-saving black and white document.</li>
+      </ol>
+      
+      <h2>Completely Private and Offline-Capable</h2>
+      <p>No need to worry about confidential agreements, bank statements, or invoices leaking online. Because the grayscale transformation operates entirely in your client memory, your sensitive data is 100% private and protected.</p>
+    `,
+  },
+  {
+    id: 'flatten-pdf',
+    slug: 'flatten-pdf',
+    name: 'Flatten PDF',
+    ogImage: '/og-flatten-pdf.png',
+    shortDescription: 'Flatten PDF forms and make fields non-editable',
+    metaTitle: 'Flatten PDF - Make Interactive Forms Non-Editable Online | PDFMinty',
+    metaDescription:
+      'Flatten interactive PDF forms online for free. Prevent edits to your forms and comments by locking values into static page graphics instantly.',
+    h1: 'Flatten PDF Forms and Interactive Fields',
+    icon: 'FileText',
+    iconColor: 'text-security-green',
+    badge: 'secure',
+    homeRank: 12,
+    category: 'security',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'tool',
+    howTo: {
+      name: 'How to Flatten a PDF Form',
+      totalTime: 'PT15S',
+      steps: [
+        'Upload your fillable PDF form or interactive document.',
+        'Click the "Flatten & Download" button.',
+        'Your interactive form fields are merged into static graphics.',
+        'Instantly save and download your permanent, flat PDF.',
+      ],
+    },
+    faqs: [
+      {
+        q: 'What does flattening a PDF actually do?',
+        a: 'Flattening merges fillable forms, text fields, radio buttons, and annotations directly into the background page canvas, turning them into standard non-interactive vectors/text.',
+      },
+      {
+        q: 'Why should I flatten my PDF forms?',
+        a: 'Flattening prevents other people from changing the values you entered in text fields, checking other checkboxes, or modifying signatures, ensuring document integrity.',
+      },
+      {
+        q: 'Is this process local or does it upload my files?',
+        a: 'Like all PDFMinty tools, the flattening operation is executed entirely inside your browser sandbox on your device. Your sensitive forms never leave your computer.',
+      },
+    ],
+    longFormBody: `
+      <h1>Flatten PDF Forms and Interactive Fields</h1>
+      <p>Interactive PDF forms are great for inputting text, checking boxes, and adding electronic signatures. However, once a document is completed, sending an active, editable form can lead to unauthorized edits or visual bugs in different viewer apps. PDFMinty's local Flatten PDF tool makes all field values permanent and immutable.</p>
+      
+      <h2>Secure Your Documents Against Modification</h2>
+      <p>By flattening your completed forms, you ensure that whatever information, signatures, or notes you added are locked as standard graphic plates on the pages. This is highly recommended for invoices, contracts, job applications, tax declarations, and receipts.</p>
+      
+      <h2>How to Flatten PDFs Locally</h2>
+      <ol>
+        <li>Drag and drop your active PDF form into the workspace.</li>
+        <li>Select 'Flatten & Download' to run the browser-based compilation.</li>
+        <li>The system uses pdf-lib client-side engines to flatten and compile in milliseconds.</li>
+        <li>Save the finalized PDF file.</li>
+      </ol>
+      
+      <h2>Excellent Compatibility Across All PDF Readers</h2>
+      <p>Some PDF viewer apps on mobile devices or specialized web browsers fail to render interactive form values correctly, showing empty blanks instead. Flattening solves this entirely, guaranteeing that your inputs are visible on any device or operating system.</p>
+    `,
+  },
+  {
+    id: 'repair-pdf',
+    slug: 'repair-pdf',
+    name: 'Repair PDF',
+    ogImage: '/og-repair-pdf.png',
+    shortDescription: 'Repair corrupted or broken PDF files',
+    metaTitle: 'Repair PDF - Fix Corrupted & Damaged PDF Documents Online | PDFMinty',
+    metaDescription:
+      'Attempt to repair corrupted or unreadable PDF files online for free. Rebuild cross-reference tables (XREFs), fix headers, and clean trailing junk bytes locally in-browser.',
+    h1: 'Repair Corrupted and Damaged PDF Files',
+    icon: 'Wrench',
+    iconColor: 'text-security-green',
+    badge: 'secure',
+    homeRank: 13,
+    category: 'security',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'tool',
+    howTo: {
+      name: 'How to Repair a Corrupted PDF',
+      totalTime: 'PT20S',
+      steps: [
+        'Upload your corrupted or unreadable PDF document.',
+        'Click the "Repair & Download" button.',
+        'The tool attempts to re-align headers, strip trailing garbage, and rebuild internal cross-reference index tables.',
+        'Instantly save and download your fixed PDF file.',
+      ],
+    },
+    faqs: [
+      {
+        q: 'What kinds of corruptions can this tool fix?',
+        a: 'This tool is highly successful at repairing PDFs that fail to open due to corrupt cross-reference tables (XREFs), missing EOF markers, or trailing junk bytes appended during web downloads.',
+      },
+      {
+        q: 'Will my PDF files be secure during repair?',
+        a: 'Absolutely. The repair engine operates 100% locally inside your web browser. No files are ever sent to external servers or cloud services.',
+      },
+      {
+        q: 'What if the file is completely unrecoverable?',
+        a: 'If the core binary stream of your PDF is completely overwritten or missing, recovery might not be possible. However, we attempt a multi-stage fallback to recover as much content as we can.',
+      },
+    ],
+    longFormBody: `
+      <h1>Repair Corrupted and Damaged PDF Files Locally</h1>
+      <p>PDF documents can easily become corrupted or damaged due to interrupted network transfers, improper server-side downloads, or software crashes during editing. When a PDF becomes corrupted, readers usually fail to open it entirely, displaying vague error messages. PDFMinty's client-side PDF Repair tool can reconstruct damaged documents safely and securely.</p>
+      
+      <h2>Rebuilding PDF Cross-Reference and Structural Index Tables</h2>
+      <p>Most common corruptions are structural rather than content-related. If the cross-reference table (XREF) — which tells the reader where each page and image starts — is misaligned, the file is unreadable. Our tool analyzes the raw binary stream, strips out leading or trailing server-injected junk, locates the true EOF (End-Of-File) markers, and compiles a brand-new, clean XREF table.</p>
+      
+      <h2>How to Reconstruct a Damaged PDF File</h2>
+      <ol>
+        <li>Select the corrupted PDF document from your local storage.</li>
+        <li>Initiate 'Repair & Download'. The engine will instantly run alignment corrections.</li>
+        <li>The internal PDF builder scans and parses objects to reconstruct the missing catalog indices.</li>
+        <li>Your repaired PDF will be downloaded instantly, ready to open in any standard reader.</li>
+      </ol>
+      
+      <h2>Private, Local, and Instant Repairs</h2>
+      <p>Confidential documents shouldn't be uploaded to random repair servers. Because PDFMinty does all the heavy-lifting within your browser sandbox via WebAssembly and high-performance JS modules, your private data is never exposed. Safe, secure, and 100% offline-compatible.</p>
+    `,
+  },
+  {
     id: 'trust-article',
     slug: 'is-it-safe-to-upload-pdf-to-online-tools',
     name: 'Is It Safe?',
@@ -1037,7 +1155,7 @@ export const TOOLS: ToolSEOInfo[] = [
 <h2>Why Browser-Side (Client-Side) Processing is Safer</h2>
 <p>Browser-side processing, also called client-side processing, fundamentally changes the security model. Instead of uploading your file to a server, the entire operation happens inside your web browser. The file is loaded into your browser's memory, processed by JavaScript and WebAssembly running on your device, and the result is generated locally. The file never travels across the network.</p>
 
-<p>This is the approach PDFMinty takes with all 15 of its PDF tools. When you use <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, or <a href="/compress-pdf">Compress PDF</a>, your files are processed entirely on your computer. Even if you disconnect your internet after loading the page, the tools continue to work because they don't need a server connection.</p>
+<p>This is the approach PDFMinty takes with all 14 of its PDF tools. When you use <a href="/merge-pdf">Merge PDF</a> or <a href="/split-pdf">Split PDF</a>, your files are processed entirely on your computer. Even if you disconnect your internet after loading the page, the tools continue to work because they don't need a server connection.</p>
 
 <p>The technical foundation of this approach is WebAssembly (WASM), a binary instruction format that allows high-performance code to run in web browsers at near-native speed. PDF processing libraries like pdf-lib and pdfjs-dist are compiled to WebAssembly, enabling them to manipulate PDF files directly in your browser without any server roundtrips.</p>
 
@@ -1079,7 +1197,7 @@ export const TOOLS: ToolSEOInfo[] = [
 <p>Beyond choosing the right tool, here are additional practices to protect your PDF documents:</p>
 
 <h3>1. Use Privacy-First Tools Like PDFMinty</h3>
-<p>PDFMinty offers 15 PDF tools that all process files locally: <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, <a href="/compress-pdf">Compress PDF</a>, <a href="/rotate-pdf">Rotate PDF</a>, <a href="/delete-pages-pdf">Delete Pages</a>, <a href="/extract-pages-pdf">Extract Pages</a>, <a href="/reorder-pdf">Reorder PDF</a>, <a href="/watermark-pdf">Watermark PDF</a>, <a href="/add-page-numbers">Add Page Numbers</a>, <a href="/add-blank-page">Add Blank Page</a>, <a href="/protect-pdf">Protect PDF</a>, <a href="/unlock-pdf">Unlock PDF</a>, <a href="/image-to-pdf">Image to PDF</a>, <a href="/pdf-to-image">PDF to Image</a>, and <a href="/intelligence">AI Analyze</a>.</p>
+<p>PDFMinty offers 14 PDF tools that all process files locally: <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, <a href="/rotate-pdf">Rotate PDF</a>, <a href="/delete-pages-pdf">Delete Pages</a>, <a href="/extract-pages-pdf">Extract Pages</a>, <a href="/reorder-pdf">Reorder PDF</a>, <a href="/watermark-pdf">Watermark PDF</a>, <a href="/add-page-numbers">Add Page Numbers</a>, <a href="/add-blank-page">Add Blank Page</a>, <a href="/protect-pdf">Protect PDF</a>, <a href="/unlock-pdf">Unlock PDF</a>, <a href="/image-to-pdf">Image to PDF</a>, <a href="/pdf-to-image">PDF to Image</a>, and <a href="/intelligence">AI Analyze</a>.</p>
 
 <h3>2. Password-Protect Sensitive PDFs Before Sharing</h3>
 <p>If you must share a PDF externally, encrypt it first. PDFMinty's <a href="/protect-pdf">Protect PDF</a> tool adds AES-256 encryption — even if the file is intercepted, it can't be opened without the password.</p>
@@ -1115,7 +1233,7 @@ export const TOOLS: ToolSEOInfo[] = [
 
 <h2>Frequently Asked Questions</h2>
 <h3>Is PDFMinty really 100% client-side?</h3>
-<p>Yes. All 15 PDF tools process files entirely in your browser. The only server interaction is loading the initial webpage. You can verify this by checking browser Developer Tools network activity during any operation.</p>
+<p>Yes. All 14 PDF tools process files entirely in your browser. The only server interaction is loading the initial webpage. You can verify this by checking browser Developer Tools network activity during any operation.</p>
 
 <h3>Can PDFMinty access my files?</h3>
 <p>No. PDFMinty's code runs in your browser sandbox. It can only access files you explicitly select. The code cannot access other files on your device, and it never transmits file contents over the network.</p>
@@ -1132,7 +1250,7 @@ export const TOOLS: ToolSEOInfo[] = [
 <h2>Conclusion</h2>
 <p>The safest way to process PDF files online is to not upload them at all. Browser-side processing with tools like PDFMinty provides the same functionality as traditional online PDF tools, but with fundamentally better privacy, security, and speed. Your files never leave your device, processing happens instantly, and you retain complete control.</p>
 
-<p>Try PDFMinty's <a href="/merge-pdf">Merge PDF</a> or <a href="/compress-pdf">Compress PDF</a> tools today to experience private PDF processing. Your files deserve better than unknown servers.</p>
+<p>Try PDFMinty's <a href="/merge-pdf">Merge PDF</a> tool today to experience private PDF processing. Your files deserve better than unknown servers.</p>
 `,
   },
 ];

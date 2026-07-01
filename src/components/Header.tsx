@@ -109,10 +109,10 @@ export const Header: React.FC<HeaderProps> = ({
             Split
           </Link>
           <Link
-            to={ROUTES.COMPRESS}
-            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.COMPRESS ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
+            to={ROUTES.REORDER}
+            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.REORDER ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
           >
-            Compress
+            Reorder
           </Link>
           <Link
             to={ROUTES.PROTECT}

@@ -27,15 +27,6 @@ export const tools: Tool[] = [
     icon: 'Scissors',
   },
   {
-    id: 'compress-pdf',
-    title: 'Compress PDF',
-    description:
-      'Reduce file size footprint using professional compression schemes purely in your browser.',
-    category: 'utilities',
-    path: '/compress-pdf',
-    icon: 'Minimize2',
-  },
-  {
     id: 'rotate-pdf',
     title: 'Rotate PDF',
     description:
@@ -123,6 +114,30 @@ export const tools: Tool[] = [
     path: '/intelligence',
     icon: 'Sparkles',
   },
+  {
+    id: 'grayscale-pdf',
+    title: 'Grayscale PDF',
+    description: 'Convert colored PDF documents to beautiful grayscale/monochrome layouts locally.',
+    category: 'convert',
+    path: '/grayscale-pdf',
+    icon: 'Printer',
+  },
+  {
+    id: 'flatten-pdf',
+    title: 'Flatten PDF',
+    description: 'Make fillable form fields and annotations permanent and non-editable locally.',
+    category: 'security',
+    path: '/flatten-pdf',
+    icon: 'FileText',
+  },
+  {
+    id: 'repair-pdf',
+    title: 'Repair PDF',
+    description: 'Fix corrupt cross-reference tables (XREFs), strip trailing junk bytes, and align headers locally.',
+    category: 'security',
+    path: '/repair-pdf',
+    icon: 'Wrench',
+  },
 ];
 
 export const PDF_PAGE_SIZES = {
@@ -154,7 +169,6 @@ export const UPLOAD_LIMITS = {
 export const TOOL_SIZE_LIMITS: Record<string, { maxSingleMB: number; maxTotalMB?: number }> = {
   'merge-pdf': { maxSingleMB: 50, maxTotalMB: 150 },
   'split-pdf': { maxSingleMB: 50 },
-  'compress-pdf': { maxSingleMB: 75 },
   'rotate-pdf': { maxSingleMB: 50 },
   'delete-pages-pdf': { maxSingleMB: 50 },
   'watermark-pdf': { maxSingleMB: 50 },
@@ -167,6 +181,9 @@ export const TOOL_SIZE_LIMITS: Record<string, { maxSingleMB: number; maxTotalMB?
   'ai-analyze': { maxSingleMB: 15 },
   'extract-pages-pdf': { maxSingleMB: 50 },
   'reorder-pdf': { maxSingleMB: 50 },
+  'grayscale-pdf': { maxSingleMB: 30 },
+  'flatten-pdf': { maxSingleMB: 50 },
+  'repair-pdf': { maxSingleMB: 50 },
 };
 
 export const AI_LIMITS = {

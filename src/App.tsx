@@ -15,7 +15,6 @@ import { HomePage } from './pages/HomePage';
 // out of the initial bundle. The Suspense fallback keeps perceived load time low.
 const MergePage = React.lazy(() => import('./pages/MergePage').then((m) => ({ default: m.MergePage })));
 const SplitPage = React.lazy(() => import('./pages/SplitPage').then((m) => ({ default: m.SplitPage })));
-const CompressPage = React.lazy(() => import('./pages/CompressPage').then((m) => ({ default: m.CompressPage })));
 const RotatePage = React.lazy(() => import('./pages/RotatePage').then((m) => ({ default: m.RotatePage })));
 const DeletePagesPage = React.lazy(() => import('./pages/DeletePagesPage').then((m) => ({ default: m.DeletePagesPage })));
 const ExtractPagesPdfPage = React.lazy(() => import('./pages/ExtractPagesPdfPage').then((m) => ({ default: m.ExtractPagesPdfPage })));
@@ -28,6 +27,9 @@ const UnlockPage = React.lazy(() => import('./pages/UnlockPage').then((m) => ({ 
 const ImgToPdfPage = React.lazy(() => import('./pages/ImgToPdfPage').then((m) => ({ default: m.ImgToPdfPage })));
 const PdfToImgPage = React.lazy(() => import('./pages/PdfToImgPage').then((m) => ({ default: m.PdfToImgPage })));
 const AiAnalyzePage = React.lazy(() => import('./pages/AiAnalyzePage').then((m) => ({ default: m.AiAnalyzePage })));
+const GrayscalePdfPage = React.lazy(() => import('./pages/GrayscalePdfPage').then((m) => ({ default: m.GrayscalePdfPage })));
+const FlattenPdfPage = React.lazy(() => import('./pages/FlattenPdfPage').then((m) => ({ default: m.FlattenPdfPage })));
+const RepairPdfPage = React.lazy(() => import('./pages/RepairPdfPage').then((m) => ({ default: m.RepairPdfPage })));
 const IsSafePdfArticlePage = React.lazy(() => import('./pages/IsSafePdfArticlePage').then((m) => ({ default: m.IsSafePdfArticlePage })));
 
 export const App: React.FC = () => {
@@ -54,14 +56,6 @@ export const App: React.FC = () => {
               element={
                 <ErrorBoundary resetKey="split">
                   <SplitPage />
-                </ErrorBoundary>
-              }
-            />
-            <Route
-              path={ROUTES.COMPRESS}
-              element={
-                <ErrorBoundary resetKey="compress">
-                  <CompressPage />
                 </ErrorBoundary>
               }
             />
@@ -158,6 +152,30 @@ export const App: React.FC = () => {
               element={
                 <ErrorBoundary resetKey="ai-analyze">
                   <AiAnalyzePage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.GRAYSCALE}
+              element={
+                <ErrorBoundary resetKey="grayscale">
+                  <GrayscalePdfPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.FLATTEN}
+              element={
+                <ErrorBoundary resetKey="flatten">
+                  <FlattenPdfPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.REPAIR}
+              element={
+                <ErrorBoundary resetKey="repair">
+                  <RepairPdfPage />
                 </ErrorBoundary>
               }
             />

@@ -75,6 +75,20 @@ self.onmessage = async (e: MessageEvent) => {
       case 'getPageCount':
         result = await ops.getPageCount(payload.bytes);
         break;
+      case 'grayscalePDF':
+        result = await ops.grayscalePDF(payload.bytes, payload.scale);
+        transferables = [(result as Uint8Array).buffer];
+        break;
+      case 'flattenPDF':
+        result = await ops.flattenPDF(payload.bytes);
+        transferables = [(result as Uint8Array).buffer];
+        break;
+      case 'repairPDF': {
+        const res = await ops.repairPDF(payload.bytes);
+        result = { bytes: res.bytes, repairs: res.repairs };
+        transferables = [res.bytes.buffer];
+        break;
+      }
       default:
         throw new Error(`Unknown operation: ${operation}`);
     }

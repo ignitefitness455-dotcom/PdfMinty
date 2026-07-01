@@ -160,6 +160,12 @@ export class WorkerManager {
         );
       case 'getPageCount':
         return await ops.getPageCount(p.bytes as Uint8Array);
+      case 'grayscalePDF':
+        return await ops.grayscalePDF(p.bytes as Uint8Array, p.scale as number | undefined);
+      case 'flattenPDF':
+        return await ops.flattenPDF(p.bytes as Uint8Array);
+      case 'repairPDF':
+        return await ops.repairPDF(p.bytes as Uint8Array);
       default:
         throw new Error(`Unknown operation: ${operation}`);
     }

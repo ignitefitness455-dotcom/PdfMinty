@@ -280,7 +280,6 @@ async function run(): Promise<void> {
       const toolsList = [
         { slug: 'merge-pdf', label: 'Merge PDF', desc: 'Combine multiple PDFs' },
         { slug: 'split-pdf', label: 'Split PDF', desc: 'Extract pages or split into files' },
-        { slug: 'compress-pdf', label: 'Compress PDF', desc: 'Reduce file size' },
         { slug: 'rotate-pdf', label: 'Rotate PDF', desc: 'Rotate pages' },
         { slug: 'delete-pages-pdf', label: 'Delete PDF Pages', desc: 'Remove unwanted pages' },
         { slug: 'extract-pages-pdf', label: 'Extract Pages', desc: 'Pull specific pages' },
@@ -338,13 +337,12 @@ ${filtered.map((t: { slug: string; label: string; desc: string }) => `  <li><a h
   const homepageContent = `
   <main class="prose max-w-6xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
     <h1>Free PDF Tools — Privacy-First, 100% Browser-Based</h1>
-    <p>PDFMinty is a free, privacy-first PDF toolkit with 15 powerful tools that run entirely in your browser. Your files never leave your device — no server uploads, no sign-ups, no limits. Merge, split, compress, protect, convert, and edit PDFs with complete confidentiality.</p>
+    <p>PDFMinty is a free, privacy-first PDF toolkit with 14 powerful tools that run entirely in your browser. Your files never leave your device — no server uploads, no sign-ups, no limits. Merge, split, protect, convert, and edit PDFs with complete confidentiality.</p>
  
     <h2>Popular PDF Tools</h2>
     <ul>
       <li><a href="/merge-pdf">Merge PDF</a> — Combine multiple PDFs into one document</li>
       <li><a href="/split-pdf">Split PDF</a> — Extract pages or split into separate files</li>
-      <li><a href="/compress-pdf">Compress PDF</a> — Reduce file size without quality loss</li>
       <li><a href="/rotate-pdf">Rotate PDF</a> — Rotate pages 90, 180, or 270 degrees</li>
       <li><a href="/delete-pages-pdf">Delete PDF Pages</a> — Remove unwanted pages</li>
       <li><a href="/watermark-pdf">Watermark PDF</a> — Add text watermarks with custom opacity</li>
@@ -371,7 +369,7 @@ ${filtered.map((t: { slug: string; label: string; desc: string }) => `  <li><a h
  
     <h2>Frequently Asked Questions</h2>
     <h3>Is PDFMinty really free?</h3>
-    <p>Yes, PDFMinty is 100% free to use. All 15 tools are available without subscription, payment, or registration.</p>
+    <p>Yes, PDFMinty is 100% free to use. All 14 tools are available without subscription, payment, or registration.</p>
  
     <h3>Are my files uploaded to your server?</h3>
     <p>No. PDFMinty is a privacy-first tool. All PDF processing happens entirely in your browser using client-side JavaScript. Your files never leave your device.</p>

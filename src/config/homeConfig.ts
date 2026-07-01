@@ -14,6 +14,9 @@ import {
   Image,
   Eye,
   Sparkles,
+  Printer,
+  FileText,
+  Wrench,
 } from 'lucide-react';
 import React from 'react';
 
@@ -22,7 +25,6 @@ import { logger } from '../utils/logger';
 export const prefetchMap: Record<string, () => Promise<unknown>> = {
   'merge-pdf': () => import('../pages/MergePage'),
   'split-pdf': () => import('../pages/SplitPage'),
-  'compress-pdf': () => import('../pages/CompressPage'),
   'rotate-pdf': () => import('../pages/RotatePage'),
   'delete-pages-pdf': () => import('../pages/DeletePagesPage'),
   'extract-pages-pdf': () => import('../pages/ExtractPagesPdfPage'),
@@ -35,6 +37,9 @@ export const prefetchMap: Record<string, () => Promise<unknown>> = {
   'image-to-pdf': () => import('../pages/ImgToPdfPage'),
   'pdf-to-image': () => import('../pages/PdfToImgPage'),
   'intelligence': () => import('../pages/AiAnalyzePage'),
+  'grayscale-pdf': () => import('../pages/GrayscalePdfPage'),
+  'flatten-pdf': () => import('../pages/FlattenPdfPage'),
+  'repair-pdf': () => import('../pages/RepairPdfPage'),
 };
 
 const prefetchedSet = new Set<string>();
@@ -65,6 +70,9 @@ export const iconMap: Record<string, React.ComponentType<{ className?: string }>
   Image,
   Eye,
   Sparkles,
+  Printer,
+  FileText,
+  Wrench,
 };
 
 export const badgeColors: Record<string, string> = {
@@ -76,6 +84,7 @@ export const badgeColors: Record<string, string> = {
   extractor: 'bg-sky-400/10 text-sky-400 border-sky-400/20',
   visual_extract: 'bg-indigo-400/10 text-indigo-400 border-indigo-400/20',
   interactive_order: 'bg-fuchsia-400/10 text-fuchsia-400 border-fuchsia-400/20',
+  secure: 'bg-sky-400/10 text-sky-400 border-sky-400/20',
 };
 
 export const badgeLabels: Record<string, string> = {
@@ -87,4 +96,5 @@ export const badgeLabels: Record<string, string> = {
   extractor: 'EXTRACTOR',
   visual_extract: 'VISUAL EXTRACT',
   interactive_order: 'INTERACTIVE ORDER',
+  secure: 'SECURE',
 };

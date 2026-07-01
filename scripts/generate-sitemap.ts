@@ -12,7 +12,6 @@ function slugToPageFile(slug: string): string {
   const map: Record<string, string> = {
     'merge-pdf': 'MergePage',
     'split-pdf': 'SplitPage',
-    'compress-pdf': 'CompressPage',
     'rotate-pdf': 'RotatePage',
     'delete-pages-pdf': 'DeletePagesPage',
     'extract-pages-pdf': 'ExtractPagesPdfPage',

@@ -21,7 +21,6 @@ interface Tool {
 const tools: Tool[] = [
   { slug: 'merge-pdf', name: 'Merge PDF', tagline: 'Combine multiple PDFs into one', color: '#10b981', icon: 'M' },
   { slug: 'split-pdf', name: 'Split PDF', tagline: 'Extract pages or split into files', color: '#f59e0b', icon: 'S' },
-  { slug: 'compress-pdf', name: 'Compress PDF', tagline: 'Reduce file size without quality loss', color: '#6366f1', icon: 'C' },
   { slug: 'rotate-pdf', name: 'Rotate PDF', tagline: 'Rotate pages 90, 180, or 270 degrees', color: '#06b6d4', icon: 'R' },
   { slug: 'delete-pages-pdf', name: 'Delete PDF Pages', tagline: 'Remove unwanted pages from PDF', color: '#ef4444', icon: 'D' },
   { slug: 'extract-pages-pdf', name: 'Extract PDF Pages', tagline: 'Save specific pages as new PDF', color: '#8b5cf6', icon: 'E' },
