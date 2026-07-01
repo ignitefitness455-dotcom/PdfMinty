@@ -47,7 +47,7 @@ async function loadPlainPDF(bytes: Uint8Array, skipEncryptionCheck = false) {
     }
 
     const pdfDoc = await PlainPDFDocument.load(safeBytes);
-    const realFontkit = (fontkit as any).default || fontkit;
+    const realFontkit = (fontkit as { default?: unknown }).default || fontkit;
     pdfDoc.registerFontkit(realFontkit);
     return pdfDoc;
   } catch (err: unknown) {
@@ -82,7 +82,7 @@ async function getFontBytes(): Promise<Uint8Array> {
   // If in browser (or Web Worker) and fetch is available, try fetching the static asset
   if (typeof fetch !== 'undefined') {
     try {
-      const baseUrl = (import.meta as any).env?.BASE_URL || '/';
+      const baseUrl = (import.meta as unknown as { env?: { BASE_URL?: string } }).env?.BASE_URL || '/';
       const fontUrl = `${baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'}fonts/NotoSans-Regular.ttf`;
       const response = await fetch(fontUrl);
       if (response.ok) {
@@ -98,7 +98,7 @@ async function getFontBytes(): Promise<Uint8Array> {
     }
   }
 
-  const rawData = (notoSansRegularBytes as any)?.default || notoSansRegularBytes;
+  const rawData = (notoSansRegularBytes as { default?: unknown })?.default || notoSansRegularBytes;
   if (rawData) {
     const fallbackBytes = new Uint8Array(rawData as unknown as ArrayBuffer);
     if (fallbackBytes.length > 50000) {
@@ -600,6 +600,54 @@ export async function imagesToPDF(
   }
 }
 
+class CustomCanvasFactory {
+  constructor(_options?: unknown) {}
+
+  create(width: number, height: number): {
+    canvas: OffscreenCanvas | HTMLCanvasElement;
+    context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  } {
+    if (width <= 0 || height <= 0) {
+      throw new Error('Invalid canvas size');
+    }
+    let canvas: OffscreenCanvas | HTMLCanvasElement;
+    let context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
+
+    if (typeof OffscreenCanvas !== 'undefined') {
+      canvas = new OffscreenCanvas(width, height);
+      context = canvas.getContext('2d');
+    } else if (typeof document !== 'undefined') {
+      canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      context = canvas.getContext('2d');
+    } else {
+      throw new Error('No canvas implementation found.');
+    }
+
+    if (!context) {
+      throw new Error('Canvas 2D context unavailable.');
+    }
+
+    return {
+      canvas,
+      context,
+    };
+  }
+
+  destroy(canvasAndContext: {
+    canvas: OffscreenCanvas | HTMLCanvasElement | null;
+    context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
+  }): void {
+    if (canvasAndContext.canvas) {
+      canvasAndContext.canvas.width = 0;
+      canvasAndContext.canvas.height = 0;
+      canvasAndContext.canvas = null;
+    }
+    canvasAndContext.context = null;
+  }
+}
+
 /**
  * Compression levels:
  * - basic:    Object-stream packing + metadata strip + redundant whitespace removal.
@@ -663,7 +711,10 @@ export async function compressPDF(
       // Use pdfjs-dist to render each page to a JPEG, then build a fresh doc
       // with one image per page. This guarantees image-heavy PDFs shrink.
       const pdfjs = await getPdfJs();
-      const loadingTask = pdfjs.getDocument({ data: new Uint8Array(safeBytes) });
+      const loadingTask = pdfjs.getDocument({
+        data: new Uint8Array(safeBytes),
+        CanvasFactory: CustomCanvasFactory,
+      } as unknown as Parameters<typeof pdfjs.getDocument>[0]);
       const srcPdf = await loadingTask.promise;
 
       try {
@@ -722,30 +773,18 @@ export async function compressPDF(
             const viewport = page.getViewport({ scale });
 
             // Create a brand new canvas for each page to avoid context reset issues/corruption on OffscreenCanvas
-            let canvas: OffscreenCanvas | HTMLCanvasElement;
-            let context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
-
-            if (typeof OffscreenCanvas !== 'undefined') {
-              canvas = new OffscreenCanvas(viewport.width, viewport.height);
-              context = canvas.getContext('2d');
-            } else if (typeof document !== 'undefined') {
-              canvas = document.createElement('canvas');
-              canvas.width = viewport.width;
-              canvas.height = viewport.height;
-              context = canvas.getContext('2d');
-            } else {
-              throw new Error('No canvas implementation found.');
-            }
-
-            if (!context) {
-              throw new Error('Canvas 2D context unavailable; cannot compress images.');
-            }
+            const canvasFactory = new CustomCanvasFactory();
+            const { canvas, context } = canvasFactory.create(viewport.width, viewport.height);
 
             // White background — JPEG has no alpha.
             context.fillStyle = '#ffffff';
             context.fillRect(0, 0, viewport.width, viewport.height);
 
-            await page.render({ canvasContext: context as CanvasRenderingContext2D, viewport }).promise;
+            await page.render({
+              canvasContext: context as CanvasRenderingContext2D,
+              viewport,
+              canvasFactory,
+            }).promise;
 
             const blob = await canvasToBlob(canvas, jpegQuality);
             const jpegBytes = new Uint8Array(await blob.arrayBuffer());
@@ -767,8 +806,7 @@ export async function compressPDF(
             // generic "Failed to compress document." failure on big files. The
             // setTimeout(0) below already yields to let GC run; this makes sure
             // there's actually something small for it to collect by then.
-            canvas.width = 0;
-            canvas.height = 0;
+            canvasFactory.destroy({ canvas, context });
           } catch (pageErr: unknown) {
             const pageMessage = pageErr instanceof Error ? pageErr.message : String(pageErr);
             throw new Error(`Failed while compressing page ${i} of ${totalPages}: ${pageMessage}`);
@@ -992,7 +1030,10 @@ export async function pdfToImage(
     const { bytes: safeBytes } = PDFSanitizer.sanitize(bytes);
     const pdf_js = await getPdfJs();
 
-    const loadingTask = pdf_js.getDocument({ data: safeBytes });
+    const loadingTask = pdf_js.getDocument({
+      data: safeBytes,
+      CanvasFactory: CustomCanvasFactory,
+    } as unknown as Parameters<typeof pdf_js.getDocument>[0]);
     pdf = await loadingTask.promise;
 
     // When startPage is specified, render `maxPages` pages starting from startPage.
@@ -1005,27 +1046,24 @@ export async function pdfToImage(
       const i = effectiveStart + offset;
       const page = (await pdf.getPage(i)) as {
         getViewport: (opts: { scale: number }) => { width: number; height: number };
-        render: (opts: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }) => { promise: Promise<void> };
+        render: (opts: {
+          canvasContext: CanvasRenderingContext2D;
+          viewport: { width: number; height: number };
+          canvasFactory?: unknown;
+        }) => { promise: Promise<void> };
         cleanup: () => void;
       };
       const viewport = page.getViewport({ scale });
 
-      let canvas: OffscreenCanvas | HTMLCanvasElement;
-      let context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
-      if (typeof OffscreenCanvas !== 'undefined') {
-        canvas = new OffscreenCanvas(viewport.width, viewport.height);
-        context = canvas.getContext('2d');
-      } else if (typeof document !== 'undefined') {
-        canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        context = canvas.getContext('2d');
-      } else {
-        throw new Error('No canvas implementation found.');
-      }
+      const canvasFactory = new CustomCanvasFactory();
+      const { canvas, context } = canvasFactory.create(viewport.width, viewport.height);
 
       if (context) {
-        await page.render({ canvasContext: context as CanvasRenderingContext2D, viewport }).promise;
+        await page.render({
+          canvasContext: context as CanvasRenderingContext2D,
+          viewport,
+          canvasFactory,
+        }).promise;
         if (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas) {
           const blob = await canvas.convertToBlob({
             type: format,
@@ -1050,6 +1088,7 @@ export async function pdfToImage(
         }
         // Free per-page pdfjs resources after each render.
         page.cleanup();
+        canvasFactory.destroy({ canvas, context });
       }
     }
 
