@@ -1,6 +1,6 @@
 import { PDFDocument as PDFDocumentEncrypt } from '@cantoo/pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
-import { PDFDocument as PlainPDFDocument, rgb, degrees } from 'pdf-lib';
+import { PDFDocument as PlainPDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib';
 
 import notoSansRegularBytes from '../../public/fonts/NotoSans-Regular.ttf?arraybuffer';
 import { PDF_PAGE_SIZES, WATERMARK_DEFAULTS, PAGE_NUMBER_DEFAULTS } from '../config/constants';
@@ -75,7 +75,26 @@ async function getFontBytes(): Promise<Uint8Array> {
         }
       }
     } catch (err) {
-      console.error('getFontBytes error:', err);
+      logger.debug('getFontBytes filesystem load failed:', err);
+    }
+  }
+
+  // If in browser (or Web Worker) and fetch is available, try fetching the static asset
+  if (typeof fetch !== 'undefined') {
+    try {
+      const baseUrl = (import.meta as any).env?.BASE_URL || '/';
+      const fontUrl = `${baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'}fonts/NotoSans-Regular.ttf`;
+      const response = await fetch(fontUrl);
+      if (response.ok) {
+        const arrayBuffer = await response.arrayBuffer();
+        const fetchedBytes = new Uint8Array(arrayBuffer);
+        if (fetchedBytes.length > 50000) {
+          fontBytes = fetchedBytes;
+          return fontBytes;
+        }
+      }
+    } catch (err) {
+      logger.debug('getFontBytes browser fetch failed:', err);
     }
   }
 
@@ -88,6 +107,7 @@ async function getFontBytes(): Promise<Uint8Array> {
     }
   }
 
+  logger.warn('Font NotoSans-Regular.ttf could not be loaded; Helvetica standard font will be used as a graceful fallback.');
   // Final fallback to a mock/empty if nothing else is available
   fontBytes = new Uint8Array(0);
   return fontBytes;
@@ -265,11 +285,22 @@ export async function watermarkPDF(
   const pdfDoc = await loadPlainPDF(bytes);
   try {
     // Embed Noto Sans for Unicode support (CJK, Arabic, Cyrillic, emoji, etc.).
-    const fontData = await getFontBytes();
-    const font = await pdfDoc.embedFont(fontData, {
-      customName: 'NotoSans',
-      subset: true,
-    });
+    let font;
+    try {
+      const fontData = await getFontBytes();
+      if (fontData && fontData.length > 50000) {
+        font = await pdfDoc.embedFont(fontData, {
+          customName: 'NotoSans',
+          subset: true,
+        });
+      }
+    } catch (fontErr) {
+      logger.warn('Failed to embed NotoSans font, falling back to Helvetica:', fontErr);
+    }
+
+    if (!font) {
+      font = await pdfDoc.embedStandardFont(StandardFonts.Helvetica);
+    }
 
     const size = options?.size || WATERMARK_DEFAULTS.size;
     const opacity = options?.opacity !== undefined ? options?.opacity : WATERMARK_DEFAULTS.opacity;
@@ -340,11 +371,22 @@ export async function addPageNumbersPDF(
   try {
     // Embed Noto Sans for Unicode support (page-number format strings may
     // contain non-Latin characters like "第 {n} 页" or "עמוד {n}").
-    const fontData = await getFontBytes();
-    const font = await pdfDoc.embedFont(fontData, {
-      customName: 'NotoSans',
-      subset: true,
-    });
+    let font;
+    try {
+      const fontData = await getFontBytes();
+      if (fontData && fontData.length > 50000) {
+        font = await pdfDoc.embedFont(fontData, {
+          customName: 'NotoSans',
+          subset: true,
+        });
+      }
+    } catch (fontErr) {
+      logger.warn('Failed to embed NotoSans font, falling back to Helvetica:', fontErr);
+    }
+
+    if (!font) {
+      font = await pdfDoc.embedStandardFont(StandardFonts.Helvetica);
+    }
     const total = pdfDoc.getPageCount();
     const pages = pdfDoc.getPages();
 
