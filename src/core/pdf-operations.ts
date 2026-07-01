@@ -713,7 +713,7 @@ export async function compressPDF(
       const pdfjs = await getPdfJs();
       const loadingTask = pdfjs.getDocument({
         data: new Uint8Array(safeBytes),
-        CanvasFactory: CustomCanvasFactory,
+        canvasFactory: new CustomCanvasFactory(),
       } as unknown as Parameters<typeof pdfjs.getDocument>[0]);
       const srcPdf = await loadingTask.promise;
 
@@ -1032,7 +1032,7 @@ export async function pdfToImage(
 
     const loadingTask = pdf_js.getDocument({
       data: safeBytes,
-      CanvasFactory: CustomCanvasFactory,
+      canvasFactory: new CustomCanvasFactory(),
     } as unknown as Parameters<typeof pdf_js.getDocument>[0]);
     pdf = await loadingTask.promise;
 
