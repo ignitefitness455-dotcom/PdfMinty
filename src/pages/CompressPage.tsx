@@ -190,18 +190,18 @@ export const CompressPage: React.FC = () => {
                     <div className="flex-shrink-0 bg-emerald-600 text-white font-black text-[9px] px-1.5 py-1 rounded-md tracking-wider leading-none shadow-sm">
                       PDF
                     </div>
-                    <span className="text-sm font-bold text-slate-700 truncate">
+                    <span className="text-sm font-bold text-slate-800 truncate">
                       {selectedFile.name}
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-slate-400 whitespace-nowrap ml-2">
+                  <span className="text-xs font-extrabold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/55 whitespace-nowrap ml-2 shadow-sm">
                     {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
                   </span>
                 </div>
 
                 {/* Estimated Size Progress-like Bar */}
-                <div className="flex items-center justify-between px-4 py-3 bg-emerald-50/40 border border-emerald-200 dark:border-emerald-400/20 rounded-xl text-xs">
-                  <span className="font-semibold text-emerald-800">Estimated size:</span>
+                <div className="flex items-center justify-between px-4 py-3 bg-emerald-50/10 border border-emerald-50 rounded-xl text-xs">
+                  <span className="font-semibold text-slate-600">Estimated size:</span>
                   <span className="font-black text-emerald-600 text-sm">{getEstimatedSize()}</span>
                 </div>
 
@@ -216,7 +216,7 @@ export const CompressPage: React.FC = () => {
                         onClick={() => setLevel(profile.id)}
                         className={`w-full p-4 rounded-2xl border-2 text-left transition-all flex items-start space-x-3.5 cursor-pointer ${
                           isSelected
-                            ? 'border-emerald-500 dark:border-emerald-400 bg-emerald-50/30 dark:bg-emerald-500/10 ring-2 ring-emerald-500/15 dark:ring-emerald-400/25 shadow-sm shadow-emerald-600/10'
+                            ? 'border-emerald-500 dark:border-emerald-400 bg-emerald-50/10 ring-2 ring-emerald-500/15 dark:ring-emerald-400/25 shadow-sm shadow-emerald-600/10'
                             : 'border-slate-100 hover:border-slate-200 dark:hover:border-white/15 bg-white'
                         }`}
                       >
@@ -300,8 +300,8 @@ export const CompressPage: React.FC = () => {
                         {stats.original}
                       </span>
                     </div>
-                    <div className="bg-emerald-50/40 p-3 rounded-xl border border-emerald-100 dark:border-emerald-400/20 text-center">
-                      <span className="text-[9px] uppercase tracking-wider text-emerald-600 font-black block">
+                    <div className="bg-emerald-50/10 p-3 rounded-xl border border-emerald-50 text-center">
+                      <span className="text-[9px] uppercase tracking-wider text-slate-600 font-black block">
                         Optimized
                       </span>
                       <span className="font-extrabold text-emerald-700 text-xs md:text-sm block mt-0.5">
