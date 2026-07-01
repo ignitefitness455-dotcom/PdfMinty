@@ -24,9 +24,9 @@
 // build timestamp via the `injectSwVersion` plugin (writeBundle hook).
 // In dev, the placeholder falls back to a per-reload unique value so
 // each page load gets a fresh cache (acceptable for development).
-const SW_CACHE_VERSION = typeof __SW_CACHE_VERSION__ !== 'undefined'
-  ? __SW_CACHE_VERSION__
-  : 'dev-' + Date.now();
+const SW_CACHE_VERSION = '__SW_CACHE_VERSION__'.startsWith('__')
+  ? 'dev-' + Date.now()
+  : '__SW_CACHE_VERSION__';
 const STATIC_CACHE = `pdfminty-static-${SW_CACHE_VERSION}`;
 const RUNTIME_CACHE = `pdfminty-runtime-${SW_CACHE_VERSION}`;
 

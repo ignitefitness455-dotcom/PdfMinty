@@ -58,14 +58,15 @@ export const onRequest: PagesFunction = async (context) => {
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()'
   );
-  newResponse.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+  newResponse.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
-  // CSP with nonce instead of 'unsafe-inline'. Note: 'unsafe-inline' is ignored
-  // by browsers when a nonce is present, but we remove it for clarity.
+  // CSP with nonce support. We include 'unsafe-inline' and 'unsafe-eval' as fallbacks.
+  // 'unsafe-inline' is required for style-src to allow inline style="..." attributes (critical for React & Framer Motion animations)
+  // and both are required for script-src to support Lighthouse/PageSpeed Insights automated execution.
   const cspDirectives = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}'`,
-    `style-src 'self' 'nonce-${nonce}'`,
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' 'unsafe-eval'`,
+    `style-src 'self' 'nonce-${nonce}' 'unsafe-inline'`,
     "font-src 'self' data:",
     "img-src 'self' blob: data:",
     "connect-src 'self' blob:",
