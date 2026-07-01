@@ -190,9 +190,9 @@ export const WatermarkPage: React.FC = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
+                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                   Stamp Color:
-                </label>
+                </span>
                 <div className="flex items-center space-x-2">
                   {[
                     { hex: '#94a3b8', label: 'Gray' },

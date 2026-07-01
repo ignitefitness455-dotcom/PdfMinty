@@ -208,10 +208,14 @@ export const ImgToPdfPage: React.FC = () => {
             </h3>
             
             <div className="space-y-2">
-              <label className="block text-[11px] uppercase tracking-wide font-bold text-slate-500">
+              <label
+                htmlFor="page-size-select"
+                className="block text-[11px] uppercase tracking-wide font-bold text-slate-500"
+              >
                 Page Size
               </label>
               <select
+                id="page-size-select"
                 value={pageSize}
                 onChange={(e) => setPageSize(e.target.value as 'fit' | 'A4' | 'Letter')}
                 className="w-full text-sm p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-fuchsia-500 transition-colors"

@@ -27,10 +27,12 @@ export const DeletePagesPage: React.FC = () => {
   }, [thumbnails]);
 
   React.useEffect(() => {
+    const currentUrls = urlsRef.current;
+    const token = operationTokenRef;
     return () => {
-      operationTokenRef.current++;
+      token.current++;
       // Clean up all generated URLs when leaving page
-      urlsRef.current.forEach((url) => {
+      currentUrls.forEach((url) => {
         URL.revokeObjectURL(url);
       });
     };
