@@ -17,6 +17,8 @@ import {
   Printer,
   FileText,
   Wrench,
+  FilePenLine,
+  ShieldBan,
 } from 'lucide-react';
 import React from 'react';
 
@@ -40,6 +42,8 @@ export const prefetchMap: Record<string, () => Promise<unknown>> = {
   'grayscale-pdf': () => import('../pages/GrayscalePdfPage'),
   'flatten-pdf': () => import('../pages/FlattenPdfPage'),
   'repair-pdf': () => import('../pages/RepairPdfPage'),
+  'edit-metadata': () => import('../pages/EditMetadataPage'),
+  'sanitize-pdf': () => import('../pages/SanitizePdfPage'),
 };
 
 const prefetchedSet = new Set<string>();
@@ -73,6 +77,8 @@ export const iconMap: Record<string, React.ComponentType<{ className?: string }>
   Printer,
   FileText,
   Wrench,
+  FilePenLine,
+  ShieldBan,
 };
 
 export const badgeColors: Record<string, string> = {

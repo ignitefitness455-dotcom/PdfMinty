@@ -166,6 +166,14 @@ export class WorkerManager {
         return await ops.flattenPDF(p.bytes as Uint8Array);
       case 'repairPDF':
         return await ops.repairPDF(p.bytes as Uint8Array);
+      case 'editMetadataPDF': {
+        const { editMetadataPDF } = await import('../core/metadata-operations');
+        return await editMetadataPDF(p.bytes as Uint8Array, p.metadata as import('../core/metadata-operations').MetadataPayload);
+      }
+      case 'sanitizePDF': {
+        const { PDFSanitizer } = await import('../core/PDFSanitizer');
+        return PDFSanitizer.sanitize(p.bytes as Uint8Array);
+      }
       default:
         throw new Error(`Unknown operation: ${operation}`);
     }

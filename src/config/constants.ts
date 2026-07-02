@@ -123,6 +123,22 @@ export const tools: Tool[] = [
     icon: 'Printer',
   },
   {
+    id: 'extract-pages',
+    title: 'Extract Pages',
+    description: 'Selectively extract and export individual pages into a separate, clean PDF document instantly.',
+    category: 'organize',
+    path: '/extract-pages-pdf',
+    icon: 'CheckSquare',
+  },
+  {
+    id: 'reorder',
+    title: 'Reorder PDF',
+    description: 'Sort, rearrange, or shuffle PDF pages interactively with real-time thumbnail previews.',
+    category: 'organize',
+    path: '/reorder-pdf',
+    icon: 'Move',
+  },
+  {
     id: 'flatten-pdf',
     title: 'Flatten PDF',
     description: 'Make fillable form fields and annotations permanent and non-editable locally.',
@@ -134,9 +150,25 @@ export const tools: Tool[] = [
     id: 'repair-pdf',
     title: 'Repair PDF',
     description: 'Fix corrupt cross-reference tables (XREFs), strip trailing junk bytes, and align headers locally.',
-    category: 'security',
+    category: 'security-edit',
     path: '/repair-pdf',
     icon: 'Wrench',
+  },
+  {
+    id: 'edit-metadata',
+    title: 'Edit Metadata',
+    description: 'Change PDF title, author, subject, and keywords securely without uploading.',
+    category: 'security-edit',
+    path: '/edit-metadata',
+    icon: 'FilePenLine',
+  },
+  {
+    id: 'sanitize-pdf',
+    title: 'Sanitize PDF',
+    description: 'Remove embedded scripts, hidden metadata, and malicious actions for secure sharing.',
+    category: 'security-edit',
+    path: '/sanitize-pdf',
+    icon: 'ShieldBan',
   },
 ];
 
@@ -184,6 +216,8 @@ export const TOOL_SIZE_LIMITS: Record<string, { maxSingleMB: number; maxTotalMB?
   'grayscale-pdf': { maxSingleMB: 30 },
   'flatten-pdf': { maxSingleMB: 50 },
   'repair-pdf': { maxSingleMB: 50 },
+  'edit-metadata': { maxSingleMB: 50 },
+  'sanitize-pdf': { maxSingleMB: 50 },
 };
 
 export const AI_LIMITS = {

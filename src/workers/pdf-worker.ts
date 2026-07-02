@@ -89,6 +89,19 @@ self.onmessage = async (e: MessageEvent) => {
         transferables = [res.bytes.buffer];
         break;
       }
+      case 'editMetadataPDF': {
+        const { editMetadataPDF } = await import('../core/metadata-operations');
+        result = await editMetadataPDF(payload.bytes, payload.metadata);
+        transferables = [(result as Uint8Array).buffer];
+        break;
+      }
+      case 'sanitizePDF': {
+        const { PDFSanitizer } = await import('../core/PDFSanitizer');
+        const res = PDFSanitizer.sanitize(payload.bytes);
+        result = res;
+        transferables = [res.bytes.buffer];
+        break;
+      }
       default:
         throw new Error(`Unknown operation: ${operation}`);
     }

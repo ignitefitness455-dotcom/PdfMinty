@@ -31,6 +31,8 @@ const GrayscalePdfPage = React.lazy(() => import('./pages/GrayscalePdfPage').the
 const FlattenPdfPage = React.lazy(() => import('./pages/FlattenPdfPage').then((m) => ({ default: m.FlattenPdfPage })));
 const RepairPdfPage = React.lazy(() => import('./pages/RepairPdfPage').then((m) => ({ default: m.RepairPdfPage })));
 const IsSafePdfArticlePage = React.lazy(() => import('./pages/IsSafePdfArticlePage').then((m) => ({ default: m.IsSafePdfArticlePage })));
+const EditMetadataPage = React.lazy(() => import('./pages/EditMetadataPage').then((m) => ({ default: m.default })));
+const SanitizePdfPage = React.lazy(() => import('./pages/SanitizePdfPage').then((m) => ({ default: m.default })));
 
 export const App: React.FC = () => {
   return (
@@ -176,6 +178,22 @@ export const App: React.FC = () => {
               element={
                 <ErrorBoundary resetKey="repair">
                   <RepairPdfPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.EDIT_METADATA}
+              element={
+                <ErrorBoundary resetKey="edit-metadata">
+                  <EditMetadataPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.SANITIZE_PDF}
+              element={
+                <ErrorBoundary resetKey="sanitize-pdf">
+                  <SanitizePdfPage />
                 </ErrorBoundary>
               }
             />

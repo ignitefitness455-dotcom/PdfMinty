@@ -9,7 +9,9 @@ export type ToolId =
   | 'delete-pages' | 'extract-pages' | 'reorder'
   | 'watermark' | 'page-numbers' | 'add-blank'
   | 'protect' | 'unlock' | 'image-to-pdf'
-  | 'pdf-to-image' | 'intelligence';
+  | 'pdf-to-image' | 'intelligence'
+  | 'grayscale-pdf' | 'flatten-pdf' | 'repair-pdf'
+  | 'edit-metadata' | 'sanitize-pdf';
 
 export interface PDFPageInfo {
   index: number;

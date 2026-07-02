@@ -21,6 +21,8 @@ export const ROUTES = {
   GRAYSCALE: `/${TOOLS.find((t) => t.id === 'grayscale-pdf')?.slug || 'grayscale-pdf'}`,
   FLATTEN: `/${TOOLS.find((t) => t.id === 'flatten-pdf')?.slug || 'flatten-pdf'}`,
   REPAIR: `/${TOOLS.find((t) => t.id === 'repair-pdf')?.slug || 'repair-pdf'}`,
+  EDIT_METADATA: `/${TOOLS.find((t) => t.id === 'edit-metadata')?.slug || 'edit-metadata'}`,
+  SANITIZE_PDF: `/${TOOLS.find((t) => t.id === 'sanitize-pdf')?.slug || 'sanitize-pdf'}`,
   TRUST_ARTICLE: `/${TOOLS.find((t) => t.id === 'trust-article')?.slug || 'is-it-safe-to-upload-pdf-to-online-tools'}`,
 };
 export default ROUTES;

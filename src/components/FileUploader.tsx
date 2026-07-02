@@ -8,6 +8,8 @@ interface FileUploaderProps {
   title?: string;
   subtitle?: string;
   maxSizeMB?: number;
+  icon?: React.ComponentType<{ className?: string }>;
+  id?: string;
 }
 
 export const FileUploader: React.FC<FileUploaderProps> = ({
@@ -17,6 +19,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   title = 'Drag and drop your files here',
   subtitle = 'or click to browse from your device',
   maxSizeMB = 50,
+  icon: IconComponent = Upload,
+  id,
 }) => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -188,7 +192,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   );
 
   return (
-    <div className="w-full flex flex-col space-y-3" id="file_uploader_wrapper">
+    <div className="w-full flex flex-col space-y-3" id={id || 'file_uploader_wrapper'}>
       <div
         onDragEnter={handleDrag}
         onDragOver={handleDrag}
@@ -226,7 +230,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           }`}
           aria-hidden="true"
         >
-          <Upload className="w-8 h-8" />
+          <IconComponent className="w-8 h-8" />
         </div>
 
         <h3 className="font-semibold text-slate-800 text-base md:text-lg mb-1">{title}</h3>
