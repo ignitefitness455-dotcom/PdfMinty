@@ -87,6 +87,7 @@ export const UnlockPage: React.FC = () => {
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
+                accept=".pdf,application/pdf"
                 title="Select locked PDF to decrypt"
                 subtitle={`Drag secure PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['unlock-pdf'].maxSingleMB}MB)`}
                 maxSizeMB={TOOL_SIZE_LIMITS['unlock-pdf'].maxSingleMB}

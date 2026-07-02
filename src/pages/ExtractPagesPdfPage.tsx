@@ -172,7 +172,7 @@ export const ExtractPagesPdfPage: React.FC = () => {
                 onFilesSelected={handleFilesSelected}
                 title="Select a PDF to extract pages"
                 subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['extract-pages-pdf'].maxSingleMB}MB)`}
-                accept="application/pdf"
+                accept=".pdf,application/pdf"
                 maxSizeMB={TOOL_SIZE_LIMITS['extract-pages-pdf'].maxSingleMB}
               />
             ) : (

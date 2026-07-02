@@ -194,7 +194,7 @@ export const ReorderPdfPage: React.FC = () => {
                 onFilesSelected={handleFilesSelected}
                 title="Select a PDF to drag & reorder"
                 subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB}MB)`}
-                accept="application/pdf"
+                accept=".pdf,application/pdf"
                 maxSizeMB={TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB}
               />
             ) : (

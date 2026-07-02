@@ -1,5 +1,8 @@
 import { logger } from '../utils/logger';
 
+import { editMetadataPDF, type MetadataPayload } from './metadata-operations';
+import { PDFSanitizer } from './PDFSanitizer';
+
 interface WorkerPromise {
   resolve: (val: unknown) => void;
   reject: (err: Error) => void;
@@ -167,11 +170,9 @@ export class WorkerManager {
       case 'repairPDF':
         return await ops.repairPDF(p.bytes as Uint8Array);
       case 'editMetadataPDF': {
-        const { editMetadataPDF } = await import('../core/metadata-operations');
-        return await editMetadataPDF(p.bytes as Uint8Array, p.metadata as import('../core/metadata-operations').MetadataPayload);
+        return await editMetadataPDF(p.bytes as Uint8Array, p.metadata as MetadataPayload);
       }
       case 'sanitizePDF': {
-        const { PDFSanitizer } = await import('../core/PDFSanitizer');
         return PDFSanitizer.sanitize(p.bytes as Uint8Array);
       }
       default:

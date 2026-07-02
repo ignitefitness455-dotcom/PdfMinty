@@ -1,6 +1,8 @@
 /// <reference lib="webworker" />
 // Web Worker bridge for PDF client processing
+import { editMetadataPDF } from '../core/metadata-operations';
 import * as ops from '../core/pdf-operations';
+import { PDFSanitizer } from '../core/PDFSanitizer';
 
 self.onmessage = async (e: MessageEvent) => {
   const { id, operation, payload } = e.data;
@@ -90,13 +92,11 @@ self.onmessage = async (e: MessageEvent) => {
         break;
       }
       case 'editMetadataPDF': {
-        const { editMetadataPDF } = await import('../core/metadata-operations');
         result = await editMetadataPDF(payload.bytes, payload.metadata);
         transferables = [(result as Uint8Array).buffer];
         break;
       }
       case 'sanitizePDF': {
-        const { PDFSanitizer } = await import('../core/PDFSanitizer');
         const res = PDFSanitizer.sanitize(payload.bytes);
         result = res;
         transferables = [res.bytes.buffer];

@@ -73,7 +73,7 @@ export default function EditMetadataPage() {
                 setError(null);
               }
             }}
-            accept="application/pdf"
+            accept=".pdf,application/pdf"
             title="Select a PDF to edit metadata"
             subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['edit-metadata'].maxSingleMB}MB)`}
             icon={FilePenLine}

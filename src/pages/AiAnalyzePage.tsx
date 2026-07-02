@@ -234,6 +234,7 @@ export const AiAnalyzePage: React.FC = () => {
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
+                accept=".pdf,application/pdf"
                 title="Select PDF for AI review"
                 subtitle={`Drag a PDF file here (Max limit: ${TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}MB)`}
                 maxSizeMB={TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}

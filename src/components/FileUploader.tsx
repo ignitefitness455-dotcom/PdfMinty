@@ -14,7 +14,7 @@ interface FileUploaderProps {
 
 export const FileUploader: React.FC<FileUploaderProps> = ({
   onFilesSelected,
-  accept = 'application/pdf',
+  accept = '.pdf,application/pdf',
   multiple = false,
   title = 'Drag and drop your files here',
   subtitle = 'or click to browse from your device',
@@ -97,16 +97,17 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         // This catches renamed non-PDF files early, before they reach the
         // sanitizer or pdfjs. Image files are validated by the engine's
         // createImageBitmap / embedPng / embedJpg calls.
+        const isPdfExpected = expectedTypes.some((t) => t.includes('pdf') || t === '.pdf');
         if (
-          expectedTypes.includes('application/pdf') &&
+          isPdfExpected &&
           (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) &&
           file.size >= 5
         ) {
           try {
-            const slice = file.slice(0, 5);
+            const slice = file.slice(0, Math.min(1024, file.size));
             const buf = new Uint8Array(await slice.arrayBuffer());
             const header = new TextDecoder('ascii', { fatal: false }).decode(buf);
-            if (header !== '%PDF-') {
+            if (!header.includes('%PDF-')) {
               rejectedFiles.push({
                 name: file.name,
                 reason: 'file does not have a valid PDF header (%PDF-)',
@@ -218,7 +219,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           multiple={multiple}
           onChange={handleChange}
           className="sr-only"
-          id="uploader_hidden_input"
+          id={id ? `${id}_input` : 'uploader_hidden_input'}
           aria-label="File input"
         />
 

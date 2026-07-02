@@ -80,6 +80,7 @@ export const RotatePage: React.FC = () => {
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
+                accept=".pdf,application/pdf"
                 title="Select a PDF to rotate"
                 subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['rotate-pdf'].maxSingleMB}MB)`}
                 maxSizeMB={TOOL_SIZE_LIMITS['rotate-pdf'].maxSingleMB}

@@ -63,7 +63,7 @@ export default function SanitizePdfPage() {
                 setError(null);
               }
             }}
-            accept="application/pdf"
+            accept=".pdf,application/pdf"
             title="Select a PDF to sanitize"
             subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['sanitize-pdf'].maxSingleMB}MB)`}
             icon={ShieldBan}

@@ -88,6 +88,7 @@ export const FlattenPdfPage: React.FC = () => {
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
+                accept=".pdf,application/pdf"
                 title="Select a fillable PDF to flatten"
                 subtitle={`Drag and drop your document here or browse (Max: ${limitMB}MB)`}
                 maxSizeMB={limitMB}
