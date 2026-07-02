@@ -1,12 +1,12 @@
-import { Download, ShieldBan } from 'lucide-react';
+import { Download, ShieldBan, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { FileUploader } from '../components/FileUploader';
 import LoadingButton from '../components/LoadingButton';
 import SEO from '../components/SEO';
-import ToolWorkspace from '../components/ToolWorkspace';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { WorkerManager } from '../core/WorkerManager';
+import { downloadBlob } from '../utils/download';
 
 export default function SanitizePdfPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -31,14 +31,7 @@ export default function SanitizePdfPage() {
       setWarnings(result.warnings);
 
       const blob = new Blob([result.bytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.name.replace('.pdf', '-sanitized.pdf');
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      await downloadBlob(blob, file.name.replace(/\.pdf$/i, '') + '-sanitized.pdf');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       setError(message || 'Failed to sanitize document.');
@@ -79,15 +72,33 @@ export default function SanitizePdfPage() {
           />
         </div>
       ) : (
-        <ToolWorkspace
-          file={file}
-          onReset={() => {
-            setFile(null);
-            setWarnings([]);
-          }}
-          error={error}
-          id="loaded_sanitize_file"
-        >
+        <div className="space-y-6" id="loaded_sanitize_file">
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+            <div className="truncate pr-4">
+              <p className="text-sm font-bold text-slate-800 truncate">{file.name}</p>
+              <p className="text-xs text-slate-400">
+                {(file.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setFile(null);
+                setWarnings([]);
+                setError(null);
+              }}
+              className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1.5 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+            >
+              Remove
+            </button>
+          </div>
+
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-700 font-semibold leading-relaxed">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50">
               <h3 className="text-lg font-semibold text-slate-800">Ready to Sanitize</h3>
@@ -117,7 +128,7 @@ export default function SanitizePdfPage() {
               </LoadingButton>
             </div>
           </div>
-        </ToolWorkspace>
+        </div>
       )}
     </div>
   );
