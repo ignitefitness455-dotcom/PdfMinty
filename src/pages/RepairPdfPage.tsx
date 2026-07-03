@@ -1,4 +1,4 @@
-import { ArrowLeft, RefreshCw, AlertCircle, Wrench, Download, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertCircle, Wrench, Download, CheckCircle2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -153,48 +153,38 @@ export const RepairPdfPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <h2 className="text-xs font-black uppercase tracking-wider text-slate-400">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
+          <div className="space-y-4">
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
               Repair Actions
-            </h2>
-
-            <div className="space-y-4">
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                This utility performs multi-stage sanitization, including stripping redundant server headers, standardizing EOF offsets, and rebuilding cross-reference metadata tables.
-              </p>
-
-              <div className="pt-2">
-                <button
-                  type="button"
-                  disabled={!selectedFile || loading}
-                  onClick={handleRepair}
-                  className="w-full py-3.5 px-4 bg-[#00FFC2] hover:bg-[#00E5AE] disabled:bg-slate-100 disabled:text-slate-400 font-sans font-black text-xs text-[#0E0E0E] rounded-xl transition-all shadow-md active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin text-[#0E0E0E]" />
-                      <span>Repairing PDF...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4 text-[#0E0E0E]" />
-                      <span>Repair & Download</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              This utility performs multi-stage sanitization, including stripping redundant server headers, standardizing EOF offsets, and rebuilding cross-reference metadata tables.
+            </p>
           </div>
 
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2 text-xs text-slate-500 font-semibold leading-relaxed">
-            <div className="flex items-center gap-1.5 font-bold text-slate-700">
-              <ShieldAlert className="w-4 h-4 text-security-green" />
-              <span>Client-Side Engine</span>
-            </div>
-            <p>
-              Your document files are processed securely inside your browser's sandboxed environment and never uploaded to any remote storage.
-            </p>
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <button
+              onClick={handleRepair}
+              disabled={!selectedFile || loading}
+              className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide text-white flex items-center justify-center space-x-2 transition-all shadow-md shadow-emerald-600/10 ${
+                selectedFile && !loading
+                  ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer hover:-translate-y-0.5'
+                  : 'bg-slate-300 pointer-events-none shadow-none'
+              }`}
+            >
+              {loading ? (
+                <span className="flex items-center space-x-1.5">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Repairing PDF...</span>
+                </span>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  <span>Repair & Download</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>

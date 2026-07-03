@@ -1,4 +1,4 @@
-import { ArrowLeft, RefreshCw, AlertCircle, FileText, Download, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertCircle, FileText, Download } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -137,48 +137,38 @@ export const FlattenPdfPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <h2 className="text-xs font-black uppercase tracking-wider text-slate-400">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
+          <div className="space-y-4">
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
               Flatten Options
-            </h2>
-
-            <div className="space-y-4">
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                Flattening form fields locks the current values, radio options, checkboxes, and signatures, turning them into a permanent vector layer. This protects against unauthorized edits.
-              </p>
-
-              <div className="pt-2">
-                <button
-                  type="button"
-                  disabled={!selectedFile || loading}
-                  onClick={handleFlatten}
-                  className="w-full py-3.5 px-4 bg-[#00FFC2] hover:bg-[#00E5AE] disabled:bg-slate-100 disabled:text-slate-400 font-sans font-black text-xs text-[#0E0E0E] rounded-xl transition-all shadow-md active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin text-[#0E0E0E]" />
-                      <span>Flattening Document...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4 text-[#0E0E0E]" />
-                      <span>Flatten & Download</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Flattening form fields locks the current values, radio options, checkboxes, and signatures, turning them into a permanent vector layer. This protects against unauthorized edits.
+            </p>
           </div>
 
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2 text-xs text-slate-500 font-semibold leading-relaxed">
-            <div className="flex items-center gap-1.5 font-bold text-slate-700">
-              <ShieldCheck className="w-4 h-4 text-security-green" />
-              <span>Security & Compliance</span>
-            </div>
-            <p>
-              Many governmental, financial, and legal platforms require PDF forms to be completely flattened before submission to ensure data-record preservation.
-            </p>
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <button
+              onClick={handleFlatten}
+              disabled={!selectedFile || loading}
+              className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide text-white flex items-center justify-center space-x-2 transition-all shadow-md shadow-emerald-600/10 ${
+                selectedFile && !loading
+                  ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer hover:-translate-y-0.5'
+                  : 'bg-slate-300 pointer-events-none shadow-none'
+              }`}
+            >
+              {loading ? (
+                <span className="flex items-center space-x-1.5">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Flattening Document...</span>
+                </span>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  <span>Flatten & Download</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>

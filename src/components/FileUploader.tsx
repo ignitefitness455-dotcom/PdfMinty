@@ -42,8 +42,13 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
         // 1. Validate file format (extension + MIME type)
         const matchesType = expectedTypes.some((type) => {
-          if (type === 'application/pdf') {
-            return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+          if (type === 'application/pdf' || type === '.pdf') {
+            return (
+              file.type === 'application/pdf' ||
+              file.type === 'application/x-pdf' ||
+              file.type === 'application/acrobat' ||
+              file.name.toLowerCase().endsWith('.pdf')
+            );
           }
           if (type === 'image/png') {
             return file.type === 'image/png' || /\.png$/i.test(file.name);
@@ -93,31 +98,32 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           continue;
         }
 
-        // 3. For PDFs only, validate magic bytes (%PDF- header).
-        // This catches renamed non-PDF files early, before they reach the
-        // sanitizer or pdfjs. Image files are validated by the engine's
-        // createImageBitmap / embedPng / embedJpg calls.
+        // 3. For PDFs only, validate magic bytes (%PDF header).
         const isPdfExpected = expectedTypes.some((t) => t.includes('pdf') || t === '.pdf');
         if (
           isPdfExpected &&
           (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) &&
-          file.size >= 5
+          file.size >= 4
         ) {
           try {
-            const slice = file.slice(0, Math.min(1024, file.size));
+            const slice = file.slice(0, 100);
             const buf = new Uint8Array(await slice.arrayBuffer());
-            const header = new TextDecoder('ascii', { fatal: false }).decode(buf);
-            if (!header.includes('%PDF-')) {
+            let isPdfHeader = false;
+            for (let j = 0; j <= buf.length - 4; j++) {
+              if (buf[j] === 0x25 && buf[j + 1] === 0x50 && buf[j + 2] === 0x44 && buf[j + 3] === 0x46) {
+                isPdfHeader = true;
+                break;
+              }
+            }
+            if (!isPdfHeader && buf.length >= 4) {
               rejectedFiles.push({
                 name: file.name,
-                reason: 'file does not have a valid PDF header (%PDF-)',
+                reason: 'file does not have a valid PDF header (%PDF)',
               });
               continue;
             }
           } catch {
-            // If we can't read the header, let the downstream sanitizer handle it.
-            // Don't reject here — the file might be readable by pdfjs even if
-            // our slice read failed (e.g., streaming uploads in some browsers).
+            // If we can't read the slice, let downstream handler process it.
           }
         }
 

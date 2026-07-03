@@ -1,4 +1,4 @@
-import { ArrowLeft, RefreshCw, AlertCircle, Printer, Download, Sparkles } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertCircle, Printer, Download } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -138,71 +138,61 @@ export const GrayscalePdfPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <h2 className="text-xs font-black uppercase tracking-wider text-slate-400">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
+          <div className="space-y-4">
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
               Grayscale Settings
-            </h2>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <span className="text-xs font-extrabold text-slate-700 block">
-                  Render Resolution (DPI Quality)
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: 'Normal', value: 1.0, desc: 'Faster / Lighter' },
-                    { label: 'High', value: 1.5, desc: 'Sharp text' },
-                    { label: 'Ultra', value: 2.0, desc: 'Maximum print' },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setScale(opt.value)}
-                      className={`p-2.5 border rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${
-                        scale === opt.value
-                          ? 'border-security-green bg-emerald-50 text-emerald-950 font-bold shadow-sm'
-                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                      }`}
-                    >
-                      <span className="text-xs font-extrabold">{opt.label}</span>
-                      <span className="text-[9px] text-slate-400 font-semibold mt-0.5">{opt.desc}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="button"
-                  disabled={!selectedFile || loading}
-                  onClick={handleGrayscale}
-                  className="w-full py-3.5 px-4 bg-[#00FFC2] hover:bg-[#00E5AE] disabled:bg-slate-100 disabled:text-slate-400 font-sans font-black text-xs text-[#0E0E0E] rounded-xl transition-all shadow-md active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin text-[#0E0E0E]" />
-                      <span>Converting Pages...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4 text-[#0E0E0E]" />
-                      <span>Convert & Download</span>
-                    </>
-                  )}
-                </button>
+            </h3>
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-700 block">
+                Render Resolution (DPI Quality)
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: 'Normal', value: 1.0, desc: 'Faster / Lighter' },
+                  { label: 'High', value: 1.5, desc: 'Sharp text' },
+                  { label: 'Ultra', value: 2.0, desc: 'Maximum print' },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setScale(opt.value)}
+                    className={`p-2.5 border rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${
+                      scale === opt.value
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-950 font-bold shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                    }`}
+                  >
+                    <span className="text-xs font-extrabold">{opt.label}</span>
+                    <span className="text-[9px] text-slate-400 font-semibold mt-0.5">{opt.desc}</span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2 text-xs text-slate-500 font-semibold leading-relaxed">
-            <div className="flex items-center gap-1.5 font-bold text-slate-700">
-              <Sparkles className="w-4 h-4 text-security-green" />
-              <span>Eco-friendly Printing</span>
-            </div>
-            <p>
-              By translating all text channels, images, vectors, and layouts to monochrome gradients, you save up to 70% of colored print cartridge volume.
-            </p>
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <button
+              onClick={handleGrayscale}
+              disabled={!selectedFile || loading}
+              className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide text-white flex items-center justify-center space-x-2 transition-all shadow-md shadow-emerald-600/10 ${
+                selectedFile && !loading
+                  ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer hover:-translate-y-0.5'
+                  : 'bg-slate-300 pointer-events-none shadow-none'
+              }`}
+            >
+              {loading ? (
+                <span className="flex items-center space-x-1.5">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Converting Pages...</span>
+                </span>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  <span>Convert & Download</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
