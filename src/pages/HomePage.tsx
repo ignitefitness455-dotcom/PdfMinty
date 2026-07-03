@@ -45,7 +45,10 @@ export const HomePage: React.FC = () => {
 
       {/* Decorative Glow Elements */}
       <div
-        className="absolute top-[-150px] left-1/2 -translate-x-1/2 -z-10 w-[800px] h-[450px] bg-gradient-to-r from-security-green/10 via-primary-fixed/5 to-tertiary-fixed-dim/5 rounded-full blur-[120px] pointer-events-none"
+        className="absolute top-[-150px] left-1/2 -translate-x-1/2 -z-10 w-[800px] h-[450px] pointer-events-none opacity-10"
+        style={{
+          background: 'radial-gradient(ellipse at center, var(--custom-security-green) 0%, transparent 60%)'
+        }}
         aria-hidden="true"
       />
 

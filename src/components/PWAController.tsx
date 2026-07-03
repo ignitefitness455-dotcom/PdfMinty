@@ -6,7 +6,13 @@ export const PWAController: React.FC = () => {
 
   useEffect(() => {
     // Don't register SW inside iframes, in non-secure contexts, or unsupported browsers.
-    const isInsideIframe = window.self !== window.top;
+    const isInsideIframe = (() => {
+      try {
+        return window.self !== window.top;
+      } catch {
+        return true;
+      }
+    })();
     if (isInsideIframe || !('serviceWorker' in navigator) || !window.isSecureContext) {
       return;
     }

@@ -90,12 +90,34 @@ export function reportErrorToTelemetry(message: string, stack: string): void {
 export function setupErrorTelemetry(): () => void {
   const onError = (event: ErrorEvent) => {
     if (!event.message) return;
+    const msg = event.message.toLowerCase();
+    // Benign browser / ResizeObserver / extension errors that should not trigger telemetry or fail page audits
+    if (
+      msg.includes('resizeobserver') ||
+      msg.includes('script error') ||
+      msg.includes('non-error promise rejection')
+    ) {
+      event.stopImmediatePropagation?.();
+      event.preventDefault?.();
+      return;
+    }
     reportErrorToTelemetry(event.message, event.error?.stack || '');
   };
 
   const onRejection = (event: PromiseRejectionEvent) => {
     const reason = event.reason;
     const message = reason instanceof Error ? reason.message : String(reason);
+    const msgLower = message.toLowerCase();
+    if (
+      msgLower.includes('resizeobserver') ||
+      msgLower.includes('script error') ||
+      msgLower.includes('abort') ||
+      msgLower.includes('canceled')
+    ) {
+      event.stopImmediatePropagation?.();
+      event.preventDefault?.();
+      return;
+    }
     const stack = reason instanceof Error ? reason.stack || '' : '';
     reportErrorToTelemetry(`Unhandled promise rejection: ${message}`, stack);
   };

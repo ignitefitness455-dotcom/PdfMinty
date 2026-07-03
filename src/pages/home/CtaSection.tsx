@@ -8,8 +8,8 @@ export const CtaSection: React.FC = () => {
 
   return (
     <div className="mt-24 border border-border-muted rounded-3xl bg-surface-container-low/40 p-10 md:p-14 text-center text-primary relative overflow-hidden z-20 shadow-xl">
-      <div className="absolute top-0 right-0 w-80 h-80 bg-security-green/10 rounded-full filter blur-[80px] pointer-events-none" aria-hidden="true"></div>
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-tertiary-fixed-dim/5 rounded-full filter blur-[80px] pointer-events-none" aria-hidden="true"></div>
+      <div className="absolute top-[-100px] right-[-100px] w-[400px] h-[400px] pointer-events-none opacity-10" style={{ background: 'radial-gradient(circle, var(--custom-security-green) 0%, transparent 70%)' }} aria-hidden="true"></div>
+      <div className="absolute bottom-[-100px] left-[-100px] w-[400px] h-[400px] pointer-events-none opacity-5" style={{ background: 'radial-gradient(circle, var(--custom-primary-fixed-dim) 0%, transparent 70%)' }} aria-hidden="true"></div>
       <div className="relative z-10 max-w-xl mx-auto space-y-5">
         <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-tight font-sans">
           Ready to secure your PDF workflow?
