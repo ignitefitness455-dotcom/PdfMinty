@@ -1,77 +1,39 @@
 # PDFMinty robots.txt — Privacy-First PDF Toolkit
-# Allow all legitimate search engine crawlers
 
 User-agent: *
 Allow: /
 Allow: /assets/
 Allow: /fonts/
 Allow: /icons/
-
-# Block API and internal endpoints
 Disallow: /api/
 Disallow: /functions/
 Disallow: /cdn-cgi/
 
-# Explicitly allow major search engine bots (in case of overly broad Disallow rules)
-User-agent: Googlebot
-Allow: /
-
-User-agent: Googlebot-Image
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Slurp
-Allow: /
-
-User-agent: DuckDuckBot
-Allow: /
-
-User-agent: Baiduspider
-Allow: /
-
-User-agent: YandexBot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: LinkedInBot
-Allow: /
-
-User-agent: Applebot
-Allow: /
-
-# Allow SEO analysis tools
 User-agent: AhrefsBot
 Allow: /
-Crawl-delay: 10
+Disallow: /api/
+Disallow: /functions/
+Disallow: /cdn-cgi/
+Crawl-delay: 2
 
 User-agent: SemrushBot
 Allow: /
-Crawl-delay: 10
+Disallow: /api/
+Disallow: /functions/
+Disallow: /cdn-cgi/
+Crawl-delay: 2
 
 User-agent: Dotbot
 Allow: /
-Crawl-delay: 10
+Disallow: /api/
+Disallow: /functions/
+Disallow: /cdn-cgi/
+Crawl-delay: 2
 
-# Block aggressive scrapers
 User-agent: SemrushBot-BA
 Disallow: /
 
-User-agent: MJ12bot
-Disallow: /
-
-User-agent: AhrefsBot/7.0
-Disallow: /
-
-# Sitemap location
 Sitemap: https://pdfminty.com/sitemap.xml
 Sitemap: https://pdfminty.com/sitemap-images.xml
 
-# Host directive (primary domain)
 Host: https://pdfminty.com
