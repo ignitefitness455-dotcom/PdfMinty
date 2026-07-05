@@ -3,189 +3,126 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://pdfminty.com</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/edit-metadata</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/sanitize-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/merge-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-merge-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/split-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-split-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/rotate-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-rotate-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/delete-pages-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-delete-pages-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/extract-pages-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-extract-pages-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/reorder-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-reorder-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/watermark-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-watermark-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/add-page-numbers</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-add-page-numbers.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/add-blank-page</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-add-blank-page.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/protect-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-protect-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/unlock-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-unlock-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/image-to-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image-to-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/pdf-to-image</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-pdf-to-image.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/intelligence</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-intelligence.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/grayscale-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-grayscale-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/flatten-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-flatten-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/repair-pdf</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-repair-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://pdfminty.com/is-it-safe-to-upload-pdf-to-online-tools</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-is-it-safe-to-upload-pdf-to-online-tools.png</image:loc>
     </image:image>

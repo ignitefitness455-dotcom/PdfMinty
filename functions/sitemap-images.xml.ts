@@ -1,22 +1,17 @@
+import { TOOLS } from '../src/config/seo-data';
+
 export const onRequest: PagesFunction = async () => {
   const SITE_URL = 'https://pdfminty.com';
-  const tools = [
-    'merge-pdf', 'split-pdf', 'compress-pdf', 'rotate-pdf',
-    'delete-pages-pdf', 'extract-pages-pdf', 'reorder-pdf',
-    'watermark-pdf', 'add-page-numbers', 'add-blank-page',
-    'protect-pdf', 'unlock-pdf', 'image-to-pdf', 'pdf-to-image',
-    'intelligence'
-  ];
 
   const imageEntries = [
     { url: `${SITE_URL}/og-image.png`, title: 'PDFMinty — Free Privacy-First PDF Toolkit', caption: 'Default social share image' },
     { url: `${SITE_URL}/logo-512.png`, title: 'PDFMinty Logo', caption: 'Brand logo' },
     { url: `${SITE_URL}/screenshot-desktop.png`, title: 'PDFMinty Desktop Screenshot', caption: 'Desktop dashboard view' },
     { url: `${SITE_URL}/screenshot-mobile.png`, title: 'PDFMinty Mobile Screenshot', caption: 'Mobile tool list' },
-    ...tools.map(slug => ({
-      url: `${SITE_URL}/og-${slug}.png`,
-      title: `PDFMinty ${slug.replace(/-/g, ' ')} tool`,
-      caption: `${slug} social share image`
+    ...TOOLS.map(tool => ({
+      url: tool.ogImage ? `${SITE_URL}${tool.ogImage}` : `${SITE_URL}/og-image.png`,
+      title: `PDFMinty — ${tool.name}`,
+      caption: tool.shortDescription || `${tool.name} tool`
     }))
   ];
 

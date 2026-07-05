@@ -277,30 +277,13 @@ async function run(): Promise<void> {
     
     // Helper function to build related tools list
     const getRelatedToolsHtml = (currentSlug: string): string => {
-      const toolsList = [
-        { slug: 'merge-pdf', label: 'Merge PDF', desc: 'Combine multiple PDFs' },
-        { slug: 'split-pdf', label: 'Split PDF', desc: 'Extract pages or split into files' },
-        { slug: 'rotate-pdf', label: 'Rotate PDF', desc: 'Rotate pages' },
-        { slug: 'delete-pages-pdf', label: 'Delete PDF Pages', desc: 'Remove unwanted pages' },
-        { slug: 'extract-pages-pdf', label: 'Extract Pages', desc: 'Pull specific pages' },
-        { slug: 'reorder-pdf', label: 'Reorder PDF', desc: 'Rearrange page order' },
-        { slug: 'watermark-pdf', label: 'Watermark PDF', desc: 'Add text watermarks' },
-        { slug: 'add-page-numbers', label: 'Add Page Numbers', desc: 'Number your pages' },
-        { slug: 'add-blank-page', label: 'Add Blank Page', desc: 'Insert blank pages' },
-        { slug: 'protect-pdf', label: 'Protect PDF', desc: 'Password-encrypt' },
-        { slug: 'unlock-pdf', label: 'Unlock PDF', desc: 'Remove passwords' },
-        { slug: 'image-to-pdf', label: 'Image to PDF', desc: 'Convert images' },
-        { slug: 'pdf-to-image', label: 'PDF to Image', desc: 'Convert to images' },
-        { slug: 'intelligence', label: 'AI Analyze PDF', desc: 'AI-powered analysis' },
-      ];
-
-      const filtered = toolsList.filter((t: { slug: string; label: string; desc: string }) => t.slug !== currentSlug);
+      const filtered = TOOLS.filter((t: ToolSEOInfo) => t.slug !== currentSlug && t.type === 'tool');
 
       return `
 <h2>Related PDF Tools</h2>
 <p>Explore more free, privacy-first PDF tools:</p>
 <ul>
-${filtered.map((t: { slug: string; label: string; desc: string }) => `  <li><a href="/${t.slug}">${t.label}</a> — ${t.desc}</li>`).join('\n')}
+${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> — ${t.shortDescription || t.description}</li>`).join('\n')}
 </ul>
 `;
     };

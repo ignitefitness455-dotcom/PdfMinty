@@ -10,6 +10,8 @@ const __dirname: string = path.dirname(__filename);
 
 function slugToPageFile(slug: string): string {
   const map: Record<string, string> = {
+    'edit-metadata': 'EditMetadataPage',
+    'sanitize-pdf': 'SanitizePdfPage',
     'merge-pdf': 'MergePage',
     'split-pdf': 'SplitPage',
     'rotate-pdf': 'RotatePage',
@@ -24,6 +26,9 @@ function slugToPageFile(slug: string): string {
     'image-to-pdf': 'ImgToPdfPage',
     'pdf-to-image': 'PdfToImgPage',
     'intelligence': 'AiAnalyzePage',
+    'grayscale-pdf': 'GrayscalePdfPage',
+    'flatten-pdf': 'FlattenPdfPage',
+    'repair-pdf': 'RepairPdfPage',
     'is-it-safe-to-upload-pdf-to-online-tools': 'IsSafePdfArticlePage',
   };
   return map[slug] || slug;
@@ -39,8 +44,12 @@ interface SitemapUrl {
 
 async function run(): Promise<void> {
   const distDir: string = path.resolve(__dirname, '../dist');
+  const publicDir: string = path.resolve(__dirname, '../public');
   if (!fs.existsSync(distDir)) {
     fs.mkdirSync(distDir, { recursive: true });
+  }
+  if (!fs.existsSync(publicDir)) {
+    fs.mkdirSync(publicDir, { recursive: true });
   }
 
   const SITE_URL = 'https://pdfminty.com';
@@ -88,8 +97,24 @@ ${urls.map((u: SitemapUrl) => `  <url>
 </urlset>
 `;
 
+  const sitemapImagesXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${urls.map((u: SitemapUrl) => `  <url>
+    <loc>${u.loc}</loc>
+    <image:image>
+      <image:loc>${u.image}</image:loc>
+    </image:image>
+  </url>`).join('\n')}
+</urlset>
+`;
+
   fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemapXml);
-  logger.info(`✓ Generated sitemap.xml with ${urls.length} URLs`);
+  fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemapXml);
+  fs.writeFileSync(path.join(distDir, 'sitemap-images.xml'), sitemapImagesXml);
+  fs.writeFileSync(path.join(publicDir, 'sitemap-images.xml'), sitemapImagesXml);
+
+  logger.info(`✓ Generated sitemap.xml and sitemap-images.xml with ${urls.length} URLs`);
 }
 
 run().catch((err: unknown) => {
