@@ -111,6 +111,7 @@ self.onmessage = async (e: MessageEvent) => {
           markdown: string;
           images: { filename: string; dataBytes: Uint8Array }[];
           pageCount: number;
+          isScannedOrImageOnly?: boolean;
         };
         transferables = resObj.images.map((img) => img.dataBytes.buffer);
         break;

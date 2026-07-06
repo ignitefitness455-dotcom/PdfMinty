@@ -9,6 +9,7 @@ import {
   Eye,
   Code2,
   Image as ImageIcon,
+  Sparkles,
 } from 'lucide-react';
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
@@ -196,6 +197,7 @@ export const PdfToMarkdownPage: React.FC = () => {
   const [markdownText, setMarkdownText] = useState<string>('');
   const [images, setImages] = useState<ExtractedMarkdownImage[]>([]);
   const [pageCount, setPageCount] = useState<number>(0);
+  const [isScannedResult, setIsScannedResult] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
 
   const operationTokenRef = useRef<number>(0);
@@ -205,9 +207,88 @@ export const PdfToMarkdownPage: React.FC = () => {
       setSelectedFile(files[0]);
       setError(null);
       setIsEncryptedError(false);
+      setIsScannedResult(false);
       setMarkdownText('');
       setImages([]);
       setProgress(null);
+    }
+  };
+
+  const handleRunAiOcr = async () => {
+    if (!selectedFile) return;
+
+    setLoading(true);
+    setError(null);
+    setIsEncryptedError(false);
+    setProgress({ current: 1, total: 3 });
+    const myToken = ++operationTokenRef.current;
+
+    try {
+      const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
+
+      const rendered = await WorkerManager.getInstance().runOperation<
+        { page: number; imageBytes: Uint8Array }[]
+      >(
+        'pdfToImage',
+        {
+          bytes: fileBytes,
+          originalName: selectedFile.name,
+          scale: 1.5,
+          maxPages: 6,
+          format: 'image/jpeg',
+          startPage: 1,
+        }
+      );
+
+      if (myToken !== operationTokenRef.current) return;
+      if (!rendered || rendered.length === 0) {
+        throw new Error('Failed to render PDF page images for AI OCR recognition.');
+      }
+
+      setProgress({ current: 2, total: 3 });
+
+      const base64Images = rendered.map((r) => {
+        let binary = '';
+        const len = r.imageBytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(r.imageBytes[i]);
+        }
+        return `data:image/jpeg;base64,${btoa(binary)}`;
+      });
+
+      const res = await fetch('/api/gemini-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'ocr',
+          imagesBase64: base64Images,
+        }),
+      });
+
+      if (myToken !== operationTokenRef.current) return;
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error((errData as { error?: string }).error || `AI OCR request failed (${res.status})`);
+      }
+
+      const data = (await res.json()) as { success: boolean; result: string };
+      setMarkdownText(data.result || '# AI OCR Transcribed Document\n\nNo text extracted.');
+      setPageCount(rendered.length);
+      setIsScannedResult(false);
+      setProgress({ current: 3, total: 3 });
+      showToast('Successfully extracted Markdown via Multimodal AI Vision OCR!', 'success');
+    } catch (err: unknown) {
+      if (myToken !== operationTokenRef.current) return;
+      logger.error('AI OCR error:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Failed to perform AI Vision OCR recognition.');
+      showToast('AI OCR extraction failed.', 'error');
+    } finally {
+      if (myToken === operationTokenRef.current) {
+        setLoading(false);
+        setProgress(null);
+      }
     }
   };
 
@@ -217,6 +298,7 @@ export const PdfToMarkdownPage: React.FC = () => {
     setLoading(true);
     setError(null);
     setIsEncryptedError(false);
+    setIsScannedResult(false);
     setProgress({ current: 0, total: 1 });
     const myToken = ++operationTokenRef.current;
 
@@ -242,6 +324,7 @@ export const PdfToMarkdownPage: React.FC = () => {
       setMarkdownText(result.markdown);
       setImages(result.images || []);
       setPageCount(result.pageCount || 1);
+      setIsScannedResult(!!result.isScannedOrImageOnly);
       showToast('Successfully converted PDF to Markdown!', 'success');
     } catch (err: unknown) {
       if (myToken !== operationTokenRef.current) return;
@@ -251,8 +334,6 @@ export const PdfToMarkdownPage: React.FC = () => {
       if (msg.includes('SECURED_LOCKED') || msg.includes('password protected')) {
         setIsEncryptedError(true);
         setError('This PDF is password protected. Please unlock it before converting to Markdown.');
-      } else if (msg.includes('NO_TEXT_FOUND') || msg.includes('no selectable text')) {
-        setError("This PDF has no selectable text (likely scanned). OCR isn't supported yet.");
       } else {
         setError(msg || 'Failed to convert PDF to Markdown. The file may be corrupted.');
       }
@@ -396,6 +477,7 @@ export const PdfToMarkdownPage: React.FC = () => {
 
             <label
               htmlFor="extract_images_opt"
+              aria-label="Extract images alongside markdown"
               className="flex items-start space-x-3 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100/60 transition-colors"
             >
               <input
@@ -432,29 +514,66 @@ export const PdfToMarkdownPage: React.FC = () => {
             )}
           </div>
 
-          <button
-            onClick={handleConvert}
-            disabled={!selectedFile || loading}
-            className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide text-white flex items-center justify-center space-x-2 transition-all shadow-md shadow-emerald-600/10 ${
-              selectedFile && !loading
-                ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer hover:-translate-y-0.5'
-                : 'bg-slate-300 pointer-events-none shadow-none'
-            }`}
-          >
-            {loading ? (
-              <span className="flex items-center space-x-1.5">
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                <span>Converting...</span>
-              </span>
-            ) : (
-              <>
-                <FileCode2 className="w-4 h-4" />
-                <span>Convert to Markdown</span>
-              </>
-            )}
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={handleConvert}
+              disabled={!selectedFile || loading}
+              className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide text-white flex items-center justify-center space-x-2 transition-all shadow-md shadow-emerald-600/10 ${
+                selectedFile && !loading
+                  ? 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer hover:-translate-y-0.5'
+                  : 'bg-slate-300 pointer-events-none shadow-none'
+              }`}
+            >
+              {loading ? (
+                <span className="flex items-center space-x-1.5">
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  <span>Converting...</span>
+                </span>
+              ) : (
+                <>
+                  <FileCode2 className="w-4 h-4" />
+                  <span>Smart Layout Convert (Fast)</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleRunAiOcr}
+              disabled={!selectedFile || loading}
+              className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all border ${
+                selectedFile && !loading
+                  ? 'bg-amber-50 hover:bg-amber-100/80 text-amber-800 border-amber-300 cursor-pointer'
+                  : 'bg-slate-50 text-slate-400 border-slate-200 pointer-events-none'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-amber-600" />
+              <span>AI Vision OCR Mode (For Scanned / Image PDFs)</span>
+            </button>
+          </div>
         </div>
       </div>
+
+      {isScannedResult && (
+        <div className="p-5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-start space-x-3.5">
+            <Sparkles className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="space-y-1 text-xs md:text-sm text-amber-900">
+              <p className="font-extrabold text-base text-amber-950">Scanned / Image-Only PDF Detected</p>
+              <p>
+                Standard text-layer extraction yielded minimal text because this PDF is composed of scanned images. Use our Multimodal AI Vision OCR engine to transcribe pages and tables directly into clean Markdown.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleRunAiOcr}
+            disabled={loading}
+            className="py-2.5 px-5 rounded-xl font-bold text-xs bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center space-x-2 transition-all shadow-sm flex-shrink-0 cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Transcribe with AI Vision OCR</span>
+          </button>
+        </div>
+      )}
 
       {markdownText && (
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">

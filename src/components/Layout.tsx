@@ -15,6 +15,12 @@ import {
   HelpCircle,
   CheckSquare,
   Move,
+  FileCode2,
+  Printer,
+  FileText,
+  Wrench,
+  FilePenLine,
+  ShieldBan,
 } from 'lucide-react';
 import React, { useState, createContext, useContext, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -105,6 +111,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     Image,
     Eye,
     Sparkles,
+    FileCode2,
+    Printer,
+    FileText,
+    Wrench,
+    FilePenLine,
+    ShieldBan,
   }), []);
 
   const toolsList = useMemo<ToolInfo[]>(() => TOOLS
@@ -151,7 +163,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           id="main-content"
         >
           <div className="container-pdfminty py-2 sm:py-4 lg:py-6 relative z-10">
-            <Breadcrumbs />
             <InternalSEO />
             {children}
             <ToolGuide slug={location.pathname.replace(/^\//, '').replace(/\/$/, '')} />

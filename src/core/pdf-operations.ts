@@ -1332,6 +1332,7 @@ export interface PdfToMarkdownResult {
   markdown: string;
   images: ExtractedMarkdownImage[];
   pageCount: number;
+  isScannedOrImageOnly?: boolean;
 }
 
 async function extractImagesFromPage(
@@ -1581,10 +1582,15 @@ export async function pdfToMarkdown(
       }
     }
 
-    if (totalChars < 5 && extractedImages.length === 0) {
-      throw new Error(
-        "NO_TEXT_FOUND: This PDF has no selectable text (likely scanned). OCR isn't supported yet."
-      );
+    const isScannedOrImageOnly = totalChars < 15 && extractedImages.length === 0;
+    if (isScannedOrImageOnly) {
+      return {
+        markdown:
+          '# ⚠️ Scanned or Image-Only PDF Detected\n\nThis PDF page contains no selectable text layer. To extract text or markdown from scanned documents, click the **AI Vision OCR Mode** button above to perform Multimodal AI recognition.',
+        images: extractedImages,
+        pageCount: numPages,
+        isScannedOrImageOnly: true,
+      };
     }
 
     allFontSizes.sort((a, b) => a - b);
@@ -1627,38 +1633,40 @@ export async function pdfToMarkdown(
         continue;
       }
 
-      // 2. Multi-column Layout Detection vs Single-column Reading Order
+      // 2. Advanced Recursive XY-Cut & Histogram Column Clustering
+      // Separate horizontal spanning banners (titles/abstracts > 58% width) from column blocks
       const fullWidthItems: PageTextItem[] = [];
-      const leftColItems: PageTextItem[] = [];
-      const rightColItems: PageTextItem[] = [];
+      const colCandidates: PageTextItem[] = [];
 
       for (const item of validItems) {
-        if (
-          item.width >= pData.width * 0.55 ||
-          (item.x <= pData.width * 0.25 && item.x + item.width >= pData.width * 0.75)
-        ) {
+        if (item.width >= pData.width * 0.58) {
           fullWidthItems.push(item);
         } else {
-          const midX = item.x + item.width / 2;
-          if (midX < pData.width * 0.48) {
-            leftColItems.push(item);
-          } else {
-            rightColItems.push(item);
-          }
+          colCandidates.push(item);
         }
       }
 
-      // Check vertical y-range overlap between leftCol and rightCol
-      let isMultiCol = false;
-      if (leftColItems.length >= 3 && rightColItems.length >= 3) {
-        let overlaps = 0;
-        for (const lItem of leftColItems) {
-          if (rightColItems.some((rItem) => Math.abs(rItem.y - lItem.y) < 15)) {
-            overlaps++;
-          }
+      // Compute X-histogram across page width to find vertical column dividers (gutters)
+      const numBins = 50;
+      const binWidth = pData.width / numBins;
+      const binDensity = new Array(numBins).fill(0);
+
+      for (const item of colCandidates) {
+        const startBin = Math.max(0, Math.floor(item.x / binWidth));
+        const endBin = Math.min(numBins - 1, Math.floor((item.x + item.width) / binWidth));
+        for (let b = startBin; b <= endBin; b++) {
+          binDensity[b] += item.str.length;
         }
-        if (overlaps >= 3) {
-          isMultiCol = true;
+      }
+
+      // Find clear zero-density vertical gutters in the middle region (20% to 80% width)
+      const gutters: number[] = [];
+      for (let b = Math.floor(numBins * 0.2); b <= Math.floor(numBins * 0.8); b++) {
+        if (binDensity[b] === 0 && (b === 0 || binDensity[b - 1] === 0 || b === numBins - 1 || binDensity[b + 1] === 0)) {
+          const gutterX = (b + 0.5) * binWidth;
+          if (gutters.length === 0 || gutterX - gutters[gutters.length - 1] > pData.width * 0.15) {
+            gutters.push(gutterX);
+          }
         }
       }
 
@@ -1672,34 +1680,29 @@ export async function pdfToMarkdown(
       };
 
       let orderedItems: PageTextItem[] = [];
-      if (isMultiCol) {
-        const topFull: PageTextItem[] = [];
-        const botFull: PageTextItem[] = [];
-        const maxColY = Math.max(
-          ...leftColItems.map((i) => i.y),
-          ...rightColItems.map((i) => i.y),
-          0
-        );
-        const minColY = Math.min(
-          ...leftColItems.map((i) => i.y),
-          ...rightColItems.map((i) => i.y),
-          pData.height
-        );
 
-        for (const item of fullWidthItems) {
-          if (item.y > maxColY - 20) {
-            topFull.push(item);
-          } else if (item.y < minColY + 20) {
-            botFull.push(item);
-          } else {
-            topFull.push(item);
+      if (gutters.length >= 1 && colCandidates.length >= 6) {
+        // Multi-column layout detected! Partition items vertically into horizontal bands, then read columns sequentially
+        const topFull = fullWidthItems.filter((i) => i.y > pData.height * 0.65);
+        const botFull = fullWidthItems.filter((i) => i.y < pData.height * 0.25);
+        const midFull = fullWidthItems.filter((i) => i.y <= pData.height * 0.65 && i.y >= pData.height * 0.25);
+
+        const columns: PageTextItem[][] = new Array(gutters.length + 1).fill(null).map(() => []);
+        for (const item of colCandidates) {
+          const midX = item.x + item.width / 2;
+          let colIdx = 0;
+          for (let g = 0; g < gutters.length; g++) {
+            if (midX > gutters[g]) {
+              colIdx = g + 1;
+            }
           }
+          columns[colIdx].push(item);
         }
 
         orderedItems = [
           ...sortLineItems(topFull),
-          ...sortLineItems(leftColItems),
-          ...sortLineItems(rightColItems),
+          ...sortLineItems(midFull),
+          ...columns.flatMap((col) => sortLineItems(col)),
           ...sortLineItems(botFull),
         ];
       } else {
@@ -1740,7 +1743,7 @@ export async function pdfToMarkdown(
       let lIdx = 0;
 
       while (lIdx < lines.length) {
-        // Table detection: check 3+ consecutive lines aligned into 2+ columns
+        // Table detection: check 3+ consecutive lines aligned into 2+ columns with grid tolerance
         let tableEndIdx = lIdx;
         let isTable = false;
         if (lines[lIdx].items.length >= 2) {
@@ -1750,7 +1753,7 @@ export async function pdfToMarkdown(
             if (curCols.length !== baseCols.length) break;
             let aligned = true;
             for (let c = 0; c < baseCols.length; c++) {
-              if (Math.abs(curCols[c] - baseCols[c]) > 14) {
+              if (Math.abs(curCols[c] - baseCols[c]) > 18) {
                 aligned = false;
                 break;
               }
@@ -1850,6 +1853,7 @@ export async function pdfToMarkdown(
       markdown: finalMarkdown || '# Empty Document',
       images: extractedImages,
       pageCount: numPages,
+      isScannedOrImageOnly: false,
     };
   } finally {
     if (pdf && typeof pdf.destroy === 'function') {

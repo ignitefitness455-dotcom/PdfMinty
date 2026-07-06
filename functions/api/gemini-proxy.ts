@@ -88,13 +88,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
-  // Request body size guard — reject oversized payloads before parsing.
-  // Allow up to 64 KB for extracted PDF text + query.
-  const MAX_BODY_BYTES = 64 * 1024;
+  // Request body size guard — allow up to 8 MB for multimodal OCR image payloads or extracted PDF text + query.
+  const MAX_BODY_BYTES = 8 * 1024 * 1024;
   const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
   if (contentLength > MAX_BODY_BYTES) {
     return new Response(
-      JSON.stringify({ error: 'Request body too large. Reduce the document text length.' }),
+      JSON.stringify({ error: 'Request body too large. Reduce document size or number of pages.' }),
       {
         status: 413,
         headers: {
@@ -157,9 +156,33 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       textContent?: unknown;
       query?: unknown;
       mode?: unknown;
+      imagesBase64?: unknown;
     }
     const rawData = (await request.json()) as GeminiProxyPayload;
-    const { textContent, query, mode } = rawData;
+    const { textContent, query, mode, imagesBase64 } = rawData;
+
+    if (mode !== 'summary' && mode !== 'qa' && mode !== 'ocr') {
+      return new Response(
+        JSON.stringify({ error: "Invalid mode. Allowed values: 'summary', 'qa', 'ocr'." }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          } as HeadersInit,
+        }
+      );
+    }
+
+    if (mode !== 'ocr' && (!textContent || typeof textContent !== 'string')) {
+      return new Response(JSON.stringify({ error: 'Missing or invalid textContent parameters.' }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        } as HeadersInit,
+      });
+    }
 
     // Validate query in 'qa' mode — prevent cost abuse via oversized prompts.
     if (mode === 'qa') {
@@ -191,30 +214,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       }
     }
 
-    if (!textContent || typeof textContent !== 'string') {
-      return new Response(JSON.stringify({ error: 'Missing or invalid textContent parameters.' }), {
-        status: 400,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        } as HeadersInit,
-      });
-    }
-
-    if (mode !== 'summary' && mode !== 'qa') {
-      return new Response(
-        JSON.stringify({ error: "Invalid mode. Allowed values: 'summary', 'qa'." }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json',
-          } as HeadersInit,
-        }
-      );
-    }
-
-    const truncated = textContent.slice(0, MAX_TEXT_LENGTH);
+    const truncated = typeof textContent === 'string' ? textContent.slice(0, MAX_TEXT_LENGTH) : '';
     const geminiKey = env.GEMINI_API_KEY;
 
     if (!geminiKey) {
@@ -241,24 +241,43 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
 
     let systemInstruction = 'You are a professional PDF document analysis assistant.';
-    let promptText = '';
+    let contentsPayload: unknown = '';
 
-    if (mode === 'summary') {
+    if (mode === 'ocr') {
+      systemInstruction =
+        'You are an expert Document Parsing & OCR engine. Your sole task is to transcribe the provided scanned PDF page image into high-fidelity, cleanly structured Markdown. Preserve headers (#, ##), lists (- or 1.), bold (**), italics (*), and format all tables accurately as Markdown tables (| col |). Do not include conversational introductory or concluding text.';
+      const parts: unknown[] = [
+        'Transcribe this document image accurately into well-formatted Markdown:',
+      ];
+      if (Array.isArray(imagesBase64)) {
+        for (const imgStr of imagesBase64) {
+          if (typeof imgStr === 'string') {
+            parts.push({
+              inlineData: {
+                mimeType: 'image/jpeg',
+                data: imgStr.replace(/^data:image\/\w+;base64,/, ''),
+              },
+            });
+          }
+        }
+      }
+      contentsPayload = parts;
+    } else if (mode === 'summary') {
       systemInstruction +=
         ' Your task is to provide clear, detailed, and objective summaries of the provided custom text.';
-      promptText = `Please analyze and summarize the following document text content. Focus on identifying the primary messages, key sections, important metadata, and critical bullet points. Keep it clear and beautifully formatted with clean, professional linebreaks.\n\nDOCUMENT TEXT CONTENT:\n${truncated}`;
+      contentsPayload = `Please analyze and summarize the following document text content. Focus on identifying the primary messages, key sections, important metadata, and critical bullet points. Keep it clear and beautifully formatted with clean, professional linebreaks.\n\nDOCUMENT TEXT CONTENT:\n${truncated}`;
     } else {
       systemInstruction +=
         " Your task is to answer user queries accurately based exclusively on the provided document text context. If the answer cannot be found or deduced, reply with 'This information could not be found in the document.'";
-      promptText = `Use the provided document text below to answer the user's specific query.\n\nUSER SPECIFIC QUERY:\n${query}\n\nDOCUMENT TEXT CONTEXT:\n${truncated}`;
+      contentsPayload = `Use the provided document text below to answer the user's specific query.\n\nUSER SPECIFIC QUERY:\n${query}\n\nDOCUMENT TEXT CONTEXT:\n${truncated}`;
     }
 
     const response = await ai.models.generateContent({
       model: modelName,
-      contents: promptText,
+      contents: contentsPayload as string,
       config: {
         systemInstruction,
-        temperature: 0.2,
+        temperature: mode === 'ocr' ? 0.1 : 0.2,
       },
     });
 
