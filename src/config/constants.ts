@@ -106,6 +106,15 @@ export const tools: Tool[] = [
     icon: 'Eye',
   },
   {
+    id: 'pdf-to-markdown',
+    title: 'PDF to Markdown',
+    description:
+      'Convert PDF files into clean structured Markdown text offline and extract embedded figures.',
+    category: 'convert',
+    path: '/pdf-to-markdown',
+    icon: 'FileCode2',
+  },
+  {
     id: 'ai-analyze',
     title: 'AI Analyze',
     description:
@@ -210,6 +219,7 @@ export const TOOL_SIZE_LIMITS: Record<string, { maxSingleMB: number; maxTotalMB?
   'unlock-pdf': { maxSingleMB: 100 },
   'image-to-pdf': { maxSingleMB: 20, maxTotalMB: 100 },
   'pdf-to-image': { maxSingleMB: 35 },
+  'pdf-to-markdown': { maxSingleMB: 35 },
   'ai-analyze': { maxSingleMB: 15 },
   'extract-pages-pdf': { maxSingleMB: 50 },
   'reorder-pdf': { maxSingleMB: 50 },

@@ -17,6 +17,7 @@ export const ROUTES = {
   UNLOCK: `/${TOOLS.find((t) => t.id === 'unlock')?.slug || 'unlock-pdf'}`,
   IMG_TO_PDF: `/${TOOLS.find((t) => t.id === 'image-to-pdf')?.slug || 'image-to-pdf'}`,
   PDF_TO_IMG: `/${TOOLS.find((t) => t.id === 'pdf-to-image')?.slug || 'pdf-to-image'}`,
+  PDF_TO_MARKDOWN: `/${TOOLS.find((t) => t.id === 'pdf-to-markdown')?.slug || 'pdf-to-markdown'}`,
   AI_ANALYZE: `/${TOOLS.find((t) => t.id === 'intelligence')?.slug || 'intelligence'}`,
   GRAYSCALE: `/${TOOLS.find((t) => t.id === 'grayscale-pdf')?.slug || 'grayscale-pdf'}`,
   FLATTEN: `/${TOOLS.find((t) => t.id === 'flatten-pdf')?.slug || 'flatten-pdf'}`,

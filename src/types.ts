@@ -11,7 +11,7 @@ export type ToolId =
   | 'protect' | 'unlock' | 'image-to-pdf'
   | 'pdf-to-image' | 'intelligence'
   | 'grayscale-pdf' | 'flatten-pdf' | 'repair-pdf'
-  | 'edit-metadata' | 'sanitize-pdf';
+  | 'edit-metadata' | 'sanitize-pdf' | 'pdf-to-markdown';
 
 export interface PDFPageInfo {
   index: number;

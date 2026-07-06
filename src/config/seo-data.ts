@@ -905,6 +905,70 @@ export const TOOLS: ToolSEOInfo[] = [
     `,
   },
   {
+    id: 'pdf-to-markdown',
+    slug: 'pdf-to-markdown',
+    name: 'PDF to Markdown',
+    ogImage: '/og-pdf-to-markdown.png',
+    shortDescription: 'Convert PDF files into structured Markdown text and extract images offline',
+    metaTitle: 'PDF to Markdown Converter Free - Convert PDF to MD Online | PDFMinty',
+    metaDescription:
+      'Convert PDF to Markdown online free. Extract structured text, headings, lists, tables, and images directly in your browser without uploading files to remote servers.',
+    h1: 'PDF to Markdown - Convert PDF to MD with Absolute Privacy',
+    icon: 'FileCode2',
+    iconColor: 'text-security-green',
+    homeRank: 8,
+    category: 'convert',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'tool',
+    howTo: {
+      name: 'How to Convert PDF to Markdown Online',
+      totalTime: 'PT30S',
+      steps: [
+        'Upload your PDF document by clicking or dragging it into the secure workspace.',
+        'Choose whether to extract embedded images alongside your Markdown text.',
+        "Click 'Convert to Markdown' to process headings, paragraphs, lists, and tables locally in your browser.",
+        'Preview the formatted Markdown or download the clean .md file (or .zip archive with images) instantly.',
+      ],
+    },
+    faqs: [
+      {
+        q: 'Does PDF to Markdown work offline?',
+        a: 'Yes! PDFMinty processes your document 100% client-side inside your browser using WebAssembly and Web Workers. Your files never leave your device.',
+      },
+      {
+        q: 'Can it detect headings, tables, and lists?',
+        a: 'Yes. Our conversion engine analyzes font sizes, weights, multi-column alignments, and list glyphs to accurately reconstruct your PDF into semantic Markdown syntax.',
+      },
+      {
+        q: 'What happens if my PDF contains embedded images?',
+        a: 'If you enable the "Extract images too" toggle, embedded images are extracted and bundled with your Markdown file into a single convenient .zip archive.',
+      },
+      {
+        q: 'Can I convert scanned or image-only PDFs?',
+        a: 'Scanned image-only PDFs do not contain selectable text streams. Our tool will automatically detect if a file lacks selectable text and alert you immediately.',
+      },
+    ],
+    longFormBody: `
+      <h1>PDF to Markdown - Convert PDF to MD with Absolute Privacy</h1>
+      <p>Converting PDF documents into clean, developer-friendly Markdown has traditionally required complex backend utilities or uploading sensitive documents to cloud services. PDFMinty solves this by running a high-performance conversion engine 100% inside your web browser. Whether you are migrating technical documentation, extracting academic notes, or preparing content for AI pipelines and static site generators, your data stays strictly private on your device.</p>
+      
+      <h2>Intelligent Structure Detection</h2>
+      <p>Our client-side parser goes beyond simple text scraping. It employs spatial heuristics to recognize multi-column reading orders, cluster font sizes into semantic Markdown headings (H1, H2, H3), detect bulleted and numbered lists, and format aligned columns into clean pipe tables. Furthermore, repeating page numbers and headers are stripped automatically so your final Markdown output remains clean and contiguous.</p>
+      
+      <h2>How to Convert PDF to Markdown Offline</h2>
+      <ol>
+        <li>Drag and drop your PDF file into the secure uploader dropzone.</li>
+        <li>Toggle image extraction if you want embedded figures saved alongside your markdown file.</li>
+        <li>Trigger the conversion process. Our Web Worker parses each page without freezing your browser tab.</li>
+        <li>Review the synchronized split-screen preview and download your .md or .zip bundle.</li>
+      </ol>
+      
+      <h2>Complete Data Confidentiality</h2>
+      <p>Because all calculations run locally in your browser sandbox, your contracts, research papers, and private records are never transmitted over network calls. No server uploads, no file size limits up to 35MB, and zero registration barriers.</p>
+    `,
+  },
+  {
     id: 'intelligence',
     slug: 'intelligence',
     name: 'AI Analyze',
@@ -1233,7 +1297,7 @@ export const TOOLS: ToolSEOInfo[] = [
 <p>Beyond choosing the right tool, here are additional practices to protect your PDF documents:</p>
 
 <h3>1. Use Privacy-First Tools Like PDFMinty</h3>
-<p>PDFMinty offers 14 PDF tools that all process files locally: <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, <a href="/rotate-pdf">Rotate PDF</a>, <a href="/delete-pages-pdf">Delete Pages</a>, <a href="/extract-pages-pdf">Extract Pages</a>, <a href="/reorder-pdf">Reorder PDF</a>, <a href="/watermark-pdf">Watermark PDF</a>, <a href="/add-page-numbers">Add Page Numbers</a>, <a href="/add-blank-page">Add Blank Page</a>, <a href="/protect-pdf">Protect PDF</a>, <a href="/unlock-pdf">Unlock PDF</a>, <a href="/image-to-pdf">Image to PDF</a>, <a href="/pdf-to-image">PDF to Image</a>, and <a href="/intelligence">AI Analyze</a>.</p>
+<p>PDFMinty offers 15 PDF tools that all process files locally: <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, <a href="/rotate-pdf">Rotate PDF</a>, <a href="/delete-pages-pdf">Delete Pages</a>, <a href="/extract-pages-pdf">Extract Pages</a>, <a href="/reorder-pdf">Reorder PDF</a>, <a href="/watermark-pdf">Watermark PDF</a>, <a href="/add-page-numbers">Add Page Numbers</a>, <a href="/add-blank-page">Add Blank Page</a>, <a href="/protect-pdf">Protect PDF</a>, <a href="/unlock-pdf">Unlock PDF</a>, <a href="/image-to-pdf">Image to PDF</a>, <a href="/pdf-to-image">PDF to Image</a>, <a href="/pdf-to-markdown">PDF to Markdown</a>, and <a href="/intelligence">AI Analyze</a>.</p>
 
 <h3>2. Password-Protect Sensitive PDFs Before Sharing</h3>
 <p>If you must share a PDF externally, encrypt it first. PDFMinty's <a href="/protect-pdf">Protect PDF</a> tool adds AES-256 encryption — even if the file is intercepted, it can't be opened without the password.</p>

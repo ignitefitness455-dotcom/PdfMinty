@@ -1323,3 +1323,538 @@ export async function repairPDF(bytes: Uint8Array): Promise<{ bytes: Uint8Array;
   }
 }
 
+export interface ExtractedMarkdownImage {
+  filename: string;
+  dataBytes: Uint8Array;
+}
+
+export interface PdfToMarkdownResult {
+  markdown: string;
+  images: ExtractedMarkdownImage[];
+  pageCount: number;
+}
+
+async function extractImagesFromPage(
+  page: unknown,
+  pageNum: number
+): Promise<ExtractedMarkdownImage[]> {
+  const results: ExtractedMarkdownImage[] = [];
+  try {
+    if (typeof OffscreenCanvas === 'undefined') {
+      return results;
+    }
+    const p = page as {
+      getOperatorList: () => Promise<{ fnArray: number[]; argsArray: unknown[][] }>;
+      objs?: { get: (id: string, callback?: (data: unknown) => void) => unknown };
+    };
+    const opList = await p.getOperatorList();
+    const fnArray = opList.fnArray;
+    const argsArray = opList.argsArray;
+    let imgIdx = 0;
+
+    for (let i = 0; i < fnArray.length; i++) {
+      const fn = fnArray[i];
+      if (
+        argsArray[i] &&
+        argsArray[i].length > 0 &&
+        typeof argsArray[i][0] === 'string' &&
+        (argsArray[i][0].startsWith('img_') || fn === 85 || fn === 86 || fn === 82)
+      ) {
+        const objId = argsArray[i][0];
+        try {
+          const img: unknown = await new Promise((resolve) => {
+            if (p.objs && typeof p.objs.get === 'function') {
+              try {
+                const res = p.objs.get(objId, (data: unknown) => resolve(data));
+                if (res !== undefined) resolve(res);
+              } catch {
+                resolve(null);
+              }
+            } else {
+              resolve(null);
+            }
+          });
+          if (
+            img &&
+            typeof img === 'object' &&
+            'width' in img &&
+            'height' in img &&
+            typeof (img as { width: number }).width === 'number' &&
+            typeof (img as { height: number }).height === 'number'
+          ) {
+            const width = (img as { width: number }).width;
+            const height = (img as { height: number }).height;
+            if (width > 0 && height > 0) {
+              const canvas = new OffscreenCanvas(width, height);
+              const ctx = canvas.getContext('2d');
+              const data = (img as { data?: Uint8ClampedArray | Uint8Array }).data;
+              if (ctx && data) {
+                let rgba: Uint8ClampedArray;
+                if (data.length === width * height * 4) {
+                  rgba = new Uint8ClampedArray(data);
+                } else if (data.length === width * height * 3) {
+                  rgba = new Uint8ClampedArray(width * height * 4);
+                  for (let j = 0, k = 0; j < data.length; j += 3, k += 4) {
+                    rgba[k] = data[j];
+                    rgba[k + 1] = data[j + 1];
+                    rgba[k + 2] = data[j + 2];
+                    rgba[k + 3] = 255;
+                  }
+                } else {
+                  continue;
+                }
+                const imgData = new ImageData(rgba, width, height);
+                ctx.putImageData(imgData, 0, 0);
+                const blob = await canvas.convertToBlob({ type: 'image/png' });
+                const buf = new Uint8Array(await blob.arrayBuffer());
+                imgIdx++;
+                results.push({
+                  filename: `image_p${pageNum}_${imgIdx}.png`,
+                  dataBytes: buf,
+                });
+              }
+            }
+          }
+        } catch {
+          // Ignore individual image parse issues inside worker
+        }
+      }
+    }
+  } catch {
+    // Isolated catch ensures image extraction never blocks markdown processing
+  }
+  return results;
+}
+
+interface PageTextItem {
+  str: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fontSize: number;
+  fontName: string;
+  bold: boolean;
+  italic: boolean;
+}
+
+interface PageLayoutData {
+  pageNum: number;
+  width: number;
+  height: number;
+  items: PageTextItem[];
+  images: ExtractedMarkdownImage[];
+}
+
+export async function pdfToMarkdown(
+  bytes: Uint8Array,
+  options?: { extractImages?: boolean },
+  onProgress?: (progress: { current: number; total: number }) => void
+): Promise<PdfToMarkdownResult> {
+  const { bytes: safeBytes } = PDFSanitizer.sanitize(bytes);
+  const encrypted = await PDFSanitizer.isEncrypted(safeBytes);
+  if (encrypted) {
+    throw new Error(
+      'SECURED_LOCKED: This PDF appears to be password protected — please use Unlock PDF first.'
+    );
+  }
+
+  const pdf_js = await getPdfJs();
+  const loadingTask = pdf_js.getDocument({
+    data: safeBytes,
+  } as unknown as Parameters<typeof pdf_js.getDocument>[0]);
+  const pdf = await loadingTask.promise;
+
+  const extractedImages: ExtractedMarkdownImage[] = [];
+  const pagesData: PageLayoutData[] = [];
+
+  try {
+    const numPages = pdf.numPages;
+
+    for (let pNum = 1; pNum <= numPages; pNum++) {
+      const page = await pdf.getPage(pNum);
+      const viewport = (
+        page as unknown as { getViewport: (opts: { scale: number }) => { width: number; height: number } }
+      ).getViewport({ scale: 1.0 });
+
+      const textContent = await (
+        page as unknown as {
+          getTextContent: () => Promise<{
+            items: unknown[];
+            styles?: Record<string, { fontFamily?: string; name?: string; fontWeight?: unknown; fontStyle?: string }>;
+          }>;
+        }
+      ).getTextContent();
+
+      const styles = textContent.styles || {};
+      const items: PageTextItem[] = [];
+
+      for (const raw of textContent.items) {
+        if (!raw || typeof raw !== 'object' || !('str' in raw)) continue;
+        const r = raw as {
+          str: string;
+          transform: number[];
+          width?: number;
+          height?: number;
+          fontName?: string;
+        };
+        const str = r.str;
+        if (!str || !str.trim()) continue;
+
+        const transform = r.transform || [1, 0, 0, 1, 0, 0];
+        const x = transform[4] || 0;
+        const y = transform[5] || 0;
+        const fontSize = Math.hypot(transform[2] || 0, transform[3] || 0) || Math.abs(transform[3] || 10) || 10;
+        const width = r.width || str.length * fontSize * 0.55;
+        const height = r.height || fontSize;
+        const fontName = r.fontName || '';
+
+        let bold = false;
+        let italic = false;
+        const lowerFont = fontName.toLowerCase();
+        if (lowerFont.includes('bold') || lowerFont.includes('heavy') || lowerFont.includes('black')) bold = true;
+        if (lowerFont.includes('italic') || lowerFont.includes('oblique')) italic = true;
+
+        const styleObj = styles[fontName];
+        if (styleObj) {
+          const fam = (styleObj.fontFamily || '').toLowerCase();
+          const nm = (styleObj.name || '').toLowerCase();
+          if (
+            fam.includes('bold') ||
+            nm.includes('bold') ||
+            styleObj.fontWeight === 'bold' ||
+            (typeof styleObj.fontWeight === 'number' && styleObj.fontWeight >= 600)
+          ) {
+            bold = true;
+          }
+          if (fam.includes('italic') || nm.includes('italic') || styleObj.fontStyle === 'italic') {
+            italic = true;
+          }
+        }
+
+        items.push({ str, x, y, width, height, fontSize, fontName, bold, italic });
+      }
+
+      let pageImgs: ExtractedMarkdownImage[] = [];
+      if (options?.extractImages) {
+        pageImgs = await extractImagesFromPage(page, pNum);
+        extractedImages.push(...pageImgs);
+      }
+
+      pagesData.push({
+        pageNum: pNum,
+        width: viewport.width,
+        height: viewport.height,
+        items,
+        images: pageImgs,
+      });
+
+      if (typeof (page as unknown as { cleanup?: () => void }).cleanup === 'function') {
+        (page as unknown as { cleanup: () => void }).cleanup();
+      }
+
+      onProgress?.({ current: pNum, total: numPages });
+    }
+
+    let totalChars = 0;
+    const allFontSizes: number[] = [];
+    const headerFooterCounts = new Map<string, number>();
+
+    for (const pData of pagesData) {
+      for (const item of pData.items) {
+        const trimmed = item.str.trim();
+        totalChars += trimmed.length;
+        allFontSizes.push(item.fontSize);
+
+        if (pagesData.length >= 3) {
+          const isTop = item.y > pData.height * 0.88;
+          const isBottom = item.y < pData.height * 0.12;
+          if (isTop || isBottom) {
+            const norm = trimmed.replace(/\d+/g, '#').toLowerCase();
+            if (norm.length >= 2) {
+              const band = Math.round(item.y / 15) * 15;
+              const key = `${norm}_${band}`;
+              headerFooterCounts.set(key, (headerFooterCounts.get(key) || 0) + 1);
+            }
+          }
+        }
+      }
+    }
+
+    if (totalChars < 5 && extractedImages.length === 0) {
+      throw new Error(
+        "NO_TEXT_FOUND: This PDF has no selectable text (likely scanned). OCR isn't supported yet."
+      );
+    }
+
+    allFontSizes.sort((a, b) => a - b);
+    const medianFontSize =
+      allFontSizes.length > 0 ? allFontSizes[Math.floor(allFontSizes.length / 2)] : 11;
+
+    const thresholdPages = Math.min(3, Math.ceil(pagesData.length * 0.5));
+    const repeatingKeys = new Set<string>();
+    headerFooterCounts.forEach((count, key) => {
+      if (count >= thresholdPages) {
+        repeatingKeys.add(key);
+      }
+    });
+
+    const pageMarkdownSections: string[] = [];
+
+    for (const pData of pagesData) {
+      // 1. Strip repeating headers/footers & standalone page numbers
+      const validItems = pData.items.filter((item) => {
+        const trimmed = item.str.trim();
+        const isTop = item.y > pData.height * 0.88;
+        const isBottom = item.y < pData.height * 0.12;
+
+        if (isTop || isBottom) {
+          if (/^(page\s*)?\d+(\s*[/|-]\s*\d+)?$/i.test(trimmed)) {
+            return false;
+          }
+          if (pagesData.length >= 3) {
+            const norm = trimmed.replace(/\d+/g, '#').toLowerCase();
+            const band = Math.round(item.y / 15) * 15;
+            if (repeatingKeys.has(`${norm}_${band}`)) {
+              return false;
+            }
+          }
+        }
+        return true;
+      });
+
+      if (validItems.length === 0 && pData.images.length === 0) {
+        continue;
+      }
+
+      // 2. Multi-column Layout Detection vs Single-column Reading Order
+      const fullWidthItems: PageTextItem[] = [];
+      const leftColItems: PageTextItem[] = [];
+      const rightColItems: PageTextItem[] = [];
+
+      for (const item of validItems) {
+        if (
+          item.width >= pData.width * 0.55 ||
+          (item.x <= pData.width * 0.25 && item.x + item.width >= pData.width * 0.75)
+        ) {
+          fullWidthItems.push(item);
+        } else {
+          const midX = item.x + item.width / 2;
+          if (midX < pData.width * 0.48) {
+            leftColItems.push(item);
+          } else {
+            rightColItems.push(item);
+          }
+        }
+      }
+
+      // Check vertical y-range overlap between leftCol and rightCol
+      let isMultiCol = false;
+      if (leftColItems.length >= 3 && rightColItems.length >= 3) {
+        let overlaps = 0;
+        for (const lItem of leftColItems) {
+          if (rightColItems.some((rItem) => Math.abs(rItem.y - lItem.y) < 15)) {
+            overlaps++;
+          }
+        }
+        if (overlaps >= 3) {
+          isMultiCol = true;
+        }
+      }
+
+      const sortLineItems = (arr: PageTextItem[]) => {
+        return arr.sort((a, b) => {
+          if (Math.abs(b.y - a.y) > Math.max(4, a.fontSize * 0.35)) {
+            return b.y - a.y; // Top to bottom (PDF y goes upwards)
+          }
+          return a.x - b.x; // Left to right
+        });
+      };
+
+      let orderedItems: PageTextItem[] = [];
+      if (isMultiCol) {
+        const topFull: PageTextItem[] = [];
+        const botFull: PageTextItem[] = [];
+        const maxColY = Math.max(
+          ...leftColItems.map((i) => i.y),
+          ...rightColItems.map((i) => i.y),
+          0
+        );
+        const minColY = Math.min(
+          ...leftColItems.map((i) => i.y),
+          ...rightColItems.map((i) => i.y),
+          pData.height
+        );
+
+        for (const item of fullWidthItems) {
+          if (item.y > maxColY - 20) {
+            topFull.push(item);
+          } else if (item.y < minColY + 20) {
+            botFull.push(item);
+          } else {
+            topFull.push(item);
+          }
+        }
+
+        orderedItems = [
+          ...sortLineItems(topFull),
+          ...sortLineItems(leftColItems),
+          ...sortLineItems(rightColItems),
+          ...sortLineItems(botFull),
+        ];
+      } else {
+        orderedItems = sortLineItems([...validItems]);
+      }
+
+      // Group items into visual lines
+      interface VisualLine {
+        y: number;
+        fontSize: number;
+        bold: boolean;
+        items: PageTextItem[];
+      }
+
+      const lines: VisualLine[] = [];
+      for (const item of orderedItems) {
+        const lastLine = lines.length > 0 ? lines[lines.length - 1] : null;
+        if (
+          lastLine &&
+          Math.abs(item.y - lastLine.y) <= Math.max(4, lastLine.fontSize * 0.35)
+        ) {
+          lastLine.items.push(item);
+          lastLine.items.sort((a, b) => a.x - b.x);
+          lastLine.fontSize = Math.max(lastLine.fontSize, item.fontSize);
+          lastLine.bold = lastLine.bold || item.bold;
+        } else {
+          lines.push({
+            y: item.y,
+            fontSize: item.fontSize,
+            bold: item.bold,
+            items: [item],
+          });
+        }
+      }
+
+      // 3. Format lines into Markdown (Tables, Headings, Lists, Paragraphs)
+      const pageOutput: string[] = [];
+      let lIdx = 0;
+
+      while (lIdx < lines.length) {
+        // Table detection: check 3+ consecutive lines aligned into 2+ columns
+        let tableEndIdx = lIdx;
+        let isTable = false;
+        if (lines[lIdx].items.length >= 2) {
+          const baseCols = lines[lIdx].items.map((it) => it.x);
+          while (tableEndIdx < lines.length && lines[tableEndIdx].items.length >= 2) {
+            const curCols = lines[tableEndIdx].items.map((it) => it.x);
+            if (curCols.length !== baseCols.length) break;
+            let aligned = true;
+            for (let c = 0; c < baseCols.length; c++) {
+              if (Math.abs(curCols[c] - baseCols[c]) > 14) {
+                aligned = false;
+                break;
+              }
+            }
+            if (!aligned && tableEndIdx > lIdx) break;
+            tableEndIdx++;
+          }
+          if (tableEndIdx - lIdx >= 3) {
+            isTable = true;
+          }
+        }
+
+        if (isTable) {
+          const headerRow = lines[lIdx].items.map((it) => it.str.trim()).join(' | ');
+          pageOutput.push(`| ${headerRow} |`);
+          const sepRow = lines[lIdx].items.map(() => '---').join(' | ');
+          pageOutput.push(`| ${sepRow} |`);
+
+          for (let rIdx = lIdx + 1; rIdx < tableEndIdx; rIdx++) {
+            const dataRow = lines[rIdx].items.map((it) => it.str.trim()).join(' | ');
+            pageOutput.push(`| ${dataRow} |`);
+          }
+          pageOutput.push('');
+          lIdx = tableEndIdx;
+          continue;
+        }
+
+        const currentLine = lines[lIdx];
+        let lineFormattedText = currentLine.items
+          .map((it) => {
+            const s = it.str.trim();
+            if (!s) return '';
+            if (it.bold && it.italic) return `***${s}***`;
+            if (it.bold) return `**${s}**`;
+            if (it.italic) return `*${s}*`;
+            return s;
+          })
+          .filter(Boolean)
+          .join(' ');
+
+        // Check List items
+        if (/^[•\-*–—▪○●]\s+/.test(lineFormattedText) || /^▪️\s+/.test(lineFormattedText)) {
+          lineFormattedText = lineFormattedText.replace(/^[•\-*–—▪○●]\s+/, '- ').replace(/^▪️\s+/, '- ');
+          pageOutput.push(lineFormattedText);
+          lIdx++;
+          continue;
+        } else if (/^(\d+[.)]|[a-zA-Z][.)])\s+/.test(lineFormattedText)) {
+          lineFormattedText = lineFormattedText.replace(/^(\d+)[.)]\s+/, '$1. ');
+          pageOutput.push(lineFormattedText);
+          lIdx++;
+          continue;
+        }
+
+        // Check Headings
+        const ratio = currentLine.fontSize / medianFontSize;
+        if (ratio >= 1.55) {
+          pageOutput.push('');
+          pageOutput.push(`# ${lineFormattedText.replace(/[*#]+/g, '').trim()}`);
+          pageOutput.push('');
+        } else if (ratio >= 1.28) {
+          pageOutput.push('');
+          pageOutput.push(`## ${lineFormattedText.replace(/[*#]+/g, '').trim()}`);
+          pageOutput.push('');
+        } else if (ratio >= 1.12 || (currentLine.bold && ratio >= 1.05)) {
+          pageOutput.push('');
+          pageOutput.push(`### ${lineFormattedText.replace(/[*#]+/g, '').trim()}`);
+          pageOutput.push('');
+        } else {
+          // Normal Paragraph or Continuation
+          const prevLine = lIdx > 0 ? lines[lIdx - 1] : null;
+          if (prevLine && prevLine.y - currentLine.y > 1.5 * currentLine.fontSize) {
+            pageOutput.push('');
+          }
+          pageOutput.push(lineFormattedText);
+        }
+
+        lIdx++;
+      }
+
+      if (pData.images.length > 0) {
+        pageOutput.push('');
+        for (const img of pData.images) {
+          pageOutput.push(`![Embedded Figure](${img.filename})`);
+        }
+        pageOutput.push('');
+      }
+
+      pageMarkdownSections.push(pageOutput.join('\n').replace(/\n{3,}/g, '\n\n').trim());
+    }
+
+    const finalMarkdown = pageMarkdownSections
+      .filter(Boolean)
+      .join('\n\n---\n\n')
+      .trim();
+
+    return {
+      markdown: finalMarkdown || '# Empty Document',
+      images: extractedImages,
+      pageCount: numPages,
+    };
+  } finally {
+    if (pdf && typeof pdf.destroy === 'function') {
+      await pdf.destroy();
+    }
+  }
+}
+

@@ -102,6 +102,19 @@ self.onmessage = async (e: MessageEvent) => {
         transferables = [res.bytes.buffer];
         break;
       }
+      case 'pdfToMarkdown': {
+        const onProgress = (progress: { current: number; total: number }) => {
+          (self as unknown as DedicatedWorkerGlobalScope).postMessage({ id, progress });
+        };
+        result = await ops.pdfToMarkdown(payload.bytes, payload.options, onProgress);
+        const resObj = result as {
+          markdown: string;
+          images: { filename: string; dataBytes: Uint8Array }[];
+          pageCount: number;
+        };
+        transferables = resObj.images.map((img) => img.dataBytes.buffer);
+        break;
+      }
       default:
         throw new Error(`Unknown operation: ${operation}`);
     }

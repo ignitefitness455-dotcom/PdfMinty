@@ -8,18 +8,6 @@
     </image:image>
   </url>
   <url>
-    <loc>https://pdfminty.com/edit-metadata</loc>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-image.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/sanitize-pdf</loc>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-image.png</image:loc>
-    </image:image>
-  </url>
-  <url>
     <loc>https://pdfminty.com/merge-pdf</loc>
     <image:image>
       <image:loc>https://pdfminty.com/og-merge-pdf.png</image:loc>
@@ -32,9 +20,21 @@
     </image:image>
   </url>
   <url>
-    <loc>https://pdfminty.com/rotate-pdf</loc>
+    <loc>https://pdfminty.com/intelligence</loc>
     <image:image>
-      <image:loc>https://pdfminty.com/og-rotate-pdf.png</image:loc>
+      <image:loc>https://pdfminty.com/og-intelligence.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/add-blank-page</loc>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-add-blank-page.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/add-page-numbers</loc>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-add-page-numbers.png</image:loc>
     </image:image>
   </url>
   <url>
@@ -50,39 +50,15 @@
     </image:image>
   </url>
   <url>
-    <loc>https://pdfminty.com/reorder-pdf</loc>
+    <loc>https://pdfminty.com/flatten-pdf</loc>
     <image:image>
-      <image:loc>https://pdfminty.com/og-reorder-pdf.png</image:loc>
+      <image:loc>https://pdfminty.com/og-flatten-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
-    <loc>https://pdfminty.com/watermark-pdf</loc>
+    <loc>https://pdfminty.com/grayscale-pdf</loc>
     <image:image>
-      <image:loc>https://pdfminty.com/og-watermark-pdf.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/add-page-numbers</loc>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-add-page-numbers.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/add-blank-page</loc>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-add-blank-page.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/protect-pdf</loc>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-protect-pdf.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/unlock-pdf</loc>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-unlock-pdf.png</image:loc>
+      <image:loc>https://pdfminty.com/og-grayscale-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
@@ -98,21 +74,21 @@
     </image:image>
   </url>
   <url>
-    <loc>https://pdfminty.com/intelligence</loc>
+    <loc>https://pdfminty.com/pdf-to-markdown</loc>
     <image:image>
-      <image:loc>https://pdfminty.com/og-intelligence.png</image:loc>
+      <image:loc>https://pdfminty.com/og-pdf-to-markdown.png</image:loc>
     </image:image>
   </url>
   <url>
-    <loc>https://pdfminty.com/grayscale-pdf</loc>
+    <loc>https://pdfminty.com/protect-pdf</loc>
     <image:image>
-      <image:loc>https://pdfminty.com/og-grayscale-pdf.png</image:loc>
+      <image:loc>https://pdfminty.com/og-protect-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
-    <loc>https://pdfminty.com/flatten-pdf</loc>
+    <loc>https://pdfminty.com/reorder-pdf</loc>
     <image:image>
-      <image:loc>https://pdfminty.com/og-flatten-pdf.png</image:loc>
+      <image:loc>https://pdfminty.com/og-reorder-pdf.png</image:loc>
     </image:image>
   </url>
   <url>
@@ -122,9 +98,39 @@
     </image:image>
   </url>
   <url>
+    <loc>https://pdfminty.com/rotate-pdf</loc>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-rotate-pdf.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/unlock-pdf</loc>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-unlock-pdf.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/watermark-pdf</loc>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-watermark-pdf.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/edit-metadata</loc>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+    </image:image>
+  </url>
+  <url>
     <loc>https://pdfminty.com/is-it-safe-to-upload-pdf-to-online-tools</loc>
     <image:image>
       <image:loc>https://pdfminty.com/og-is-it-safe-to-upload-pdf-to-online-tools.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/sanitize-pdf</loc>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
     </image:image>
   </url>
 </urlset>

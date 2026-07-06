@@ -19,6 +19,7 @@ import {
   Wrench,
   FilePenLine,
   ShieldBan,
+  FileCode2,
 } from 'lucide-react';
 import React from 'react';
 
@@ -44,6 +45,7 @@ export const prefetchMap: Record<string, () => Promise<unknown>> = {
   'repair-pdf': () => import('../pages/RepairPdfPage'),
   'edit-metadata': () => import('../pages/EditMetadataPage'),
   'sanitize-pdf': () => import('../pages/SanitizePdfPage'),
+  'pdf-to-markdown': () => import('../pages/PdfToMarkdownPage'),
 };
 
 const prefetchedSet = new Set<string>();
@@ -79,6 +81,7 @@ export const iconMap: Record<string, React.ComponentType<{ className?: string }>
   Wrench,
   FilePenLine,
   ShieldBan,
+  FileCode2,
 };
 
 export const badgeColors: Record<string, string> = {

@@ -6,6 +6,7 @@ import { PDFSanitizer } from './PDFSanitizer';
 interface WorkerPromise {
   resolve: (val: unknown) => void;
   reject: (err: Error) => void;
+  onProgress?: (progress: { current: number; total: number }) => void;
   timer: ReturnType<typeof setTimeout>;
 }
 
@@ -54,9 +55,13 @@ export class WorkerManager {
   }
 
   private handleMessage(e: MessageEvent) {
-    const { id, success, result, error } = e.data;
+    const { id, success, progress, result, error } = e.data;
     const promise = this.promises.get(id);
     if (promise) {
+      if (progress) {
+        promise.onProgress?.(progress);
+        return;
+      }
       clearTimeout(promise.timer);
       if (success) {
         promise.resolve(result);
@@ -70,16 +75,17 @@ export class WorkerManager {
   public async runOperation<T>(
     operation: string,
     payload: unknown,
-    transferables: Transferable[] = []
+    transferables: Transferable[] = [],
+    onProgress?: (progress: { current: number; total: number }) => void
   ): Promise<T> {
     if (!this.isSupported) {
       logger.warn('Web Workers not supported, running on main thread.');
-      return (await this.runOnMainThread(operation, payload)) as T;
+      return (await this.runOnMainThread(operation, payload, onProgress)) as T;
     }
 
     const worker = this.initWorker();
     if (!worker) {
-      return (await this.runOnMainThread(operation, payload)) as T;
+      return (await this.runOnMainThread(operation, payload, onProgress)) as T;
     }
 
     const id = Date.now().toString() + Math.random().toString(36).substring(2);
@@ -95,6 +101,7 @@ export class WorkerManager {
       this.promises.set(id, {
         resolve: resolve as (val: unknown) => void,
         reject,
+        onProgress,
         timer,
       });
 
@@ -120,7 +127,11 @@ export class WorkerManager {
     this.promises.clear();
   }
 
-  private async runOnMainThread(operation: string, payload: unknown): Promise<unknown> {
+  private async runOnMainThread(
+    operation: string,
+    payload: unknown,
+    onProgress?: (progress: { current: number; total: number }) => void
+  ): Promise<unknown> {
     const ops = await import('../core/pdf-operations');
     // Narrow payload per-operation. We trust the caller to pass the right shape
     // (same as the worker does), but TypeScript can't verify it at the boundary.
@@ -174,6 +185,13 @@ export class WorkerManager {
       }
       case 'sanitizePDF': {
         return PDFSanitizer.sanitize(p.bytes as Uint8Array);
+      }
+      case 'pdfToMarkdown': {
+        return await ops.pdfToMarkdown(
+          p.bytes as Uint8Array,
+          p.options as { extractImages?: boolean } | undefined,
+          onProgress
+        );
       }
       default:
         throw new Error(`Unknown operation: ${operation}`);

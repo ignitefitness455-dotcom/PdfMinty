@@ -352,7 +352,7 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
  
     <h2>Frequently Asked Questions</h2>
     <h3>Is PDFMinty really free?</h3>
-    <p>Yes, PDFMinty is 100% free to use. All 14 tools are available without subscription, payment, or registration.</p>
+    <p>Yes, PDFMinty is 100% free to use. All 15 tools are available without subscription, payment, or registration.</p>
  
     <h3>Are my files uploaded to your server?</h3>
     <p>No. PDFMinty is a privacy-first tool. All PDF processing happens entirely in your browser using client-side JavaScript. Your files never leave your device.</p>

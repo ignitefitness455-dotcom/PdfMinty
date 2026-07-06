@@ -26,6 +26,7 @@ const ProtectPage = React.lazy(() => import('./pages/ProtectPage').then((m) => (
 const UnlockPage = React.lazy(() => import('./pages/UnlockPage').then((m) => ({ default: m.UnlockPage })));
 const ImgToPdfPage = React.lazy(() => import('./pages/ImgToPdfPage').then((m) => ({ default: m.ImgToPdfPage })));
 const PdfToImgPage = React.lazy(() => import('./pages/PdfToImgPage').then((m) => ({ default: m.PdfToImgPage })));
+const PdfToMarkdownPage = React.lazy(() => import('./pages/PdfToMarkdownPage').then((m) => ({ default: m.PdfToMarkdownPage })));
 const AiAnalyzePage = React.lazy(() => import('./pages/AiAnalyzePage').then((m) => ({ default: m.AiAnalyzePage })));
 const GrayscalePdfPage = React.lazy(() => import('./pages/GrayscalePdfPage').then((m) => ({ default: m.GrayscalePdfPage })));
 const FlattenPdfPage = React.lazy(() => import('./pages/FlattenPdfPage').then((m) => ({ default: m.FlattenPdfPage })));
@@ -146,6 +147,14 @@ export const App: React.FC = () => {
               element={
                 <ErrorBoundary resetKey="pdf-to-img">
                   <PdfToImgPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.PDF_TO_MARKDOWN}
+              element={
+                <ErrorBoundary resetKey="pdf-to-markdown">
+                  <PdfToMarkdownPage />
                 </ErrorBoundary>
               }
             />
