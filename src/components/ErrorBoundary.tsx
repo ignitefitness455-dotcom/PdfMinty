@@ -1,7 +1,7 @@
-import { ShieldAlert, RefreshCw } from 'lucide-react';
+import { ShieldAlert, RefreshCw, FileText } from 'lucide-react';
 import React, { Component, ErrorInfo } from 'react';
 
-import { reportErrorToTelemetry } from '../error-handler';
+import { reportErrorToTelemetry, getFileProcessingContext, FileProcessingContext } from '../error-handler';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -12,6 +12,7 @@ interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
+  capturedContext: FileProcessingContext | null;
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
@@ -19,23 +20,31 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
     hasError: false,
     error: null,
     errorInfo: null,
+    capturedContext: null,
   };
 
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error, errorInfo: null };
+  public static getDerivedStateFromError(error: any): Partial<State> {
+    if (error && typeof error.then === 'function') {
+      throw error;
+    }
+    return { hasError: true, error, capturedContext: getFileProcessingContext() };
   }
 
   public componentDidUpdate(prevProps: Readonly<ErrorBoundaryProps>) {
     if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
-      this.setState({ hasError: false, error: null, errorInfo: null });
+      this.setState({ hasError: false, error: null, errorInfo: null, capturedContext: null });
     }
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public componentDidCatch(error: any, errorInfo: ErrorInfo) {
+    if (error && typeof error.then === 'function') {
+      return;
+    }
+    const currentContext = getFileProcessingContext();
+    this.setState({ errorInfo, capturedContext: currentContext });
+    console.error('[ErrorBoundary caught error]', error, errorInfo, currentContext ? { fileContext: currentContext } : '');
     if (import.meta.env.PROD) {
-      reportErrorToTelemetry(error.message, errorInfo?.componentStack || error.stack || '');
-    } else {
-      console.error('[ErrorBoundary dev]', error, errorInfo);
+      reportErrorToTelemetry(error?.message || String(error), errorInfo?.componentStack || error?.stack || '', currentContext);
     }
   }
 
@@ -45,6 +54,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
 
   public render() {
     if (this.state.hasError) {
+      const errorMessage = this.state.error?.message || this.state.error?.toString() || 'Unknown runtime error';
+      const errorStack = this.state.error?.stack || '';
+      const fileCtx = this.state.capturedContext || getFileProcessingContext();
       return (
         <div
           className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center select-none"
@@ -63,12 +75,37 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
             Something went wrong
           </h1>
           <p
-            className="text-sm text-on-surface-variant max-w-sm mb-8 leading-relaxed"
+            className="text-sm text-on-surface-variant max-w-sm mb-4 leading-relaxed"
             id="error-boundary-desc"
           >
-            An unexpected error occurred in the view interface. We have automatically logged this
-            event safely.
+            An unexpected error occurred in the view interface.
           </p>
+
+          {fileCtx && (fileCtx.fileName || fileCtx.fileSizeFormatted) && (
+            <div className="bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl p-4 max-w-2xl w-full text-left mb-4 shadow-sm text-xs space-y-2 select-text">
+              <div className="flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 pb-2">
+                <FileText className="w-4 h-4 text-emerald-600" />
+                <span>Captured File Context for Debugging</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 font-mono text-[11px] text-slate-600 dark:text-slate-400 pt-1">
+                <div><span className="font-semibold text-slate-700 dark:text-slate-300">File:</span> {fileCtx.fileName || 'N/A'}</div>
+                <div><span className="font-semibold text-slate-700 dark:text-slate-300">Size:</span> {fileCtx.fileSizeFormatted || (fileCtx.fileSize ? `${fileCtx.fileSize} B` : 'N/A')}</div>
+                <div><span className="font-semibold text-slate-700 dark:text-slate-300">PDF Version:</span> {fileCtx.pdfVersion ? `v${fileCtx.pdfVersion}` : 'Unknown'}</div>
+                <div><span className="font-semibold text-slate-700 dark:text-slate-300">Encrypted:</span> {fileCtx.isEncrypted ? 'Yes (Password Protected)' : 'No'}</div>
+                {fileCtx.pageCount !== undefined && <div><span className="font-semibold text-slate-700 dark:text-slate-300">Pages:</span> {fileCtx.pageCount}</div>}
+                {fileCtx.processingStep && <div className="col-span-2"><span className="font-semibold text-slate-700 dark:text-slate-300">Step:</span> {fileCtx.processingStep}</div>}
+              </div>
+            </div>
+          )}
+
+          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl p-4 max-w-2xl w-full text-left mb-6 overflow-x-auto text-xs font-mono text-red-700 dark:text-red-300 select-text shadow-sm">
+            <p className="font-bold mb-1 break-all">Error: {errorMessage}</p>
+            {errorStack && (
+              <pre className="mt-2 text-[11px] leading-relaxed whitespace-pre-wrap opacity-80 border-t border-red-200 dark:border-red-800/40 pt-2">
+                {errorStack}
+              </pre>
+            )}
+          </div>
           <button
             id="error-boundary-reload-btn"
             onClick={this.handleReload}

@@ -1,5 +1,6 @@
 import { Upload, File, AlertCircle } from 'lucide-react';
 import React, { useState, useRef, useCallback } from 'react';
+import { extractFileProcessingContext } from '../error-handler';
 
 interface FileUploaderProps {
   onFilesSelected: (files: File[]) => void;
@@ -142,6 +143,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       }
 
       if (validFiles.length > 0) {
+        // Register the primary file context for debugging any subsequent operation errors
+        extractFileProcessingContext(validFiles[0]).catch(() => {});
         if (!multiple) {
           onFilesSelected([validFiles[0]]);
         } else {

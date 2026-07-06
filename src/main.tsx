@@ -7,7 +7,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import { ToastProvider } from './contexts/ToastContext';
 import './index.css';
-import { setupErrorTelemetry } from './error-handler';
+import { setupErrorTelemetry, FileProcessingProvider } from './error-handler';
 
 // Initialize global error telemetry
 setupErrorTelemetry();
@@ -17,7 +17,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <HelmetProvider>
       <BrowserRouter>
         <ToastProvider>
-          <App />
+          <FileProcessingProvider>
+            <App />
+          </FileProcessingProvider>
         </ToastProvider>
       </BrowserRouter>
     </HelmetProvider>

@@ -13,27 +13,24 @@ export const Breadcrumbs: React.FC = () => {
     const segments = pathname.toLowerCase().split('/').filter(Boolean);
     return toolsList.find((t) => segments.includes(t.slug.toLowerCase()));
   }, [toolsList, pathname]);
+
+  if (pathname === '/' || !currentTool) {
+    return null;
+  }
+
   return (
     <nav className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
       <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
         Home
       </Link>
       <span>/</span>
-      {currentTool ? (
-        <>
-          <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
-            Tools
-          </Link>
-          <span>/</span>
-          <span className="text-slate-600 dark:text-slate-400 uppercase font-sans">
-            {currentTool.name}
-          </span>
-        </>
-      ) : (
-        <span className="text-slate-600 dark:text-slate-400 uppercase font-sans">
-          Tools Palette
-        </span>
-      )}
+      <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
+        Tools
+      </Link>
+      <span>/</span>
+      <span className="text-slate-600 dark:text-slate-400 uppercase font-sans">
+        {currentTool.name}
+      </span>
     </nav>
   );
 };
