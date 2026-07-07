@@ -133,11 +133,20 @@ self.addEventListener('fetch', (event) => {
           if (cached) {
             return cached;
           }
-          const response = await fetch(request);
-          if (response && response.status === 200) {
-            cache.put(request, response.clone()).catch(() => {});
+          try {
+            const response = await fetch(request);
+            if (response && response.status === 200) {
+              cache.put(request, response.clone()).catch(() => {});
+            }
+            return response;
+          } catch (fetchErr) {
+            // Fallback: fetch using just the URL string to bypass sandboxed/iframe request constraints
+            const response = await fetch(request.url);
+            if (response && response.status === 200) {
+              cache.put(request, response.clone()).catch(() => {});
+            }
+            return response;
           }
-          return response;
         } catch (error) {
           return new Response('Offline', { status: 503, statusText: 'Offline' });
         }

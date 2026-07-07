@@ -16,7 +16,15 @@ export function lazyWithRetry<T extends { default: React.ComponentType<any> }>(
 ) {
   return React.lazy(async () => {
     try {
-      return await factory();
+      const result = await factory();
+      try {
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('pdfminty-chunk-retry');
+        }
+      } catch (e) {
+        // Ignore sessionStorage errors
+      }
+      return result;
     } catch (error) {
       const key = 'pdfminty-chunk-retry';
       if (!sessionStorage.getItem(key)) {

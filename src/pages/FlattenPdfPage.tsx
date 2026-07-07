@@ -15,12 +15,27 @@ export const FlattenPdfPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
+
+  // Clean up Object URL on unmount to prevent memory leaks
+  React.useEffect(() => {
+    return () => {
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+    };
+  }, [downloadUrl]);
 
   const handleFilesSelected = (files: File[]) => {
     if (files.length > 0) {
       setSelectedFile(files[0]);
       setError(null);
       setIsSuccess(false);
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+        setDownloadUrl(null);
+      }
     }
   };
 
@@ -29,6 +44,10 @@ export const FlattenPdfPage: React.FC = () => {
     setLoading(true);
     setError(null);
     setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
 
     try {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
@@ -38,7 +57,13 @@ export const FlattenPdfPage: React.FC = () => {
         [fileBytes.buffer]
       );
       const blob = new Blob([processedBytes as unknown as BlobPart], { type: 'application/pdf' });
-      await downloadBlob(blob, `pdfminty_flattened_${selectedFile.name}`);
+      const name = `pdfminty_flattened_${selectedFile.name}`;
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+
+      // Attempt automatic download
+      await downloadBlob(blob, name);
       setIsSuccess(true);
     } catch (err: unknown) {
       logger.error('Flatten error:', err);
@@ -108,6 +133,10 @@ export const FlattenPdfPage: React.FC = () => {
                   onClick={() => {
                     setSelectedFile(null);
                     setIsSuccess(false);
+                    if (downloadUrl) {
+                      URL.revokeObjectURL(downloadUrl);
+                      setDownloadUrl(null);
+                    }
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
@@ -124,7 +153,7 @@ export const FlattenPdfPage: React.FC = () => {
             )}
 
             {isSuccess && (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold">
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="flatten_success_banner">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
                   <span>Flattening Completed Successfully! Your static PDF has been generated.</span>
@@ -132,6 +161,19 @@ export const FlattenPdfPage: React.FC = () => {
                 <p className="text-slate-500 text-[11px] font-semibold leading-normal">
                   All active electronic form fields, radio buttons, annotations, and text boxes are now rendered as permanent flat page graphics.
                 </p>
+                {downloadUrl && (
+                  <div className="pt-2">
+                    <a
+                      href={downloadUrl}
+                      download={downloadName}
+                      id="manual_download_link"
+                      className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 animate-bounce" />
+                      <span>Download Flattened PDF</span>
+                    </a>
+                  </div>
+                )}
               </div>
             )}
           </div>
