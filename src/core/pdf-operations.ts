@@ -406,28 +406,96 @@ export async function addPageNumbersPDF(
       if (skipFirstPage && idx === 0) continue;
 
       const page = pages[idx];
-      const { width, height } = page.getSize();
+      
+      let cropBox;
+      try {
+        cropBox = page.getCropBox();
+      } catch {
+        try {
+          cropBox = page.getMediaBox();
+        } catch {
+          const sz = page.getSize();
+          cropBox = { x: 0, y: 0, width: sz.width, height: sz.height };
+        }
+      }
+
+      const ox = cropBox.x ?? 0;
+      const oy = cropBox.y ?? 0;
+      const cw = cropBox.width ?? page.getSize().width;
+      const ch = cropBox.height ?? page.getSize().height;
+
       const text = format
         .replace('{n}', currentCount.toString())
         .replace('{total}', total.toString());
 
       const textWidth = font.widthOfTextAtSize(text, size);
 
-      let x = width - textWidth - margin; // default bottom-right
-      let y = margin; // default bottom
+      let x = ox + (cw - textWidth - margin); // default bottom-right
+      let y = oy + margin; // default bottom
+      let rotateAngle = 0;
 
-      if (position.includes('left')) {
-        x = margin;
-      } else if (position.includes('center')) {
-        x = (width - textWidth) / 2;
-      } else if (position.includes('right')) {
-        x = width - textWidth - margin;
-      }
+      const pageRotation = page.getRotation().angle;
 
-      if (position.startsWith('top')) {
-        y = height - margin - size;
-      } else {
-        y = margin;
+      if (pageRotation === 0) {
+        rotateAngle = 0;
+        if (position.includes('left')) {
+          x = ox + margin;
+        } else if (position.includes('center')) {
+          x = ox + (cw - textWidth) / 2;
+        } else if (position.includes('right')) {
+          x = ox + cw - textWidth - margin;
+        }
+
+        if (position.startsWith('top')) {
+          y = oy + ch - margin - size;
+        } else {
+          y = oy + margin;
+        }
+      } else if (pageRotation === 90) {
+        rotateAngle = 90;
+        if (position.includes('left')) {
+          y = oy + margin;
+        } else if (position.includes('center')) {
+          y = oy + (ch - textWidth) / 2;
+        } else if (position.includes('right')) {
+          y = oy + ch - margin - textWidth;
+        }
+
+        if (position.startsWith('top')) {
+          x = ox + margin + size;
+        } else {
+          x = ox + cw - margin;
+        }
+      } else if (pageRotation === 180) {
+        rotateAngle = 180;
+        if (position.includes('left')) {
+          x = ox + cw - margin;
+        } else if (position.includes('center')) {
+          x = ox + (cw + textWidth) / 2;
+        } else if (position.includes('right')) {
+          x = ox + margin + textWidth;
+        }
+
+        if (position.startsWith('top')) {
+          y = oy + ch - margin;
+        } else {
+          y = oy + margin + size;
+        }
+      } else if (pageRotation === 270) {
+        rotateAngle = 270;
+        if (position.includes('left')) {
+          y = oy + ch - margin;
+        } else if (position.includes('center')) {
+          y = oy + (ch + textWidth) / 2;
+        } else if (position.includes('right')) {
+          y = oy + margin + textWidth;
+        }
+
+        if (position.startsWith('top')) {
+          x = ox + cw - margin;
+        } else {
+          x = ox + margin + size;
+        }
       }
 
       page.drawText(text, {
@@ -435,7 +503,8 @@ export async function addPageNumbersPDF(
         y,
         size,
         font,
-        color: rgb(0.3, 0.3, 0.3),
+        color: rgb(0, 0, 0), // Use crisp black color for maximum contrast and legibility
+        rotate: degrees(rotateAngle),
       });
       currentCount++;
     }
