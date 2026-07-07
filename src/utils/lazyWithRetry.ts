@@ -20,8 +20,29 @@ export function lazyWithRetry<T extends { default: React.ComponentType<any> }>(
     } catch (error) {
       const key = 'pdfminty-chunk-retry';
       if (!sessionStorage.getItem(key)) {
-        logger.warn('Lazy chunk load failed, reloading once to fetch fresh assets:', error);
+        logger.warn('Lazy chunk load failed. Cleaning Service Worker + Cache to force network fetch...', error);
         sessionStorage.setItem(key, '1');
+        
+        // Unregister service workers and clear cache storage to guarantee clean load from network
+        try {
+          if (typeof window !== 'undefined') {
+            if ('serviceWorker' in navigator) {
+              const regs = await navigator.serviceWorker.getRegistrations();
+              for (const reg of regs) {
+                await reg.unregister();
+              }
+            }
+            if ('caches' in window) {
+              const cacheKeys = await caches.keys();
+              for (const cacheKey of cacheKeys) {
+                await caches.delete(cacheKey);
+              }
+            }
+          }
+        } catch (swError) {
+          logger.error('Failed to clear SW/caches during chunk retry:', swError);
+        }
+
         window.location.reload();
         // Never resolves — the reload takes over before React needs this.
         return new Promise<T>(() => {});

@@ -22,10 +22,9 @@
 
 // SW cache version. In production builds, vite.config.ts injects a unique
 // build timestamp via the `injectSwVersion` plugin (writeBundle hook).
-// In dev, the placeholder falls back to a per-reload unique value so
-// each page load gets a fresh cache (acceptable for development).
+// In dev, the placeholder falls back to 'dev' to prevent constant worker updates.
 const SW_CACHE_VERSION = '__SW_CACHE_VERSION__'.startsWith('__')
-  ? 'dev-' + Date.now()
+  ? 'dev'
   : '__SW_CACHE_VERSION__';
 const STATIC_CACHE = `pdfminty-static-${SW_CACHE_VERSION}`;
 const RUNTIME_CACHE = `pdfminty-runtime-${SW_CACHE_VERSION}`;
@@ -66,6 +65,9 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+
+  // Bypass Service Worker completely in development to avoid caching or stale dynamic import bugs
+  if (SW_CACHE_VERSION.startsWith('dev')) return;
 
   // Only handle GET. POST/PUT/etc always go to network.
   if (request.method !== 'GET') return;
@@ -125,17 +127,20 @@ self.addEventListener('fetch', (event) => {
   if (isStaticAsset) {
     event.respondWith(
       (async () => {
-        const cache = await caches.open(STATIC_CACHE);
-        const cached = await cache.match(request);
-        const fetchPromise = fetch(request)
-          .then((response) => {
-            if (response && response.status === 200) {
-              cache.put(request, response.clone()).catch(() => {});
-            }
-            return response;
-          })
-          .catch(() => null);
-        return cached || fetchPromise || new Response('Offline', { status: 503 });
+        try {
+          const cache = await caches.open(STATIC_CACHE);
+          const cached = await cache.match(request);
+          if (cached) {
+            return cached;
+          }
+          const response = await fetch(request);
+          if (response && response.status === 200) {
+            cache.put(request, response.clone()).catch(() => {});
+          }
+          return response;
+        } catch (error) {
+          return new Response('Offline', { status: 503, statusText: 'Offline' });
+        }
       })()
     );
     return;
