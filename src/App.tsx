@@ -10,30 +10,32 @@ import { SkipToContent } from './components/SkipToContent';
 import ToolSkeleton from './components/ToolSkeleton';
 import { ROUTES } from './config/routes';
 import { HomePage } from './pages/HomePage';
+import { lazyWithRetry } from './utils/lazyWithRetry';
 
 // Lazy: every other route — splits each tool's code (and pdfjs/pdf-lib chunks)
-// out of the initial bundle. The Suspense fallback keeps perceived load time low.
-const MergePage = React.lazy(() => import('./pages/MergePage').then((m) => ({ default: m.MergePage })));
-const SplitPage = React.lazy(() => import('./pages/SplitPage').then((m) => ({ default: m.SplitPage })));
-const RotatePage = React.lazy(() => import('./pages/RotatePage').then((m) => ({ default: m.RotatePage })));
-const DeletePagesPage = React.lazy(() => import('./pages/DeletePagesPage').then((m) => ({ default: m.DeletePagesPage })));
-const ExtractPagesPdfPage = React.lazy(() => import('./pages/ExtractPagesPdfPage').then((m) => ({ default: m.ExtractPagesPdfPage })));
-const ReorderPdfPage = React.lazy(() => import('./pages/ReorderPdfPage').then((m) => ({ default: m.ReorderPdfPage })));
-const WatermarkPage = React.lazy(() => import('./pages/WatermarkPage').then((m) => ({ default: m.WatermarkPage })));
-const PageNumbersPage = React.lazy(() => import('./pages/PageNumbersPage').then((m) => ({ default: m.PageNumbersPage })));
-const AddBlankPage = React.lazy(() => import('./pages/AddBlankPage').then((m) => ({ default: m.AddBlankPage })));
-const ProtectPage = React.lazy(() => import('./pages/ProtectPage').then((m) => ({ default: m.ProtectPage })));
-const UnlockPage = React.lazy(() => import('./pages/UnlockPage').then((m) => ({ default: m.UnlockPage })));
-const ImgToPdfPage = React.lazy(() => import('./pages/ImgToPdfPage').then((m) => ({ default: m.ImgToPdfPage })));
-const PdfToImgPage = React.lazy(() => import('./pages/PdfToImgPage').then((m) => ({ default: m.PdfToImgPage })));
-const PdfToMarkdownPage = React.lazy(() => import('./pages/PdfToMarkdownPage').then((m) => ({ default: m.PdfToMarkdownPage })));
-const AiAnalyzePage = React.lazy(() => import('./pages/AiAnalyzePage').then((m) => ({ default: m.AiAnalyzePage })));
-const GrayscalePdfPage = React.lazy(() => import('./pages/GrayscalePdfPage').then((m) => ({ default: m.GrayscalePdfPage })));
-const FlattenPdfPage = React.lazy(() => import('./pages/FlattenPdfPage').then((m) => ({ default: m.FlattenPdfPage })));
-const RepairPdfPage = React.lazy(() => import('./pages/RepairPdfPage').then((m) => ({ default: m.RepairPdfPage })));
-const IsSafePdfArticlePage = React.lazy(() => import('./pages/IsSafePdfArticlePage').then((m) => ({ default: m.IsSafePdfArticlePage })));
-const EditMetadataPage = React.lazy(() => import('./pages/EditMetadataPage').then((m) => ({ default: m.default })));
-const SanitizePdfPage = React.lazy(() => import('./pages/SanitizePdfPage').then((m) => ({ default: m.default })));
+// out of the initial bundle. lazyWithRetry auto-recovers from stale-chunk
+// failures after a fresh deploy instead of crashing to the ErrorBoundary.
+const MergePage = lazyWithRetry(() => import('./pages/MergePage').then((m) => ({ default: m.MergePage })));
+const SplitPage = lazyWithRetry(() => import('./pages/SplitPage').then((m) => ({ default: m.SplitPage })));
+const RotatePage = lazyWithRetry(() => import('./pages/RotatePage').then((m) => ({ default: m.RotatePage })));
+const DeletePagesPage = lazyWithRetry(() => import('./pages/DeletePagesPage').then((m) => ({ default: m.DeletePagesPage })));
+const ExtractPagesPdfPage = lazyWithRetry(() => import('./pages/ExtractPagesPdfPage').then((m) => ({ default: m.ExtractPagesPdfPage })));
+const ReorderPdfPage = lazyWithRetry(() => import('./pages/ReorderPdfPage').then((m) => ({ default: m.ReorderPdfPage })));
+const WatermarkPage = lazyWithRetry(() => import('./pages/WatermarkPage').then((m) => ({ default: m.WatermarkPage })));
+const PageNumbersPage = lazyWithRetry(() => import('./pages/PageNumbersPage').then((m) => ({ default: m.PageNumbersPage })));
+const AddBlankPage = lazyWithRetry(() => import('./pages/AddBlankPage').then((m) => ({ default: m.AddBlankPage })));
+const ProtectPage = lazyWithRetry(() => import('./pages/ProtectPage').then((m) => ({ default: m.ProtectPage })));
+const UnlockPage = lazyWithRetry(() => import('./pages/UnlockPage').then((m) => ({ default: m.UnlockPage })));
+const ImgToPdfPage = lazyWithRetry(() => import('./pages/ImgToPdfPage').then((m) => ({ default: m.ImgToPdfPage })));
+const PdfToImgPage = lazyWithRetry(() => import('./pages/PdfToImgPage').then((m) => ({ default: m.PdfToImgPage })));
+const PdfToMarkdownPage = lazyWithRetry(() => import('./pages/PdfToMarkdownPage').then((m) => ({ default: m.PdfToMarkdownPage })));
+const AiAnalyzePage = lazyWithRetry(() => import('./pages/AiAnalyzePage').then((m) => ({ default: m.AiAnalyzePage })));
+const GrayscalePdfPage = lazyWithRetry(() => import('./pages/GrayscalePdfPage').then((m) => ({ default: m.GrayscalePdfPage })));
+const FlattenPdfPage = lazyWithRetry(() => import('./pages/FlattenPdfPage').then((m) => ({ default: m.FlattenPdfPage })));
+const RepairPdfPage = lazyWithRetry(() => import('./pages/RepairPdfPage').then((m) => ({ default: m.RepairPdfPage })));
+const IsSafePdfArticlePage = lazyWithRetry(() => import('./pages/IsSafePdfArticlePage').then((m) => ({ default: m.IsSafePdfArticlePage })));
+const EditMetadataPage = lazyWithRetry(() => import('./pages/EditMetadataPage').then((m) => ({ default: m.default })));
+const SanitizePdfPage = lazyWithRetry(() => import('./pages/SanitizePdfPage').then((m) => ({ default: m.default })));
 
 export const App: React.FC = () => {
   return (
