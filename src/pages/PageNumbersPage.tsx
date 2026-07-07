@@ -1,4 +1,4 @@
-import { ArrowLeft, Hash, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Hash, AlertCircle, Download } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -19,11 +19,28 @@ export const PageNumbersPage: React.FC = () => {
   const [skipFirstPage, setSkipFirstPage] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
+
+  // Clean up Object URL on unmount to prevent memory leaks
+  React.useEffect(() => {
+    return () => {
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+    };
+  }, [downloadUrl]);
 
   const handleFilesSelected = (files: File[]) => {
     if (files.length > 0) {
       setSelectedFile(files[0]);
       setError(null);
+      setIsSuccess(false);
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+        setDownloadUrl(null);
+      }
     }
   };
 
@@ -36,6 +53,11 @@ export const PageNumbersPage: React.FC = () => {
 
     setLoading(true);
     setError(null);
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
 
     try {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
@@ -45,7 +67,14 @@ export const PageNumbersPage: React.FC = () => {
         [fileBytes.buffer]
       );
       const blob = new Blob([updatedBytes as unknown as BlobPart], { type: 'application/pdf' });
-      await downloadBlob(blob, `pdfminty_numbered_${selectedFile.name}`);
+      const name = `pdfminty_numbered_${selectedFile.name}`;
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+
+      // Attempt automatic download
+      await downloadBlob(blob, name);
+      setIsSuccess(true);
     } catch (err: unknown) {
       logger.error('Page numbers error:', err);
       const message = err instanceof Error ? err.message : String(err);
@@ -105,11 +134,43 @@ export const PageNumbersPage: React.FC = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => setSelectedFile(null)}
-                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setIsSuccess(false);
+                    if (downloadUrl) {
+                      URL.revokeObjectURL(downloadUrl);
+                      setDownloadUrl(null);
+                    }
+                  }}
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   Change File
                 </button>
+              </div>
+            )}
+
+            {isSuccess && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="page_numbers_success_banner">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
+                  <span>Page Numbering Completed Successfully! Your numbered PDF has been generated.</span>
+                </div>
+                <p className="text-slate-500 text-[11px] font-semibold leading-normal">
+                  Sequential page numbers have been overlayed on your document pages.
+                </p>
+                {downloadUrl && (
+                  <div className="pt-2">
+                    <a
+                      href={downloadUrl}
+                      download={downloadName}
+                      id="manual_download_link"
+                      className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 animate-bounce" />
+                      <span>Download Numbered PDF</span>
+                    </a>
+                  </div>
+                )}
               </div>
             )}
           </div>
