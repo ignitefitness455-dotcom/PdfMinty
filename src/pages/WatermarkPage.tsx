@@ -1,4 +1,4 @@
-import { ArrowLeft, Bookmark, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Bookmark, AlertCircle, Download } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -18,11 +18,76 @@ export const WatermarkPage: React.FC = () => {
   const [color, setColor] = useState<string>('#94a3b8'); // Slate-400
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
+
+  // Live preview states
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [renderingPreview, setRenderingPreview] = useState<boolean>(false);
+  const operationTokenRef = React.useRef<number>(0);
+
+  React.useEffect(() => {
+    return () => {
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [downloadUrl, previewUrl]);
+
+  // Extract first page preview image
+  React.useEffect(() => {
+    const generatePreview = async () => {
+      if (!selectedFile) {
+        setPreviewUrl(null);
+        return;
+      }
+
+      const myToken = ++operationTokenRef.current;
+      setRenderingPreview(true);
+
+      try {
+        const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
+        if (myToken !== operationTokenRef.current) return;
+
+        // Render first page as PNG image using the worker operation
+        const rendered = await WorkerManager.getInstance().runOperation<
+          { page: number; imageBytes: Uint8Array }[]
+        >('pdfToImage', { bytes: fileBytes, originalName: selectedFile.name, scale: 0.4 }, [
+          fileBytes.buffer,
+        ]);
+
+        if (myToken !== operationTokenRef.current) return;
+
+        if (rendered && rendered.length > 0) {
+          const blob = new Blob([rendered[0].imageBytes as unknown as BlobPart], { type: 'image/png' });
+          const url = URL.createObjectURL(blob);
+          setPreviewUrl(url);
+        }
+      } catch (err) {
+        logger.error('Failed to generate watermark page preview:', err);
+      } finally {
+        if (myToken === operationTokenRef.current) {
+          setRenderingPreview(false);
+        }
+      }
+    };
+
+    generatePreview();
+  }, [selectedFile]);
 
   const handleFilesSelected = (files: File[]) => {
     if (files.length > 0) {
       setSelectedFile(files[0]);
       setError(null);
+      setIsSuccess(false);
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+        setDownloadUrl(null);
+      }
     }
   };
 
@@ -39,6 +104,11 @@ export const WatermarkPage: React.FC = () => {
 
     setLoading(true);
     setError(null);
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
 
     try {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
@@ -49,7 +119,12 @@ export const WatermarkPage: React.FC = () => {
       );
 
       const blob = new Blob([watermarkedBytes as unknown as BlobPart], { type: 'application/pdf' });
-      await downloadBlob(blob, `pdfminty_stamped_${selectedFile.name}`);
+      const name = `pdfminty_stamped_${selectedFile.name}`;
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+      await downloadBlob(blob, name);
+      setIsSuccess(true);
     } catch (err: unknown) {
        logger.error('Watermark error:', err);
        const message = err instanceof Error ? err.message : String(err);
@@ -98,25 +173,152 @@ export const WatermarkPage: React.FC = () => {
                 maxSizeMB={TOOL_SIZE_LIMITS['watermark-pdf'].maxSingleMB}
               />
             ) : (
-              <div
-                className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between"
-                id="loaded_watermark_file"
-              >
-                <div className="truncate pr-4">
-                  <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
-                  <p className="text-xs text-slate-400">
-                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelectedFile(null)}
-                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
+              <div className="space-y-4">
+                <div
+                  className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between"
+                  id="loaded_watermark_file"
                 >
-                  Change File
-                </button>
+                  <div className="truncate pr-4">
+                    <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
+                    <p className="text-xs text-slate-400">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedFile(null);
+                      setIsSuccess(false);
+                      if (downloadUrl) {
+                        URL.revokeObjectURL(downloadUrl);
+                        setDownloadUrl(null);
+                      }
+                    }}
+                    className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    Change File
+                  </button>
+                </div>
+
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h3 className="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
+                      <span>Real-time Visual Preview</span>
+                    </h3>
+                    <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-150">
+                      Page 1
+                    </span>
+                  </div>
+
+                  <div className="relative w-full aspect-[1/1.4] max-w-sm mx-auto bg-slate-50 rounded-xl overflow-hidden shadow-inner border border-slate-200 flex items-center justify-center">
+                    {renderingPreview ? (
+                      <div className="flex flex-col items-center gap-2.5 text-slate-400">
+                        <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-[10px] font-bold tracking-wider uppercase animate-pulse">Loading Document...</span>
+                      </div>
+                    ) : previewUrl ? (
+                      <div className="relative w-full h-full flex items-center justify-center bg-slate-50">
+                        {/* Rendered PDF Page Background */}
+                        <img
+                          src={previewUrl}
+                          alt="PDF Page 1 Preview"
+                          className="w-full h-full object-contain pointer-events-none"
+                        />
+
+                        {/* Real-time Watermark Overlay */}
+                        {text.trim() && (
+                          <div
+                            className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none"
+                            style={{ opacity: opacity }}
+                          >
+                            <div
+                              className="font-extrabold uppercase whitespace-nowrap tracking-widest transition-all duration-150 transform -rotate-45"
+                              style={{
+                                fontSize: `${size * 0.4}px`, // scaled down for layout spacing
+                                color: color,
+                                textShadow: `0 0 1px ${color}44`,
+                              }}
+                            >
+                              {text}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      // Exquisite mock page overlay if PDF.js is unavailable
+                      <div className="relative w-full h-full bg-white flex flex-col justify-between p-6">
+                        {/* Skeletal document lines */}
+                        <div className="space-y-3 opacity-[0.08]">
+                          <div className="h-4 w-1/2 bg-slate-900 rounded"></div>
+                          <div className="space-y-1.5 pt-2">
+                            <div className="h-2 w-full bg-slate-800 rounded"></div>
+                            <div className="h-2 w-full bg-slate-800 rounded"></div>
+                            <div className="h-2 w-5/6 bg-slate-800 rounded"></div>
+                          </div>
+                          <div className="space-y-1.5 pt-4">
+                            <div className="h-2 w-full bg-slate-800 rounded"></div>
+                            <div className="h-2 w-4/5 bg-slate-800 rounded"></div>
+                          </div>
+                          <div className="space-y-1.5 pt-4">
+                            <div className="h-2 w-full bg-slate-800 rounded"></div>
+                            <div className="h-2 w-full bg-slate-800 rounded"></div>
+                            <div className="h-2 w-2/3 bg-slate-800 rounded"></div>
+                          </div>
+                        </div>
+
+                        {/* Stamped text */}
+                        {text.trim() && (
+                          <div
+                            className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden select-none"
+                            style={{ opacity: opacity }}
+                          >
+                            <div
+                              className="font-extrabold uppercase whitespace-nowrap tracking-widest transition-all duration-150 transform -rotate-45"
+                              style={{
+                                fontSize: `${size * 0.45}px`,
+                                color: color,
+                              }}
+                            >
+                              {text}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="text-[9px] text-slate-400 font-bold self-center text-center mt-auto bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                          Template View
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
           </div>
+
+          {isSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="watermark_success_banner">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
+                <span>Watermark Applied Successfully! Your stamped PDF has been generated.</span>
+              </div>
+              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
+                The watermark text has been overlayed onto your document pages locally in your browser.
+              </p>
+              {downloadUrl && (
+                <div className="pt-2">
+                  <a
+                    href={downloadUrl}
+                    download={downloadName}
+                    id="manual_download_link"
+                    className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 animate-bounce" />
+                    <span>Download Stamped PDF</span>
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Configurations column */}

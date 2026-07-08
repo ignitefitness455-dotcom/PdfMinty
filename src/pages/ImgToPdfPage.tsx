@@ -15,6 +15,9 @@ export const ImgToPdfPage: React.FC = () => {
   const [pageSize, setPageSize] = useState<'fit' | 'A4' | 'Letter'>('fit');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
 
   const urlsRef = React.useRef<string[]>([]);
 
@@ -28,11 +31,19 @@ export const ImgToPdfPage: React.FC = () => {
       urlsRef.current.forEach((url) => {
         URL.revokeObjectURL(url);
       });
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
     };
-  }, []);
+  }, [downloadUrl]);
 
   const handleFilesSelected = (newFiles: File[]) => {
     setError(null);
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
     const existingTotalBytes = images.reduce((acc, img) => acc + img.file.size, 0);
     const newTotalBytes = newFiles.reduce((acc, f) => acc + f.size, 0);
     const combinedBytes = existingTotalBytes + newTotalBytes;
@@ -56,6 +67,11 @@ export const ImgToPdfPage: React.FC = () => {
   };
 
   const handleRemove = (index: number) => {
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
     const imgToRemove = images[index];
     if (imgToRemove) {
       URL.revokeObjectURL(imgToRemove.url);
@@ -64,6 +80,11 @@ export const ImgToPdfPage: React.FC = () => {
   };
 
   const handleClearDeck = () => {
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
     images.forEach((img) => URL.revokeObjectURL(img.url));
     setImages([]);
   };
@@ -76,6 +97,11 @@ export const ImgToPdfPage: React.FC = () => {
 
     setLoading(true);
     setError(null);
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
 
     try {
       const imageBlobs = await Promise.all(
@@ -93,7 +119,12 @@ export const ImgToPdfPage: React.FC = () => {
         imageBlobs.map((b) => b.buf.buffer)
       );
       const blob = new Blob([pdfBytes as unknown as BlobPart], { type: 'application/pdf' });
-      await downloadBlob(blob, `pdfminty_images_${Date.now()}.pdf`);
+      const name = `pdfminty_images_${Date.now()}.pdf`;
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+      await downloadBlob(blob, name);
+      setIsSuccess(true);
     } catch (err: unknown) {
       logger.error('Image logic error:', err);
       const message = err instanceof Error ? err.message : String(err);
@@ -144,6 +175,31 @@ export const ImgToPdfPage: React.FC = () => {
               maxSizeMB={TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB}
             />
           </div>
+
+          {isSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="img_to_pdf_success_banner">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
+                <span>PDF Created Successfully! Your images have been converted.</span>
+              </div>
+              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
+                All selected images have been compiled into a high-quality PDF document.
+              </p>
+              {downloadUrl && (
+                <div className="pt-2">
+                  <a
+                    href={downloadUrl}
+                    download={downloadName}
+                    id="manual_download_link"
+                    className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 animate-bounce" />
+                    <span>Download Compiled PDF</span>
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
 
           {images.length > 0 && (
             <div

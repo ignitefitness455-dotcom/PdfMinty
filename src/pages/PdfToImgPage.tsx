@@ -21,6 +21,9 @@ export const PdfToImgPage: React.FC = () => {
   const [exportFormat, setExportFormat] = useState<'image/png' | 'image/jpeg'>('image/png');
   const [scale, setScale] = useState<1.0 | 1.5 | 2.0>(1.5);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
 
   const urlsRef = React.useRef<string[]>([]);
   const operationTokenRef = React.useRef(0);
@@ -35,8 +38,11 @@ export const PdfToImgPage: React.FC = () => {
       urlsRef.current.forEach((url) => {
         URL.revokeObjectURL(url);
       });
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
     };
-  }, []);
+  }, [downloadUrl]);
 
   const handleFilesSelected = (files: File[]) => {
     if (files.length > 0) {
@@ -45,6 +51,11 @@ export const PdfToImgPage: React.FC = () => {
       setSelectedFile(files[0]);
       setImageUrls([]);
       setError(null);
+      setIsSuccess(false);
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+        setDownloadUrl(null);
+      }
     }
   };
 
@@ -55,6 +66,11 @@ export const PdfToImgPage: React.FC = () => {
     imageUrls.forEach((item) => URL.revokeObjectURL(item.dataUrl));
     setError(null);
     setImageUrls([]);
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
 
     try {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
@@ -118,19 +134,28 @@ export const PdfToImgPage: React.FC = () => {
 
       // Package all images into a single ZIP for one-shot download.
       // This avoids Chrome's "1 download per user gesture" popup-blocker rule.
+      let finalBlob: Blob;
+      let finalFilename: string;
+
       if (zipEntries.length === 1) {
-        await downloadBlob(zipEntries[0].blob, zipEntries[0].filename);
+        finalBlob = zipEntries[0].blob;
+        finalFilename = zipEntries[0].filename;
       } else {
         const zip = new JSZip();
         for (const entry of zipEntries) {
           zip.file(entry.filename, entry.blob);
         }
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
-        const zipFilename = `pdfminty_${selectedFile.name.replace(/\.pdf$/i, '')}_images.zip`;
-        await downloadBlob(zipBlob, zipFilename);
+        finalBlob = await zip.generateAsync({ type: 'blob' });
+        finalFilename = `pdfminty_${selectedFile.name.replace(/\.pdf$/i, '')}_images.zip`;
       }
 
+      const url = URL.createObjectURL(finalBlob);
+      setDownloadUrl(url);
+      setDownloadName(finalFilename);
+
+      await downloadBlob(finalBlob, finalFilename);
       setImageUrls(collected);
+      setIsSuccess(true);
     } catch (err: unknown) {
       if (myToken !== operationTokenRef.current) return;
       logger.error('Export images failed:', err);
@@ -214,6 +239,11 @@ export const PdfToImgPage: React.FC = () => {
                     imageUrls.forEach((item) => URL.revokeObjectURL(item.dataUrl));
                     setImageUrls([]);
                     setError(null);
+                    setIsSuccess(false);
+                    if (downloadUrl) {
+                      URL.revokeObjectURL(downloadUrl);
+                      setDownloadUrl(null);
+                    }
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
@@ -222,6 +252,31 @@ export const PdfToImgPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          {isSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="pdf_to_img_success_banner">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
+                <span>Conversion Completed Successfully! Your files are ready.</span>
+              </div>
+              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
+                PDF pages have been converted to raster images offline.
+              </p>
+              {downloadUrl && (
+                <div className="pt-2">
+                  <a
+                    href={downloadUrl}
+                    download={downloadName}
+                    id="manual_download_link"
+                    className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 animate-bounce" />
+                    <span>Download Compiled Images (ZIP / Image)</span>
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
 
           {progress && (
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm" role="status" aria-live="polite">

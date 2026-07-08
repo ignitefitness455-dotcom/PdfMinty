@@ -14,9 +14,25 @@ export const MergePage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
+
+  React.useEffect(() => {
+    return () => {
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+    };
+  }, [downloadUrl]);
 
   const handleFilesSelected = (newFiles: File[]) => {
     setError(null);
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
     const updatedFiles = [...files, ...newFiles];
     const totalBytes = updatedFiles.reduce((acc, f) => acc + f.size, 0);
     const maxTotalBytes = (TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB || 150) * 1024 * 1024;
@@ -34,10 +50,20 @@ export const MergePage: React.FC = () => {
   };
 
   const handleRemove = (index: number) => {
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const moveItem = (index: number, direction: 'up' | 'down') => {
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
     if (direction === 'up' && index === 0) return;
     if (direction === 'down' && index === files.length - 1) return;
 
@@ -57,6 +83,11 @@ export const MergePage: React.FC = () => {
 
     setLoading(true);
     setError(null);
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
 
     try {
       const filesBytes = await Promise.all(
@@ -68,7 +99,12 @@ export const MergePage: React.FC = () => {
         filesBytes.map((b) => b.buffer)
       );
       const blob = new Blob([mergedBytes as unknown as BlobPart], { type: 'application/pdf' });
-      await downloadBlob(blob, `pdfminty_merged_${Date.now()}.pdf`);
+      const name = `pdfminty_merged_${Date.now()}.pdf`;
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+      await downloadBlob(blob, name);
+      setIsSuccess(true);
     } catch (err: unknown) {
       logger.error('Merge error:', err);
       const message = err instanceof Error ? err.message : String(err);
@@ -186,6 +222,31 @@ export const MergePage: React.FC = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {isSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="merge_success_banner">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
+                <span>Merge Operation Completed Successfully!</span>
+              </div>
+              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
+                Your compiled and structured PDF has been built completely in your browser.
+              </p>
+              {downloadUrl && (
+                <div className="pt-2">
+                  <a
+                    href={downloadUrl}
+                    download={downloadName}
+                    id="manual_download_link"
+                    className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 animate-bounce" />
+                    <span>Download Merged PDF</span>
+                  </a>
+                </div>
+              )}
             </div>
           )}
         </div>

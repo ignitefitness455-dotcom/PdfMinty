@@ -16,12 +16,26 @@ export const GrayscalePdfPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
+
+  React.useEffect(() => {
+    return () => {
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+    };
+  }, [downloadUrl]);
 
   const handleFilesSelected = (files: File[]) => {
     if (files.length > 0) {
       setSelectedFile(files[0]);
       setError(null);
       setIsSuccess(false);
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+        setDownloadUrl(null);
+      }
     }
   };
 
@@ -30,6 +44,10 @@ export const GrayscalePdfPage: React.FC = () => {
     setLoading(true);
     setError(null);
     setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
 
     try {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
@@ -39,7 +57,11 @@ export const GrayscalePdfPage: React.FC = () => {
         [fileBytes.buffer]
       );
       const blob = new Blob([processedBytes as unknown as BlobPart], { type: 'application/pdf' });
-      await downloadBlob(blob, `pdfminty_grayscale_${selectedFile.name}`);
+      const name = `pdfminty_grayscale_${selectedFile.name}`;
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+      await downloadBlob(blob, name);
       setIsSuccess(true);
     } catch (err: unknown) {
       logger.error('Grayscale error:', err);
@@ -109,6 +131,10 @@ export const GrayscalePdfPage: React.FC = () => {
                   onClick={() => {
                     setSelectedFile(null);
                     setIsSuccess(false);
+                    if (downloadUrl) {
+                      URL.revokeObjectURL(downloadUrl);
+                      setDownloadUrl(null);
+                    }
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
@@ -133,6 +159,19 @@ export const GrayscalePdfPage: React.FC = () => {
                 <p className="text-slate-500 text-[11px] font-semibold leading-normal">
                   The colored plates have been converted using local WebAssembly pixel mapping. Save printer toner easily.
                 </p>
+                {downloadUrl && (
+                  <div className="pt-2">
+                    <a
+                      href={downloadUrl}
+                      download={downloadName}
+                      id="manual_download_link"
+                      className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 animate-bounce" />
+                      <span>Download Monochrome PDF</span>
+                    </a>
+                  </div>
+                )}
               </div>
             )}
           </div>

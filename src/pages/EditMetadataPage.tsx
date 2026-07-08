@@ -13,6 +13,9 @@ export default function EditMetadataPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
   
   const [metadata, setMetadata] = useState({
     title: '',
@@ -23,10 +26,23 @@ export default function EditMetadataPage() {
     producer: ''
   });
 
+  React.useEffect(() => {
+    return () => {
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+    };
+  }, [downloadUrl]);
+
   const limitMB = TOOL_SIZE_LIMITS['edit-metadata']?.maxSingleMB || 50;
 
   const handleProcess = async () => {
     if (!file) return;
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
 
     try {
       setIsProcessing(true);
@@ -38,7 +54,12 @@ export default function EditMetadataPage() {
       );
 
       const blob = new Blob([resultBytes], { type: 'application/pdf' });
-      await downloadBlob(blob, file.name.replace(/\.pdf$/i, '') + '-metadata.pdf');
+      const name = file.name.replace(/\.pdf$/i, '') + '-metadata.pdf';
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+      await downloadBlob(blob, name);
+      setIsSuccess(true);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       setError(message || 'Failed to edit metadata.');
@@ -94,6 +115,11 @@ export default function EditMetadataPage() {
                   if (files && files.length > 0) {
                     setFile(files[0]);
                     setError(null);
+                    setIsSuccess(false);
+                    if (downloadUrl) {
+                      URL.revokeObjectURL(downloadUrl);
+                      setDownloadUrl(null);
+                    }
                   }
                 }}
                 accept=".pdf,application/pdf"
@@ -114,11 +140,41 @@ export default function EditMetadataPage() {
                   onClick={() => {
                     setFile(null);
                     setError(null);
+                    setIsSuccess(false);
+                    if (downloadUrl) {
+                      URL.revokeObjectURL(downloadUrl);
+                      setDownloadUrl(null);
+                    }
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1.5 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   Change File
                 </button>
+              </div>
+            )}
+
+            {isSuccess && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="metadata_success_banner">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
+                  <span>Metadata Updated Successfully! Your modified PDF has been generated.</span>
+                </div>
+                <p className="text-slate-500 text-[11px] font-semibold leading-normal">
+                  All PDF metadata tags have been updated.
+                </p>
+                {downloadUrl && (
+                  <div className="pt-2">
+                    <a
+                      href={downloadUrl}
+                      download={downloadName}
+                      id="manual_download_link"
+                      className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 animate-bounce" />
+                      <span>Download PDF with Metadata</span>
+                    </a>
+                  </div>
+                )}
               </div>
             )}
 

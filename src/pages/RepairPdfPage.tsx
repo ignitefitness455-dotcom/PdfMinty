@@ -16,6 +16,16 @@ export const RepairPdfPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [repairsList, setRepairsList] = useState<string[]>([]);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
+
+  React.useEffect(() => {
+    return () => {
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+    };
+  }, [downloadUrl]);
 
   const handleFilesSelected = (files: File[]) => {
     if (files.length > 0) {
@@ -23,6 +33,10 @@ export const RepairPdfPage: React.FC = () => {
       setError(null);
       setIsSuccess(false);
       setRepairsList([]);
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+        setDownloadUrl(null);
+      }
     }
   };
 
@@ -32,6 +46,10 @@ export const RepairPdfPage: React.FC = () => {
     setError(null);
     setIsSuccess(false);
     setRepairsList([]);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
 
     try {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
@@ -42,7 +60,11 @@ export const RepairPdfPage: React.FC = () => {
       );
       
       const blob = new Blob([response.bytes as unknown as BlobPart], { type: 'application/pdf' });
-      await downloadBlob(blob, `pdfminty_repaired_${selectedFile.name}`);
+      const name = `pdfminty_repaired_${selectedFile.name}`;
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+      await downloadBlob(blob, name);
       setRepairsList(response.repairs || []);
       setIsSuccess(true);
     } catch (err: unknown) {
@@ -114,6 +136,10 @@ export const RepairPdfPage: React.FC = () => {
                     setSelectedFile(null);
                     setIsSuccess(false);
                     setRepairsList([]);
+                    if (downloadUrl) {
+                      URL.revokeObjectURL(downloadUrl);
+                      setDownloadUrl(null);
+                    }
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
@@ -146,6 +172,19 @@ export const RepairPdfPage: React.FC = () => {
                         </li>
                       ))}
                     </ul>
+                  </div>
+                )}
+                {downloadUrl && (
+                  <div className="pt-2 border-t border-emerald-200/50">
+                    <a
+                      href={downloadUrl}
+                      download={downloadName}
+                      id="manual_download_link"
+                      className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 animate-bounce" />
+                      <span>Download Repaired PDF</span>
+                    </a>
                   </div>
                 )}
               </div>

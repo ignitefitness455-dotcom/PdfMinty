@@ -1,4 +1,4 @@
-import { ArrowLeft, Trash2, AlertCircle, AlertTriangle, Loader2, CheckSquare, Square } from 'lucide-react';
+import { ArrowLeft, Trash2, AlertCircle, AlertTriangle, Loader2, CheckSquare, Square, Download } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -18,6 +18,9 @@ export const DeletePagesPage: React.FC = () => {
   const [thumbnails, setThumbnails] = useState<{ page: number; dataUrl: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
 
   const operationTokenRef = React.useRef(0);
   const urlsRef = React.useRef<string[]>([]);
@@ -35,8 +38,11 @@ export const DeletePagesPage: React.FC = () => {
       currentUrls.forEach((url) => {
         URL.revokeObjectURL(url);
       });
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
     };
-  }, []);
+  }, [downloadUrl]);
 
   const handleFilesSelected = async (files: File[]) => {
     if (files.length > 0) {
@@ -47,6 +53,11 @@ export const DeletePagesPage: React.FC = () => {
       setError(null);
       setPagesStr('');
       setThumbnails([]);
+      setIsSuccess(false);
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+        setDownloadUrl(null);
+      }
 
       try {
         const bytes = new Uint8Array(await file.arrayBuffer());
@@ -191,7 +202,12 @@ export const DeletePagesPage: React.FC = () => {
         [fileBytes.buffer]
       );
       const blob = new Blob([parsedBytes as unknown as BlobPart], { type: 'application/pdf' });
-      await downloadBlob(blob, `pdfminty_stripped_${selectedFile.name}`);
+      const name = `pdfminty_stripped_${selectedFile.name}`;
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+      await downloadBlob(blob, name);
+      setIsSuccess(true);
     } catch (err: unknown) {
       logger.error('Delete pages error:', err);
       const message = err instanceof Error ? err.message : String(err);
@@ -262,6 +278,11 @@ export const DeletePagesPage: React.FC = () => {
                     setThumbnails([]);
                     setPagesStr('');
                     setTotalPages(0); // Reset page count
+                    setIsSuccess(false);
+                    if (downloadUrl) {
+                      URL.revokeObjectURL(downloadUrl);
+                      setDownloadUrl(null);
+                    }
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
@@ -270,6 +291,31 @@ export const DeletePagesPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          {isSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="delete_pages_success_banner">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
+                <span>Pages Deleted Successfully! Your modified PDF has been generated.</span>
+              </div>
+              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
+                The selected pages have been stripped from your document completely offline.
+              </p>
+              {downloadUrl && (
+                <div className="pt-2">
+                  <a
+                    href={downloadUrl}
+                    download={downloadName}
+                    id="manual_download_link"
+                    className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 animate-bounce" />
+                    <span>Download Stripped PDF</span>
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
 
           {selectedFile && (
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">

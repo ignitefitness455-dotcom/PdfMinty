@@ -1,4 +1,4 @@
-import { ArrowLeft, FilePlus, AlertCircle } from 'lucide-react';
+import { ArrowLeft, FilePlus, AlertCircle, Download } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -17,11 +17,27 @@ export const AddBlankPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
+
+  React.useEffect(() => {
+    return () => {
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+    };
+  }, [downloadUrl]);
 
   const handleFilesSelected = async (files: File[]) => {
     if (files.length === 0) return;
     setSelectedFile(files[0]);
     setError(null);
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
     try {
       const bytes = new Uint8Array(await files[0].arrayBuffer());
       const count = await WorkerManager.getInstance().runOperation<number>('getPageCount', { bytes });
@@ -35,6 +51,11 @@ export const AddBlankPage: React.FC = () => {
   const handleInsert = async () => {
     if (!selectedFile) return;
     setError(null);
+    setIsSuccess(false);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
 
     // Validate customIndex against totalPages before calling worker.
     if (positionType === 'custom') {
@@ -56,7 +77,12 @@ export const AddBlankPage: React.FC = () => {
         [fileBytes.buffer]
       );
       const blob = new Blob([updatedBytes as unknown as BlobPart], { type: 'application/pdf' });
-      await downloadBlob(blob, `pdfminty_padded_${selectedFile.name}`);
+      const name = `pdfminty_padded_${selectedFile.name}`;
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+      await downloadBlob(blob, name);
+      setIsSuccess(true);
     } catch (err: unknown) {
       logger.error('Add blank page error:', err);
       const message = err instanceof Error ? err.message : String(err);
@@ -122,6 +148,11 @@ export const AddBlankPage: React.FC = () => {
                     setCustomIndex(1);  // Reset to default
                     setPositionType('end');  // Reset position type too
                     setError(null);
+                    setIsSuccess(false);
+                    if (downloadUrl) {
+                      URL.revokeObjectURL(downloadUrl);
+                      setDownloadUrl(null);
+                    }
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
@@ -130,6 +161,31 @@ export const AddBlankPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          {isSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="add_blank_success_banner">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
+                <span>Page Inserted Successfully! Your modified PDF has been generated.</span>
+              </div>
+              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
+                An empty page has been safely injected at the specified index completely in your browser.
+              </p>
+              {downloadUrl && (
+                <div className="pt-2">
+                  <a
+                    href={downloadUrl}
+                    download={downloadName}
+                    id="manual_download_link"
+                    className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 animate-bounce" />
+                    <span>Download Modified PDF</span>
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Configurations column */}

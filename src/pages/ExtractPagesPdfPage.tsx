@@ -25,6 +25,9 @@ export const ExtractPagesPdfPage: React.FC = () => {
   const [thumbnails, setThumbnails] = useState<{ page: number; dataUrl: string }[]>([]);
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>('');
 
   const operationTokenRef = React.useRef(0);
   const urlsRef = React.useRef<string[]>([]);
@@ -42,8 +45,11 @@ export const ExtractPagesPdfPage: React.FC = () => {
       currentUrls.forEach((url) => {
         URL.revokeObjectURL(url);
       });
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
     };
-  }, []);
+  }, [downloadUrl]);
 
   const handleFilesSelected = async (files: File[]) => {
     if (files.length > 0) {
@@ -55,6 +61,11 @@ export const ExtractPagesPdfPage: React.FC = () => {
       setError(null);
       setThumbnails([]);
       setSelectedPages([]);
+      setIsSuccess(false);
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+        setDownloadUrl(null);
+      }
 
       setRenderingThumbnails(true);
       try {
@@ -126,7 +137,12 @@ export const ExtractPagesPdfPage: React.FC = () => {
       );
 
       const blob = new Blob([extractedBytes as unknown as BlobPart], { type: 'application/pdf' });
-      await downloadBlob(blob, `extracted_${selectedFile.name}`);
+      const name = `extracted_${selectedFile.name}`;
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setDownloadName(name);
+      await downloadBlob(blob, name);
+      setIsSuccess(true);
     } catch (err: unknown) {
       logger.error('Extract error:', err);
       const message = err instanceof Error ? err.message : String(err);
@@ -195,6 +211,11 @@ export const ExtractPagesPdfPage: React.FC = () => {
                     setSelectedFile(null);
                     setThumbnails([]);
                     setSelectedPages([]);
+                    setIsSuccess(false);
+                    if (downloadUrl) {
+                      URL.revokeObjectURL(downloadUrl);
+                      setDownloadUrl(null);
+                    }
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 py-1 px-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 >
@@ -203,6 +224,31 @@ export const ExtractPagesPdfPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          {isSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="extract_pages_success_banner">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
+                <span>Pages Extracted Successfully! Your custom PDF has been generated.</span>
+              </div>
+              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
+                The selected pages have been successfully extracted into a separate document.
+              </p>
+              {downloadUrl && (
+                <div className="pt-2">
+                  <a
+                    href={downloadUrl}
+                    download={downloadName}
+                    id="manual_download_link"
+                    className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 animate-bounce" />
+                    <span>Download Extracted PDF</span>
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
 
           {selectedFile && (
             <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">

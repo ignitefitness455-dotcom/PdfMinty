@@ -1,4 +1,4 @@
-import { ArrowLeft, Scissors, AlertCircle, Info } from 'lucide-react';
+import { ArrowLeft, Scissors, AlertCircle, Info, Download } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -15,11 +15,26 @@ export const SplitPage: React.FC = () => {
   const [ranges, setRanges] = useState<string>('1');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [splitFiles, setSplitFiles] = useState<{ url: string; filename: string }[]>([]);
+
+  React.useEffect(() => {
+    return () => {
+      splitFiles.forEach((item) => URL.revokeObjectURL(item.url));
+    };
+  }, [splitFiles]);
+
+  const clearSplitFiles = () => {
+    splitFiles.forEach((item) => URL.revokeObjectURL(item.url));
+    setSplitFiles([]);
+    setIsSuccess(false);
+  };
 
   const handleFilesSelected = (files: File[]) => {
     if (files.length > 0) {
       setSelectedFile(files[0]);
       setError(null);
+      clearSplitFiles();
     }
   };
 
@@ -32,6 +47,7 @@ export const SplitPage: React.FC = () => {
 
     setLoading(true);
     setError(null);
+    clearSplitFiles();
 
     try {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
@@ -41,11 +57,21 @@ export const SplitPage: React.FC = () => {
         [fileBytes.buffer]
       );
 
-      const items = results.map((bytes, idx) => ({
-        blob: new Blob([bytes as unknown as BlobPart], { type: 'application/pdf' }),
-        filename: `${selectedFile.name.replace(/\.pdf$/i, '')}_part_${idx + 1}.pdf`,
-      }));
+      const items = results.map((bytes, idx) => {
+        const blob = new Blob([bytes as unknown as BlobPart], { type: 'application/pdf' });
+        const name = `${selectedFile.name.replace(/\.pdf$/i, '')}_part_${idx + 1}.pdf`;
+        const url = URL.createObjectURL(blob);
+        return {
+          blob,
+          url,
+          filename: name,
+        };
+      });
+
+      setSplitFiles(items.map(item => ({ url: item.url, filename: item.filename })));
+
       await downloadBlobsSequentially(items, 600);
+      setIsSuccess(true);
     } catch (err: unknown) {
       logger.error('Split error:', err);
       const errMsg = err instanceof Error ? err.message : String(err);
@@ -109,7 +135,10 @@ export const SplitPage: React.FC = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => setSelectedFile(null)}
+                  onClick={() => {
+                    setSelectedFile(null);
+                    clearSplitFiles();
+                  }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Change File
@@ -117,6 +146,35 @@ export const SplitPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          {isSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="split_success_banner">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
+                <span>Split Completed Successfully! Your split document sections have been generated.</span>
+              </div>
+              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
+                If the automatic sequence of downloads did not complete, you can download each part manually below:
+              </p>
+              {splitFiles.length > 0 && (
+                <div className="grid grid-cols-1 gap-2 pt-2 border-t border-emerald-200/50">
+                  {splitFiles.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-emerald-100 shadow-sm gap-4">
+                      <span className="truncate text-slate-700 font-bold max-w-[250px] shrink-0" title={item.filename}>{item.filename}</span>
+                      <a
+                        href={item.url}
+                        download={item.filename}
+                        className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-sm transition-colors cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download</span>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="bg-slate-100 p-4 rounded-xl flex items-start space-x-2 border border-slate-200 text-xs text-slate-600 leading-relaxed">
             <Info className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
