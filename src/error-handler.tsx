@@ -1,5 +1,7 @@
-import React, { Component, ErrorInfo, createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { ShieldAlert, RefreshCw, FileText, AlertTriangle } from 'lucide-react';
+import React, { Component, ErrorInfo, createContext, useContext, useState, useCallback, ReactNode } from 'react';
+
+import { addRecordedError } from './utils/errorStore';
 import { logger } from './utils/logger';
 
 /**
@@ -233,6 +235,9 @@ export function reportErrorToTelemetry(
   logger.error(`[GlobalError] ${cleanMessage}`, {
     fileContext: fileContext ? formatFileContextForLog(fileContext) : null,
   });
+
+  // Persistently record error locally as well
+  addRecordedError(cleanMessage, cleanStack, fileContext);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REPORT_TIMEOUT_MS);
