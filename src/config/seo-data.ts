@@ -32,7 +32,7 @@ export interface ToolSEOInfo {
 export const TOOLS: ToolSEOInfo[] = [
   {
     id: 'edit-metadata',
-    slug: 'edit-metadata',
+    slug: 'edit-pdf-metadata',
     name: 'Edit Metadata',
     ogImage: '/og-image.png',
     shortDescription: 'Change PDF title, author, subject, and keywords offline',
@@ -74,8 +74,8 @@ export const TOOLS: ToolSEOInfo[] = [
     shortDescription: 'Combine multiple PDFs into one document',
     metaTitle: 'Merge PDF Free - Combine PDFs Online Instantly | PDFMinty',
     metaDescription:
-      'Merge PDF files free online. Combine multiple PDFs into one secure document right in your browser. No server uploads — your files stay private on your device.',
-    h1: 'Merge PDF Files Online with Absolute Privacy',
+      'Merge PDF files free online. Combine multiple PDFs into one secure document locally in your browser. No server uploads — your files stay private.',
+    h1: 'Merge PDF Files Online - Combine Documents Locally',
     icon: 'Merge',
     iconColor: 'text-security-green',
     badge: 'popular',
@@ -113,7 +113,7 @@ export const TOOLS: ToolSEOInfo[] = [
       },
     ],
     longFormBody: `
-      <h1>Merge PDF Files Online with Absolute Privacy</h1>
+      <h1>Merge PDF Files Online - Combine Documents Locally</h1>
       <p>PDFMinty introduces a fundamentally modern, secure way to combine your critical administrative documents. Traditionally, using free online PDF mergers meant uploading your tax returns, financial records, or medical scans to unknown cloud servers. PDFMinty relies entirely on offline-capable browser sandboxing, meaning your private pages are combined piece-by-piece right on your local device. This client-side execution makes it physically impossible for unauthorized entities to intercept your files.</p>
       
       <h2>Streamlined Assembly for Professional Reports</h2>
@@ -127,8 +127,8 @@ export const TOOLS: ToolSEOInfo[] = [
         <li>Instantly download the combined document without throttling or sign-up gates.</li>
       </ol>
       
-      <h2>The Cryptographic Safety Edge</h2>
-      <p>By shifting computational loads from remote farms into your local environment via high-octane WebAssembly, PDFMinty ensures no data leaks over network calls. The original files never travel through external server gateways. It is full-strength offline document packaging with zero footprint.</p>
+      <h2>Client-Side Processing, No Server Risk</h2>
+      <p>By executing all document compilation directly inside your browser sandbox via secure JavaScript and Web Workers, PDFMinty ensures no data leaks over network channels. The original files never travel through external server gateways. It is secure, fully offline-compatible document assembly with zero cloud footprint.</p>
     `,
   },
   {
@@ -140,7 +140,7 @@ export const TOOLS: ToolSEOInfo[] = [
     metaTitle: 'Split PDF Free - Extract Pages Online Instantly | PDFMinty',
     metaDescription:
       'Split PDF pages or extract custom page ranges online. Free browser-side utility to separate complex PDF documents into smaller parts securely.',
-    h1: 'Split PDF Online - Extract Pages with Absolute Privacy',
+    h1: 'Split PDF Online - Separate and Extract Pages',
     icon: 'Scissors',
     iconColor: 'text-security-green',
     homeRank: 3,
@@ -177,7 +177,7 @@ export const TOOLS: ToolSEOInfo[] = [
       },
     ],
     longFormBody: `
-      <h1>Split PDF Online - Extract Pages with Absolute Privacy</h1>
+      <h1>Split PDF Online - Separate and Extract Pages</h1>
       <p>Dealing with massive documents or manuals often means you only need a couple of pages. PDFMinty's split PDF tool extracts target page ranges with surgical utility. Unlike legacy services that host server processes to rip files apart, our system uses client-side parser bindings. This allows you to split pages or isolate multi-page scopes on your laptop or smartphone without exposing confidential content.</p>
       
       <h2>Targeted Extraction for Complex Documents</h2>
@@ -912,8 +912,8 @@ export const TOOLS: ToolSEOInfo[] = [
     shortDescription: 'Convert PDF files into structured Markdown text and extract images offline',
     metaTitle: 'PDF to Markdown Converter Free - Convert PDF to MD Online | PDFMinty',
     metaDescription:
-      'Convert PDF to Markdown online free. Extract structured text, headings, lists, tables, and images directly in your browser without uploading files to remote servers.',
-    h1: 'PDF to Markdown - Convert PDF to MD with Absolute Privacy',
+      'Convert PDF to Markdown online free. Extract structured text, headings, lists, tables, and images directly in your browser without uploading files.',
+    h1: 'PDF to Markdown - Convert PDF to MD Locally',
     icon: 'FileCode2',
     iconColor: 'text-security-green',
     homeRank: 8,
@@ -934,7 +934,7 @@ export const TOOLS: ToolSEOInfo[] = [
     faqs: [
       {
         q: 'Does PDF to Markdown work offline?',
-        a: 'Yes! PDFMinty processes your document 100% client-side inside your browser using WebAssembly and Web Workers. Your files never leave your device.',
+        a: 'Yes! PDFMinty processes your document 100% client-side inside your browser using secure Web Workers. Your files never leave your device.',
       },
       {
         q: 'Can it detect headings, tables, and lists?',
@@ -950,7 +950,7 @@ export const TOOLS: ToolSEOInfo[] = [
       },
     ],
     longFormBody: `
-      <h1>PDF to Markdown - Convert PDF to MD with Absolute Privacy</h1>
+      <h1>PDF to Markdown - Convert PDF to MD Locally</h1>
       <p>Converting PDF documents into clean, developer-friendly Markdown has traditionally required complex backend utilities or uploading sensitive documents to cloud services. PDFMinty solves this by running a high-performance conversion engine 100% inside your web browser. Whether you are migrating technical documentation, extracting academic notes, or preparing content for AI pipelines and static site generators, your data stays strictly private on your device.</p>
       
       <h2>Intelligent Structure Detection</h2>
@@ -970,7 +970,7 @@ export const TOOLS: ToolSEOInfo[] = [
   },
   {
     id: 'intelligence',
-    slug: 'intelligence',
+    slug: 'ai-analyze-pdf',
     name: 'AI Analyze',
     ogImage: '/og-intelligence.png',
     shortDescription: 'Summarize or ask questions via server AI',
@@ -1080,7 +1080,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>Printing document packets, research papers, or shipping labels can consume significant color ink volumes. PDFMinty's grayscale PDF tool allows you to instantly convert color PDF assets to pure monochrome black-and-white layouts locally in your browser.</p>
       
       <h2>Eco-Friendly and Cost-Efficient Document Printing</h2>
-      <p>Converting color plates to gray levels is a standard practice to extend cartridge lifetimes. PDFMinty simplifies this by executing high-performance pixel-level conversions directly inside your client environment via WebAssembly, preserving text legibility and page layouts.</p>
+      <p>Converting color pages to gray levels is a standard practice to extend cartridge lifetimes. PDFMinty simplifies this by executing high-performance pixel-level conversions directly inside your client environment via secure Web Workers, preserving text legibility and page layouts.</p>
       
       <h2>How to Turn PDFs to Monochrome</h2>
       <ol>
@@ -1163,7 +1163,7 @@ export const TOOLS: ToolSEOInfo[] = [
     shortDescription: 'Repair corrupted or broken PDF files',
     metaTitle: 'Repair PDF - Fix Corrupted & Damaged PDF Documents Online | PDFMinty',
     metaDescription:
-      'Attempt to repair corrupted or unreadable PDF files online for free. Rebuild cross-reference tables (XREFs), fix headers, and clean trailing junk bytes locally in-browser.',
+      'Repair corrupted or unreadable PDF files online for free. Rebuild cross-reference tables, fix headers, and clean trailing junk bytes locally in-browser.',
     h1: 'Repair Corrupted and Damaged PDF Files',
     icon: 'Wrench',
     iconColor: 'text-security-green',
@@ -1213,7 +1213,7 @@ export const TOOLS: ToolSEOInfo[] = [
       </ol>
       
       <h2>Private, Local, and Instant Repairs</h2>
-      <p>Confidential documents shouldn't be uploaded to random repair servers. Because PDFMinty does all the heavy-lifting within your browser sandbox via WebAssembly and high-performance JS modules, your private data is never exposed. Safe, secure, and 100% offline-compatible.</p>
+      <p>Confidential documents shouldn't be uploaded to random repair servers. Because PDFMinty does all the heavy-lifting within your browser sandbox via secure client-side JS modules, your private data is never exposed. Safe, secure, and 100% offline-compatible.</p>
     `,
   },
   {
@@ -1255,7 +1255,7 @@ export const TOOLS: ToolSEOInfo[] = [
 <h2>Why Browser-Side (Client-Side) Processing is Safer</h2>
 <p>Browser-side processing, also called client-side processing, fundamentally changes the security model. Instead of uploading your file to a server, the entire operation happens inside your web browser. The file is loaded into your browser's memory, processed by JavaScript and WebAssembly running on your device, and the result is generated locally. The file never travels across the network.</p>
 
-<p>This is the approach PDFMinty takes with all 14 of its PDF tools. When you use <a href="/merge-pdf">Merge PDF</a> or <a href="/split-pdf">Split PDF</a>, your files are processed entirely on your computer. Even if you disconnect your internet after loading the page, the tools continue to work because they don't need a server connection.</p>
+<p>This is the approach PDFMinty takes with all of its PDF tools. When you use <a href="/merge-pdf">Merge PDF</a> or <a href="/split-pdf">Split PDF</a>, your files are processed entirely on your computer. Even if you disconnect your internet after loading the page, the tools continue to work because they don't need a server connection.</p>
 
 <p>The technical foundation of this approach is WebAssembly (WASM), a binary instruction format that allows high-performance code to run in web browsers at near-native speed. PDF processing libraries like pdf-lib and pdfjs-dist are compiled to WebAssembly, enabling them to manipulate PDF files directly in your browser without any server roundtrips.</p>
 
@@ -1297,7 +1297,7 @@ export const TOOLS: ToolSEOInfo[] = [
 <p>Beyond choosing the right tool, here are additional practices to protect your PDF documents:</p>
 
 <h3>1. Use Privacy-First Tools Like PDFMinty</h3>
-<p>PDFMinty offers 15 PDF tools that all process files locally: <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, <a href="/rotate-pdf">Rotate PDF</a>, <a href="/delete-pages-pdf">Delete Pages</a>, <a href="/extract-pages-pdf">Extract Pages</a>, <a href="/reorder-pdf">Reorder PDF</a>, <a href="/watermark-pdf">Watermark PDF</a>, <a href="/add-page-numbers">Add Page Numbers</a>, <a href="/add-blank-page">Add Blank Page</a>, <a href="/protect-pdf">Protect PDF</a>, <a href="/unlock-pdf">Unlock PDF</a>, <a href="/image-to-pdf">Image to PDF</a>, <a href="/pdf-to-image">PDF to Image</a>, <a href="/pdf-to-markdown">PDF to Markdown</a>, and <a href="/intelligence">AI Analyze</a>.</p>
+<p>PDFMinty offers a complete, growing suite of PDF tools that all process files locally: <a href="/edit-pdf-metadata">Edit Metadata</a>, <a href="/sanitize-pdf">Sanitize PDF</a>, <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, <a href="/rotate-pdf">Rotate PDF</a>, <a href="/delete-pages-pdf">Delete Pages</a>, <a href="/extract-pages-pdf">Extract PDF Pages</a>, <a href="/reorder-pdf">Reorder PDF Pages</a>, <a href="/watermark-pdf">Watermark PDF</a>, <a href="/add-page-numbers">Page Numbers</a>, <a href="/add-blank-page">Add Blank Page</a>, <a href="/protect-pdf">Protect PDF</a>, <a href="/unlock-pdf">Unlock PDF</a>, <a href="/image-to-pdf">Image to PDF</a>, <a href="/pdf-to-image">PDF to Image</a>, <a href="/pdf-to-markdown">PDF to Markdown</a>, <a href="/ai-analyze-pdf">AI Analyze</a>, <a href="/grayscale-pdf">Grayscale PDF</a>, <a href="/flatten-pdf">Flatten PDF</a>, and <a href="/repair-pdf">Repair PDF</a>.</p>
 
 <h3>2. Password-Protect Sensitive PDFs Before Sharing</h3>
 <p>If you must share a PDF externally, encrypt it first. PDFMinty's <a href="/protect-pdf">Protect PDF</a> tool adds AES-256 encryption — even if the file is intercepted, it can't be opened without the password.</p>
@@ -1333,7 +1333,7 @@ export const TOOLS: ToolSEOInfo[] = [
 
 <h2>Frequently Asked Questions</h2>
 <h3>Is PDFMinty really 100% client-side?</h3>
-<p>Yes. All 14 PDF tools process files entirely in your browser. The only server interaction is loading the initial webpage. You can verify this by checking browser Developer Tools network activity during any operation.</p>
+<p>Yes. All of our PDF tools process files entirely in your browser. The only server interaction is loading the initial webpage. You can verify this by checking browser Developer Tools network activity during any operation.</p>
 
 <h3>Can PDFMinty access my files?</h3>
 <p>No. PDFMinty's code runs in your browser sandbox. It can only access files you explicitly select. The code cannot access other files on your device, and it never transmits file contents over the network.</p>

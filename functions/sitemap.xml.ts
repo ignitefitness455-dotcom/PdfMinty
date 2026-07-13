@@ -20,14 +20,25 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   // Homepage
   xml += `  <url>\n    <loc>${siteUrl}</loc>\n    <lastmod>${BUILD_DATE}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n    <image:image>\n      <image:loc>${siteUrl}/og-image.png</image:loc>\n    </image:image>\n  </url>\n`;
 
-  // Tools & Articles from TOOLS config
-  for (const tool of TOOLS) {
-    const loc = `${siteUrl}/${tool.slug}`;
-    const priority = tool.type === 'tool' ? '0.8' : '0.7';
-    const changefreq = tool.changefreq || 'monthly';
-    const imageLoc = tool.ogImage ? `${siteUrl}${tool.ogImage}` : `${siteUrl}/og-image.png`;
+  // Tools & Articles from TOOLS config, sorted by priority and then alphabetically
+  const entries = TOOLS.map((tool) => {
+    const priority = tool.priority !== undefined ? String(tool.priority) : (tool.type === 'tool' ? '0.8' : '0.7');
+    return {
+      loc: `${siteUrl}/${tool.slug}`,
+      priority,
+      changefreq: tool.changefreq || 'monthly',
+      image: tool.ogImage ? `${siteUrl}${tool.ogImage}` : `${siteUrl}/og-image.png`,
+    };
+  });
 
-    xml += `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${BUILD_DATE}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n    <image:image>\n      <image:loc>${imageLoc}</image:loc>\n    </image:image>\n  </url>\n`;
+  entries.sort((a, b) => {
+    const diff = parseFloat(b.priority) - parseFloat(a.priority);
+    if (diff !== 0) return diff;
+    return a.loc.localeCompare(b.loc);
+  });
+
+  for (const entry of entries) {
+    xml += `  <url>\n    <loc>${entry.loc}</loc>\n    <lastmod>${BUILD_DATE}</lastmod>\n    <changefreq>${entry.changefreq}</changefreq>\n    <priority>${entry.priority}</priority>\n    <image:image>\n      <image:loc>${entry.image}</image:loc>\n    </image:image>\n  </url>\n`;
   }
 
   xml += '</urlset>\n';

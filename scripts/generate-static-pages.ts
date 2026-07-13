@@ -316,23 +316,21 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
   // Pre-render the Homepage (dist/index.html)
   // ----------------------------------------------------
   logger.info("Pre-rendering static HTML for the Homepage...");
+
+  const toolsCount = TOOLS.filter((t: ToolSEOInfo) => t.type === 'tool').length;
+  const toolsListHtml = TOOLS
+    .filter((t: ToolSEOInfo) => t.type === 'tool')
+    .map((t: ToolSEOInfo) => `      <li><a href="/${t.slug}">${t.name}</a> — ${t.shortDescription || t.description}</li>`)
+    .join('\n');
   
   const homepageContent = `
   <main class="prose max-w-6xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
     <h1>Free PDF Tools — Privacy-First, 100% Browser-Based</h1>
-    <p>PDFMinty is a free, privacy-first PDF toolkit with 14 powerful tools that run entirely in your browser. Your files never leave your device — no server uploads, no sign-ups, no limits. Merge, split, protect, convert, and edit PDFs with complete confidentiality.</p>
+    <p>PDFMinty is a free, privacy-first PDF toolkit with ${toolsCount} powerful tools that run entirely in your browser. Your files never leave your device — no server uploads, no sign-ups, no limits. Merge, split, protect, convert, and edit PDFs with complete confidentiality.</p>
  
-    <h2>Popular PDF Tools</h2>
+    <h2>All PDF Tools</h2>
     <ul>
-      <li><a href="/merge-pdf">Merge PDF</a> — Combine multiple PDFs into one document</li>
-      <li><a href="/split-pdf">Split PDF</a> — Extract pages or split into separate files</li>
-      <li><a href="/rotate-pdf">Rotate PDF</a> — Rotate pages 90, 180, or 270 degrees</li>
-      <li><a href="/delete-pages-pdf">Delete PDF Pages</a> — Remove unwanted pages</li>
-      <li><a href="/watermark-pdf">Watermark PDF</a> — Add text watermarks with custom opacity</li>
-      <li><a href="/protect-pdf">Protect PDF</a> — Password-encrypt your documents</li>
-      <li><a href="/unlock-pdf">Unlock PDF</a> — Remove password protection</li>
-      <li><a href="/image-to-pdf">Image to PDF</a> — Convert JPG, PNG, WebP to PDF</li>
-      <li><a href="/pdf-to-image">PDF to Image</a> — Convert PDF pages to PNG/JPEG</li>
+${toolsListHtml}
     </ul>
  
     <h2>Why Choose PDFMinty?</h2>
@@ -352,7 +350,7 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
  
     <h2>Frequently Asked Questions</h2>
     <h3>Is PDFMinty really free?</h3>
-    <p>Yes, PDFMinty is 100% free to use. All 15 tools are available without subscription, payment, or registration.</p>
+    <p>Yes, PDFMinty is 100% free to use. All ${toolsCount} tools are available without subscription, payment, or registration.</p>
  
     <h3>Are my files uploaded to your server?</h3>
     <p>No. PDFMinty is a privacy-first tool. All PDF processing happens entirely in your browser using client-side JavaScript. Your files never leave your device.</p>
@@ -377,7 +375,7 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
       {
         "@type": "Question",
         "name": "Is PDFMinty really free?",
-        "acceptedAnswer": {"@type": "Answer", "text": "Yes, PDFMinty is 100% free to use. All 15 tools are available without subscription, payment, or registration."}
+        "acceptedAnswer": {"@type": "Answer", "text": "Yes, PDFMinty is 100% free to use. All ${toolsCount} tools are available without subscription, payment, or registration."}
       },
       {
         "@type": "Question",

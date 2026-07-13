@@ -340,7 +340,7 @@ export const PdfToImgPage: React.FC = () => {
               Image Export
             </h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Export is performed entirely using client hardware. No document info gets sent out.
+              Export is performed entirely inside your browser. No document data is ever sent to a server.
             </p>
 
             <div className="space-y-4">

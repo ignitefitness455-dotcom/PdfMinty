@@ -216,6 +216,10 @@ export const App: React.FC = () => {
                 </ErrorBoundary>
               }
             />
+            {/* Legacy path redirects */}
+            <Route path="/edit-metadata" element={<Navigate to={ROUTES.EDIT_METADATA} replace />} />
+            <Route path="/intelligence" element={<Navigate to={ROUTES.AI_ANALYZE} replace />} />
+
             {/* Safe fallback */}
             <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
           </Routes>

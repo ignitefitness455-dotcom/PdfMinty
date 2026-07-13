@@ -157,7 +157,7 @@ export const GrayscalePdfPage: React.FC = () => {
                   <span>Conversion Completed Successfully! Your monochrome PDF has been generated.</span>
                 </div>
                 <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                  The colored plates have been converted using local WebAssembly pixel mapping. Save printer toner easily.
+                  The colored pages have been converted to grayscale locally in your browser. Save printer toner easily.
                 </p>
                 {downloadUrl && (
                   <div className="pt-2">

@@ -39,11 +39,11 @@ export const prefetchMap: Record<string, () => Promise<unknown>> = {
   'unlock-pdf': () => import('../pages/UnlockPage'),
   'image-to-pdf': () => import('../pages/ImgToPdfPage'),
   'pdf-to-image': () => import('../pages/PdfToImgPage'),
-  'intelligence': () => import('../pages/AiAnalyzePage'),
+  'ai-analyze-pdf': () => import('../pages/AiAnalyzePage'),
   'grayscale-pdf': () => import('../pages/GrayscalePdfPage'),
   'flatten-pdf': () => import('../pages/FlattenPdfPage'),
   'repair-pdf': () => import('../pages/RepairPdfPage'),
-  'edit-metadata': () => import('../pages/EditMetadataPage'),
+  'edit-pdf-metadata': () => import('../pages/EditMetadataPage'),
   'sanitize-pdf': () => import('../pages/SanitizePdfPage'),
   'pdf-to-markdown': () => import('../pages/PdfToMarkdownPage'),
 };

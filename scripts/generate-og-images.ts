@@ -32,7 +32,7 @@ const tools: Tool[] = [
   { slug: 'unlock-pdf', name: 'Unlock PDF', tagline: 'Remove password protection from PDF', color: '#0d9488', icon: 'U' },
   { slug: 'image-to-pdf', name: 'Image to PDF', tagline: 'Convert JPG, PNG, WebP to PDF', color: '#d946ef', icon: 'I' },
   { slug: 'pdf-to-image', name: 'PDF to Image', tagline: 'Convert PDF pages to PNG or JPEG', color: '#7c3aed', icon: 'F' },
-  { slug: 'intelligence', name: 'AI PDF Analyzer', tagline: 'Chat with your PDF using AI', color: '#f59e0b', icon: 'A' },
+  { slug: 'ai-analyze-pdf', name: 'AI PDF Analyzer', tagline: 'Chat with your PDF using AI', color: '#f59e0b', icon: 'A' },
 ];
 
 function buildSvg(tool: Tool, isDefault: boolean = false): string {

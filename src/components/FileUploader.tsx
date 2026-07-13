@@ -1,5 +1,6 @@
 import { Upload, File, AlertCircle } from 'lucide-react';
 import React, { useState, useRef, useCallback } from 'react';
+
 import { extractFileProcessingContext } from '../error-handler';
 
 interface FileUploaderProps {

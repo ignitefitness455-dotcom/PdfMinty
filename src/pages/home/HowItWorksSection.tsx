@@ -14,8 +14,8 @@ export const HowItWorksSection: React.FC = () => {
             Fast, Private Interactive Workspace
           </h2>
           <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed font-medium">
-            PDFMinty processes all your documents locally within your device's memory. With secure
-            WebAssembly integrations, operations happen instantly without transmission queues, file
+            PDFMinty processes all your documents locally within your device's memory. With its secure
+            client-side architecture, operations happen instantly without transmission queues, file
             upload limits, or cloud exposures. Experience absolute control over your contract
             agreements, confidential datasheets, and forms with a distraction-free desktop
             environment.

@@ -77,7 +77,7 @@ export default function EditMetadataPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-fadein" id="edit_metadata_container">
-      <SEO slug="edit-metadata" />
+      <SEO slug="edit-pdf-metadata" />
 
       <Link
         to={ROUTES.HOME}

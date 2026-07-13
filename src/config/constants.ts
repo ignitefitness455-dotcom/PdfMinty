@@ -120,7 +120,7 @@ export const tools: Tool[] = [
     description:
       'Summarize, analyze, and inspect your PDF document content using secure offline local text parsing boosted by premium AI assistance.',
     category: 'intelligence',
-    path: '/intelligence',
+    path: '/ai-analyze-pdf',
     icon: 'Sparkles',
   },
   {
@@ -168,7 +168,7 @@ export const tools: Tool[] = [
     title: 'Edit Metadata',
     description: 'Change PDF title, author, subject, and keywords securely without uploading.',
     category: 'security-edit',
-    path: '/edit-metadata',
+    path: '/edit-pdf-metadata',
     icon: 'FilePenLine',
   },
   {

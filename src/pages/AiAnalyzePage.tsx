@@ -195,7 +195,7 @@ export const AiAnalyzePage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto" id="ai_analyze_page">
-      <SEO slug="intelligence" />
+      <SEO slug="ai-analyze-pdf" />
 
       <Link
         to={ROUTES.HOME}

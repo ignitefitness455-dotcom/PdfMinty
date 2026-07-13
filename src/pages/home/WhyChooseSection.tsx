@@ -96,7 +96,7 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">Instant Execution</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Skip upload buffers and long queues. WebAssembly compiling means files process
+              Skip upload buffers and long queues. Local client-side processing means files compile
               instantly inside your browser memory for immediate download.
             </p>
           </div>
