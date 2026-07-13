@@ -1,4 +1,66 @@
+import { getCorsOrigin, getCorsHeaders } from './utils/cors';
+
 export const onRequest: PagesFunction = async (context) => {
+  const url = new URL(context.request.url);
+  const pathname = url.pathname.toLowerCase();
+
+  // Define valid API endpoints
+  const validApiEndpoints = [
+    '/api/contact',
+    '/api/error',
+    '/api/feedback',
+    '/api/gemini-proxy',
+    '/api/health',
+  ];
+
+  // Helper to check if a path is invalid/needs to be blocked with a 404 JSON response
+  const isInvalidEndpoint = (path: string): boolean => {
+    // 1. Is it an invalid API path?
+    if (path === '/api' || path.startsWith('/api/')) {
+      const cleanPath = path.endsWith('/') ? path.slice(0, -1) : path;
+      return !validApiEndpoints.includes(cleanPath);
+    }
+
+    // 2. Is it a GraphQL path?
+    if (path === '/graphql' || path.startsWith('/graphql/') || path.endsWith('/graphql') || path.includes('/graphql')) {
+      return true;
+    }
+
+    // 3. Is it an internal systems path?
+    if (path === '/_internal' || path.startsWith('/_internal/') || path.includes('/_internal')) {
+      return true;
+    }
+
+    return false;
+  };
+
+  if (isInvalidEndpoint(pathname)) {
+    const origin = getCorsOrigin(context.request);
+    const corsHeaders = getCorsHeaders(origin, 'application/json', 'GET, POST, OPTIONS');
+    
+    if (context.request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders as HeadersInit,
+      });
+    }
+
+    return new Response(
+      JSON.stringify({
+        error: 'Not found',
+        status: 404,
+        message: `Endpoint ${url.pathname} does not exist.`,
+      }),
+      {
+        status: 404,
+        headers: {
+          ...corsHeaders,
+          'X-Robots-Tag': 'noindex, nofollow',
+        } as HeadersInit,
+      }
+    );
+  }
+
   const response = await context.next();
 
   // Handle responses with 304, 204 or 1xx statuses which cannot have a body per HTTP spec.
