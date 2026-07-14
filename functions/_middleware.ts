@@ -102,7 +102,6 @@ export const onRequest: PagesFunction = async (context) => {
   newResponse.headers.set('X-Content-Type-Options', 'nosniff');
   newResponse.headers.set('X-Frame-Options', 'DENY');
 
-  const url = new URL(context.request.url);
   // Explicitly tell search engines to index and follow links on all HTML pages.
   // For non-HTML responses (API, assets), use noindex to prevent indexing of internal endpoints.
   if (contentType.includes('text/html')) {
