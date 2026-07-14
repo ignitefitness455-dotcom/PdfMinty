@@ -61,7 +61,7 @@ export const RelatedTools: React.FC = () => {
   return (
     <div className="mt-12 pt-8 border-t border-slate-200" id="related_tools_box">
       <h3 className="text-sm font-extrabold uppercase tracking-wide text-slate-400 mb-4">
-        Other Helper Documents
+        Related PDF Tools
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {related.map((tool) => (

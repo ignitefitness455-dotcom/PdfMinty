@@ -6,11 +6,13 @@ import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
+import { TOOLS } from '../config/seo-data';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const RotatePage: React.FC = () => {
+  const toolInfo = TOOLS.find((t) => t.id === 'rotate');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [degrees, setDegrees] = useState<number>(90);
   const [loading, setLoading] = useState(false);
@@ -136,7 +138,7 @@ export const RotatePage: React.FC = () => {
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Rotate PDF Pages
+            {toolInfo?.h1 || 'Rotate PDF Pages'}
           </h1>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             Limit: {TOOL_SIZE_LIMITS['rotate-pdf'].maxSingleMB}MB

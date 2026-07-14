@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 import { SITE_URL, SITE_NAME, TOOLS, ToolSEOInfo } from '../src/config/seo-data';
+import { HOMEPAGE_H1 } from '../src/config/homeConfig';
 import { logger } from '../src/utils/logger';
 
 const __filename: string = fileURLToPath(import.meta.url);
@@ -325,7 +326,7 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
   
   const homepageContent = `
   <main class="prose max-w-6xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
-    <h1>Free PDF Tools — Privacy-First, 100% Browser-Based</h1>
+    <h1>${HOMEPAGE_H1}</h1>
     <p>PDFMinty is a free, privacy-first PDF toolkit with ${toolsCount} powerful tools that run entirely in your browser. Your files never leave your device — no server uploads, no sign-ups, no limits. Merge, split, protect, convert, and edit PDFs with complete confidentiality.</p>
  
     <h2>All PDF Tools</h2>

@@ -15,11 +15,13 @@ import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
+import { TOOLS } from '../config/seo-data';
 import { getPdfJs } from '../core/index';
 import { PDFSanitizer } from '../core/PDFSanitizer';
 import { logger } from '../utils/logger';
 
 export const AiAnalyzePage: React.FC = () => {
+  const toolInfo = TOOLS.find((t) => t.id === 'intelligence');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedText, setExtractedText] = useState<string>('');
@@ -210,7 +212,7 @@ export const AiAnalyzePage: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Sparkles className="w-6 h-6 text-amber-500 fill-amber-100 animate-pulse" />
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              AI Analyze & Assistant
+              {toolInfo?.h1 || 'AI Analyze & Assistant'}
             </h1>
           </div>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">

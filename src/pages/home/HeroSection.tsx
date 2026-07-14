@@ -1,6 +1,8 @@
 import { Sparkles } from 'lucide-react';
 import React from 'react';
 
+import { HOMEPAGE_H1_PART1, HOMEPAGE_H1_PART2 } from '../../config/homeConfig';
+
 export const HeroSection: React.FC = () => {
   return (
     <div className="text-center max-w-3xl mx-auto mb-16 relative pt-4">
@@ -8,8 +10,8 @@ export const HeroSection: React.FC = () => {
         <Sparkles className="w-3.5 h-3.5 animate-pulse text-security-green" aria-hidden="true" /> WebAssembly Client
         Sandbox Active
       </div>
-      <h1 className="text-4xl md:text-6xl font-black text-primary tracking-tight leading-none mb-6 font-sans">
-        Local PDF Utilities <span className="text-primary-fixed font-black">Zero Uploads</span>
+      <h1 className="text-4xl md:text-6xl font-black text-primary tracking-tight leading-none mb-6 font-sans" id="homepage-main-h1">
+        {HOMEPAGE_H1_PART1}<span className="text-primary-fixed font-black">{HOMEPAGE_H1_PART2}</span>
       </h1>
       <p className="text-on-surface-variant text-sm md:text-base font-medium max-w-2xl mx-auto leading-relaxed">
         Merge, split, and compress your critical files entirely in your browser. PDFMinty runs

@@ -35,6 +35,7 @@ import InternalSEO, { Breadcrumbs } from './InternalSEO';
 import { MobileDrawer } from './MobileDrawer';
 import { RelatedTools } from './RelatedTools';
 import { ToolGuide } from './ToolGuide';
+import { ToolLongForm } from './ToolLongForm';
 
 interface ToolInfo {
   name: string;
@@ -166,6 +167,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Breadcrumbs />
             <InternalSEO />
             {children}
+            <ToolLongForm slug={location.pathname.replace(/^\//, '').replace(/\/$/, '')} />
             <ToolGuide slug={location.pathname.replace(/^\//, '').replace(/\/$/, '')} />
             <RelatedTools />
           </div>
