@@ -1407,4 +1407,169 @@ export const TOOLS: ToolSEOInfo[] = [
 <p>Try PDFMinty's <a href="/merge-pdf">Merge PDF</a> tool today to experience private PDF processing. Your files deserve better than unknown servers.</p>
 `,
   },
+  {
+    id: 'blog',
+    slug: 'blog',
+    name: 'Blog',
+    ogImage: '/og-image.png',
+    shortDescription: 'Latest PDF tips, privacy tutorials, and security guides on PDFMinty.',
+    metaTitle: 'PDFMinty Blog - PDF Tips, Security & Privacy Guides',
+    metaDescription: 'Read the latest guides, security tips, and tutorials about processing PDF documents offline and safely on PDFMinty.',
+    h1: 'PDFMinty Blog: PDF Tips & Privacy Guides',
+    icon: 'BookOpen',
+    category: 'info',
+    priority: 0.6,
+    changefreq: 'weekly',
+    type: 'article',
+    longFormBody: `
+      <h1>PDFMinty Blog: PDF Tips & Privacy Guides</h1>
+      <p>Welcome to the PDFMinty Blog. Here, we share in-depth guides, security analyses, and tutorials on how to manage, edit, and optimize your PDF files securely using local client-side technology.</p>
+      
+      <h2>Latest Security & Productivity Insights</h2>
+      <p>Our articles focus on privacy, security, and practical productivity tips for handling sensitive PDF documents. Read our top articles below to learn more about the future of web applications, document sanitization, and client-side processing.</p>
+    `,
+  },
+  {
+    id: 'blog-privacy',
+    slug: 'blog/why-offline-pdf-editors-are-the-future-of-privacy',
+    name: 'Why Offline PDF Editors are the Future of Privacy',
+    ogImage: '/og-image.png',
+    shortDescription: 'Learn why offline-capable local browsers are the ultimate secure environments for document management.',
+    metaTitle: 'Why Offline PDF Editors are the Future of Privacy | PDFMinty Blog',
+    metaDescription: 'Discover why client-side WebAssembly-powered PDF tools are replacing traditional cloud-upload portals to ensure total privacy.',
+    h1: 'Why Offline PDF Editors are the Future of Document Privacy',
+    icon: 'Shield',
+    category: 'blog',
+    priority: 0.7,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-07-16',
+    dateModified: '2026-07-16',
+    longFormBody: `
+      <h1>Why Offline PDF Editors are the Future of Document Privacy</h1>
+      <p>For over a decade, the standard workflow for editing or converting a PDF document online has involved a single, high-risk step: uploading your file to a third-party server. Whether merging files, compressing a resume, or signing an invoice, you were forced to trust that these servers would keep your files safe, delete them promptly, and prevent leaks.</p>
+      
+      <p>But the web is changing. Thanks to advancements in browser technology — specifically WebAssembly and client-side JavaScript — offline, browser-side PDF editors are becoming the new standard. Here is why the future of document processing is local, private, and offline.</p>
+
+      <h2>The Cloud Security Illusion</h2>
+      <p>Many traditional PDF web portals advertise bank-grade security and state-of-the-art encryption. They promise that your files are encrypted in transit, encrypted at rest, and deleted within 1 to 24 hours of processing. However, this model suffers from a fundamental security flaw: <strong>you must trust them.</strong></p>
+      
+      <p>Once your file crosses the network boundaries to their servers, you no longer control it. If their database is misconfigured, a hacker can access your files. If an employee is disgruntled, they can inspect your sensitive tax returns. If their automatic cleanup script crashes, your data could remain in their caches indefinitely.</p>
+
+      <h2>WebAssembly: The Game Changer</h2>
+      <p>Previously, complex PDF manipulation could only be done using heavy native desktop programs or server-side rendering engines. Browsers simply didn't have the performance to parse and compile binary PDF formats.</p>
+      
+      <p>Enter <strong>WebAssembly (Wasm)</strong>. WebAssembly allows developers to compile high-performance code written in C, C++, or Rust and run it directly inside the web browser at near-native speed. In PDFMinty, we leverage compiled engines like <code>pdf-lib</code> and <code>pdfjs-dist</code> directly in your browser's virtual memory sandbox. This gives you the speed of the cloud with the complete privacy of a desktop application.</p>
+
+      <h2>Advantages of Client-Side PDF Tools</h2>
+      <ul>
+        <li><strong>Physical Isolation:</strong> Your files never travel across the internet. There is literally zero risk of network interception or server-side breaches.</li>
+        <li><strong>Offline Portability:</strong> Once the page is loaded, you can disconnect your internet entirely. Try turning on Airplane Mode and compressing or merging your files; they will compile instantly!</li>
+        <li><strong>No File Rent-Sharing:</strong> No one is storing your information, charging you for storage, or using your private letters to train AI models.</li>
+      </ul>
+
+      <h2>Conclusion</h2>
+      <p>As privacy becomes a non-negotiable right, the tools we use must adapt. Offline PDF editors like PDFMinty prove that we no longer need to sacrifice privacy for convenience. Try processing your next confidential document with our suite and feel secure knowing your files never leave your device.</p>
+    `,
+  },
+  {
+    id: 'blog-compress',
+    slug: 'blog/how-to-compress-pdf-without-losing-quality-locally',
+    name: 'How to Compress PDF Without Losing Quality Locally',
+    ogImage: '/og-image.png',
+    shortDescription: 'Master the art of browser-side PDF compression without uploading your sensitive files.',
+    metaTitle: 'How to Compress PDF Without Quality Loss Locally | PDFMinty Blog',
+    metaDescription: 'Learn how PDF compression works and how to reduce file size directly inside your browser while maintaining pristine visual quality.',
+    h1: 'How to Compress PDF Without Losing Quality Locally',
+    icon: 'Minimize2',
+    category: 'blog',
+    priority: 0.7,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-07-16',
+    dateModified: '2026-07-16',
+    longFormBody: `
+      <h1>How to Compress PDF Without Losing Quality Locally: A Comprehensive Guide</h1>
+      <p>We have all encountered the frustrating scenario: you are trying to upload a resume, a tax form, or a legal contract to an online portal, but the file size exceeds the strict 2MB limit. Your first instinct is to Google a "free online PDF compressor." But uploading sensitive financial documents to an unknown server poses serious security risks.</p>
+      
+      <p>In this guide, we will break down how PDF compression works, and how you can dramatically shrink your PDF files safely inside your local browser memory without uploading any bytes.</p>
+
+      <h2>What Makes PDF Files So Large?</h2>
+      <p>To compress a PDF without destroying its visual fidelity, we must first understand what contributes to its size. Typically, a heavy PDF consists of three main elements:</p>
+      <ol>
+        <li><strong>High-Resolution Images:</strong> Embedded scans, photos, or graphics that are saved with excessive resolution (e.g., 300 DPI or higher) for a screen-only document.</li>
+        <li><strong>Unused Sub-setted Fonts:</strong> Font definitions embedded so that the document renders identical characters on all computers, often loading full character libraries rather than just the characters used.</li>
+        <li><strong>Redundant Metadata & History:</strong> Editing revisions, creator software details, and preview thumbnails stored in the document background.</li>
+      </ol>
+
+      <h2>The Science of Safe, Local Compression</h2>
+      <p>By using modern client-side libraries compiled to WebAssembly, PDFMinty can optimize these three components directly on your device:</p>
+      <ul>
+        <li><strong>Image Downsampling:</strong> Reducing image sizes to a crisp, standard web resolution (150 DPI) which looks flawless on screen but uses only a fraction of the original file bytes.</li>
+        <li><strong>Metadata Stripping:</strong> Removing creator software trails, thumbnails, and legacy XML annotations that serve no purpose for readers.</li>
+        <li><strong>Content Stream Compression:</strong> Re-compressing the document's text and vector elements using standard deflate/gzip algorithms to pack raw bytes tightly.</li>
+      </ul>
+
+      <h2>Step-by-Step Guide to Compress PDFs Safely</h2>
+      <ol>
+        <li>Navigate to the <strong>Compress PDF</strong> tool on PDFMinty.</li>
+        <li>Drag and drop your oversized file. Remember, your file is loaded strictly into local memory buffer.</li>
+        <li>Our browser-side engine will scan the binary tree, compress font maps, downscale embedded images, and re-serialize the structure.</li>
+        <li>Download your newly compressed PDF. You can verify in your network console that not a single byte was transmitted to the web!</li>
+      </ol>
+
+      <h2>Conclusion</h2>
+      <p>You do not need to choose between privacy and a small file size. Local, browser-side PDF compression allows you to meet strict document limits while keeping your personal data completely secure on your own machine.</p>
+    `,
+  },
+  {
+    id: 'blog-metadata',
+    slug: 'blog/the-complete-guide-to-pdf-metadata-and-how-to-remove-it',
+    name: 'The Complete Guide to PDF Metadata and How to Clean It',
+    ogImage: '/og-image.png',
+    shortDescription: 'Discover the hidden metadata stored inside your PDFs and learn how to scrub personal information before sharing.',
+    metaTitle: 'Complete Guide to PDF Metadata & Sanitization | PDFMinty Blog',
+    metaDescription: 'Read about the hidden tracking data stored inside PDF headers (such as author names and software tags) and learn how to scrub it offline.',
+    h1: 'The Complete Guide to PDF Metadata and How to Clean It',
+    icon: 'FilePenLine',
+    category: 'blog',
+    priority: 0.7,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-07-16',
+    dateModified: '2026-07-16',
+    longFormBody: `
+      <h1>The Complete Guide to PDF Metadata: What is Hidden and How to Clean It</h1>
+      <p>When you create and share a PDF document, you are sharing more than just the visible page text. Deep within the file headers lies a treasure trove of hidden information called <strong>metadata</strong>. This metadata can inadvertently leak your full name, your company's software platforms, precise creation dates, and even the folder structures of your local hard drive.</p>
+      
+      <p>In this guide, we will explore what PDF metadata is, why it represents a significant security leak, and how you can easily review and clean it locally before sending files to clients, employers, or public web forums.</p>
+
+      <h2>What is PDF Metadata?</h2>
+      <p>Metadata is "data about data." It is background information injected automatically by word processors (like Microsoft Word or Google Docs) or PDF editors (like Adobe Acrobat) when exporting documents. Standard fields include:</p>
+      <ul>
+        <li><strong>Author:</strong> Usually pre-filled with the licensed name on your operating system or office software.</li>
+        <li><strong>Title/Subject:</strong> Often inherited from draft names or previous document templates.</li>
+        <li><strong>Creator/Producer:</strong> The specific program (e.g., <code>macOS Version 14.5 Quartz PDFContext</code>) used to print or build the file.</li>
+        <li><strong>Creation and Modification Dates:</strong> Timestamps pinpointing exactly when you worked on the file.</li>
+      </ul>
+
+      <h2>The Hidden Dangers of PDF Metadata Leaks</h2>
+      <p>Why should you care about this background metadata? Consider these real-world corporate and personal risks:</p>
+      <p><strong>Negotiations & Legal Disputes:</strong> In 2005, a major political dossier leaked sensitive intelligence details simply because the authors forgot to scrub the "Last Saved By" metadata field, exposing the names of researchers involved. In business, sharing a contract proposal that contains metadata from a different client can derail negotiations instantly.</p>
+      <p><strong>Opsec & Tech Stack Exposure:</strong> Software creator tags like "Acrobat Distiller 11.0" tell hackers exactly what systems you run, giving them clues about potential software exploits your company might be vulnerable to.</p>
+
+      <h2>How to Clean and Edit PDF Metadata</h2>
+      <p>Most operating systems make it surprisingly difficult to scrub PDF metadata natively. Fortunately, PDFMinty provides two simple, 100% browser-side tools to protect your privacy:</p>
+      <ol>
+        <li><strong>Edit Metadata Tool:</strong> Allows you to selectively view and change the Author, Title, Subject, and Keyword fields to anything you want (or leave them entirely blank!).</li>
+        <li><strong>Sanitize PDF Tool:</strong> A comprehensive scrubbing engine that strips out hidden metadata, clears creation dates, and neutralizes embedded scripts or tracking pixels in one click.</li>
+      </ol>
+
+      <p>Since both tools run entirely in client-side memory using WebAssembly, you can sanitize highly sensitive files with absolute confidence that no third party is capturing your documents.</p>
+
+      <h2>Summary</h2>
+      <p>Before hitting "Send" on your next business proposal, job application, or legal draft, take 10 seconds to audit its metadata. Scrubbing background identifiers is an essential step in maintaining robust digital hygiene in the modern workplace.</p>
+    `,
+  },
 ];
+

@@ -167,8 +167,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Breadcrumbs />
             <InternalSEO />
             {children}
-            <ToolLongForm slug={location.pathname.replace(/^\//, '').replace(/\/$/, '')} />
-            <ToolGuide slug={location.pathname.replace(/^\//, '').replace(/\/$/, '')} />
+            {(() => {
+              const activeSlug = location.pathname.replace(/^\//, '').replace(/\/$/, '');
+              const activeItem = TOOLS.find((t) => t.slug === activeSlug);
+              if (activeItem?.type === 'tool') {
+                return (
+                  <>
+                    <ToolLongForm slug={activeSlug} />
+                    <ToolGuide slug={activeSlug} />
+                  </>
+                );
+              }
+              return null;
+            })()}
             <RelatedTools />
           </div>
         </main>

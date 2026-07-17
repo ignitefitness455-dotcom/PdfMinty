@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 import FaqSchema from './components/FaqSchema';
@@ -36,10 +36,23 @@ const RepairPdfPage = lazyWithRetry(() => import('./pages/RepairPdfPage').then((
 const IsSafePdfArticlePage = lazyWithRetry(() => import('./pages/IsSafePdfArticlePage').then((m) => ({ default: m.IsSafePdfArticlePage })));
 const EditMetadataPage = lazyWithRetry(() => import('./pages/EditMetadataPage').then((m) => ({ default: m.default })));
 const SanitizePdfPage = lazyWithRetry(() => import('./pages/SanitizePdfPage').then((m) => ({ default: m.default })));
+const BlogPage = lazyWithRetry(() => import('./pages/BlogPage').then((m) => ({ default: m.BlogPage })));
+const BlogPostPage = lazyWithRetry(() => import('./pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
+
+const ScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 export const App: React.FC = () => {
   return (
     <>
+      <ScrollToTop />
       <SkipToContent />
       <Layout>
         <PWAController />
@@ -213,6 +226,22 @@ export const App: React.FC = () => {
               element={
                 <ErrorBoundary resetKey="trust-article">
                   <IsSafePdfArticlePage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.BLOG}
+              element={
+                <ErrorBoundary resetKey="blog">
+                  <BlogPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.BLOG_POST}
+              element={
+                <ErrorBoundary resetKey="blog-post">
+                  <BlogPostPage />
                 </ErrorBoundary>
               }
             />

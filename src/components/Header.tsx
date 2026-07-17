@@ -138,6 +138,12 @@ export const Header: React.FC<HeaderProps> = ({
           >
             AI Analyze
           </Link>
+          <Link
+            to={ROUTES.BLOG}
+            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.BLOG || location.pathname.startsWith('/blog') ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
+          >
+            Blog
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4 font-sans">

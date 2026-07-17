@@ -25,5 +25,7 @@ export const ROUTES = {
   EDIT_METADATA: `/${TOOLS.find((t) => t.id === 'edit-metadata')?.slug || 'edit-pdf-metadata'}`,
   SANITIZE_PDF: `/${TOOLS.find((t) => t.id === 'sanitize-pdf')?.slug || 'sanitize-pdf'}`,
   TRUST_ARTICLE: `/${TOOLS.find((t) => t.id === 'trust-article')?.slug || 'is-it-safe-to-upload-pdf-to-online-tools'}`,
+  BLOG: '/blog',
+  BLOG_POST: '/blog/:postSlug',
 };
 export default ROUTES;

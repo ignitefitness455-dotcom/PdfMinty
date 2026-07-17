@@ -56,7 +56,7 @@ export const RelatedTools: React.FC = () => {
     return list.slice(fallbackIdx % list.length, (fallbackIdx % list.length) + 3);
   }, [toolsList, pathname]);
 
-  if (pathname === '/') return null;
+  if (pathname === '/' || related.length === 0) return null;
 
   return (
     <div className="mt-12 pt-8 border-t border-slate-200" id="related_tools_box">

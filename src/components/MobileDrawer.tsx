@@ -47,13 +47,26 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
       id="mobile_drawer"
     >
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
-        <Link
-          to={ROUTES.HOME}
-          onClick={() => setMobileMenuOpen(false)}
-          className="block px-4 py-3 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white"
-        >
-          All PDF Tools
-        </Link>
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            to={ROUTES.HOME}
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-center px-3 py-3 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white text-sm"
+          >
+            All Tools
+          </Link>
+          <Link
+            to={ROUTES.BLOG}
+            onClick={() => setMobileMenuOpen(false)}
+            className={`text-center px-3 py-3 rounded-xl border font-semibold text-sm ${
+              location.pathname === ROUTES.BLOG || location.pathname.startsWith('/blog')
+                ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300'
+                : 'border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white'
+            }`}
+          >
+            PDF Blog
+          </Link>
+        </div>
         <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
           <p className="px-4 text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">
             Individual Utilities
