@@ -21,8 +21,11 @@ export const BlogPage: React.FC = () => {
       case 'trust-article':
         return 'Security';
       case 'blog-privacy':
+      case 'blog-privacy-2026':
+      case 'blog-free-esignature':
         return 'Privacy';
       case 'blog-compress':
+      case 'blog-batch-processing':
         return 'Optimization';
       case 'blog-metadata':
         return 'Tutorials';
