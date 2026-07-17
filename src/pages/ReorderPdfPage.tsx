@@ -15,11 +15,42 @@ interface PageItem {
   dataUrl: string;
 }
 
+const parsePageSequence = (input: string, maxPages: number): number[] => {
+  const result: number[] = [];
+  const parts = input.split(',');
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    if (trimmed.includes('-')) {
+      const rangeParts = trimmed.split('-');
+      if (rangeParts.length === 2) {
+        const start = parseInt(rangeParts[0].trim(), 10);
+        const end = parseInt(rangeParts[1].trim(), 10);
+        if (!isNaN(start) && !isNaN(end) && start > 0 && end > 0) {
+          const step = start <= end ? 1 : -1;
+          for (let i = start; step === 1 ? i <= end : i >= end; i += step) {
+            if (i <= maxPages) {
+              result.push(i);
+            }
+          }
+        }
+      }
+    } else {
+      const pageNum = parseInt(trimmed, 10);
+      if (!isNaN(pageNum) && pageNum > 0 && pageNum <= maxPages) {
+        result.push(pageNum);
+      }
+    }
+  }
+  return result;
+};
+
 export const ReorderPdfPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [renderingThumbnails, setRenderingThumbnails] = useState(false);
   const [items, setItems] = useState<PageItem[]>([]);
+  const [manualInput, setManualInput] = useState<string>('');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -31,6 +62,14 @@ export const ReorderPdfPage: React.FC = () => {
 
   React.useEffect(() => {
     urlsRef.current = items.map((item) => item.dataUrl);
+  }, [items]);
+
+  React.useEffect(() => {
+    if (items.length > 0) {
+      setManualInput(items.map((item) => item.page).join(', '));
+    } else {
+      setManualInput('');
+    }
   }, [items]);
 
   React.useEffect(() => {
@@ -136,6 +175,37 @@ export const ReorderPdfPage: React.FC = () => {
   const resetOrder = () => {
     const original = [...items].sort((a, b) => a.page - b.page);
     setItems(original);
+  };
+
+  const applyManualSequence = () => {
+    if (items.length === 0) return;
+
+    const sortedOriginals = [...items].sort((a, b) => a.page - b.page);
+    const maxPageNum = sortedOriginals.length;
+
+    const parsedPages = parsePageSequence(manualInput, maxPageNum);
+    if (parsedPages.length === 0) {
+      setError('Invalid page sequence. Please enter valid page numbers (e.g., 1, 3, 2, 4-6).');
+      return;
+    }
+
+    const newItems: PageItem[] = [];
+    parsedPages.forEach((pageNum) => {
+      const originalItem = sortedOriginals.find((item) => item.page === pageNum);
+      if (originalItem) {
+        newItems.push({
+          page: originalItem.page,
+          dataUrl: originalItem.dataUrl,
+        });
+      }
+    });
+
+    if (newItems.length > 0) {
+      setItems(newItems);
+      setError(null);
+    } else {
+      setError('No matching pages found in the sequence.');
+    }
   };
 
   const handleReorder = async () => {
@@ -297,6 +367,43 @@ export const ReorderPdfPage: React.FC = () => {
                   </button>
                 )}
               </div>
+
+              {items.length > 0 && !renderingThumbnails && (
+                <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3" id="manual_reorder_container">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <label htmlFor="manual-page-sequence-input" className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Manual Page Sequence (ম্যানুয়াল পেজ সিকোয়েন্স)</span>
+                    </label>
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      e.g., 1, 3, 2, 4-6 (Supports ranges & duplicates)
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      id="manual-page-sequence-input"
+                      type="text"
+                      value={manualInput}
+                      onChange={(e) => setManualInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          applyManualSequence();
+                        }
+                      }}
+                      placeholder="e.g. 1, 3, 2, 4-6"
+                      className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={applyManualSequence}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-1.5 rounded-lg shadow-sm transition-colors cursor-pointer whitespace-nowrap"
+                    >
+                      Apply Order
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {renderingThumbnails ? (
                 <div
