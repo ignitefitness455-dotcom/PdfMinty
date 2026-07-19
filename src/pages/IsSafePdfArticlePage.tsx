@@ -105,14 +105,14 @@ export const IsSafePdfArticlePage: React.FC = () => {
               PDF Merger
             </Link>{' '}
             or the{' '}
-            <Link to={ROUTES.COMPRESS} className="text-emerald-600 font-bold hover:underline">
-              PDF Compressor
+            <Link to={ROUTES.SPLIT} className="text-emerald-600 font-bold hover:underline">
+              PDF Splitter
             </Link>
             , the parsing algorithms run strictly within your memory buffer.
           </p>
           <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
             <span aria-hidden="true">💡</span><span className="sr-only">Tip: </span> <strong>Offline Verification Test:</strong> You can load this web portal, pull your
-            WiFi plug or engage Airplane Mode on your phone, and continue to compress drafts, delete
+            WiFi plug or engage Airplane Mode on your phone, and continue to split files, delete
             pages, or rotate layouts perfectly. No packets are sent, keeping your files completely
             secluded.
           </p>

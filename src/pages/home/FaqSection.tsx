@@ -10,7 +10,7 @@ export const FaqSection: React.FC = () => {
   const faqs = [
     {
       q: 'Are my files safe with PDFMinty?',
-      a: 'Absolutely! All standard file computations (merge, split, compress, edit) are performed fully client-side inside your browser window. Your private files are never uploaded to our servers, keeping your documents 100% confidential.',
+      a: 'Absolutely! All standard file computations (merge, split, edit) are performed fully client-side inside your browser window. Your private files are never uploaded to our servers, keeping your documents 100% confidential.',
     },
     {
       q: 'How much does it cost to use PDFMinty?',

@@ -83,7 +83,7 @@ export const HowItWorksSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2">Select Tool</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">
-              Choose one of our free PDF tools to combine, split, or compress files.
+              Choose one of our free PDF tools to combine or split files.
             </p>
           </div>
           <div

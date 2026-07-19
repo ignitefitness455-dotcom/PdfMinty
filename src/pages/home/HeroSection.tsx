@@ -14,7 +14,7 @@ export const HeroSection: React.FC = () => {
         {HOMEPAGE_H1_PART1}<span className="text-primary-fixed font-black">{HOMEPAGE_H1_PART2}</span>
       </h1>
       <p className="text-on-surface-variant text-sm md:text-base font-medium max-w-2xl mx-auto leading-relaxed">
-        Merge, split, and compress your critical files entirely in your browser. PDFMinty runs
+        Merge and split your critical files entirely in your browser. PDFMinty runs
         100% client-side, meaning your highly confidential files never leave your device’s sandbox
         memory. No signups, no accounts—just immediate offline processing for ultimate peace of
         mind.

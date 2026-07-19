@@ -54,7 +54,7 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">Completely Free</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Enjoy unlimited editing, compression, and division with no paywalls, hidden monthly
+              Enjoy unlimited editing and division with no paywalls, hidden monthly
               fees, restricted trial counts, or watermarks.
             </p>
           </div>

@@ -294,6 +294,26 @@ html.dark .text-emerald-900 {
   color: var(--custom-primary-fixed) !important;
 }
 
+/* Amber/yellow alerts/badges in dark mode */
+html.dark .bg-amber-50,
+html.dark .bg-amber-50\/50,
+html.dark .bg-amber-50\/20 {
+  background-color: rgba(245, 158, 11, 0.08) !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+html.dark .text-amber-600,
+html.dark .text-amber-700,
+html.dark .text-amber-800,
+html.dark .text-amber-900 {
+  color: #fbbf24 !important; /* amber-400 */
+}
+
+/* Base slate opacity backgrounds in dark mode */
+html.dark .bg-slate-50\/50 {
+  background-color: rgba(14, 14, 14, 0.5) !important;
+}
+
 /* Custom shadow improvements for elements in dark mode */
 html.dark .shadow-sm,
 html.dark .shadow-md,
