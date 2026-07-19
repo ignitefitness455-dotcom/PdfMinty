@@ -36,6 +36,8 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
     navigate(`/${tool.slug}`);
   };
 
+  const isHighlighted = ['sign-pdf', 'ocr-pdf', 'ai-analyze-pdf', 'merge-pdf', 'split-pdf'].includes(tool.slug);
+
   return (
     <button
       type="button"
@@ -43,20 +45,34 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
       onClick={handleLaunch}
       onMouseEnter={() => prefetchToolChunk(tool.slug)}
       onFocus={() => prefetchToolChunk(tool.slug)}
-      className="page-card glass-panel rounded-[24px] p-6 border border-border-muted hover:border-security-green shadow-lg hover:shadow-security-green/5 flex flex-col justify-between text-left group transition-all duration-300 transform hover:-translate-y-1 relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-security-green"
+      className={`page-card glass-panel rounded-[24px] p-6 flex flex-col justify-between text-left group transition-all duration-300 transform hover:-translate-y-1 relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-security-green ${
+        isHighlighted
+          ? 'border-security-green/40 dark:border-security-green/50 shadow-[0_4px_24px_rgba(5,150,105,0.08)] hover:shadow-[0_4px_30px_rgba(5,150,105,0.16)] bg-gradient-to-br from-white/90 to-emerald-50/[0.15] dark:from-neutral-900/90 dark:to-emerald-950/[0.08]'
+          : 'border-border-muted hover:border-security-green shadow-lg hover:shadow-security-green/5'
+      }`}
     >
+      {isHighlighted && (
+        <div className="absolute top-0 left-6 right-6 h-[3px] bg-gradient-to-r from-transparent via-security-green/60 to-transparent rounded-b-full" />
+      )}
       <div>
         <div className="flex items-center justify-between mb-5">
           <div className="w-12 h-12 rounded-xl bg-surface-container-low border border-border-muted flex items-center justify-center transition-transform group-hover:scale-110 shadow-md">
             <Icon className="w-5.5 h-5.5 text-security-green" aria-hidden="true" />
           </div>
-          {badge && (
-            <span
-              className={`text-[9px] font-extrabold tracking-wider px-2.5 py-1 rounded-full border ${badge.color}`}
-            >
-              {badge.text}
-            </span>
-          )}
+          <div className="flex items-center gap-1.5">
+            {isHighlighted && (
+              <span className="text-[9px] font-black tracking-wider px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400 rounded-full border border-amber-500/20 animate-pulse-slow">
+                ★ HIGH DEMAND
+              </span>
+            )}
+            {badge && !['popular', 'ai_hybrid'].includes(toolSEO.badge || '') && (
+              <span
+                className={`text-[9px] font-extrabold tracking-wider px-2.5 py-1 rounded-full border ${badge.color}`}
+              >
+                {badge.text}
+              </span>
+            )}
+          </div>
         </div>
 
         <h3 className="text-base font-black text-primary leading-snug mb-2 group-hover:text-security-green transition-colors font-sans">

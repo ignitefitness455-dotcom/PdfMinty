@@ -41,6 +41,7 @@ export const TOOLS: ToolSEOInfo[] = [
     h1: 'Edit PDF Metadata - Change Document Properties Safely',
     icon: 'FilePenLine',
     iconColor: 'text-security-green',
+    homeRank: 20,
     category: 'security-edit',
     priority: 0.7,
     changefreq: 'monthly',
@@ -86,6 +87,7 @@ export const TOOLS: ToolSEOInfo[] = [
     h1: 'Sanitize PDF - Clean Hidden Data and Malicious Scripts',
     icon: 'ShieldBan',
     iconColor: 'text-security-green',
+    homeRank: 21,
     category: 'security-edit',
     priority: 0.7,
     changefreq: 'monthly',
@@ -133,7 +135,7 @@ export const TOOLS: ToolSEOInfo[] = [
     icon: 'Merge',
     iconColor: 'text-security-green',
     badge: 'popular',
-    homeRank: 1,
+    homeRank: 4,
     category: 'page-operations',
     priority: 0.9,
     changefreq: 'monthly',
@@ -197,7 +199,7 @@ export const TOOLS: ToolSEOInfo[] = [
     h1: 'Split PDF Online - Separate and Extract Pages',
     icon: 'Scissors',
     iconColor: 'text-security-green',
-    homeRank: 2,
+    homeRank: 5,
     category: 'page-operations',
     priority: 0.9,
     changefreq: 'monthly',
@@ -261,7 +263,7 @@ export const TOOLS: ToolSEOInfo[] = [
     h1: 'Rotate PDF Pages Online with Instant Verification',
     icon: 'RotateCw',
     iconColor: 'text-security-green',
-    homeRank: 9,
+    homeRank: 12,
     category: 'page-operations',
     priority: 0.8,
     changefreq: 'monthly',
@@ -326,7 +328,7 @@ export const TOOLS: ToolSEOInfo[] = [
     icon: 'Trash2',
     iconColor: 'text-security-green',
     badge: 'extractor',
-    homeRank: 7,
+    homeRank: 11,
     category: 'organize',
     priority: 0.8,
     changefreq: 'monthly',
@@ -391,7 +393,7 @@ export const TOOLS: ToolSEOInfo[] = [
     icon: 'CheckSquare',
     iconColor: 'text-security-green',
     badge: 'visual_extract',
-    homeRank: 3,
+    homeRank: 8,
     category: 'organize',
     priority: 0.8,
     changefreq: 'monthly',
@@ -456,7 +458,7 @@ export const TOOLS: ToolSEOInfo[] = [
     icon: 'Move',
     iconColor: 'text-security-green',
     badge: 'interactive_order',
-    homeRank: 4,
+    homeRank: 9,
     category: 'organize',
     priority: 0.8,
     changefreq: 'monthly',
@@ -520,7 +522,7 @@ export const TOOLS: ToolSEOInfo[] = [
     h1: 'Add Watermark to PDF - Overlay Custom Text Seals Safely',
     icon: 'Bookmark',
     iconColor: 'text-security-green',
-    homeRank: 10,
+    homeRank: 13,
     category: 'security-edit',
     priority: 0.8,
     changefreq: 'monthly',
@@ -584,7 +586,7 @@ export const TOOLS: ToolSEOInfo[] = [
     h1: 'Add Page Numbers to PDF - Format Documents Instantly',
     icon: 'Hash',
     iconColor: 'text-security-green',
-    homeRank: 11,
+    homeRank: 14,
     category: 'security-edit',
     priority: 0.8,
     changefreq: 'monthly',
@@ -648,7 +650,7 @@ export const TOOLS: ToolSEOInfo[] = [
     h1: 'Add Blank Page to PDF - Insert Space Margins Safely',
     icon: 'FilePlus',
     iconColor: 'text-security-green',
-    homeRank: 17,
+    homeRank: 22,
     category: 'organize',
     priority: 0.8,
     changefreq: 'monthly',
@@ -713,7 +715,7 @@ export const TOOLS: ToolSEOInfo[] = [
     icon: 'Shield',
     iconColor: 'text-security-green',
     badge: 'offline_aes',
-    homeRank: 13,
+    homeRank: 15,
     category: 'security-edit',
     priority: 0.8,
     changefreq: 'monthly',
@@ -777,7 +779,7 @@ export const TOOLS: ToolSEOInfo[] = [
     h1: 'Unlock PDF - Decrypt Password Restricted PDF Documents',
     icon: 'Lock',
     iconColor: 'text-security-green',
-    homeRank: 15,
+    homeRank: 16,
     category: 'security-edit',
     priority: 0.8,
     changefreq: 'monthly',
@@ -842,7 +844,7 @@ export const TOOLS: ToolSEOInfo[] = [
     icon: 'Image',
     iconColor: 'text-security-green',
     badge: 'fast_convert',
-    homeRank: 5,
+    homeRank: 6,
     category: 'convert',
     priority: 0.8,
     changefreq: 'monthly',
@@ -906,7 +908,7 @@ export const TOOLS: ToolSEOInfo[] = [
     h1: 'Convert PDF to Image - Export Pages to PNG and JPEG',
     icon: 'Eye',
     iconColor: 'text-security-green',
-    homeRank: 6,
+    homeRank: 7,
     category: 'convert',
     priority: 0.8,
     changefreq: 'monthly',
@@ -970,7 +972,7 @@ export const TOOLS: ToolSEOInfo[] = [
     h1: 'PDF to Markdown - Convert PDF to MD Locally',
     icon: 'FileCode2',
     iconColor: 'text-security-green',
-    homeRank: 8,
+    homeRank: 10,
     category: 'convert',
     priority: 0.8,
     changefreq: 'monthly',
@@ -1035,7 +1037,7 @@ export const TOOLS: ToolSEOInfo[] = [
     icon: 'Sparkles',
     iconColor: 'text-security-green',
     badge: 'ai_hybrid',
-    homeRank: 18,
+    homeRank: 3,
     category: 'intelligence',
     priority: 0.85,
     changefreq: 'weekly',
@@ -1100,7 +1102,7 @@ export const TOOLS: ToolSEOInfo[] = [
     icon: 'Printer',
     iconColor: 'text-security-green',
     badge: 'fast_convert',
-    homeRank: 12,
+    homeRank: 19,
     category: 'convert',
     priority: 0.8,
     changefreq: 'monthly',
@@ -1161,7 +1163,7 @@ export const TOOLS: ToolSEOInfo[] = [
     icon: 'FileText',
     iconColor: 'text-security-green',
     badge: 'secure',
-    homeRank: 14,
+    homeRank: 17,
     category: 'security',
     priority: 0.8,
     changefreq: 'monthly',
@@ -1222,7 +1224,7 @@ export const TOOLS: ToolSEOInfo[] = [
     icon: 'Wrench',
     iconColor: 'text-security-green',
     badge: 'secure',
-    homeRank: 16,
+    homeRank: 18,
     category: 'security',
     priority: 0.8,
     changefreq: 'monthly',
@@ -1268,6 +1270,132 @@ export const TOOLS: ToolSEOInfo[] = [
       
       <h2>Private, Local, and Instant Repairs</h2>
       <p>Confidential documents shouldn't be uploaded to random repair servers. Because PDFMinty does all the heavy-lifting within your browser sandbox via secure client-side JS modules, your private data is never exposed. Safe, secure, and 100% offline-compatible.</p>
+    `,
+  },
+  {
+    id: 'sign-pdf',
+    slug: 'sign-pdf',
+    name: 'Sign PDF',
+    ogImage: '/og-image.png',
+    shortDescription: 'Draw, type, or upload custom e-signatures onto PDF pages offline',
+    metaTitle: 'Sign PDF Free - Add Electronic Signature to PDF Online | PDFMinty',
+    metaDescription: 'Sign PDF files online for free. Create custom e-signatures using drawing, typing, or images and place them on your PDF documents. 100% private and offline.',
+    h1: 'Sign PDF - Add Electronic Signatures Free & Securely',
+    icon: 'FilePenLine',
+    iconColor: 'text-security-green',
+    badge: 'popular',
+    homeRank: 1,
+    category: 'security-edit',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'tool',
+    howTo: {
+      name: 'How to Add Electronic Signatures to a PDF',
+      totalTime: 'PT40S',
+      steps: [
+        'Upload your PDF document by dragging it into the dropzone.',
+        'Choose whether to draw your signature, type it, or upload a handwritten signature image.',
+        'Create your custom signature and click anywhere on the document to place it.',
+        'Drag and resize the signature block to position it perfectly on any page.',
+        "Click 'Apply & Download' to securely compile and save your signed PDF document."
+      ],
+    },
+    faqs: [
+      {
+        q: 'Is it safe to sign sensitive agreements or NDAs on PDFMinty?',
+        a: 'Yes, absolutely. The signature creation and document compilation happen entirely inside your web browser’s memory. Your contracts, personal information, and signature images are never transmitted to any external server.'
+      },
+      {
+        q: 'Are e-signatures created with PDFMinty legally binding?',
+        a: 'Yes. E-signatures created on PDFMinty are legally valid and binding under the ESIGN Act, UETA, and the EU\'s eIDAS regulations for standard electronic signatures.'
+      },
+      {
+        q: 'What signing options do I have?',
+        a: 'You can choose between: 1) Draw (draw your signature using a mouse, trackpad, or touchscreen), 2) Type (type your name and select a beautiful handwritten cursive font), or 3) Upload (upload an image of your physical signature).'
+      },
+      {
+        q: 'Can I add text annotations or dates along with my signature?',
+        a: 'Yes, you can easily type custom text blocks (such as dates, full names, or company titles) and place them alongside your signature directly onto any page.'
+      }
+    ],
+    longFormBody: `
+      <h1>Free Browser-Side PDF E-Signing with PDFMinty</h1>
+      <p>Electronic signatures are essential for modern business contracts, freelance agreements, lease documents, and NDAs. Most online signing tools require expensive subscriptions or force you to upload confidential files to third-party servers. PDFMinty offers a completely free, 100% private, browser-side signature creator where your documents never leave your computer.</p>
+      
+      <h2>ESIGN and eIDAS Legally Binding PDF Signatures</h2>
+      <p>Under the United States Electronic Signatures in Global and National Commerce (ESIGN) Act, Uniform Electronic Transactions Act (UETA), and European Union eIDAS regulations, electronic signatures carry the same legal weight as traditional pen-and-paper signatures. PDFMinty complies with these standards, providing a secure, user-directed mechanism to bind custom signatures directly onto PDF page streams.</p>
+      
+      <h2>How to Securely Sign Your PDF Offline</h2>
+      <ol>
+        <li>Drag and drop your PDF file. The document will load instantly.</li>
+        <li>Select 'Draw', 'Type', or 'Upload' to design your signature.</li>
+        <li>Place the signature on your target page. Resize and adjust its position as needed.</li>
+        <li>Download your signed PDF instantly. The signature is rendered permanently into the PDF's visual elements.</li>
+      </ol>
+      
+      <h2>SEO Keywords for Sign PDF:</h2>
+      <p><strong>Keywords:</strong> free pdf signer, electronic signature online, add signature to pdf free, sign pdf offline, e-sign pdf document, online signature creator, sign contract free, how to sign pdf without uploading, secure pdf signature maker.</p>
+    `,
+  },
+  {
+    id: 'ocr-pdf',
+    slug: 'ocr-pdf',
+    name: 'OCR PDF',
+    ogImage: '/og-image.png',
+    shortDescription: 'Extract clean, searchable text or Markdown from scanned and image-only PDFs with AI Vision',
+    metaTitle: 'OCR PDF Free - Extract Text from Scanned PDF Online | PDFMinty',
+    metaDescription: 'Extract text from scanned PDFs and images online for free. Leverage highly accurate Multimodal AI Vision OCR to convert scans into selectable Markdown.',
+    h1: 'OCR PDF - Extract Text & Table Content from Scanned PDFs',
+    icon: 'Sparkles',
+    iconColor: 'text-security-green',
+    badge: 'ai_hybrid',
+    homeRank: 2,
+    category: 'intelligence',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'tool',
+    howTo: {
+      name: 'How to Extract Text from Scanned PDF using OCR',
+      totalTime: 'PT30S',
+      steps: [
+        'Upload your scanned PDF document or page image.',
+        'Select the target pages you wish to perform OCR on.',
+        "Click the 'Extract Text with AI Vision' button to initiate the OCR engine.",
+        'Preview the extracted text and cleanly structured Markdown tables on screen.',
+        'Copy the text directly to your clipboard or download it as a text (.txt) or markdown (.md) file.'
+      ],
+    },
+    faqs: [
+      {
+        q: 'What is OCR and when do I need it?',
+        a: 'OCR (Optical Character Recognition) is the process of converting scanned paper documents, PDF scans, or images into selectable and editable text. You need it when you try to highlight or copy text in a PDF and find that it is actually just a flat picture.'
+      },
+      {
+        q: 'Does PDFMinty\'s OCR tool support tables and complex formatting?',
+        a: 'Yes! PDFMinty uses a state-of-the-art Multimodal AI Vision OCR engine. Unlike traditional flat-text OCR engines that mess up layout alignment, our AI recognizes tabular structures and formats them into beautiful, perfectly styled Markdown tables.'
+      },
+      {
+        q: 'Are my scanned files kept private?',
+        a: 'Absolutely. PDFMinty handles initial page conversions and layout preparation entirely inside your browser sandbox. Only high-security, secure proxy calls are made to transcribe the pixels, and no data is retained or stored on any server.'
+      }
+    ],
+    longFormBody: `
+      <h1>Advanced Multimodal AI Vision OCR for Scanned Documents</h1>
+      <p>Most basic PDF converters fail completely when processing scanned documents because they only read standard selectable text-layers. When pages are composed of flat images, traditional text extraction yields nothing. PDFMinty's OCR tool utilizes advanced Multimodal AI Vision models to transcribe non-selectable, hand-written, or printed texts directly into editable Markdown text sheets.</p>
+      
+      <h2>High-Fidelity Document Structure and Table Parsing</h2>
+      <p>Our AI-powered OCR engine doesn't just read words—it understands layout semantics. If your scanned document contains list items, headers, subheadings, or intricate data tables, PDFMinty will automatically convert them into well-structured markdown lists, standard headings, and fully formatted Markdown tables. This saves hours of manual retyping and reformatting.</p>
+      
+      <h2>How to Run AI OCR on Your PDF</h2>
+      <ol>
+        <li>Upload your scanned PDF file. The uploader processes files safely.</li>
+        <li>Select the pages you want to extract text from (supports up to 5 pages per run).</li>
+        <li>Click 'Extract Text with AI Vision'. The model will analyze and parse characters with extreme accuracy.</li>
+        <li>Review, edit, copy, or download the final cleanly structured text or markdown file.</li>
+      </ol>
+      
+      <h2>SEO Keywords for OCR PDF:</h2>
+      <p><strong>Keywords:</strong> free pdf ocr, extract text from scanned pdf, scanned pdf text converter, convert pdf scan to text, online pdf ocr tool, transcribe scanned tables, high accuracy pdf text extractor, secure document ocr, image to markdown ocr.</p>
     `,
   },
   {

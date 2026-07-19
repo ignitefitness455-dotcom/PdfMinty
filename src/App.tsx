@@ -36,6 +36,8 @@ const RepairPdfPage = lazyWithRetry(() => import('./pages/RepairPdfPage').then((
 const IsSafePdfArticlePage = lazyWithRetry(() => import('./pages/IsSafePdfArticlePage').then((m) => ({ default: m.IsSafePdfArticlePage })));
 const EditMetadataPage = lazyWithRetry(() => import('./pages/EditMetadataPage').then((m) => ({ default: m.default })));
 const SanitizePdfPage = lazyWithRetry(() => import('./pages/SanitizePdfPage').then((m) => ({ default: m.default })));
+const SignPdfPage = lazyWithRetry(() => import('./pages/SignPdfPage').then((m) => ({ default: m.SignPdfPage })));
+const OcrPdfPage = lazyWithRetry(() => import('./pages/OcrPdfPage').then((m) => ({ default: m.OcrPdfPage })));
 const BlogPage = lazyWithRetry(() => import('./pages/BlogPage').then((m) => ({ default: m.BlogPage })));
 const BlogPostPage = lazyWithRetry(() => import('./pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
 
@@ -218,6 +220,22 @@ export const App: React.FC = () => {
               element={
                 <ErrorBoundary resetKey="sanitize-pdf">
                   <SanitizePdfPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.SIGN_PDF}
+              element={
+                <ErrorBoundary resetKey="sign-pdf">
+                  <SignPdfPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.OCR_PDF}
+              element={
+                <ErrorBoundary resetKey="ocr-pdf">
+                  <OcrPdfPage />
                 </ErrorBoundary>
               }
             />

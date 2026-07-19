@@ -46,6 +46,8 @@ export const prefetchMap: Record<string, () => Promise<unknown>> = {
   'edit-pdf-metadata': () => import('../pages/EditMetadataPage'),
   'sanitize-pdf': () => import('../pages/SanitizePdfPage'),
   'pdf-to-markdown': () => import('../pages/PdfToMarkdownPage'),
+  'sign-pdf': () => import('../pages/SignPdfPage'),
+  'ocr-pdf': () => import('../pages/OcrPdfPage'),
 };
 
 const prefetchedSet = new Set<string>();

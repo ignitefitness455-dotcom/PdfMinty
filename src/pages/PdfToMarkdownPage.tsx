@@ -380,6 +380,15 @@ export const PdfToMarkdownPage: React.FC = () => {
 
   const limitMB = TOOL_SIZE_LIMITS['pdf-to-markdown']?.maxSingleMB || 35;
 
+  const isQuotaError = !!(
+    error &&
+    (error.toLowerCase().includes('quota') ||
+      error.toLowerCase().includes('limit') ||
+      error.toLowerCase().includes('429') ||
+      error.toLowerCase().includes('exhausted') ||
+      error.toLowerCase().includes('busy'))
+  );
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto" id="pdf_to_markdown_container">
       <SEO slug="pdf-to-markdown" />
@@ -497,20 +506,33 @@ export const PdfToMarkdownPage: React.FC = () => {
             </label>
 
             {error && (
-              <div className="flex items-start space-x-2 text-xs text-rose-700 bg-rose-50 border border-rose-100 p-3.5 rounded-xl">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <div className="space-y-1.5">
-                  <p className="font-bold">{error}</p>
-                  {isEncryptedError && (
-                    <Link
-                      to={ROUTES.UNLOCK}
-                      className="inline-block font-bold underline text-emerald-700 hover:text-emerald-800"
-                    >
-                      Use Unlock PDF Tool →
-                    </Link>
-                  )}
+              isQuotaError ? (
+                <div className="flex items-start gap-3 text-xs text-amber-800 bg-amber-50/50 border border-amber-200 p-4 rounded-xl shadow-sm flex-col w-full">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                    <p className="font-extrabold text-amber-900">⏳ AI is busy. Please try again in a few minutes.</p>
+                  </div>
+                  <div className="pl-6 space-y-1 text-slate-600 font-medium leading-relaxed">
+                    <p>Or use our offline tools: <Link to={ROUTES.HOME} className="underline text-emerald-700 hover:text-emerald-800 font-bold">Merge, Split, Compress</Link></p>
+                    <p>Upgrade for unlimited AI analysis</p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-start space-x-2 text-xs text-rose-700 bg-rose-50 border border-rose-100 p-3.5 rounded-xl">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1.5">
+                    <p className="font-bold">{error}</p>
+                    {isEncryptedError && (
+                      <Link
+                        to={ROUTES.UNLOCK}
+                        className="inline-block font-bold underline text-emerald-700 hover:text-emerald-800"
+                      >
+                        Use Unlock PDF Tool →
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )
             )}
           </div>
 

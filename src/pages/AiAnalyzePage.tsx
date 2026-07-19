@@ -195,6 +195,15 @@ export const AiAnalyzePage: React.FC = () => {
     }
   };
 
+  const isQuotaError = !!(
+    error &&
+    (error.toLowerCase().includes('quota') ||
+      error.toLowerCase().includes('limit') ||
+      error.toLowerCase().includes('429') ||
+      error.toLowerCase().includes('exhausted') ||
+      error.toLowerCase().includes('busy'))
+  );
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto" id="ai_analyze_page">
       <SEO slug="ai-analyze-pdf" />
@@ -396,13 +405,26 @@ export const AiAnalyzePage: React.FC = () => {
               </div>
 
               {error && (
-                <div className="flex items-start space-x-1.5 text-xs text-rose-700 bg-rose-50 border border-rose-100 p-3.5 rounded-xl shadow-sm">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  <div>
-                    <p className="font-bold">Execution Error</p>
-                    <p className="mt-0.5">{error}</p>
+                isQuotaError ? (
+                  <div className="flex items-start gap-3 text-xs text-amber-800 bg-amber-50/50 border border-amber-200 p-4.5 rounded-2xl shadow-sm flex-col w-full">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                      <p className="font-extrabold text-amber-900">⏳ AI is busy. Please try again in a few minutes.</p>
+                    </div>
+                    <div className="pl-6 space-y-1 text-slate-600 font-medium leading-relaxed">
+                      <p>Or use our offline tools: <Link to={ROUTES.HOME} className="underline text-emerald-700 hover:text-emerald-800 font-bold">Merge, Split, Compress</Link></p>
+                      <p>Upgrade for unlimited AI analysis</p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-start space-x-1.5 text-xs text-rose-700 bg-rose-50 border border-rose-100 p-3.5 rounded-xl shadow-sm">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <div>
+                      <p className="font-bold">Execution Error</p>
+                      <p className="mt-0.5">{error}</p>
+                    </div>
+                  </div>
+                )
               )}
 
               {/* AI response panel */}

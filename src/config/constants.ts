@@ -179,6 +179,22 @@ export const tools: Tool[] = [
     path: '/sanitize-pdf',
     icon: 'ShieldBan',
   },
+  {
+    id: 'sign-pdf',
+    title: 'Sign PDF',
+    description: 'Draw, type, or upload custom electronic signatures onto PDF pages locally.',
+    category: 'security-edit',
+    path: '/sign-pdf',
+    icon: 'FilePenLine',
+  },
+  {
+    id: 'ocr-pdf',
+    title: 'OCR PDF',
+    description: 'Extract clean, searchable text or Markdown from scanned and image-only PDFs with AI Vision.',
+    category: 'intelligence',
+    path: '/ocr-pdf',
+    icon: 'Sparkles',
+  },
 ];
 
 export const PDF_PAGE_SIZES = {
@@ -228,6 +244,8 @@ export const TOOL_SIZE_LIMITS: Record<string, { maxSingleMB: number; maxTotalMB?
   'repair-pdf': { maxSingleMB: 50 },
   'edit-metadata': { maxSingleMB: 50 },
   'sanitize-pdf': { maxSingleMB: 50 },
+  'sign-pdf': { maxSingleMB: 50 },
+  'ocr-pdf': { maxSingleMB: 35 },
 };
 
 export const AI_LIMITS = {
