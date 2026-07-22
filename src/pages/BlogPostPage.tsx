@@ -1,4 +1,4 @@
-import { ArrowLeft, Calendar, Clock, Shield, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Shield, Copy, Check, BookOpen, ArrowRight } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
@@ -55,10 +55,10 @@ export const BlogPostPage: React.FC = () => {
     }
   }, [post]);
 
-  // Find 2 other related blog posts for the footer suggestions
+  // Find 3 other related blog posts for the footer suggestions
   const relatedPosts = useMemo(() => {
     if (!post) return [];
-    return TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== post.id).slice(0, 2);
+    return TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== post.id).slice(0, 3);
   }, [post]);
 
   const handleCopyLink = async () => {
@@ -191,20 +191,45 @@ export const BlogPostPage: React.FC = () => {
       {/* Suggested Reads / Related Articles Footer */}
       {relatedPosts.length > 0 && (
         <div className="pt-12 border-t border-border-muted space-y-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Related Reads</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-emerald-500" />
+                <span>Related Blog Posts</span>
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Explore more guides on offline PDF security and privacy
+              </p>
+            </div>
+            <Link
+              to={ROUTES.BLOG}
+              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 group"
+            >
+              <span>View All Blogs</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {relatedPosts.map((rPost) => (
               <Link
                 key={rPost.id}
                 to={`/${rPost.slug}`}
-                className="group block p-4 bg-surface-container-low border border-border-muted hover:border-emerald-500/40 rounded-xl transition-all"
+                className="group block p-4 bg-surface-container-low border border-border-muted hover:border-emerald-500/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 rounded-xl transition-all shadow-sm"
               >
-                <h4 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors line-clamp-2 leading-snug">
+                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-1.5">
+                  Blog Article
+                </span>
+                <h4 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
                   {rPost.name}
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2 leading-relaxed">
                   {rPost.shortDescription}
                 </p>
+                <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  <span>Read Article</span>
+                  <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                </div>
               </Link>
             ))}
           </div>

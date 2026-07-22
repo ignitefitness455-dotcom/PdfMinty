@@ -373,7 +373,7 @@ export const ReorderPdfPage: React.FC = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                     <label htmlFor="manual-page-sequence-input" className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
-                      <span>Manual Page Sequence (ম্যানুয়াল পেজ সিকোয়েন্স)</span>
+                      <span>Manual Page Sequence</span>
                     </label>
                     <span className="text-[10px] text-slate-400 font-medium">
                       e.g., 1, 3, 2, 4-6 (Supports ranges & duplicates)

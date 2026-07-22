@@ -33,6 +33,7 @@ import { Footer } from './Footer';
 import { Header } from './Header';
 import InternalSEO, { Breadcrumbs } from './InternalSEO';
 import { MobileDrawer } from './MobileDrawer';
+import { RelatedBlogs } from './RelatedBlogs';
 import { RelatedTools } from './RelatedTools';
 import { ToolGuide } from './ToolGuide';
 import { ToolLongForm } from './ToolLongForm';
@@ -181,6 +182,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               return null;
             })()}
             <RelatedTools />
+            <RelatedBlogs />
           </div>
         </main>
 
