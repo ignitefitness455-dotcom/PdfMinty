@@ -4,13 +4,35 @@ import { getCorsOrigin, getCorsHeaders } from '../utils/cors';
 
 interface Env {
   GEMINI_API_KEY?: string;
+  GORK_API_KEY?: string;
+  GROK_API_KEY?: string;
   GEMINI_MODEL?: string;
+  GORK_MODEL?: string;
+  GROK_MODEL?: string;
   RATELIMIT_KV?: KVNamespace;
 }
 
 const MAX_TEXT_LENGTH = 30000;
 const MAX_QUERY_LENGTH = 2000;
 const DEFAULT_MODEL = 'gemini-2.0-flash';
+
+/**
+ * Parses space/comma/newline/semicolon separated API keys from secret variables.
+ */
+function parseApiKeys(...rawStrings: (string | undefined)[]): string[] {
+  const keys: string[] = [];
+  for (const str of rawStrings) {
+    if (!str) continue;
+    const parts = str.split(/[\n,;\s]+/);
+    for (const part of parts) {
+      const trimmed = part.trim();
+      if (trimmed.length > 0 && !keys.includes(trimmed)) {
+        keys.push(trimmed);
+      }
+    }
+  }
+  return keys;
+}
 
 // Ephemeral in-memory fallback rate-limiting store (per-isolate, not a global cluster-wide counter).
 const fallbackStore = new Map<string, { count: number; expiresAt: number }>();
@@ -215,10 +237,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     const truncated = typeof textContent === 'string' ? textContent.slice(0, MAX_TEXT_LENGTH) : '';
-    const geminiKey = env.GEMINI_API_KEY;
+    const apiKeys = parseApiKeys(env.GORK_API_KEY, env.GROK_API_KEY, env.GEMINI_API_KEY);
 
-    if (!geminiKey) {
-      console.error('Missing GEMINI_API_KEY secret environment variable');
+    if (apiKeys.length === 0) {
+      console.error('Missing GORK_API_KEY / GROK_API_KEY / GEMINI_API_KEY secret environment variables');
       return new Response(
         JSON.stringify({
           error: 'API proxy authentication failed. Verify server-side variables are loaded.',
@@ -232,13 +254,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         }
       );
     }
-
-    const modelName = env.GEMINI_MODEL || DEFAULT_MODEL;
-
-    // Use named parameter format { apiKey: ... }
-    const ai = new GoogleGenAI({
-      apiKey: geminiKey,
-    });
 
     let systemInstruction = 'You are a professional PDF document analysis assistant.';
     let contentsPayload: unknown = '';
@@ -272,20 +287,97 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       contentsPayload = `Use the provided document text below to answer the user's specific query.\n\nUSER SPECIFIC QUERY:\n${query}\n\nDOCUMENT TEXT CONTEXT:\n${truncated}`;
     }
 
-    const response = await ai.models.generateContent({
-      model: modelName,
-      contents: contentsPayload as string,
-      config: {
-        systemInstruction,
-        temperature: mode === 'ocr' ? 0.1 : 0.2,
-      },
-    });
+    let lastError: unknown = null;
+    let aiText: string | null = null;
 
-    // Extract text output via .text property
-    const aiText = response.text;
+    for (let i = 0; i < apiKeys.length; i++) {
+      const currentKey = apiKeys[i];
+      try {
+        const isGrokKey = currentKey.startsWith('xai-');
+        if (isGrokKey) {
+          const grokModel = env.GORK_MODEL || env.GROK_MODEL || 'grok-2-latest';
+          let userMessageContent: unknown = '';
+
+          if (mode === 'ocr') {
+            const contentParts: unknown[] = [
+              { type: 'text', text: 'Transcribe this document image accurately into well-formatted Markdown:' },
+            ];
+            if (Array.isArray(imagesBase64)) {
+              for (const imgStr of imagesBase64) {
+                if (typeof imgStr === 'string') {
+                  const cleanBase64 = imgStr.startsWith('data:') ? imgStr : `data:image/jpeg;base64,${imgStr}`;
+                  contentParts.push({
+                    type: 'image_url',
+                    image_url: { url: cleanBase64 },
+                  });
+                }
+              }
+            }
+            userMessageContent = contentParts;
+          } else {
+            userMessageContent = contentsPayload as string;
+          }
+
+          const grokRes = await fetch('https://api.x.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${currentKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: grokModel,
+              messages: [
+                { role: 'system', content: systemInstruction },
+                { role: 'user', content: userMessageContent },
+              ],
+              temperature: mode === 'ocr' ? 0.1 : 0.2,
+            }),
+          });
+
+          if (!grokRes.ok) {
+            const errText = await grokRes.text();
+            throw new Error(`Grok API Error (${grokRes.status}): ${errText}`);
+          }
+
+          const json = (await grokRes.json()) as { choices?: Array<{ message?: { content?: string } }> };
+          const text = json.choices?.[0]?.message?.content;
+          if (!text) {
+            throw new Error('Grok API returned an empty completion response.');
+          }
+          aiText = text;
+        } else {
+          // Gemini API Key
+          const modelName = env.GEMINI_MODEL || DEFAULT_MODEL;
+          const ai = new GoogleGenAI({ apiKey: currentKey });
+          const response = await ai.models.generateContent({
+            model: modelName,
+            contents: contentsPayload as Parameters<typeof ai.models.generateContent>[0]['contents'],
+            config: {
+              systemInstruction,
+              temperature: mode === 'ocr' ? 0.1 : 0.2,
+            },
+          });
+
+          const resText = response.text;
+          if (!resText) {
+            throw new Error('No generative content output was produced by the model.');
+          }
+          aiText = resText;
+        }
+
+        // Successfully produced AI output! Break out of the key loop.
+        break;
+      } catch (keyErr: unknown) {
+        lastError = keyErr;
+        console.warn(`API Key #${i + 1} failed during AI analysis:`, keyErr);
+        if (i < apiKeys.length - 1) {
+          console.log(`Failing over to API key #${i + 2}...`);
+        }
+      }
+    }
 
     if (!aiText) {
-      throw new Error('No generative content output was produced by the model.');
+      throw lastError || new Error('All configured API keys failed.');
     }
 
     return new Response(
