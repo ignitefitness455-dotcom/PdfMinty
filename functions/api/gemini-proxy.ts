@@ -1,5 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
 import { getCorsOrigin, getCorsHeaders } from '../utils/cors';
 
 interface Env {
@@ -17,15 +15,15 @@ const MAX_QUERY_LENGTH = 2000;
 const DEFAULT_MODEL = 'gemini-2.0-flash';
 
 /**
- * Parses space/comma/newline/semicolon separated API keys from secret variables.
+ * Parses space/comma/newline/semicolon/pipe separated API keys from secret variables.
  */
 function parseApiKeys(...rawStrings: (string | undefined)[]): string[] {
   const keys: string[] = [];
   for (const str of rawStrings) {
     if (!str) continue;
-    const parts = str.split(/[\n,;\s]+/);
+    const parts = str.split(/[\n\r,;\s|]+/);
     for (const part of parts) {
-      const trimmed = part.trim();
+      const trimmed = part.replace(/^['"]|['"]$/g, '').trim();
       if (trimmed.length > 0 && !keys.includes(trimmed)) {
         keys.push(trimmed);
       }
@@ -346,23 +344,56 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           }
           aiText = text;
         } else {
-          // Gemini API Key
+          // Google Gemini API Key via direct REST fetch (Edge runtime compatible)
           const modelName = env.GEMINI_MODEL || DEFAULT_MODEL;
-          const ai = new GoogleGenAI({ apiKey: currentKey });
-          const response = await ai.models.generateContent({
-            model: modelName,
-            contents: contentsPayload as Parameters<typeof ai.models.generateContent>[0]['contents'],
-            config: {
-              systemInstruction,
-              temperature: mode === 'ocr' ? 0.1 : 0.2,
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(currentKey)}`;
+
+          let partsPayload: unknown[] = [];
+          if (mode === 'ocr') {
+            partsPayload = contentsPayload as unknown[];
+          } else {
+            partsPayload = [{ text: contentsPayload as string }];
+          }
+
+          const geminiRes = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
             },
+            body: JSON.stringify({
+              systemInstruction: {
+                parts: [{ text: systemInstruction }],
+              },
+              contents: [
+                {
+                  role: 'user',
+                  parts: partsPayload,
+                },
+              ],
+              generationConfig: {
+                temperature: mode === 'ocr' ? 0.1 : 0.2,
+              },
+            }),
           });
 
-          const resText = response.text;
-          if (!resText) {
-            throw new Error('No generative content output was produced by the model.');
+          if (!geminiRes.ok) {
+            const errText = await geminiRes.text();
+            throw new Error(`Gemini API Error (${geminiRes.status}): ${errText}`);
           }
-          aiText = resText;
+
+          interface GeminiResponse {
+            candidates?: Array<{
+              content?: {
+                parts?: Array<{ text?: string }>;
+              };
+            }>;
+          }
+          const json = (await geminiRes.json()) as GeminiResponse;
+          const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!text) {
+            throw new Error('Gemini API returned an empty completion candidate.');
+          }
+          aiText = text;
         }
 
         // Successfully produced AI output! Break out of the key loop.

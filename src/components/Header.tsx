@@ -157,17 +157,23 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Theme Toggle Button */}
           <button
             onClick={() => setThemeSetting(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface transition-all active:scale-95 cursor-pointer shadow-sm relative group"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface transition-all active:scale-95 cursor-pointer shadow-sm relative group select-none"
             aria-label="Toggle theme mode"
             id="theme_toggle_btn"
           >
             {theme === 'dark' ? (
-              <Sun className="w-5 h-5 text-amber-500 fill-amber-500/10" />
+              <>
+                <Moon className="w-4 h-4 text-emerald-400 fill-emerald-400/20" />
+                <span className="text-xs font-bold text-emerald-400 tracking-wide">Dark</span>
+              </>
             ) : (
-              <Moon className="w-5 h-5 text-slate-700 fill-slate-700/10" />
+              <>
+                <Sun className="w-4 h-4 text-amber-500 fill-amber-500/20" />
+                <span className="text-xs font-bold text-slate-800 tracking-wide">Light</span>
+              </>
             )}
             <span className="absolute invisible group-hover:visible -bottom-9 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] whitespace-nowrap font-bold px-2 py-1 rounded shadow-md border border-slate-800 pointer-events-none z-50">
-              {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+              {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             </span>
           </button>
 
