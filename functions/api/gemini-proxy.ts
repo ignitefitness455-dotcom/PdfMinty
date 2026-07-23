@@ -238,10 +238,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const apiKeys = parseApiKeys(env.GORK_API_KEY, env.GROK_API_KEY, env.GEMINI_API_KEY);
 
     if (apiKeys.length === 0) {
-      console.error('Missing GORK_API_KEY / GROK_API_KEY / GEMINI_API_KEY secret environment variables');
+      console.error('Missing GORK_API_KEY secret environment variable');
       return new Response(
         JSON.stringify({
-          error: 'API proxy authentication failed. Verify server-side variables are loaded.',
+          error: 'API proxy authentication failed. Verify GORK_API_KEY secret environment variable is loaded.',
         }),
         {
           status: 500,
@@ -291,60 +291,69 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     for (let i = 0; i < apiKeys.length; i++) {
       const currentKey = apiKeys[i];
       try {
-        const isGrokKey = currentKey.startsWith('xai-');
-        if (isGrokKey) {
-          const grokModel = env.GORK_MODEL || env.GROK_MODEL || 'grok-2-latest';
-          let userMessageContent: unknown = '';
+        const isGeminiKey = currentKey.startsWith('AIza');
+        const isExplicitGrokKey = currentKey.startsWith('xai-');
 
-          if (mode === 'ocr') {
-            const contentParts: unknown[] = [
-              { type: 'text', text: 'Transcribe this document image accurately into well-formatted Markdown:' },
-            ];
-            if (Array.isArray(imagesBase64)) {
-              for (const imgStr of imagesBase64) {
-                if (typeof imgStr === 'string') {
-                  const cleanBase64 = imgStr.startsWith('data:') ? imgStr : `data:image/jpeg;base64,${imgStr}`;
-                  contentParts.push({
-                    type: 'image_url',
-                    image_url: { url: cleanBase64 },
-                  });
+        // If explicitly Grok (starts with xai-) or non-Gemini key format, attempt xAI Grok API
+        if (isExplicitGrokKey || !isGeminiKey) {
+          try {
+            const grokModel = env.GORK_MODEL || env.GROK_MODEL || 'grok-2-latest';
+            let userMessageContent: unknown = '';
+
+            if (mode === 'ocr') {
+              const contentParts: unknown[] = [
+                { type: 'text', text: 'Transcribe this document image accurately into well-formatted Markdown:' },
+              ];
+              if (Array.isArray(imagesBase64)) {
+                for (const imgStr of imagesBase64) {
+                  if (typeof imgStr === 'string') {
+                    const cleanBase64 = imgStr.startsWith('data:') ? imgStr : `data:image/jpeg;base64,${imgStr}`;
+                    contentParts.push({
+                      type: 'image_url',
+                      image_url: { url: cleanBase64 },
+                    });
+                  }
                 }
               }
+              userMessageContent = contentParts;
+            } else {
+              userMessageContent = contentsPayload as string;
             }
-            userMessageContent = contentParts;
-          } else {
-            userMessageContent = contentsPayload as string;
-          }
 
-          const grokRes = await fetch('https://api.x.ai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${currentKey}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: grokModel,
-              messages: [
-                { role: 'system', content: systemInstruction },
-                { role: 'user', content: userMessageContent },
-              ],
-              temperature: mode === 'ocr' ? 0.1 : 0.2,
-            }),
-          });
+            const grokRes = await fetch('https://api.x.ai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${currentKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: grokModel,
+                messages: [
+                  { role: 'system', content: systemInstruction },
+                  { role: 'user', content: userMessageContent },
+                ],
+                temperature: mode === 'ocr' ? 0.1 : 0.2,
+              }),
+            });
 
-          if (!grokRes.ok) {
-            const errText = await grokRes.text();
-            throw new Error(`Grok API Error (${grokRes.status}): ${errText}`);
+            if (grokRes.ok) {
+              const json = (await grokRes.json()) as { choices?: Array<{ message?: { content?: string } }> };
+              const text = json.choices?.[0]?.message?.content;
+              if (text) {
+                aiText = text;
+              }
+            } else if (isExplicitGrokKey) {
+              const errText = await grokRes.text();
+              throw new Error(`Grok API Error (${grokRes.status}): ${errText}`);
+            }
+          } catch (grokErr) {
+            if (isExplicitGrokKey) throw grokErr;
+            // Otherwise allow fallback to Gemini REST API below
           }
+        }
 
-          const json = (await grokRes.json()) as { choices?: Array<{ message?: { content?: string } }> };
-          const text = json.choices?.[0]?.message?.content;
-          if (!text) {
-            throw new Error('Grok API returned an empty completion response.');
-          }
-          aiText = text;
-        } else {
-          // Google Gemini API Key via direct REST fetch (Edge runtime compatible)
+        // If not explicit Grok key and Grok attempt did not set aiText, try Google Gemini REST API
+        if (!aiText) {
           const modelName = env.GEMINI_MODEL || DEFAULT_MODEL;
           const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(currentKey)}`;
 
@@ -391,7 +400,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           const json = (await geminiRes.json()) as GeminiResponse;
           const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
           if (!text) {
-            throw new Error('Gemini API returned an empty completion candidate.');
+            throw new Error('API returned an empty completion response.');
           }
           aiText = text;
         }
