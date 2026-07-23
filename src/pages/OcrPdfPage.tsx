@@ -28,6 +28,7 @@ export const OcrPdfPage: React.FC = () => {
 
   // OCR result states
   const [ocrResult, setOcrResult] = useState<string>('');
+  const [ocrLanguage, setOcrLanguage] = useState<string>('auto');
   const [copied, setCopied] = useState(false);
 
   const operationTokenRef = useRef<number>(0);
@@ -353,7 +354,27 @@ export const OcrPdfPage: React.FC = () => {
                 </div>
               )}
 
-              <div className="pt-2">
+              <div className="space-y-3 pt-2">
+                <div className="space-y-1">
+                  <label htmlFor="ocr_language_select" className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
+                    Document Language:
+                  </label>
+                  <select
+                    id="ocr_language_select"
+                    value={ocrLanguage}
+                    onChange={(e) => setOcrLanguage(e.target.value)}
+                    className="w-full border border-slate-300 rounded-xl py-2 px-3 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="auto">Auto-Detect (Multilingual)</option>
+                    <option value="en">English</option>
+                    <option value="bn">Bengali (বাংলা)</option>
+                    <option value="es">Spanish (Español)</option>
+                    <option value="fr">French (Français)</option>
+                    <option value="de">German (Deutsch)</option>
+                    <option value="ar">Arabic (العربية)</option>
+                  </select>
+                </div>
+
                 <button
                   onClick={handleStartOcr}
                   disabled={loading || selectedPages.size === 0}

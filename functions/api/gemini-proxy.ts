@@ -235,7 +235,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     const truncated = typeof textContent === 'string' ? textContent.slice(0, MAX_TEXT_LENGTH) : '';
-    const apiKeys = parseApiKeys(env.GORK_API_KEY, env.GROK_API_KEY, env.GEMINI_API_KEY);
+    const apiKeys = parseApiKeys(env.GORK_API_KEY, env.GROK_API_KEY);
 
     if (apiKeys.length === 0) {
       console.error('Missing GORK_API_KEY secret environment variable');

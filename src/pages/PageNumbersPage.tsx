@@ -340,6 +340,30 @@ export const PageNumbersPage: React.FC = () => {
                 className="w-full border border-slate-300 rounded-xl py-2 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 disabled={!selectedFile}
               />
+
+              {/* Quick Pattern Presets */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {[
+                  { label: 'Page {n} of {total}', val: 'Page {n} of {total}' },
+                  { label: 'Page {n}', val: 'Page {n}' },
+                  { label: '- {n} -', val: '- {n} -' },
+                  { label: '{n} / {total}', val: '{n} / {total}' },
+                  { label: 'Simple ({n})', val: '{n}' },
+                ].map((p) => (
+                  <button
+                    key={p.val}
+                    type="button"
+                    onClick={() => {
+                      setPattern(p.val);
+                      setPatternWarning(null);
+                    }}
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-cyan-100 hover:text-cyan-800 text-slate-600 transition-colors"
+                    disabled={!selectedFile}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {patternWarning && (

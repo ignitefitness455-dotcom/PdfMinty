@@ -105,25 +105,71 @@ export const HomePage: React.FC = () => {
         />
       </div>
 
-      {/* Category Filter Tabs */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-12 max-w-3xl mx-auto px-4" id="tool-categories">
-        {CATEGORIES.map((category) => {
-          const isActive = selectedCategory === category.id;
-          return (
-            <button
-              key={category.id}
-              type="button"
-              onClick={() => setSelectedCategory(category.id)}
-              className={`w-full px-4 py-3 rounded-xl text-xs md:text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer text-center border ${
-                isActive
-                  ? 'bg-slate-900 border-slate-900 text-white shadow-sm dark:bg-zinc-800 dark:border-zinc-700'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:bg-zinc-900/50 dark:border-zinc-800/80 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-200'
-              }`}
-            >
-              {category.name}
-            </button>
-          );
-        })}
+      {/* Category Filter Tabs (2 Horizontal Rows) */}
+      <div className="mb-10 max-w-4xl mx-auto px-4 space-y-2.5" id="tool-categories">
+        {/* Row 1 */}
+        <div className="flex items-center gap-2 sm:grid sm:grid-cols-4 overflow-x-auto scrollbar-none py-0.5 select-none">
+          {CATEGORIES.slice(0, 4).map((category) => {
+            const isActive = selectedCategory === category.id;
+            const count = sortedTools.filter((t) => isToolInCategory(t.slug, category.id)).length;
+
+            return (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => setSelectedCategory(category.id)}
+                className={`whitespace-nowrap flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-wide transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
+                  isActive
+                    ? 'bg-security-green border-security-green text-slate-950 shadow-lg shadow-security-green/15'
+                    : 'bg-surface-container-low hover:bg-surface-container-high border-border-muted text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                <span>{category.name}</span>
+                <span
+                  className={`text-[10px] md:text-[11px] px-1.5 py-0.5 rounded-full font-extrabold ${
+                    isActive
+                      ? 'bg-slate-950/15 text-slate-950'
+                      : 'bg-surface-container-highest/60 text-on-surface-variant/80'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Row 2 */}
+        <div className="flex items-center gap-2 sm:grid sm:grid-cols-4 overflow-x-auto scrollbar-none py-0.5 select-none">
+          {CATEGORIES.slice(4, 8).map((category) => {
+            const isActive = selectedCategory === category.id;
+            const count = sortedTools.filter((t) => isToolInCategory(t.slug, category.id)).length;
+
+            return (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => setSelectedCategory(category.id)}
+                className={`whitespace-nowrap flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-wide transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
+                  isActive
+                    ? 'bg-security-green border-security-green text-slate-950 shadow-lg shadow-security-green/15'
+                    : 'bg-surface-container-low hover:bg-surface-container-high border-border-muted text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                <span>{category.name}</span>
+                <span
+                  className={`text-[10px] md:text-[11px] px-1.5 py-0.5 rounded-full font-extrabold ${
+                    isActive
+                      ? 'bg-slate-950/15 text-slate-950'
+                      : 'bg-surface-container-highest/60 text-on-surface-variant/80'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <ToolGrid

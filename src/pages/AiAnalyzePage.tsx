@@ -354,14 +354,38 @@ export const AiAnalyzePage: React.FC = () => {
                 <button
                   onClick={() => submitQuery('summary')}
                   disabled={!extractedText || aiLoading || !hasConsented}
-                  className={`py-2 px-4 rounded-xl text-xs font-bold transition-all ${
+                  className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all ${
                     extractedText && !aiLoading && hasConsented
-                      ? 'bg-amber-100/50 hover:bg-amber-100 border border-amber-200 text-amber-800'
+                      ? 'bg-amber-100/50 hover:bg-amber-100 border border-amber-200 text-amber-800 cursor-pointer'
                       : 'bg-slate-100 border border-slate-200 text-slate-400 pointer-events-none'
                   }`}
                 >
-                  ✨ Summarize Document Complete
+                  ✨ Complete Summary
                 </button>
+
+                {[
+                  { label: '📌 Key Action Items', q: 'List all action items, decisions, and deadlines mentioned in this document.' },
+                  { label: '📊 Financials & Numbers', q: 'Extract all financial figures, metrics, prices, and statistics mentioned in this text.' },
+                  { label: '⚠️ Risks & Disclaimers', q: 'Highlight any potential risks, disclaimers, obligations, or warnings in this document.' },
+                  { label: '📝 Executive Brief', q: 'Provide a 3-bullet point executive brief of this document for a senior manager.' },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => {
+                      setQuery(item.q);
+                      submitQuery(item.q);
+                    }}
+                    disabled={!extractedText || aiLoading || !hasConsented}
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all ${
+                      extractedText && !aiLoading && hasConsented
+                        ? 'bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 cursor-pointer'
+                        : 'bg-slate-100 border border-slate-200 text-slate-400 pointer-events-none'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
 
               {/* Chat interaction input */}

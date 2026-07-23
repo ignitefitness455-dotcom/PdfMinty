@@ -349,6 +349,22 @@ export const WatermarkPage: React.FC = () => {
                   className="w-full border border-slate-300 rounded-xl py-2 px-3.5 text-sm font-bold tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   disabled={!selectedFile}
                 />
+                
+                {/* Quick Presets */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {['CONFIDENTIAL', 'DRAFT', 'DO NOT COPY', 'APPROVED', 'FINAL'].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setText(preset)}
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-600 transition-colors"
+                      disabled={!selectedFile}
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+
                 <p className="text-[10px] text-slate-400 mt-1 text-right">
                   {text.length} / 60
                 </p>

@@ -50,6 +50,8 @@ export const SignPdfPage: React.FC = () => {
   // Canvas ref for drawing signature
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [strokeColor, setStrokeColor] = useState('#020617');
+  const [strokeWidth, setStrokeWidth] = useState(3);
 
   // Target page container refs to calculate exact client coordinates
   const pageContainerRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -131,8 +133,8 @@ export const SignPdfPage: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.strokeStyle = '#020617'; // dark color
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = strokeWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -150,6 +152,35 @@ export const SignPdfPage: React.FC = () => {
     ctx.beginPath();
     ctx.moveTo(clientX - rect.left, clientY - rect.top);
     setIsDrawing(true);
+  };
+
+  const handleInsertDateStamp = () => {
+    const dateStr = new Date().toISOString().split('T')[0];
+    const stampText = `SIGNED: ${dateStr}`;
+
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = 300;
+    tempCanvas.height = 70;
+    const ctx = tempCanvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0)';
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+      // Draw neat border and text
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(5, 5, tempCanvas.width - 10, tempCanvas.height - 10);
+
+      ctx.fillStyle = '#0369a1';
+      ctx.font = 'bold 20px monospace';
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      ctx.fillText(stampText, tempCanvas.width / 2, tempCanvas.height / 2);
+
+      const stampDataUrl = tempCanvas.toDataURL('image/png');
+      setSavedSignatures((prev) => [...prev, stampDataUrl]);
+      addSignatureToPage(stampDataUrl, 0);
+    }
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -548,16 +579,26 @@ export const SignPdfPage: React.FC = () => {
                 <span>Signatures Tool</span>
               </h2>
 
-              <button
-                onClick={() => {
-                  setShowSignModal(true);
-                  setSignMethod('draw');
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition-colors cursor-pointer"
-              >
-                <Edit2 className="w-4 h-4" />
-                <span>Create New Signature</span>
-              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setShowSignModal(true);
+                    setSignMethod('draw');
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition-colors cursor-pointer"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  <span>Create Signature</span>
+                </button>
+
+                <button
+                  onClick={handleInsertDateStamp}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                  title="Insert automatic date stamp with today's date"
+                >
+                  <span>📅 Add Date Stamp</span>
+                </button>
+              </div>
 
               {savedSignatures.length > 0 && (
                 <div className="space-y-2">
@@ -681,6 +722,49 @@ export const SignPdfPage: React.FC = () => {
             <div className="p-6">
               {signMethod === 'draw' && (
                 <div className="space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ink:</span>
+                      {[
+                        { hex: '#020617', name: 'Black' },
+                        { hex: '#1e3a8a', name: 'Navy' },
+                        { hex: '#14532d', name: 'Forest' },
+                        { hex: '#881337', name: 'Burgundy' },
+                      ].map((c) => (
+                        <button
+                          key={c.hex}
+                          type="button"
+                          onClick={() => setStrokeColor(c.hex)}
+                          className={`w-6 h-6 rounded-full border-2 transition-transform ${
+                            strokeColor === c.hex ? 'border-emerald-600 scale-110 shadow-sm' : 'border-slate-200 hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: c.hex }}
+                          title={c.name}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mr-1">Width:</span>
+                      {[
+                        { w: 2, label: 'Fine' },
+                        { w: 3, label: 'Medium' },
+                        { w: 5, label: 'Bold' },
+                      ].map((sw) => (
+                        <button
+                          key={sw.w}
+                          type="button"
+                          onClick={() => setStrokeWidth(sw.w)}
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition-colors ${
+                            strokeWidth === sw.w ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                          }`}
+                        >
+                          {sw.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="border border-slate-200 rounded-xl bg-slate-50 overflow-hidden relative">
                     <canvas
                       ref={canvasRef}

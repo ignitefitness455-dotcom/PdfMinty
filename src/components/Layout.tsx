@@ -69,34 +69,32 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
 
-  // Theme management logic
+  // Theme management logic - Default to 'light' (Day Mode)
   const [theme, setThemeSetting] = useState<'light' | 'dark'>(() => {
     try {
       const saved = localStorage.getItem('theme-preference');
       if (saved === 'dark' || saved === 'light') return saved;
     } catch {
-      // localStorage may throw in Safari private mode or when cookies are blocked.
+      // localStorage may throw in private browsing mode
     }
-    try {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    } catch {
-      return 'light';
-    }
+    return 'light';
   });
 
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
+      root.classList.remove('light');
       root.style.colorScheme = 'dark';
     } else {
       root.classList.remove('dark');
+      root.classList.add('light');
       root.style.colorScheme = 'light';
     }
     try {
       localStorage.setItem('theme-preference', theme);
     } catch {
-      // Ignore write errors in private browsing/blocked cookies.
+      // Ignore write errors
     }
   }, [theme]);
 
