@@ -157,20 +157,14 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Theme Toggle Button */}
           <button
             onClick={() => setThemeSetting(theme === 'dark' ? 'light' : 'dark')}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface transition-all active:scale-95 cursor-pointer shadow-sm relative group select-none"
-            aria-label="Toggle theme mode"
+            className="p-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface transition-all active:scale-95 cursor-pointer shadow-sm relative group select-none flex items-center justify-center"
+            aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             id="theme_toggle_btn"
           >
             {theme === 'dark' ? (
-              <>
-                <Moon className="w-4 h-4 text-emerald-400 fill-emerald-400/20" />
-                <span className="text-xs font-bold text-emerald-400 tracking-wide">Dark</span>
-              </>
+              <Moon className="w-4 h-4 text-emerald-400 fill-emerald-400/20" />
             ) : (
-              <>
-                <Sun className="w-4 h-4 text-amber-500 fill-amber-500/20" />
-                <span className="text-xs font-bold text-slate-800 tracking-wide">Light</span>
-              </>
+              <Sun className="w-4 h-4 text-amber-500 fill-amber-500/20" />
             )}
             <span className="absolute invisible group-hover:visible -bottom-9 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] whitespace-nowrap font-bold px-2 py-1 rounded shadow-md border border-slate-800 pointer-events-none z-50">
               {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
