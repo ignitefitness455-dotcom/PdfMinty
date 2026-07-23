@@ -29,5 +29,7 @@ export const ROUTES = {
   TRUST_ARTICLE: `/${TOOLS.find((t) => t.id === 'trust-article')?.slug || 'is-it-safe-to-upload-pdf-to-online-tools'}`,
   BLOG: '/blog',
   BLOG_POST: '/blog/:postSlug',
+  PRIVACY_POLICY: '/privacy-policy',
+  TERMS_OF_SERVICE: '/terms-of-service',
 };
 export default ROUTES;

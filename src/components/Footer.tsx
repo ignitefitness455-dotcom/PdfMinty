@@ -1,4 +1,4 @@
-import { MessageSquare, Mail, HelpCircle, Shield } from 'lucide-react';
+import { MessageSquare, Mail, HelpCircle, Shield, FileText } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
@@ -72,6 +72,18 @@ export const Footer: React.FC<FooterProps> = ({
             className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
           >
             <Shield className="w-4.5 h-4.5 text-emerald-500 fill-emerald-500/10" /> Is It Safe?
+          </Link>
+          <Link
+            to={ROUTES.PRIVACY_POLICY}
+            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
+          >
+            <Shield className="w-4.5 h-4.5 text-sky-400 fill-sky-400/10" /> Privacy Policy
+          </Link>
+          <Link
+            to={ROUTES.TERMS_OF_SERVICE}
+            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
+          >
+            <FileText className="w-4.5 h-4.5 text-amber-400 fill-amber-400/10" /> Terms of Service
           </Link>
         </div>
 

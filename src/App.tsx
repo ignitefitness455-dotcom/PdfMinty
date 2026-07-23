@@ -40,6 +40,8 @@ const SignPdfPage = lazyWithRetry(() => import('./pages/SignPdfPage').then((m) =
 const OcrPdfPage = lazyWithRetry(() => import('./pages/OcrPdfPage').then((m) => ({ default: m.OcrPdfPage })));
 const BlogPage = lazyWithRetry(() => import('./pages/BlogPage').then((m) => ({ default: m.BlogPage })));
 const BlogPostPage = lazyWithRetry(() => import('./pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
+const PrivacyPolicyPage = lazyWithRetry(() => import('./pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })));
+const TermsOfServicePage = lazyWithRetry(() => import('./pages/TermsOfServicePage').then((m) => ({ default: m.TermsOfServicePage })));
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -260,6 +262,22 @@ export const App: React.FC = () => {
               element={
                 <ErrorBoundary resetKey="blog-post">
                   <BlogPostPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.PRIVACY_POLICY}
+              element={
+                <ErrorBoundary resetKey="privacy-policy">
+                  <PrivacyPolicyPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.TERMS_OF_SERVICE}
+              element={
+                <ErrorBoundary resetKey="terms-of-service">
+                  <TermsOfServicePage />
                 </ErrorBoundary>
               }
             />
