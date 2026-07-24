@@ -2,9 +2,11 @@ import { getCorsOrigin, getCorsHeaders } from '../utils/cors';
 
 interface Env {
   GEMINI_API_KEY?: string;
+  GROQ_API_KEY?: string;
   GORK_API_KEY?: string;
   GROK_API_KEY?: string;
   GEMINI_MODEL?: string;
+  GROQ_MODEL?: string;
   GORK_MODEL?: string;
   GROK_MODEL?: string;
   RATELIMIT_KV?: KVNamespace;
@@ -235,13 +237,13 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     const truncated = typeof textContent === 'string' ? textContent.slice(0, MAX_TEXT_LENGTH) : '';
-    const apiKeys = parseApiKeys(env.GORK_API_KEY, env.GROK_API_KEY);
+    const apiKeys = parseApiKeys(env.GEMINI_API_KEY, env.GROQ_API_KEY, env.GROK_API_KEY, env.GORK_API_KEY);
 
     if (apiKeys.length === 0) {
-      console.error('Missing GORK_API_KEY secret environment variable');
+      console.error('Missing GEMINI_API_KEY, GROQ_API_KEY, or GROK_API_KEY secret environment variable');
       return new Response(
         JSON.stringify({
-          error: 'API proxy authentication failed. Verify GORK_API_KEY secret environment variable is loaded.',
+          error: 'API proxy authentication failed. Verify GEMINI_API_KEY, GROQ_API_KEY, or GROK_API_KEY secret environment variable is loaded in Cloudflare Settings.',
         }),
         {
           status: 500,
@@ -293,9 +295,68 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       try {
         const isGeminiKey = currentKey.startsWith('AIza');
         const isExplicitGrokKey = currentKey.startsWith('xai-');
+        const isGroqKey = currentKey.startsWith('gsk_') || currentKey === env.GROQ_API_KEY;
 
-        // If explicitly Grok (starts with xai-) or non-Gemini key format, attempt xAI Grok API
-        if (isExplicitGrokKey || !isGeminiKey) {
+        // 1. Try Groq API (console.groq.com)
+        if (isGroqKey || (!isGeminiKey && !isExplicitGrokKey)) {
+          try {
+            const groqModel = env.GROQ_MODEL || env.GROK_MODEL || env.GORK_MODEL || (mode === 'ocr' ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile');
+            let userMessageContent: unknown = '';
+
+            if (mode === 'ocr') {
+              const contentParts: unknown[] = [
+                { type: 'text', text: 'Transcribe this document image accurately into well-formatted Markdown:' },
+              ];
+              if (Array.isArray(imagesBase64)) {
+                for (const imgStr of imagesBase64) {
+                  if (typeof imgStr === 'string') {
+                    const cleanBase64 = imgStr.startsWith('data:') ? imgStr : `data:image/jpeg;base64,${imgStr}`;
+                    contentParts.push({
+                      type: 'image_url',
+                      image_url: { url: cleanBase64 },
+                    });
+                  }
+                }
+              }
+              userMessageContent = contentParts;
+            } else {
+              userMessageContent = contentsPayload as string;
+            }
+
+            const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${currentKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: groqModel,
+                messages: [
+                  { role: 'system', content: systemInstruction },
+                  { role: 'user', content: userMessageContent },
+                ],
+                temperature: mode === 'ocr' ? 0.1 : 0.2,
+              }),
+            });
+
+            if (groqRes.ok) {
+              const json = (await groqRes.json()) as { choices?: Array<{ message?: { content?: string } }> };
+              const text = json.choices?.[0]?.message?.content;
+              if (text) {
+                aiText = text;
+              }
+            } else if (isGroqKey) {
+              const errText = await groqRes.text();
+              throw new Error(`Groq API Error (${groqRes.status}): ${errText}`);
+            }
+          } catch (groqErr) {
+            if (isGroqKey) throw groqErr;
+            // Fallback to other providers below
+          }
+        }
+
+        // 2. Try xAI Grok API (x.ai) if not handled by Groq
+        if (!aiText && (isExplicitGrokKey || (!isGeminiKey && !isGroqKey))) {
           try {
             const grokModel = env.GORK_MODEL || env.GROK_MODEL || 'grok-2-latest';
             let userMessageContent: unknown = '';
@@ -348,7 +409,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             }
           } catch (grokErr) {
             if (isExplicitGrokKey) throw grokErr;
-            // Otherwise allow fallback to Gemini REST API below
+            // Fallback to Gemini below
           }
         }
 
