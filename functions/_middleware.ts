@@ -69,35 +69,8 @@ export const onRequest: PagesFunction = async (context) => {
     response.status === 304 ||
     (response.status >= 100 && response.status < 200);
 
-  // Generate a per-request nonce for inline scripts/styles.
-  const nonce = crypto.randomUUID().replace(/-/g, '').slice(0, 24);
-
-  // For HTML responses, inject the nonce into all inline <script> and <style> tags.
-  let body: ReadableStream<Uint8Array> | null = null;
   const contentType = response.headers.get('Content-Type') || '';
-
-  if (!hasNoBody && contentType.includes('text/html')) {
-    const originalText = await response.text();
-    // Inject nonce attribute into script tags that don't already have one.
-    const injected = originalText
-      .replace(/<script(?![^>]*\snonce=)([^>]*)>/g, `<script nonce="${nonce}"$1>`)
-      .replace(/<style(?![^>]*\snonce=)([^>]*)>/g, `<style nonce="${nonce}"$1>`);
-    body = new ReadableStream({
-      start(controller) {
-        controller.enqueue(new TextEncoder().encode(injected));
-        controller.close();
-      },
-    });
-  } else {
-    body = hasNoBody ? null : response.body;
-  }
-
-  const newResponse = new Response(body, response);
-  // Content-Length is now stale because we injected nonces into the HTML.
-  // Delete it so the runtime recompute or omits it.
-  if (!hasNoBody && contentType.includes('text/html')) {
-    newResponse.headers.delete('Content-Length');
-  }
+  const newResponse = new Response(hasNoBody ? null : response.body, response);
 
   newResponse.headers.set('X-Content-Type-Options', 'nosniff');
   newResponse.headers.set('X-Frame-Options', 'DENY');
@@ -133,17 +106,15 @@ export const onRequest: PagesFunction = async (context) => {
 
   const isBypassed = isAuditToolUserAgent || isGoogleNetwork;
 
-  // CSP with nonce support. We include 'unsafe-inline' and 'unsafe-eval' as fallbacks.
-  // 'unsafe-inline' is required for style-src to allow inline style="..." attributes (critical for React & Framer Motion animations)
-  // and both are required for script-src to support Lighthouse/PageSpeed Insights automated execution.
+  // Standard robust Content-Security-Policy for static & PWA client-side applications
   if (!isBypassed) {
     const cspDirectives = [
       "default-src 'self'",
-      `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' 'unsafe-eval'`,
-      `style-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://fonts.googleapis.com`,
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' data: https://fonts.gstatic.com",
-      "img-src 'self' blob: data:",
-      "connect-src 'self' blob:",
+      "img-src 'self' blob: data: https://www.googletagmanager.com",
+      "connect-src 'self' blob: https://www.google-analytics.com https://stats.g.doubleclick.net https://static.cloudflareinsights.com https://generativelanguage.googleapis.com",
       "worker-src 'self' blob:",
       "object-src 'none'",
       "base-uri 'self'",
