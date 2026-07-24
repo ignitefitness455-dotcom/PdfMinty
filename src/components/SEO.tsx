@@ -44,12 +44,16 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
 
   // Per-tool og:image if declared in seo-data, else generic.
   const ogImage = item?.ogImage ? `${SITE_URL}${item.ogImage}` : `${SITE_URL}/og-image.png`;
+  const keywords = item?.name
+    ? `${item.name.toLowerCase()}, ${item.slug.replace(/-/g, ' ')}, pdf toolkit, client-side pdf`
+    : 'pdf toolkit, merge pdf, split pdf, compress pdf, protect pdf, edit pdf, client-side pdf editor, free pdf tools';
 
   return (
     <Helmet>
       {/* General Title and Meta */}
       <title>{title}</title>
       <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       <meta name="author" content="PDFMinty" />
       <meta name="publisher" content="PDFMinty" />

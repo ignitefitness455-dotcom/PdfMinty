@@ -11,23 +11,90 @@ import { PDFSanitizer } from './PDFSanitizer';
 import { getPdfJs } from './index';
 
 /**
+ * Helper to classify raw error instances into user-friendly, specific error messages.
+ */
+export function formatUserFriendlyErrorMessage(err: unknown, defaultMessage: string): string {
+  if (err instanceof Error) {
+    const rawMessage = err.message || '';
+    const lower = rawMessage.toLowerCase();
+
+    // 1. Password Protection / Encrypted
+    if (
+      lower.includes('encrypted') ||
+      lower.includes('secured_locked') ||
+      lower.includes('password protected') ||
+      lower.includes('password is required')
+    ) {
+      return 'This PDF is password protected. Please unlock it first.';
+    }
+
+    // 2. Out of bounds / Range
+    if (
+      lower.includes('invalid index') ||
+      lower.includes('out of bounds') ||
+      lower.includes('page index')
+    ) {
+      return 'Page range or index is out of bounds for this document.';
+    }
+
+    // 3. Maximum file size exceeded
+    if (
+      lower.includes('exceeds the maximum allowed size') ||
+      lower.includes('too large') ||
+      lower.includes('max_single_file')
+    ) {
+      return rawMessage.includes('MB')
+        ? rawMessage
+        : 'File size exceeds maximum allowed limit (max 100MB).';
+    }
+
+    // 4. Invalid / Corrupted PDF Header or structure
+    if (
+      lower.includes('missing pdf header') ||
+      lower.includes('not appear to be a valid pdf') ||
+      lower.includes('invalid pdf') ||
+      lower.includes('failed to parse') ||
+      lower.includes('unexpected token') ||
+      lower.includes('corrupt')
+    ) {
+      return 'Invalid or corrupted PDF file. Please verify the document format.';
+    }
+
+    // 5. Browser Memory / WASM / Allocation / Stack overflow
+    if (
+      lower.includes('out of memory') ||
+      lower.includes('allocation failed') ||
+      lower.includes('allocation size overflow') ||
+      lower.includes('maximum call stack') ||
+      lower.includes('rangeerror') ||
+      lower.includes('wasm') ||
+      lower.includes('heap')
+    ) {
+      return 'Browser memory full — try a smaller file or fewer pages.';
+    }
+
+    // 6. Pass through specific descriptive messages
+    if (
+      rawMessage &&
+      !rawMessage.includes('[object Object]') &&
+      rawMessage !== 'Error' &&
+      rawMessage !== 'Unknown error'
+    ) {
+      return rawMessage.startsWith(defaultMessage) ? rawMessage : `${defaultMessage}: ${rawMessage}`;
+    }
+  } else if (typeof err === 'string' && err.trim().length > 0) {
+    return err;
+  }
+
+  return defaultMessage;
+}
+
+/**
  * Helper to standardise pdf-lib errors to user-friendly ones
  */
 function handlePdfLibError(err: unknown, defaultMessage: string): never {
   logger.error('PDF Operation Error:', err);
-  if (err instanceof Error) {
-    if (
-      err.message.includes('encrypted') ||
-      err.message.includes('SECURED_LOCKED') ||
-      err.message.includes('password protected')
-    ) {
-      throw new Error('This PDF is password protected. Please unlock it first.');
-    }
-    if (err.message.includes('Invalid index') || err.message.includes('out of bounds')) {
-      throw new Error('Page range or index is out of bounds for this document.');
-    }
-  }
-  throw new Error(defaultMessage);
+  throw new Error(formatUserFriendlyErrorMessage(err, defaultMessage));
 }
 
 /**

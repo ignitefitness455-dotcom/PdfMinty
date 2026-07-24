@@ -2,6 +2,7 @@ import { ArrowLeft, Image, Download, Trash2, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -201,7 +202,12 @@ export const ImgToPdfPage: React.FC = () => {
             </div>
           )}
 
-          {images.length > 0 && (
+          {images.length === 0 ? (
+            <EmptyState
+              title="Upload images to convert to PDF"
+              description="Select PNG, JPG, or WebP files above to build and organize your PDF document."
+            />
+          ) : (
             <div
               className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
               id="images_deck_list"

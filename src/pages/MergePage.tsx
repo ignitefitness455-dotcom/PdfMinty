@@ -2,6 +2,7 @@ import { ArrowLeft, Files, Trash2, ArrowUp, ArrowDown, Download, AlertCircle } f
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -157,7 +158,12 @@ export const MergePage: React.FC = () => {
             />
           </div>
 
-          {files.length > 0 && (
+          {files.length === 0 ? (
+            <EmptyState
+              title="Upload PDFs to merge"
+              description="Add two or more PDF files above to arrange them and combine into a single document."
+            />
+          ) : (
             <div
               className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
               id="files_deck_list"

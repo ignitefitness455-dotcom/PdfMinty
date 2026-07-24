@@ -2,6 +2,7 @@ import { ArrowLeft, Scissors, AlertCircle, Info, Download } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -174,6 +175,13 @@ export const SplitPage: React.FC = () => {
                 </div>
               )}
             </div>
+          )}
+
+          {!selectedFile && (
+            <EmptyState
+              title="Upload a PDF to split"
+              description="Select a document above and specify page directives to split it into multiple files."
+            />
           )}
 
           <div className="bg-slate-100 p-4 rounded-xl flex items-start space-x-2 border border-slate-200 text-xs text-slate-600 leading-relaxed">

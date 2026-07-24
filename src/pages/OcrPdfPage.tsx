@@ -453,6 +453,7 @@ export const OcrPdfPage: React.FC = () => {
                     <textarea
                       value={ocrResult}
                       onChange={(e) => setOcrResult(e.target.value)}
+                      aria-label="Transcribed OCR text output"
                       className="w-full flex-1 min-h-[280px] p-4 bg-slate-50/50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 focus:outline-none focus:border-slate-400 leading-relaxed resize-y"
                     />
                   </div>

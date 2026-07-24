@@ -98,6 +98,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               disabled={zoom <= 0.15}
               className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 hover:text-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
               title="Zoom Out"
+              aria-label="Zoom Out"
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
@@ -109,6 +110,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               disabled={zoom >= 1.2}
               className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 hover:text-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
               title="Zoom In"
+              aria-label="Zoom In"
             >
               <ZoomIn className="w-3.5 h-3.5" />
             </button>

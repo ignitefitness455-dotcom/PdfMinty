@@ -118,18 +118,18 @@ export const HomePage: React.FC = () => {
                 key={category.id}
                 type="button"
                 onClick={() => setSelectedCategory(category.id)}
-                className={`whitespace-nowrap flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-wide transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
+                className={`whitespace-nowrap flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
                   isActive
-                    ? 'bg-security-green border-security-green text-slate-950 shadow-lg shadow-security-green/15'
-                    : 'bg-surface-container-low hover:bg-surface-container-high border-border-muted text-on-surface-variant hover:text-on-surface'
+                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                    : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 <span>{category.name}</span>
                 <span
-                  className={`text-[10px] md:text-[11px] px-1.5 py-0.5 rounded-full font-extrabold ${
+                  className={`text-[10px] md:text-[11px] px-2 py-0.5 rounded-full font-black ${
                     isActive
-                      ? 'bg-slate-950/15 text-slate-950'
-                      : 'bg-surface-container-highest/60 text-on-surface-variant/80'
+                      ? 'bg-white/25 text-white'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                   }`}
                 >
                   {count}
@@ -150,18 +150,18 @@ export const HomePage: React.FC = () => {
                 key={category.id}
                 type="button"
                 onClick={() => setSelectedCategory(category.id)}
-                className={`whitespace-nowrap flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-wide transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
+                className={`whitespace-nowrap flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
                   isActive
-                    ? 'bg-security-green border-security-green text-slate-950 shadow-lg shadow-security-green/15'
-                    : 'bg-surface-container-low hover:bg-surface-container-high border-border-muted text-on-surface-variant hover:text-on-surface'
+                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                    : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
                 }`}
               >
                 <span>{category.name}</span>
                 <span
-                  className={`text-[10px] md:text-[11px] px-1.5 py-0.5 rounded-full font-extrabold ${
+                  className={`text-[10px] md:text-[11px] px-2 py-0.5 rounded-full font-black ${
                     isActive
-                      ? 'bg-slate-950/15 text-slate-950'
-                      : 'bg-surface-container-highest/60 text-on-surface-variant/80'
+                      ? 'bg-white/25 text-white'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                   }`}
                 >
                   {count}

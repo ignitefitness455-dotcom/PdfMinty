@@ -94,9 +94,9 @@ body {
 :root {
   --custom-bg: #f8fafc;
   --custom-on-bg: #0f172a;
-  --custom-primary-fixed: #059669; /* beautiful emerald-600 for light mode contrast */
-  --custom-primary-fixed-dim: #047857;
-  --custom-security-green: #059669;
+  --custom-primary-fixed: #047857; /* emerald-700 for 5.17:1 contrast on white */
+  --custom-primary-fixed-dim: #065f46;
+  --custom-security-green: #047857;
   --custom-primary: #0f172a;
   --custom-on-primary: #ffffff;
 
@@ -134,7 +134,7 @@ html.dark {
   --custom-surface-dim: #0b0f19;
   --custom-surface-bright: #1f2937;
   --custom-surface-variant: #1e293b;
-  --custom-on-surface-variant: #94a3b8;
+  --custom-on-surface-variant: #cbd5e1; /* slate-300 for >7:1 contrast on #111827 */
   --custom-inverse-surface: #f8fafc;
   --custom-inverse-on-surface: #0f172a;
 
@@ -146,7 +146,7 @@ html.dark {
 
   --custom-border-muted: rgba(255, 255, 255, 0.1);
   --custom-glass-bg: rgba(17, 24, 39, 0.85);
-  --custom-text-muted-more: #64748b;
+  --custom-text-muted-more: #94a3b8; /* slate-400 for >4.5:1 contrast on dark background */
 }
 
 @theme {
@@ -419,3 +419,15 @@ html.dark select {
     animation: none;
   }
 }
+
+/* Global keyboard focus indicators for accessibility */
+:focus-visible {
+  outline: 2px solid var(--custom-primary-fixed, #047857) !important;
+  outline-offset: 2px !important;
+}
+
+html.dark :focus-visible {
+  outline: 2px solid #00ffc2 !important;
+  outline-offset: 2px !important;
+}
+

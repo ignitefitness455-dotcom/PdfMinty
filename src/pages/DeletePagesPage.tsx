@@ -2,6 +2,7 @@ import { ArrowLeft, Trash2, AlertCircle, AlertTriangle, Loader2, CheckSquare, Sq
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -315,6 +316,13 @@ export const DeletePagesPage: React.FC = () => {
                 </div>
               )}
             </div>
+          )}
+
+          {!selectedFile && (
+            <EmptyState
+              title="Upload a PDF to delete pages"
+              description="Select a document above to inspect page thumbnails and click to remove unwanted pages."
+            />
           )}
 
           {selectedFile && (

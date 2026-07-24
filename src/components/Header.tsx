@@ -157,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Theme Toggle Button */}
           <button
             onClick={() => setThemeSetting(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface transition-all active:scale-95 cursor-pointer shadow-sm relative group select-none flex items-center justify-center"
+            className="p-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none transition-all active:scale-95 cursor-pointer shadow-sm relative group select-none flex items-center justify-center"
             aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             id="theme_toggle_btn"
           >
@@ -174,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Mobile Drawer Trigger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface lg:hidden focus:outline-none transition-all"
+            className="p-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-on-surface lg:hidden focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none transition-all"
             aria-label="Toggle menu"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile_drawer"

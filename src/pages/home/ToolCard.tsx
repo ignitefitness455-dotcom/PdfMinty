@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -45,29 +45,29 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
       onClick={handleLaunch}
       onMouseEnter={() => prefetchToolChunk(tool.slug)}
       onFocus={() => prefetchToolChunk(tool.slug)}
-      className={`page-card glass-panel rounded-[24px] p-6 flex flex-col justify-between text-left group transition-all duration-300 transform hover:-translate-y-1 relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-security-green ${
+      className={`page-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between text-left group transition-all duration-300 transform hover:-translate-y-1 relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 border ${
         isHighlighted
-          ? 'border-security-green/40 dark:border-security-green/50 shadow-[0_4px_24px_rgba(5,150,105,0.08)] hover:shadow-[0_4px_30px_rgba(5,150,105,0.16)] bg-gradient-to-br from-white/90 to-emerald-50/[0.15] dark:from-neutral-900/90 dark:to-emerald-950/[0.08]'
-          : 'border-border-muted hover:border-security-green shadow-lg hover:shadow-security-green/5'
+          ? 'border-emerald-500/40 dark:border-emerald-500/50 shadow-md hover:shadow-xl hover:shadow-emerald-500/10 bg-gradient-to-br from-white to-emerald-50/20 dark:from-slate-900 dark:to-emerald-950/20'
+          : 'border-slate-200 dark:border-slate-800 hover:border-emerald-500/60 shadow-sm hover:shadow-md bg-white dark:bg-slate-900'
       }`}
     >
       {isHighlighted && (
-        <div className="absolute top-0 left-6 right-6 h-[3px] bg-gradient-to-r from-transparent via-security-green/60 to-transparent rounded-b-full" />
+        <div className="absolute top-0 left-6 right-6 h-[3px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent rounded-b-full" />
       )}
       <div>
-        <div className="flex items-center justify-between mb-5">
-          <div className="w-12 h-12 rounded-xl bg-surface-container-low border border-border-muted flex items-center justify-center transition-transform group-hover:scale-110 shadow-md">
-            <Icon className="w-5.5 h-5.5 text-security-green" aria-hidden="true" />
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center transition-transform group-hover:scale-105 shadow-xs shrink-0">
+            <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             {isHighlighted && (
-              <span className="text-[9px] font-black tracking-wider px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400 rounded-full border border-amber-500/20 animate-pulse-slow">
+              <span className="text-[10px] font-black tracking-wider px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400 rounded-full border border-amber-500/25 uppercase shrink-0 whitespace-nowrap shadow-2xs">
                 ★ HIGH DEMAND
               </span>
             )}
             {badge && !['popular', 'ai_hybrid'].includes(toolSEO.badge || '') && (
               <span
-                className={`text-[9px] font-extrabold tracking-wider px-2.5 py-1 rounded-full border ${badge.color}`}
+                className={`text-[10px] font-extrabold tracking-wider px-2.5 py-1 rounded-full border uppercase shrink-0 whitespace-nowrap ${badge.color}`}
               >
                 {badge.text}
               </span>
@@ -75,19 +75,17 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
           </div>
         </div>
 
-        <h3 className="text-base font-black text-primary leading-snug mb-2 group-hover:text-security-green transition-colors font-sans">
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors tracking-tight mb-2 font-sans">
           {tool.name}
         </h3>
-        <p className="text-on-surface-variant text-xs leading-relaxed font-semibold line-clamp-2 min-h-[2.5rem]">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal line-clamp-2 min-h-[2.5rem]">
           {tool.description}
         </p>
       </div>
 
-      <div className="mt-5 flex items-center gap-1.5 text-xs text-on-surface-variant group-hover:text-security-green transition-all font-bold">
-        Launch Tool{' '}
-        <span className="translate-x-0 group-hover:translate-x-1 transition-transform">
-          →
-        </span>
+      <div className="mt-5 w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 group-hover:bg-emerald-600 dark:group-hover:bg-emerald-500 group-hover:border-emerald-600 dark:group-hover:border-emerald-500 text-slate-700 dark:text-slate-200 group-hover:text-white transition-all duration-200 flex items-center justify-between text-xs font-bold shadow-2xs">
+        <span>Use {tool.name}</span>
+        <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" aria-hidden="true" />
       </div>
     </button>
   );

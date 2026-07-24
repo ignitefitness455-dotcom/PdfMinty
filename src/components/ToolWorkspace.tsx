@@ -111,13 +111,30 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
         </div>
       )}
 
+      {loading && (
+        <div
+          className="flex items-center space-x-3 p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-sm font-medium"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+          <div className="flex items-center gap-2">
+            <span className="font-bold">Processing PDF...</span>
+            <span className="text-xs text-emerald-700">Please wait while your file is being processed.</span>
+          </div>
+        </div>
+      )}
+
       <button
         onClick={handleProcess}
         disabled={files.length === 0 || loading}
         aria-busy={loading}
-        className="px-4 py-2 bg-emerald-600 text-white rounded-xl font-semibold disabled:bg-slate-300 hover:bg-emerald-700 transition-colors"
+        className="px-4 py-2 bg-emerald-600 text-white rounded-xl font-semibold disabled:bg-slate-300 hover:bg-emerald-700 transition-colors inline-flex items-center space-x-2"
       >
-        {loading ? 'Processing...' : 'Process'}
+        {loading && (
+          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+        )}
+        <span>{loading ? 'Processing...' : 'Process'}</span>
       </button>
 
       {result && !autoDownload && (

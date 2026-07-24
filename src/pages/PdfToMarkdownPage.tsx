@@ -647,9 +647,10 @@ export const PdfToMarkdownPage: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
                 <Code2 className="w-4 h-4 text-emerald-600" />
-                <span>Raw Markdown Editor</span>
+                <label htmlFor="raw_markdown_editor">Raw Markdown Editor</label>
               </div>
               <textarea
+                id="raw_markdown_editor"
                 value={markdownText}
                 onChange={(e) => setMarkdownText(e.target.value)}
                 className="w-full bg-slate-900 text-slate-100 font-mono text-xs rounded-2xl p-5 border border-slate-800 shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 h-[500px] leading-relaxed resize-none"

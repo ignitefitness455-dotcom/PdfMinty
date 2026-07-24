@@ -11,6 +11,7 @@ import type { PDFDocumentProxy } from 'pdfjs-dist';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -243,13 +244,19 @@ export const AiAnalyzePage: React.FC = () => {
             </h3>
 
             {!selectedFile ? (
-              <FileUploader
-                onFilesSelected={handleFilesSelected}
-                accept=".pdf,application/pdf"
-                title="Select PDF for AI review"
-                subtitle={`Drag a PDF file here (Max limit: ${TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}MB)`}
-                maxSizeMB={TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}
-              />
+              <>
+                <FileUploader
+                  onFilesSelected={handleFilesSelected}
+                  accept=".pdf,application/pdf"
+                  title="Select PDF for AI review"
+                  subtitle={`Drag a PDF file here (Max limit: ${TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}MB)`}
+                  maxSizeMB={TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}
+                />
+                <EmptyState
+                  title="Upload a PDF for AI Analysis"
+                  description="Select a document above to extract text and ask Gemini questions or request summaries."
+                />
+              </>
             ) : (
               <div className="space-y-4">
                 <div

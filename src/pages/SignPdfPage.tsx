@@ -56,10 +56,16 @@ export const SignPdfPage: React.FC = () => {
   // Target page container refs to calculate exact client coordinates
   const pageContainerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Track active pointer drag cleanup function to ensure listeners are removed if unmounted mid-drag
+  const pointerCleanupRef = useRef<(() => void) | null>(null);
+
   useEffect(() => {
     return () => {
       if (downloadUrl) URL.revokeObjectURL(downloadUrl);
       pagePreviews.forEach((url) => URL.revokeObjectURL(url));
+      if (pointerCleanupRef.current) {
+        pointerCleanupRef.current();
+      }
     };
   }, [downloadUrl, pagePreviews]);
 
@@ -378,8 +384,10 @@ export const SignPdfPage: React.FC = () => {
     const handlePointerUp = () => {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
+      pointerCleanupRef.current = null;
     };
 
+    pointerCleanupRef.current = handlePointerUp;
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
   };
@@ -793,8 +801,9 @@ export const SignPdfPage: React.FC = () => {
               {signMethod === 'type' && (
                 <div className="space-y-4">
                   <div>
-                    <div className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Enter Your Name</div>
+                    <label htmlFor="sign_typed_name" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Enter Your Name</label>
                     <input
+                      id="sign_typed_name"
                       type="text"
                       value={typedName}
                       onChange={(e) => setTypedName(e.target.value)}
@@ -857,6 +866,7 @@ export const SignPdfPage: React.FC = () => {
                         type="file"
                         accept="image/*"
                         onChange={handleSignImageUpload}
+                        aria-label="Upload signature image"
                         className="absolute inset-0 opacity-0 cursor-pointer"
                       />
                     </div>
