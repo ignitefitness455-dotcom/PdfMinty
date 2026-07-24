@@ -51,7 +51,7 @@ export const TermsOfServicePage: React.FC = () => {
               <Check className="w-4 h-4 text-emerald-500" /> PDF Merge & Split
             </div>
             <div className="p-2.5 rounded-xl bg-surface-container-high border border-border-muted flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-500" /> PDF Compress & Repair
+              <Check className="w-4 h-4 text-emerald-500" /> PDF Repair & Flatten
             </div>
             <div className="p-2.5 rounded-xl bg-surface-container-high border border-border-muted flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500" /> PDF Protect & Unlock

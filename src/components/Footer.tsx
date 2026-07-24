@@ -97,7 +97,7 @@ export const Footer: React.FC<FooterProps> = ({
           </p>
           <p className="font-medium">
             Offering a friction-free, account-less alternative to online cloud converters, our
-            utilities let you merge, split, and compress your critical documents under full
+            utilities let you merge, split, and edit your critical documents under full
             local device control. PDFMinty is committed to persistent data privacy and
             utility-grade performance, completely free of charge.
           </p>

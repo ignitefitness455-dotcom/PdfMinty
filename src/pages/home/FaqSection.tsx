@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 import { TOOLS } from '../../config/seo-data';
 
@@ -26,8 +27,24 @@ export const FaqSection: React.FC = () => {
     },
   ];
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a,
+      },
+    })),
+  };
+
   return (
     <div className="mt-24 relative z-20" id="faq-section">
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      </Helmet>
       <h2 className="text-2xl md:text-3xl font-black text-primary text-center tracking-tight mb-2">
         Frequently Asked Questions
       </h2>

@@ -1,4 +1,4 @@
-import { Upload, File, AlertCircle } from 'lucide-react';
+import { Upload, File, AlertCircle, ShieldCheck } from 'lucide-react';
 import React, { useState, useRef, useCallback } from 'react';
 
 import { extractFileProcessingContext } from '../error-handler';
@@ -204,6 +204,16 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
   return (
     <div className="w-full flex flex-col space-y-3" id={id || 'file_uploader_wrapper'}>
+      <div className="flex items-center justify-between px-1">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-xs font-bold tracking-wide select-none">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+          <span>🔒 100% No Server Upload Guarantee</span>
+        </div>
+        <span className="text-[11px] font-semibold text-slate-400 hidden sm:inline">
+          Local Browser Memory Only
+        </span>
+      </div>
+
       <div
         onDragEnter={handleDrag}
         onDragOver={handleDrag}

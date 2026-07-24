@@ -38,7 +38,7 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
   const description =
     descriptionOverride ||
     item?.metaDescription ||
-    'Free, privacy-first offline-capable PDF toolkit. Combine, split, compress, protect, rotate and convert PDFs 100% inside your browser safely with zero server uploads.';
+    'Free, privacy-first offline-capable PDF toolkit. Combine, split, protect, rotate and convert PDFs 100% inside your browser safely with zero server uploads.';
   const canonicalUrl = item ? `${SITE_URL}/${item.slug}` : SITE_URL;
   const ogType = item?.type === 'article' ? 'article' : 'website';
 

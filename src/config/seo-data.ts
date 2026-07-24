@@ -1029,7 +1029,7 @@ export const TOOLS: ToolSEOInfo[] = [
     slug: 'ai-analyze-pdf',
     name: 'AI Analyze',
     ogImage: '/og-intelligence.png',
-    shortDescription: 'Summarize or ask questions via server AI',
+    shortDescription: 'Summarize or ask questions via secure, privacy-guaranteed AI',
     metaTitle: 'AI PDF Analyzer Free - Chat with PDFs Online | PDFMinty',
     metaDescription:
       'Analyze PDF files with edge AI. Securely summarize, chat with, and extract deep structural details from your PDF contents with privacy in mind.',
@@ -1671,13 +1671,12 @@ export const TOOLS: ToolSEOInfo[] = [
         <li><strong>Content Stream Compression:</strong> Re-compressing the document's text and vector elements using standard deflate/gzip algorithms to pack raw bytes tightly.</li>
       </ul>
 
-      <h2>Step-by-Step Guide to Compress PDFs Safely</h2>
-      <ol>
-        <li>Navigate to the <strong>Compress PDF</strong> tool on PDFMinty.</li>
-        <li>Drag and drop your oversized file. Remember, your file is loaded strictly into local memory buffer.</li>
-        <li>Our browser-side engine will scan the binary tree, compress font maps, downscale embedded images, and re-serialize the structure.</li>
-        <li>Download your newly compressed PDF. You can verify in your network console that not a single byte was transmitted to the web!</li>
-      </ol>
+      <h2>Step-by-Step Guide & Size Reduction Alternatives</h2>
+      <p>While dedicated size reduction algorithms are being refined, you can significantly shrink your PDF file size locally right now using our complementary tools:</p>
+      <ul>
+        <li><a href="/grayscale-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Grayscale PDF</a>: Convert high-color CMYK/RGB PDF elements to crisp black & white, dramatically cutting file byte size.</li>
+        <li><a href="/sanitize-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Sanitize PDF</a>: Strip heavy embedded metadata, thumbnail caches, and hidden revision streams in seconds.</li>
+      </ul>
 
       <!-- Recommendation Box 2 -->
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
@@ -1831,13 +1830,13 @@ export const TOOLS: ToolSEOInfo[] = [
 
       <h2>Introducing PDFMinty: The No-Upload PDF Editor</h2>
       <p>PDFMinty.com was built from the ground up with one non-negotiable principle: <strong>100% browser-side processing, no upload needed.</strong></p>
-      <p>Every single feature on PDFMinty — from merging and splitting PDFs to compressing, converting, and editing — runs entirely within your browser. When you open a PDF on PDFMinty, it never leaves your computer. Not even for a millisecond.</p>
+      <p>Every single feature on PDFMinty — from merging and splitting PDFs to converting, flattening, and editing — runs entirely within your browser. When you open a PDF on PDFMinty, it never leaves your computer. Not even for a millisecond.</p>
 
       <h3>What You Can Do with PDFMinty</h3>
       <ul>
         <li><strong>Merge PDFs:</strong> Combine multiple documents into one, privately.</li>
         <li><strong>Split PDFs:</strong> Extract pages without sending your file anywhere.</li>
-        <li><strong>Compress PDFs:</strong> Reduce file size locally, no server required.</li>
+        <li><strong>Flatten PDFs:</strong> Lock forms and annotations locally, no server required.</li>
         <li><strong>Convert PDFs:</strong> Transform PDFs to images, Markdown, and more.</li>
         <li><strong>Edit PDFs:</strong> Add text, annotations, and signatures securely.</li>
         <li><strong>Batch Process:</strong> Handle dozens of files at once, all in your browser.</li>

@@ -110,6 +110,6 @@ export const badgeLabels: Record<string, string> = {
   secure: 'SECURE',
 };
 
-export const HOMEPAGE_H1_PART1 = "Free PDF Tools — 100% Private, ";
+export const HOMEPAGE_H1_PART1 = "Free Offline PDF Tools — 100% Private, ";
 export const HOMEPAGE_H1_PART2 = "Zero Uploads";
 export const HOMEPAGE_H1 = `${HOMEPAGE_H1_PART1}${HOMEPAGE_H1_PART2}`;

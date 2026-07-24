@@ -52,7 +52,7 @@ export const PrivacyPolicyPage: React.FC = () => {
               </div>
               <h3 className="text-base font-bold text-on-surface">🛡️ 100% Client-Side Processing</h3>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                All PDF operations — merge, split, compress, protect, edit, rotate, watermark, sign, OCR, and AI analysis — happen entirely in your web browser. We use modern WebAssembly and JavaScript technologies to ensure zero server uploads.
+                All PDF operations — merge, split, protect, edit, rotate, watermark, sign, OCR, and AI analysis — happen entirely in your web browser. We use modern WebAssembly and JavaScript technologies to ensure zero server uploads.
               </p>
             </div>
 
