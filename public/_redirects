@@ -1,6 +1,17 @@
 # /api/* paths should 404 if no matching Function exists, not fall through to SPA.
 /api/* /api/404.json 404
 
+# Direct 404 for missing assets so they don't fall back to index.html SPA redirect.
+/assets/* /404 404
+/fonts/* /404 404
+/icons/* /404 404
+/*.js /404 404
+/*.css /404 404
+/*.ico /404 404
+/*.png /404 404
+/*.svg /404 404
+/*.json /404 404
+
 # 301 Redirects for renamed tool slugs
 /edit-metadata /edit-pdf-metadata 301
 /intelligence /ai-analyze-pdf 301

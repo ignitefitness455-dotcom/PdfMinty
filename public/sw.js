@@ -135,14 +135,16 @@ self.addEventListener('fetch', (event) => {
           }
           try {
             const response = await fetch(request);
-            if (response && response.status === 200) {
+            const contentType = response?.headers?.get('Content-Type') || '';
+            if (response && response.status === 200 && !contentType.toLowerCase().includes('text/html')) {
               cache.put(request, response.clone()).catch(() => {});
             }
             return response;
           } catch (fetchErr) {
             // Fallback: fetch using just the URL string to bypass sandboxed/iframe request constraints
             const response = await fetch(request.url);
-            if (response && response.status === 200) {
+            const contentType = response?.headers?.get('Content-Type') || '';
+            if (response && response.status === 200 && !contentType.toLowerCase().includes('text/html')) {
               cache.put(request, response.clone()).catch(() => {});
             }
             return response;
