@@ -45,6 +45,8 @@ export const Header: React.FC<HeaderProps> = ({
               viewBox="0 0 48 48"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              width="32"
+              height="32"
             >
               <rect x="6" y="11" width="26" height="33" rx="6" fill="#0E0E0E" />
               <rect

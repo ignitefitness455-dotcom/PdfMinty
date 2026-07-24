@@ -31,6 +31,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             fill="none"
             viewBox="0 0 24 24"
             aria-hidden="true"
+            width="16"
+            height="16"
           >
             <circle
               className="opacity-25"
@@ -53,6 +55,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           viewBox="0 0 24 24"
           stroke="currentColor"
           aria-hidden="true"
+          width="20"
+          height="20"
         >
           <path
             strokeLinecap="round"
