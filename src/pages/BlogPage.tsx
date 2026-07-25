@@ -10,9 +10,17 @@ export const BlogPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'Security' | 'Privacy' | 'Optimization' | 'Tutorials'>('all');
 
-  // Filter to find all individual articles except the blog index page itself
+  // Filter to find all individual articles except the blog index page itself (sorted newest first)
   const blogPosts = useMemo(() => {
-    return TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog');
+    const posts = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog');
+    return [...posts].sort((a, b) => {
+      const dateA = new Date(a.datePublished || '2026-07-15').getTime();
+      const dateB = new Date(b.datePublished || '2026-07-15').getTime();
+      if (dateB !== dateA) {
+        return dateB - dateA; // Newest date first
+      }
+      return posts.indexOf(b) - posts.indexOf(a); // Higher array index first if dates are identical
+    });
   }, []);
 
   // Map post IDs to clean user-facing categories
@@ -23,6 +31,7 @@ export const BlogPage: React.FC = () => {
       case 'blog-privacy':
       case 'blog-privacy-2026':
       case 'blog-free-esignature':
+      case 'blog-remove-metadata':
         return 'Privacy';
       case 'blog-compress':
       case 'blog-batch-processing':

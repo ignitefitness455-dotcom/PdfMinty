@@ -55,10 +55,18 @@ export const BlogPostPage: React.FC = () => {
     }
   }, [post]);
 
-  // Find 3 other related blog posts for the footer suggestions
+  // Find 3 other related blog posts for the footer suggestions (newest first)
   const relatedPosts = useMemo(() => {
     if (!post) return [];
-    return TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== post.id).slice(0, 3);
+    const articles = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== post.id);
+    return [...articles]
+      .sort((a, b) => {
+        const dateA = new Date(a.datePublished || '2026-07-15').getTime();
+        const dateB = new Date(b.datePublished || '2026-07-15').getTime();
+        if (dateB !== dateA) return dateB - dateA;
+        return articles.indexOf(b) - articles.indexOf(a);
+      })
+      .slice(0, 3);
   }, [post]);
 
   const handleCopyLink = async () => {

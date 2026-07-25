@@ -15,8 +15,16 @@ export const RelatedBlogs: React.FC = () => {
     // Filter out current article if viewing a blog post
     const filtered = articles.filter((a) => a.slug !== currentSlug);
 
+    // Sort newest date first
+    const sorted = [...filtered].sort((a, b) => {
+      const dateA = new Date(a.datePublished || '2026-07-15').getTime();
+      const dateB = new Date(b.datePublished || '2026-07-15').getTime();
+      if (dateB !== dateA) return dateB - dateA;
+      return articles.indexOf(b) - articles.indexOf(a);
+    });
+
     // Return 3 articles
-    return filtered.slice(0, 3);
+    return sorted.slice(0, 3);
   }, [pathname]);
 
   if (pathname === '/blog' || relatedBlogs.length === 0) return null;

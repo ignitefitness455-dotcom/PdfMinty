@@ -120,6 +120,21 @@ export default function InternalSEO() {
         '@id': `${APP_URL}/${seoInfo.slug}`,
       },
     });
+
+    if (seoInfo.faqs && seoInfo.faqs.length > 0) {
+      structuredData.push({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: seoInfo.faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: f.a,
+          },
+        })),
+      });
+    }
   }
 
   return (

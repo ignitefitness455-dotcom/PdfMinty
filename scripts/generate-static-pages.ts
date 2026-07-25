@@ -243,6 +243,22 @@ async function run(): Promise<void> {
           "@id": pageUrl
         }
       });
+
+      // 2. FAQPage Schema
+      if (item.faqs && item.faqs.length > 0) {
+        schemas.push({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": item.faqs.map((f: { q: string; a: string }) => ({
+            "@type": "Question",
+            "name": f.q,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": f.a
+            }
+          }))
+        });
+      }
     }
     
     // Generate JSON-LD Script tag bundle

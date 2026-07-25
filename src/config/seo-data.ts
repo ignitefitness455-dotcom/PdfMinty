@@ -1413,6 +1413,8 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.7,
     changefreq: 'monthly',
     type: 'article',
+    datePublished: '2026-07-15',
+    dateModified: '2026-07-15',
     longFormBody: `
 <h1>Is It Safe to Upload PDF Files to Online Tools? A Complete Security Analysis</h1>
 <p>Every day, millions of people upload sensitive PDF documents to free online tools without considering the privacy implications. Tax returns, medical records, financial statements, and legal contracts flow through unknown servers worldwide. This comprehensive analysis examines the real security risks of online PDF tools and explains why client-side browser processing is fundamentally safer.</p>
@@ -2304,6 +2306,138 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>PDFMinty gives you professional-grade PDF e-signature capabilities — completely free, completely private, and completely in your browser.</p>
       <p>Visit <a href="https://pdfminty.com">PDFMinty.com</a> today and sign your first PDF in under 60 seconds. No account. No upload. No cost.</p>
       <p><strong>Because your signature is personal. It should stay that way.</strong></p>
+    `,
+  },
+  {
+    id: 'blog-remove-metadata',
+    slug: 'blog/how-to-remove-pdf-metadata-for-privacy',
+    name: 'How to Remove PDF Metadata for Privacy (2026 Guide)',
+    ogImage: '/og-image.png',
+    shortDescription: 'Learn how to remove PDF metadata — author name, creation date, GPS, software version — for free, entirely in your browser, without uploading your file anywhere.',
+    metaTitle: 'How to Remove PDF Metadata for Privacy (2026 Guide) | PDFMinty Blog',
+    metaDescription: 'Learn how to remove PDF metadata — author name, creation date, GPS, software version — for free, entirely in your browser, without uploading your file anywhere.',
+    h1: 'How to Remove PDF Metadata for Privacy (2026 Guide)',
+    icon: 'Shield',
+    category: 'blog',
+    priority: 0.7,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-07-25',
+    dateModified: '2026-07-25',
+    faqs: [
+      {
+        q: 'Does removing metadata change the visible content of my PDF?',
+        a: 'No. Metadata removal only strips the hidden properties (author, dates, software info). The text, images, and layout on the page are untouched.',
+      },
+      {
+        q: 'Can metadata be added back after I remove it?',
+        a: 'Only if someone re-edits the file with software that writes new metadata. A cleaned, "sanitized" PDF stays clean unless it\'s opened and re-saved in a tool that reintroduces those fields.',
+      },
+      {
+        q: 'Is it safe to remove metadata using an online tool?',
+        a: 'Only if the tool processes the file locally in your browser rather than uploading it to a server. Uploading a sensitive document to strip its metadata is a contradiction — you\'re trusting a third party with the exact file you\'re trying to protect.',
+      },
+      {
+        q: 'Do scanned PDFs carry more risk than typed documents?',
+        a: 'Often, yes. Scanned PDFs built from phone photos can carry embedded GPS coordinates and camera details in addition to standard author/date fields, so they\'re worth checking even more carefully.',
+      },
+    ],
+    longFormBody: `
+      <h1>How to Remove PDF Metadata for Privacy (2026 Guide)</h1>
+      <p>Every PDF you create or download carries a hidden layer of information you never typed: your name, your company, the software you used, GPS coordinates from a scanned photo, even a timestamp of every edit. This is PDF metadata, and most people never think to check it before hitting "send."</p>
+      
+      <p>If you've ever wondered how a leaked document got traced back to its author, or why a "final_v3.pdf" reveals more than it should, the answer is almost always metadata. Here's how to find it, why it matters, and how to strip it completely — without uploading your file to a stranger's server.</p>
+
+      <h2>What Is PDF Metadata, Exactly?</h2>
+      <p>PDF metadata is a set of hidden fields stored inside the file itself, separate from the visible page content. The most common fields are:</p>
+      <ul>
+        <li><strong>Author</strong> — often your real name or Windows/Mac username</li>
+        <li><strong>Title, Subject, Keywords</strong> — set manually or auto-filled by the software that created the file</li>
+        <li><strong>Creator / Producer</strong> — the exact app and version used (e.g., "Microsoft Word for Mac 16.42")</li>
+        <li><strong>Creation and Modification dates</strong> — precise timestamps, sometimes down to the second</li>
+        <li><strong>XMP data</strong> — an extended metadata layer that can include GPS location, camera model, or editing history if the PDF was built from photos or scans</li>
+      </ul>
+      <p>None of this is visible when you open the PDF and read it. It only shows up in the file's properties panel — or to anyone who runs a basic metadata-inspection tool on it.</p>
+
+      <h2>Why Removing PDF Metadata Matters</h2>
+      <p>Metadata feels harmless until it isn't. A few real situations where it causes trouble:</p>
+      <ul>
+        <li><strong>Confidentiality leaks:</strong> A contract shared externally can reveal the internal author, the law firm's software licence name, or a previous draft's file path.</li>
+        <li><strong>Anonymity breaks:</strong> Journalists, whistleblowers, and researchers sharing sensitive PDFs have had their identity exposed purely through the Author or Creator field.</li>
+        <li><strong>Corporate fingerprinting:</strong> Metadata can reveal which department, employee, or even which physical printer produced a document — useful for anyone trying to map your organisation.</li>
+        <li><strong>Location exposure:</strong> PDFs generated from scanned images can silently carry embedded GPS data from the original photo.</li>
+      </ul>
+      <p>None of this requires a sophisticated attacker. Right-clicking a PDF and viewing "Properties," or opening it in a free online metadata viewer, is enough.</p>
+
+      <!-- Recommendation Box 1 -->
+      <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
+        <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
+        <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
+          <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026" class="hover:text-emerald-500 transition-colors">Why Privacy-First PDF Tools Matter in 2026</a>
+        </h4>
+        <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
+          Discover why browser-side processing is critical to prevent data breaches when handling sensitive PDF documents.
+        </p>
+      </div>
+
+      <h2>How to Check What Metadata Is in Your PDF</h2>
+      <p>Before removing anything, it helps to see what's actually there:</p>
+      <ul>
+        <li><strong>On Windows:</strong> Right-click the file → Properties → Details tab</li>
+        <li><strong>On Mac:</strong> Open in Preview → Tools → Show Inspector → the "i" (info) tab</li>
+        <li><strong>In-browser, no install:</strong> Use a client-side metadata viewer that reads the file locally without uploading it</li>
+      </ul>
+      <p>That last option matters more than it sounds — ironically, many "metadata removal" tools ask you to upload the very file you're trying to protect to their servers first, which defeats the purpose if privacy is your actual goal.</p>
+
+      <h2>How to Remove PDF Metadata for Free (Without Uploading Anywhere)</h2>
+      <p>The safest way to strip metadata from a sensitive document is to use a tool that processes the file entirely inside your browser, so the PDF never leaves your device. Here's the general workflow:</p>
+      <ol>
+        <li>Open the PDF in a client-side, browser-based sanitizing tool</li>
+        <li>Let it scan and display the existing metadata fields</li>
+        <li>Select "clear all" or remove individual fields (author, dates, GPS/XMP data)</li>
+        <li>Download the cleaned file — the original never touched a remote server</li>
+      </ol>
+      <p>PDFMinty's <a href="/sanitize-pdf" class="hover:text-emerald-500 transition-colors">Sanitize PDF tool</a> does exactly this: it strips author info, timestamps, embedded XMP/GPS data, and producer/software fields, running fully client-side in WebAssembly. Nothing is uploaded, logged, or stored — the processing happens on your own machine, the same principle covered in our earlier post on <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026" class="hover:text-emerald-500 transition-colors">why privacy-first PDF tools matter in 2026</a>.</p>
+
+      <p>If you only need to edit specific fields rather than wipe everything — for example, replacing your name with a company name before distribution — the <a href="/edit-metadata" class="hover:text-emerald-500 transition-colors">Edit Metadata tool</a> lets you update individual fields without touching the rest of the document.</p>
+
+      <h2>Metadata Removal vs. Password Protection: You Often Need Both</h2>
+      <p>Removing metadata hides who made the file and how. It does not stop someone from opening or copying the file itself. For documents that also need access control — contracts, financial statements, HR files — pair metadata removal with encryption using the <a href="/protect" class="hover:text-emerald-500 transition-colors">Protect PDF tool</a>, which adds AES-GCM password protection, also fully offline. Metadata removal handles the invisible fingerprint; password protection handles who gets in at all.</p>
+
+      <h2>A Quick Pre-Send Checklist</h2>
+      <p>Before sharing any PDF externally, it's worth a 30-second habit check:</p>
+      <ul>
+        <li>Strip author, creator, and producer fields</li>
+        <li>Clear creation/modification timestamps</li>
+        <li>Remove embedded GPS/XMP data if the PDF includes scanned images</li>
+        <li>Add a password if the content is sensitive</li>
+        <li>Re-check the cleaned file's properties before sending, to confirm nothing slipped through</li>
+      </ul>
+
+      <h2>Frequently Asked Questions</h2>
+      <h3>Does removing metadata change the visible content of my PDF?</h3>
+      <p>No. Metadata removal only strips the hidden properties (author, dates, software info). The text, images, and layout on the page are untouched.</p>
+
+      <h3>Can metadata be added back after I remove it?</h3>
+      <p>Only if someone re-edits the file with software that writes new metadata. A cleaned, "sanitized" PDF stays clean unless it's opened and re-saved in a tool that reintroduces those fields.</p>
+
+      <h3>Is it safe to remove metadata using an online tool?</h3>
+      <p>Only if the tool processes the file locally in your browser rather than uploading it to a server. Uploading a sensitive document to strip its metadata is a contradiction — you're trusting a third party with the exact file you're trying to protect.</p>
+
+      <h3>Do scanned PDFs carry more risk than typed documents?</h3>
+      <p>Often, yes. Scanned PDFs built from phone photos can carry embedded GPS coordinates and camera details in addition to standard author/date fields, so they're worth checking even more carefully.</p>
+
+      <div class="my-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl text-center space-y-3">
+        <h3 class="text-xl font-black text-slate-900 dark:text-white m-0">Ready to Clean a PDF Right Now?</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 m-0">
+          Try PDFMinty's Sanitize PDF tool — 100% free, private, and your file never leaves your browser.
+        </p>
+        <div class="pt-2">
+          <a href="/sanitize-pdf" class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all shadow-md">
+            Sanitize PDF Now (Free & Offline)
+          </a>
+        </div>
+      </div>
     `,
   },
 ];
