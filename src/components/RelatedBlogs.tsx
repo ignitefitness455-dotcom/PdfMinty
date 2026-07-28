@@ -9,7 +9,7 @@ export const RelatedBlogs: React.FC = () => {
   const { pathname } = useLocation();
 
   const relatedBlogs = useMemo(() => {
-    const articles = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== 'trust-article');
+    const articles = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== 'trust-article' && t.id !== 'about-us');
     const currentSlug = pathname.replace(/^\//, '').replace(/\/$/, '');
 
     // Filter out current article if viewing a blog post

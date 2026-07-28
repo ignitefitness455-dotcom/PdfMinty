@@ -12,7 +12,7 @@ export const BlogPage: React.FC = () => {
 
   // Filter to find all individual articles except the blog index page itself (sorted newest first)
   const blogPosts = useMemo(() => {
-    const posts = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog');
+    const posts = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== 'about-us');
     return [...posts].sort((a, b) => {
       const dateA = new Date(a.datePublished || '2026-07-15').getTime();
       const dateB = new Date(b.datePublished || '2026-07-15').getTime();
@@ -27,6 +27,7 @@ export const BlogPage: React.FC = () => {
   const getPostCategory = (id: string): 'Security' | 'Privacy' | 'Optimization' | 'Tutorials' => {
     switch (id) {
       case 'trust-article':
+      case 'blog-protect-pdf-password':
         return 'Security';
       case 'blog-privacy':
       case 'blog-privacy-2026':
@@ -35,8 +36,10 @@ export const BlogPage: React.FC = () => {
         return 'Privacy';
       case 'blog-compress':
       case 'blog-batch-processing':
+      case 'blog-best-free-pdf-compressor':
         return 'Optimization';
       case 'blog-metadata':
+      case 'blog-merge-pdf':
         return 'Tutorials';
       default:
         return 'Tutorials';

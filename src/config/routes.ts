@@ -31,5 +31,6 @@ export const ROUTES = {
   BLOG_POST: '/blog/:postSlug',
   PRIVACY_POLICY: '/privacy-policy',
   TERMS_OF_SERVICE: '/terms-of-service',
+  ABOUT_US: '/about-us',
 };
 export default ROUTES;

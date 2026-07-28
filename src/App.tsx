@@ -42,6 +42,7 @@ const BlogPage = lazyWithRetry(() => import('./pages/BlogPage').then((m) => ({ d
 const BlogPostPage = lazyWithRetry(() => import('./pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
 const PrivacyPolicyPage = lazyWithRetry(() => import('./pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })));
 const TermsOfServicePage = lazyWithRetry(() => import('./pages/TermsOfServicePage').then((m) => ({ default: m.TermsOfServicePage })));
+const AboutUsPage = lazyWithRetry(() => import('./pages/AboutUsPage').then((m) => ({ default: m.AboutUsPage })));
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -278,6 +279,14 @@ export const App: React.FC = () => {
               element={
                 <ErrorBoundary resetKey="terms-of-service">
                   <TermsOfServicePage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.ABOUT_US}
+              element={
+                <ErrorBoundary resetKey="about-us">
+                  <AboutUsPage />
                 </ErrorBoundary>
               }
             />

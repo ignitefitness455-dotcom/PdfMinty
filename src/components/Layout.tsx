@@ -150,6 +150,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           setThemeSetting={setThemeSetting}
           mobileMenuOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
+          setShowContactModal={setShowContactModal}
         />
 
         <MobileDrawer
@@ -158,6 +159,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           theme={theme}
           setThemeSetting={setThemeSetting}
           menuItems={menuItems}
+          setShowContactModal={setShowContactModal}
         />
 
         {/* Primary Page Canvas Container */}

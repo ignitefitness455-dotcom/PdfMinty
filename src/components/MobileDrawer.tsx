@@ -18,6 +18,7 @@ interface MobileDrawerProps {
   theme: 'light' | 'dark';
   setThemeSetting: (theme: 'light' | 'dark') => void;
   menuItems: MenuItem[];
+  setShowContactModal?: (show: boolean) => void;
 }
 
 export const MobileDrawer: React.FC<MobileDrawerProps> = ({
@@ -26,6 +27,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   theme,
   setThemeSetting,
   menuItems,
+  setShowContactModal,
 }) => {
   const location = useLocation();
   const { modalRef, onKeyDown } = useModal(mobileMenuOpen, () => {
@@ -47,25 +49,61 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
       id="mobile_drawer"
     >
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-5 gap-1.5">
           <Link
             to={ROUTES.HOME}
             onClick={() => setMobileMenuOpen(false)}
-            className="text-center px-3 py-3 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white text-sm"
+            className={`text-center px-1.5 py-2.5 rounded-xl border font-semibold text-xs ${
+              location.pathname === ROUTES.HOME
+                ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300'
+                : 'border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white'
+            }`}
           >
-            All Tools
+            Home
+          </Link>
+          <Link
+            to={ROUTES.HOME}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setTimeout(() => {
+                document.getElementById('all-tools')?.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
+            }}
+            className="text-center px-1.5 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white text-xs"
+          >
+            Tools
           </Link>
           <Link
             to={ROUTES.BLOG}
             onClick={() => setMobileMenuOpen(false)}
-            className={`text-center px-3 py-3 rounded-xl border font-semibold text-sm ${
+            className={`text-center px-1.5 py-2.5 rounded-xl border font-semibold text-xs ${
               location.pathname === ROUTES.BLOG || location.pathname.startsWith('/blog')
                 ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300'
                 : 'border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white'
             }`}
           >
-            PDF Blog
+            Blog
           </Link>
+          <Link
+            to={ROUTES.ABOUT_US}
+            onClick={() => setMobileMenuOpen(false)}
+            className={`text-center px-1.5 py-2.5 rounded-xl border font-semibold text-xs ${
+              location.pathname === ROUTES.ABOUT_US
+                ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300'
+                : 'border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white'
+            }`}
+          >
+            About
+          </Link>
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setShowContactModal?.(true);
+            }}
+            className="text-center px-1.5 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white text-xs cursor-pointer"
+          >
+            Contact
+          </button>
         </div>
         <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
           <p className="px-4 text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">

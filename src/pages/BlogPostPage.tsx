@@ -58,7 +58,7 @@ export const BlogPostPage: React.FC = () => {
   // Find 3 other related blog posts for the footer suggestions (newest first)
   const relatedPosts = useMemo(() => {
     if (!post) return [];
-    const articles = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== post.id);
+    const articles = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== 'about-us' && t.id !== post.id);
     return [...articles]
       .sort((a, b) => {
         const dateA = new Date(a.datePublished || '2026-07-15').getTime();

@@ -9,6 +9,7 @@ interface HeaderProps {
   setThemeSetting: (theme: 'light' | 'dark') => void;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
+  setShowContactModal?: (show: boolean) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
   setThemeSetting,
   mobileMenuOpen,
   setMobileMenuOpen,
+  setShowContactModal,
 }) => {
   const location = useLocation();
 
@@ -99,46 +101,22 @@ export const Header: React.FC<HeaderProps> = ({
 
         <nav className="hidden md:flex items-center gap-6 font-semibold text-sm">
           <Link
-            to={ROUTES.MERGE}
-            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.MERGE ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
+            to={ROUTES.HOME}
+            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.HOME ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
           >
-            Merge
+            Home
           </Link>
           <Link
-            to={ROUTES.SPLIT}
-            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.SPLIT ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
+            to={ROUTES.HOME}
+            onClick={(e) => {
+              if (location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('all-tools')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="pb-1 transition-colors duration-200 text-on-surface-variant hover:text-primary-fixed"
           >
-            Split
-          </Link>
-          <Link
-            to={ROUTES.REORDER}
-            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.REORDER ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-          >
-            Reorder
-          </Link>
-          <Link
-            to={ROUTES.PROTECT}
-            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.PROTECT ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-          >
-            Protect
-          </Link>
-          <Link
-            to={ROUTES.UNLOCK}
-            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.UNLOCK ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-          >
-            Unlock
-          </Link>
-          <Link
-            to={ROUTES.IMG_TO_PDF}
-            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.IMG_TO_PDF ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-          >
-            Convert
-          </Link>
-          <Link
-            to={ROUTES.AI_ANALYZE}
-            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.AI_ANALYZE ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
-          >
-            AI Analyze
+            Tools
           </Link>
           <Link
             to={ROUTES.BLOG}
@@ -146,6 +124,18 @@ export const Header: React.FC<HeaderProps> = ({
           >
             Blog
           </Link>
+          <Link
+            to={ROUTES.ABOUT_US}
+            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.ABOUT_US ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
+          >
+            About
+          </Link>
+          <button
+            onClick={() => setShowContactModal?.(true)}
+            className="pb-1 transition-colors duration-200 text-on-surface-variant hover:text-primary-fixed cursor-pointer bg-transparent border-0 font-semibold text-sm"
+          >
+            Contact
+          </button>
         </nav>
 
         <div className="flex items-center gap-4 font-sans">

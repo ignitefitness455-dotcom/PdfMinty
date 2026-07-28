@@ -1,30 +1,17 @@
-import { MessageSquare, Mail, HelpCircle, Shield, FileText } from 'lucide-react';
+import { Mail, Shield, FileText } from 'lucide-react';
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
 
 interface FooterProps {
-  setShowFeedbackModal: (show: boolean) => void;
+  setShowFeedbackModal?: (show: boolean) => void;
   setShowContactModal: (show: boolean) => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
-  setShowFeedbackModal,
   setShowContactModal,
 }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const handleFaqClick = () => {
-    window.scrollTo(0, 0);
-    if (location.pathname !== '/') {
-      navigate('/');
-    }
-    setTimeout(() => {
-      document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth' });
-    }, 200);
-  };
 
   return (
     <footer
@@ -44,34 +31,25 @@ export const Footer: React.FC<FooterProps> = ({
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-8 text-sm font-bold text-on-surface-variant">
-          <button
-            id="open-feedback-modal"
-            onClick={() => setShowFeedbackModal(true)}
-            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant cursor-pointer bg-transparent border-0 font-bold text-sm"
+        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-sm font-bold text-on-surface-variant">
+          <Link
+            to={ROUTES.ABOUT_US}
+            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
           >
-            <MessageSquare className="w-4.5 h-4.5 text-security-green fill-security-green/10" />{' '}
-            Provide Feedback
-          </button>
+            <Shield className="w-4.5 h-4.5 text-emerald-400 fill-emerald-400/10" /> About Us
+          </Link>
           <button
             id="open-contact-modal"
             onClick={() => setShowContactModal(true)}
             className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant cursor-pointer bg-transparent border-0 font-bold text-sm"
           >
-            <Mail className="w-4.5 h-4.5 text-sky-400 fill-sky-400/10" /> Contact Us
-          </button>
-          <button
-            onClick={handleFaqClick}
-            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant cursor-pointer bg-transparent border-0 font-bold text-sm"
-          >
-            <HelpCircle className="w-4.5 h-4.5 text-warning-amber fill-warning-amber/10" />{' '}
-            Privacy & FAQ
+            <Mail className="w-4.5 h-4.5 text-sky-400 fill-sky-400/10" /> Contact
           </button>
           <Link
-            to={ROUTES.TRUST_ARTICLE}
+            to={ROUTES.BLOG}
             className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
           >
-            <Shield className="w-4.5 h-4.5 text-emerald-500 fill-emerald-500/10" /> Is It Safe?
+            <FileText className="w-4.5 h-4.5 text-emerald-500 fill-emerald-500/10" /> Blog
           </Link>
           <Link
             to={ROUTES.PRIVACY_POLICY}
