@@ -137,8 +137,25 @@
     <link rel="apple-touch-icon" sizes="152x152" href="/logo-192.png" />
     <link rel="apple-touch-icon" sizes="167x167" href="/logo-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/logo-192.png" />
+
+    <!-- Anti-flicker Theme Script -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('theme-preference');
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (saved === 'dark' || (!saved && prefersDark)) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500/30">
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased selection:bg-emerald-500/30">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "484669cfa7c04bb18cec08f6d0cc6e63"}'></script><!-- End Cloudflare Web Analytics -->
