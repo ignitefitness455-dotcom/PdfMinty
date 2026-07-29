@@ -32,5 +32,6 @@ export const ROUTES = {
   PRIVACY_POLICY: '/privacy-policy',
   TERMS_OF_SERVICE: '/terms-of-service',
   ABOUT_US: '/about-us',
+  CONTACT: '/contact',
 };
 export default ROUTES;

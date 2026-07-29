@@ -130,12 +130,12 @@ export const Header: React.FC<HeaderProps> = ({
           >
             About
           </Link>
-          <button
-            onClick={() => setShowContactModal?.(true)}
-            className="pb-1 transition-colors duration-200 text-on-surface-variant hover:text-primary-fixed cursor-pointer bg-transparent border-0 font-semibold text-sm"
+          <Link
+            to={ROUTES.CONTACT}
+            className={`pb-1 transition-colors duration-200 ${location.pathname === ROUTES.CONTACT ? 'text-primary-fixed border-b-2 border-primary-fixed' : 'text-on-surface-variant hover:text-primary-fixed'}`}
           >
             Contact
-          </button>
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4 font-sans">

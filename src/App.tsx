@@ -43,6 +43,7 @@ const BlogPostPage = lazyWithRetry(() => import('./pages/BlogPostPage').then((m)
 const PrivacyPolicyPage = lazyWithRetry(() => import('./pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })));
 const TermsOfServicePage = lazyWithRetry(() => import('./pages/TermsOfServicePage').then((m) => ({ default: m.TermsOfServicePage })));
 const AboutUsPage = lazyWithRetry(() => import('./pages/AboutUsPage').then((m) => ({ default: m.AboutUsPage })));
+const ContactPage = lazyWithRetry(() => import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })));
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -290,7 +291,16 @@ export const App: React.FC = () => {
                 </ErrorBoundary>
               }
             />
+            <Route
+              path={ROUTES.CONTACT}
+              element={
+                <ErrorBoundary resetKey="contact">
+                  <ContactPage />
+                </ErrorBoundary>
+              }
+            />
             {/* Legacy path redirects */}
+            <Route path="/about" element={<Navigate to={ROUTES.ABOUT_US} replace />} />
             <Route path="/edit-metadata" element={<Navigate to={ROUTES.EDIT_METADATA} replace />} />
             <Route path="/intelligence" element={<Navigate to={ROUTES.AI_ANALYZE} replace />} />
 

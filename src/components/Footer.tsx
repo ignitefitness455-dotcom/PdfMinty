@@ -38,13 +38,12 @@ export const Footer: React.FC<FooterProps> = ({
           >
             <Shield className="w-4.5 h-4.5 text-emerald-400 fill-emerald-400/10" /> About Us
           </Link>
-          <button
-            id="open-contact-modal"
-            onClick={() => setShowContactModal(true)}
-            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant cursor-pointer bg-transparent border-0 font-bold text-sm"
+          <Link
+            to={ROUTES.CONTACT}
+            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
           >
             <Mail className="w-4.5 h-4.5 text-sky-400 fill-sky-400/10" /> Contact
-          </button>
+          </Link>
           <Link
             to={ROUTES.BLOG}
             className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"

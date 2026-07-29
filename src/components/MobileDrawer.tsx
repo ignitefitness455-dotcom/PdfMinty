@@ -95,15 +95,17 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
           >
             About
           </Link>
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              setShowContactModal?.(true);
-            }}
-            className="text-center px-1.5 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white text-xs cursor-pointer"
+          <Link
+            to={ROUTES.CONTACT}
+            onClick={() => setMobileMenuOpen(false)}
+            className={`text-center px-1.5 py-2.5 rounded-xl border font-semibold text-xs ${
+              location.pathname === ROUTES.CONTACT
+                ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300'
+                : 'border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white'
+            }`}
           >
             Contact
-          </button>
+          </Link>
         </div>
         <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
           <p className="px-4 text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">
