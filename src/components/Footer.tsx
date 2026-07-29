@@ -6,12 +6,9 @@ import { ROUTES } from '../config/routes';
 
 interface FooterProps {
   setShowFeedbackModal?: (show: boolean) => void;
-  setShowContactModal: (show: boolean) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({
-  setShowContactModal,
-}) => {
+export const Footer: React.FC<FooterProps> = () => {
 
   return (
     <footer

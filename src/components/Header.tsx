@@ -9,7 +9,6 @@ interface HeaderProps {
   setThemeSetting: (theme: 'light' | 'dark') => void;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
-  setShowContactModal?: (show: boolean) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,7 +16,6 @@ export const Header: React.FC<HeaderProps> = ({
   setThemeSetting,
   mobileMenuOpen,
   setMobileMenuOpen,
-  setShowContactModal,
 }) => {
   const location = useLocation();
 

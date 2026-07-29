@@ -77,7 +77,10 @@ export const onRequest: PagesFunction = async (context) => {
 
   // Explicitly tell search engines to index and follow links on all HTML pages.
   // For non-HTML responses (API, assets), use noindex to prevent indexing of internal endpoints.
-  if (contentType.includes('text/html')) {
+  if (url.pathname === '/sw.js' || url.pathname.endsWith('/sw.js')) {
+    newResponse.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  } else if (contentType.includes('text/html')) {
+    newResponse.headers.set('Cache-Control', 'no-cache, must-revalidate');
     newResponse.headers.set('X-Robots-Tag', 'index, follow');
     newResponse.headers.set('Content-Language', 'en');
   } else if (contentType.includes('application/json') || url.pathname.startsWith('/api/')) {
@@ -99,7 +102,7 @@ export const onRequest: PagesFunction = async (context) => {
 
   // Cloudflare-specific edge properties to reliably detect Google PageSpeed Insights/Lighthouse on Mobile.
   // Google's ASNs: AS15169 (Google LLC), AS36040, AS19527.
-  const cfProperties = context.request.cf as any;
+  const cfProperties = context.request.cf as Record<string, unknown> | undefined;
   const asn = cfProperties?.asn;
   const asOrg = cfProperties?.asOrganization || '';
   const isGoogleNetwork = asn === 15169 || asn === 36040 || asn === 19527 || /Google/i.test(asOrg);

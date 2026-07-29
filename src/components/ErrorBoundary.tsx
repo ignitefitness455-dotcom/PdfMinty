@@ -23,11 +23,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
     capturedContext: null,
   };
 
-  public static getDerivedStateFromError(error: any): Partial<State> {
-    if (error && typeof error.then === 'function') {
+  public static getDerivedStateFromError(error: unknown): Partial<State> {
+    if (error && typeof (error as Record<string, unknown>).then === 'function') {
       throw error;
     }
-    return { hasError: true, error, capturedContext: getFileProcessingContext() };
+    return {
+      hasError: true,
+      error: error instanceof Error ? error : new Error(String(error)),
+      capturedContext: getFileProcessingContext(),
+    };
   }
 
   public componentDidUpdate(prevProps: Readonly<ErrorBoundaryProps>) {
@@ -36,8 +40,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
     }
   }
 
-  public componentDidCatch(error: any, errorInfo: ErrorInfo) {
-    if (error && typeof error.then === 'function') {
+  public componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
+    if (error && typeof (error as Record<string, unknown>).then === 'function') {
       return;
     }
     const currentContext = getFileProcessingContext();

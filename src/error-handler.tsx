@@ -71,7 +71,7 @@ export interface FileProcessingContext {
   toolName?: string;
   processingStep?: string;
   timestamp?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Global singleton state for active file processing context
@@ -145,7 +145,7 @@ export async function extractFileProcessingContext(
   let isEncrypted = additional?.isEncrypted;
 
   if (typeof Blob !== 'undefined' && fileOrBuffer instanceof Blob) {
-    fileName = fileName || ((fileOrBuffer as any).name);
+    fileName = fileName || ((fileOrBuffer as { name?: string }).name);
     fileSize = fileSize || fileOrBuffer.size;
     mimeType = mimeType || fileOrBuffer.type || 'application/pdf';
 
@@ -327,7 +327,7 @@ interface FileProcessingContextValue {
   setContext: (ctx: Partial<FileProcessingContext> | null) => void;
   updateContext: (ctx: Partial<FileProcessingContext>) => void;
   clearContext: () => void;
-  logError: (err: any, step?: string) => void;
+  logError: (err: unknown, step?: string) => void;
 }
 
 const FileProcessingContextStore = createContext<FileProcessingContextValue>({
@@ -358,7 +358,7 @@ export const FileProcessingProvider: React.FC<{ children: ReactNode }> = ({ chil
     setContextState(null);
   }, []);
 
-  const logError = useCallback((err: any, step?: string) => {
+  const logError = useCallback((err: unknown, step?: string) => {
     if (step) updateFileProcessingContext({ processingStep: step });
     const current = getFileProcessingContext();
     const msg = err instanceof Error ? err.message : String(err);
@@ -399,8 +399,8 @@ export class FileProcessingErrorBoundary extends Component<ErrorBoundaryProps, E
     capturedContext: null,
   };
 
-  public static getDerivedStateFromError(error: any): Partial<ErrorBoundaryState> {
-    if (error && typeof error.then === 'function') {
+  public static getDerivedStateFromError(error: unknown): Partial<ErrorBoundaryState> {
+    if (error && typeof (error as Record<string, unknown>).then === 'function') {
       throw error;
     }
     return {
@@ -410,8 +410,8 @@ export class FileProcessingErrorBoundary extends Component<ErrorBoundaryProps, E
     };
   }
 
-  public componentDidCatch(error: any, errorInfo: ErrorInfo) {
-    if (error && typeof error.then === 'function') {
+  public componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
+    if (error && typeof (error as Record<string, unknown>).then === 'function') {
       return;
     }
     const currentContext = getFileProcessingContext();

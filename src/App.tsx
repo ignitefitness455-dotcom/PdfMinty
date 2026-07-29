@@ -301,6 +301,7 @@ export const App: React.FC = () => {
             />
             {/* Legacy path redirects */}
             <Route path="/about" element={<Navigate to={ROUTES.ABOUT_US} replace />} />
+            <Route path="/contact-us" element={<Navigate to={ROUTES.CONTACT} replace />} />
             <Route path="/edit-metadata" element={<Navigate to={ROUTES.EDIT_METADATA} replace />} />
             <Route path="/intelligence" element={<Navigate to={ROUTES.AI_ANALYZE} replace />} />
 

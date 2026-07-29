@@ -18,7 +18,6 @@ interface MobileDrawerProps {
   theme: 'light' | 'dark';
   setThemeSetting: (theme: 'light' | 'dark') => void;
   menuItems: MenuItem[];
-  setShowContactModal?: (show: boolean) => void;
 }
 
 export const MobileDrawer: React.FC<MobileDrawerProps> = ({
@@ -27,7 +26,6 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   theme,
   setThemeSetting,
   menuItems,
-  setShowContactModal,
 }) => {
   const location = useLocation();
   const { modalRef, onKeyDown } = useModal(mobileMenuOpen, () => {

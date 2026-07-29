@@ -12,7 +12,7 @@ import { logger } from './logger';
  * error, not a stale-chunk 404) doesn't cause an infinite reload loop —
  * after one retry it lets the real error surface normally.
  */
-export function lazyWithRetry<T extends { default: React.ComponentType<any> }>(
+export function lazyWithRetry<T extends { default: React.ComponentType<unknown> }>(
   factory: () => Promise<T>
 ) {
   return React.lazy(async () => {
@@ -22,11 +22,11 @@ export function lazyWithRetry<T extends { default: React.ComponentType<any> }>(
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('pdfminty-chunk-retry');
         }
-      } catch (e) {
+      } catch {
         // Ignore sessionStorage errors
       }
       return result;
-    } catch (_firstError) {
+    } catch {
       // 1. Immediate in-memory retry (fixes transient network flakiness/race conditions)
       try {
         await new Promise((resolve) => setTimeout(resolve, 300));
@@ -35,7 +35,7 @@ export function lazyWithRetry<T extends { default: React.ComponentType<any> }>(
           if (typeof window !== 'undefined') {
             sessionStorage.removeItem('pdfminty-chunk-retry');
           }
-        } catch (_e) {
+        } catch {
           // Ignore
         }
         return retryResult;
@@ -71,7 +71,7 @@ export function lazyWithRetry<T extends { default: React.ComponentType<any> }>(
           if (typeof window !== 'undefined') {
             sessionStorage.removeItem(key);
           }
-        } catch (_e) {
+        } catch {
           // Ignore
         }
         throw secondError;

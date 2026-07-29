@@ -33,7 +33,7 @@ export function getRecordedErrors(): RecordedError[] {
 export function addRecordedError(
   message: string,
   stack?: string,
-  fileContext?: any
+  fileContext?: RecordedError['fileContext']
 ): RecordedError | null {
   if (typeof window === 'undefined') return null;
 

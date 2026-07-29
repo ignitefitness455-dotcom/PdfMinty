@@ -27,7 +27,6 @@ import { useLocation } from 'react-router-dom';
 
 import { TOOLS } from '../config/seo-data';
 
-import { ContactModal } from './ContactModal';
 import { FeedbackModal } from './FeedbackModal';
 import { Footer } from './Footer';
 import { Header } from './Header';
@@ -67,7 +66,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
 
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [showContactModal, setShowContactModal] = useState(false);
 
   // Theme management logic - Default to system preference or stored preference
   const [theme, setThemeSetting] = useState<'light' | 'dark'>(() => {
@@ -173,7 +171,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           setThemeSetting={setThemeSetting}
           mobileMenuOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
-          setShowContactModal={setShowContactModal}
         />
 
         <MobileDrawer
@@ -182,7 +179,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           theme={theme}
           setThemeSetting={setThemeSetting}
           menuItems={menuItems}
-          setShowContactModal={setShowContactModal}
         />
 
         {/* Primary Page Canvas Container */}
@@ -214,17 +210,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         <Footer
           setShowFeedbackModal={setShowFeedbackModal}
-          setShowContactModal={setShowContactModal}
         />
 
         <FeedbackModal
           isOpen={showFeedbackModal}
           onClose={() => setShowFeedbackModal(false)}
-        />
-
-        <ContactModal
-          isOpen={showContactModal}
-          onClose={() => setShowContactModal(false)}
         />
       </div>
     </LayoutContext.Provider>

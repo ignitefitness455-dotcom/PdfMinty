@@ -45,10 +45,12 @@ export const PWAController: React.FC = () => {
       newWorker.addEventListener('statechange', stateChangeHandler);
     };
 
+    const hadController = Boolean(navigator.serviceWorker.controller);
+
     const controllerChangeHandler = () => {
-      // Only reload if the user explicitly requested the update.
-      // First-time installs (controller was null before) should NOT reload.
-      if (userRequestedUpdateRef.current) {
+      // If a previous Service Worker was controlling the page and a new one takes over,
+      // reload to ensure the browser loads the newly deployed JavaScript bundle immediately.
+      if (hadController || userRequestedUpdateRef.current) {
         window.location.reload();
       }
     };
