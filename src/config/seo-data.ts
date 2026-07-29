@@ -2500,6 +2500,37 @@ export const TOOLS: ToolSEOInfo[] = [
     `,
   },
   {
+    id: 'contact',
+    slug: 'contact',
+    name: 'Contact Us',
+    ogImage: '/og-image.png',
+    shortDescription: 'Get in touch with the PdfMinty team. Send your questions, feedback, or feature requests to pdfminty@gmail.com. Response within 24-48 hours.',
+    metaTitle: 'Contact Us | PdfMinty',
+    metaDescription: 'Have questions, feature requests, or feedback about PdfMinty? Get in touch with us at pdfminty@gmail.com. We usually respond within 24-48 hours.',
+    h1: 'Contact Us | PdfMinty',
+    icon: 'Mail',
+    category: 'info',
+    priority: 0.6,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-07-28',
+    dateModified: '2026-07-28',
+    longFormBody: `
+      <h1>Contact Us | PdfMinty</h1>
+      <p>Have questions, feature requests, or feedback about PdfMinty? We're here to help! Get in touch with us at <strong>pdfminty@gmail.com</strong>. We usually respond within 24 to 48 hours.</p>
+
+      <h2>Direct Contact Details</h2>
+      <ul>
+        <li><strong>Email:</strong> <a href="mailto:pdfminty@gmail.com">pdfminty@gmail.com</a></li>
+        <li><strong>Response Time:</strong> 24 - 48 hours</li>
+        <li><strong>Website:</strong> <a href="https://pdfminty.com">https://pdfminty.com</a></li>
+      </ul>
+
+      <h2>About PdfMinty</h2>
+      <p>PdfMinty is a fast, 100% client-side PDF utility suite built for absolute privacy, speed, and simplicity. All file processing happens locally inside your browser memory without uploading your documents to remote cloud servers.</p>
+    `,
+  },
+  {
     id: 'blog-merge-pdf',
     slug: 'blog/how-to-merge-pdf-files-online-for-free-2026-guide',
     name: 'How to Merge PDF Files Online for Free (2026 Guide)',
