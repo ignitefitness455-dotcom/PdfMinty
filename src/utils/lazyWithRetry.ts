@@ -26,15 +26,27 @@ export function lazyWithRetry<T extends { default: React.ComponentType<any> }>(
         // Ignore sessionStorage errors
       }
       return result;
-    } catch (error) {
-      const key = 'pdfminty-chunk-retry';
-      if (!sessionStorage.getItem(key)) {
-        logger.warn('Lazy chunk load failed. Cleaning Service Worker + Cache to force network fetch...', error);
-        sessionStorage.setItem(key, '1');
-        
-        // Unregister service workers and clear cache storage to guarantee clean load from network
+    } catch (_firstError) {
+      // 1. Immediate in-memory retry (fixes transient network flakiness/race conditions)
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        const retryResult = await factory();
         try {
           if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('pdfminty-chunk-retry');
+          }
+        } catch (_e) {
+          // Ignore
+        }
+        return retryResult;
+      } catch (secondError) {
+        // 2. If chunk load still fails (e.g. stale deployment asset 404), trigger single page reload & cache clear
+        const key = 'pdfminty-chunk-retry';
+        if (typeof window !== 'undefined' && !sessionStorage.getItem(key)) {
+          logger.warn('Lazy chunk load failed after internal retry. Cleaning SW + Cache to force reload...', secondError);
+          sessionStorage.setItem(key, '1');
+          
+          try {
             if ('serviceWorker' in navigator) {
               const regs = await navigator.serviceWorker.getRegistrations();
               for (const reg of regs) {
@@ -47,17 +59,23 @@ export function lazyWithRetry<T extends { default: React.ComponentType<any> }>(
                 await caches.delete(cacheKey);
               }
             }
+          } catch (swError) {
+            logger.error('Failed to clear SW/caches during chunk retry:', swError);
           }
-        } catch (swError) {
-          logger.error('Failed to clear SW/caches during chunk retry:', swError);
-        }
 
-        window.location.reload();
-        // Never resolves — the reload takes over before React needs this.
-        return new Promise<T>(() => {});
+          window.location.reload();
+          return new Promise<T>(() => {});
+        }
+        
+        try {
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem(key);
+          }
+        } catch (_e) {
+          // Ignore
+        }
+        throw secondError;
       }
-      sessionStorage.removeItem(key);
-      throw error;
     }
   });
 }

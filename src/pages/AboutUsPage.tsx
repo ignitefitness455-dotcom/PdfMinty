@@ -223,11 +223,18 @@ export const AboutUsPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <a
-              href="mailto:pdfminty@gmail.com"
+            <Link
+              to={ROUTES.CONTACT}
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all shadow-md"
             >
               <Mail className="w-4.5 h-4.5" />
+              <span>Contact Us</span>
+            </Link>
+            <a
+              href="mailto:pdfminty@gmail.com"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-surface-container-low border border-border-muted hover:border-emerald-500/40 text-on-surface font-bold text-sm transition-all shadow-sm"
+            >
+              <Mail className="w-4.5 h-4.5 text-emerald-500" />
               <span>pdfminty@gmail.com</span>
             </a>
             <a

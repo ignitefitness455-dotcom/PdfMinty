@@ -9,7 +9,11 @@ import { PWAController } from './components/PWAController';
 import { SkipToContent } from './components/SkipToContent';
 import ToolSkeleton from './components/ToolSkeleton';
 import { ROUTES } from './config/routes';
+import { AboutUsPage } from './pages/AboutUsPage';
+import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { TermsOfServicePage } from './pages/TermsOfServicePage';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 
 // Lazy: every other route — splits each tool's code (and pdfjs/pdf-lib chunks)
@@ -40,10 +44,6 @@ const SignPdfPage = lazyWithRetry(() => import('./pages/SignPdfPage').then((m) =
 const OcrPdfPage = lazyWithRetry(() => import('./pages/OcrPdfPage').then((m) => ({ default: m.OcrPdfPage })));
 const BlogPage = lazyWithRetry(() => import('./pages/BlogPage').then((m) => ({ default: m.BlogPage })));
 const BlogPostPage = lazyWithRetry(() => import('./pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
-const PrivacyPolicyPage = lazyWithRetry(() => import('./pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })));
-const TermsOfServicePage = lazyWithRetry(() => import('./pages/TermsOfServicePage').then((m) => ({ default: m.TermsOfServicePage })));
-const AboutUsPage = lazyWithRetry(() => import('./pages/AboutUsPage').then((m) => ({ default: m.AboutUsPage })));
-const ContactPage = lazyWithRetry(() => import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })));
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
