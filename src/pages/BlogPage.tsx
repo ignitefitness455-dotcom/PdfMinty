@@ -33,13 +33,16 @@ export const BlogPage: React.FC = () => {
       case 'blog-privacy-2026':
       case 'blog-free-esignature':
       case 'blog-remove-metadata':
+      case 'blog-ilovepdf-vs-smallpdf-vs-pdfminty':
         return 'Privacy';
       case 'blog-compress':
       case 'blog-batch-processing':
       case 'blog-best-free-pdf-compressor':
+      case 'blog-how-to-compress-a-pdf-without-losing-quality-2026':
         return 'Optimization';
       case 'blog-metadata':
       case 'blog-merge-pdf':
+      case 'blog-how-to-convert-pdf-to-word-for-free-2026':
         return 'Tutorials';
       default:
         return 'Tutorials';

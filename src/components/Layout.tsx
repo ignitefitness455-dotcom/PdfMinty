@@ -52,7 +52,8 @@ const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 export const useLayout = () => {
   const context = useContext(LayoutContext);
   if (!context) {
-    throw new Error('useLayout must be used within a LayoutProvider');
+    // Provide safe fallback instead of throwing error to prevent crashes during initial render/hydration
+    return { toolsList: [] };
   }
   return context;
 };

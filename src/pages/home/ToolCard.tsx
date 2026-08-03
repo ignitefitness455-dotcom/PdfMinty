@@ -17,6 +17,7 @@ interface ToolCardProps {
 
 export const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
   const navigate = useNavigate();
+  if (!tool || !tool.slug) return null;
   const toolSEO = TOOLS.find((t) => t.slug === tool.slug);
   if (!toolSEO) return null;
 

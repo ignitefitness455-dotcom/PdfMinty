@@ -5,6 +5,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
 
 import App from './App.tsx';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastProvider } from './contexts/ToastContext';
 import './index.css';
 import { setupErrorTelemetry, FileProcessingProvider } from './error-handler';
@@ -18,10 +19,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <ToastProvider>
           <FileProcessingProvider>
-            <App />
+            <ErrorBoundary resetKey="root-app">
+              <App />
+            </ErrorBoundary>
           </FileProcessingProvider>
         </ToastProvider>
       </BrowserRouter>
     </HelmetProvider>
   </React.StrictMode>
 );
+

@@ -67,7 +67,14 @@ export const App: React.FC = () => {
         <FaqSchema />
         <Suspense fallback={<ToolSkeleton />}>
           <Routes>
-            <Route path={ROUTES.HOME} element={<HomePage />} />
+            <Route
+              path={ROUTES.HOME}
+              element={
+                <ErrorBoundary resetKey="home">
+                  <HomePage />
+                </ErrorBoundary>
+              }
+            />
             <Route
               path={ROUTES.MERGE}
               element={

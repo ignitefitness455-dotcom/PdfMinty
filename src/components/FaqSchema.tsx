@@ -5,8 +5,9 @@ import { TOOLS } from '../config/seo-data';
 
 export default function FaqSchema() {
   const location = useLocation();
-  const path = location.pathname;
+  const path = location?.pathname || '';
   const currentSlug = path.replace(/^\//, '').replace(/\/$/, '');
+  if (!currentSlug) return null;
 
   // Find the tool definition in the central SEO array
   const tool = TOOLS.find((t) => t.slug === currentSlug);

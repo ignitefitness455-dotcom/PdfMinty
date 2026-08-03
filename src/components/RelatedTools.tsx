@@ -27,12 +27,13 @@ const RELATED_MAPPING: Record<string, string[]> = {
 };
 
 export const RelatedTools: React.FC = () => {
-  const { pathname } = useLocation();
-  const { toolsList } = useLayout();
+  const { pathname = '/' } = useLocation() || {};
+  const { toolsList = [] } = useLayout() || {};
 
   const related = useMemo(() => {
+    if (!pathname || pathname === '/' || !Array.isArray(toolsList) || toolsList.length === 0) return [];
     const segments = pathname.toLowerCase().split('/').filter(Boolean);
-    const activeTool = toolsList.find((t) => segments.includes(t.slug.toLowerCase()));
+    const activeTool = toolsList.find((t) => t && t.slug && segments.includes(t.slug.toLowerCase()));
 
     if (!activeTool) return [];
 

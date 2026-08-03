@@ -12,8 +12,9 @@ interface HowToStep {
 
 export default function HowToSchema() {
   const location = useLocation();
-  const path = location.pathname;
+  const path = location?.pathname || '';
   const currentSlug = path.replace(/^\//, '').replace(/\/$/, '');
+  if (!currentSlug) return null;
 
   // Find the tool definition in the SEO central array
   const tool = TOOLS.find((t) => t.slug === currentSlug);

@@ -49,14 +49,17 @@ const isToolInCategory = (slug: string, categoryId: string): boolean => {
 };
 
 export const HomePage: React.FC = () => {
-  const { toolsList } = useLayout();
+  const { toolsList = [] } = useLayout() || {};
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const { debouncedValue, isDebouncing } = useDebounce(searchQuery, 300);
 
   const sortedTools = useMemo(() => {
+    if (!Array.isArray(toolsList)) return [];
     return [...toolsList].sort((a, b) => {
+      if (!a || !a.slug) return 0;
+      if (!b || !b.slug) return 0;
       const toolA = TOOLS.find((t) => t.slug === a.slug);
       const toolB = TOOLS.find((t) => t.slug === b.slug);
       const rankA = toolA?.homeRank ?? 999;
@@ -66,19 +69,19 @@ export const HomePage: React.FC = () => {
   }, [toolsList]);
 
   const filteredTools = useMemo(() => {
-    const cleanQuery = debouncedValue.toLowerCase().trim();
+    const cleanQuery = (debouncedValue || '').toLowerCase().trim();
     
     // First filter by category
     const categoryFiltered = sortedTools.filter((tool) => {
-      return isToolInCategory(tool.slug, selectedCategory);
+      return tool && tool.slug && isToolInCategory(tool.slug, selectedCategory);
     });
 
     if (!cleanQuery) return categoryFiltered;
     
     return categoryFiltered.filter(
       (tool) =>
-        tool.name.toLowerCase().includes(cleanQuery) ||
-        tool.description.toLowerCase().includes(cleanQuery)
+        (tool.name || '').toLowerCase().includes(cleanQuery) ||
+        (tool.description || '').toLowerCase().includes(cleanQuery)
     );
   }, [sortedTools, debouncedValue, selectedCategory]);
 
@@ -97,7 +100,7 @@ export const HomePage: React.FC = () => {
 
       <HeroSection />
 
-      <div className="mb-8 max-w-lg mx-auto">
+      <div className="mb-8 max-w-lg mx-auto" id="all-tools">
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}

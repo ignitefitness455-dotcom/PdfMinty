@@ -7,11 +7,12 @@ import { TOOLS } from '../config/seo-data';
 import { useLayout } from './Layout';
 
 export const Breadcrumbs: React.FC = () => {
-  const { pathname } = useLocation();
-  const { toolsList } = useLayout();
+  const { pathname = '/' } = useLocation() || {};
+  const { toolsList = [] } = useLayout() || {};
   const currentTool = useMemo(() => {
+    if (!pathname || pathname === '/' || !Array.isArray(toolsList)) return null;
     const segments = pathname.toLowerCase().split('/').filter(Boolean);
-    return toolsList.find((t) => segments.includes(t.slug.toLowerCase()));
+    return toolsList.find((t) => t && t.slug && segments.includes(t.slug.toLowerCase()));
   }, [toolsList, pathname]);
 
   if (pathname === '/' || !currentTool) {
@@ -37,7 +38,7 @@ export const Breadcrumbs: React.FC = () => {
 
 export default function InternalSEO() {
   const location = useLocation();
-  const { toolsList } = useLayout();
+  const { toolsList = [] } = useLayout() || {};
 
   // Read the nonce from the first inline script tag that middleware injected.
   // Memoize so we don't query the DOM on every render.
@@ -52,7 +53,7 @@ export default function InternalSEO() {
     return undefined;
   }, []);
 
-  const tool = toolsList.find((t) => `/${t.slug}` === location.pathname);
+  const tool = Array.isArray(toolsList) ? toolsList.find((t) => t && t.slug && `/${t.slug}` === location.pathname) : undefined;
   if (!tool) return null;
   const APP_URL = SITE_URL;
   const structuredData: unknown[] = [

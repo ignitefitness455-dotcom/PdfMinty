@@ -23,7 +23,7 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
   // Find tool or article by slug prop or derive from current pathname.
   let currentSlug = slug;
   if (!currentSlug) {
-    const cleanPath = location.pathname.replace(/^\//, '').replace(/\/$/, '');
+    const cleanPath = (location?.pathname || '').replace(/^\//, '').replace(/\/$/, '');
     currentSlug = cleanPath;
   }
 
