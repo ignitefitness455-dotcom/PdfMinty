@@ -2,6 +2,7 @@ import { Mail, Clock, Send, CheckCircle2, Copy, Shield, Sparkles, MessageSquare,
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { EmailJoinForm } from '../components/EmailJoinForm';
 import SEO from '../components/SEO';
 import { ROUTES } from '../config/routes';
 
@@ -266,6 +267,14 @@ export const ContactPage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Newsletter Subscription Section */}
+        <div className="pt-6 border-t border-border-muted">
+          <EmailJoinForm
+            title="Join PDFMinty Newsletter"
+            subtitle="Subscribe to receive security updates, local productivity workflows, and new features."
+          />
         </div>
       </div>
     </div>

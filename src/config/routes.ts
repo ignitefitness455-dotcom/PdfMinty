@@ -33,5 +33,7 @@ export const ROUTES = {
   TERMS_OF_SERVICE: '/terms-of-service',
   ABOUT_US: '/about-us',
   CONTACT: '/contact',
+  ADOBE_ALTERNATIVE: '/adobe-acrobat-alternative',
+  SWITCH_ADOBE: '/switch-from-adobe-acrobat',
 };
 export default ROUTES;

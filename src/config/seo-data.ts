@@ -2861,6 +2861,48 @@ export const TOOLS: ToolSEOInfo[] = [
       </div>
     `,
   },
+  {
+    id: 'adobe-acrobat-alternative',
+    slug: 'adobe-acrobat-alternative',
+    name: 'Adobe Acrobat Alternative',
+    shortDescription: 'Free Adobe Acrobat alternative — 100% free, no signup, no file uploads',
+    metaTitle: 'Free Adobe Acrobat Alternative — No Signup, No Upload',
+    metaDescription:
+      'Adobe Acrobat costs ~$240/year. PDFMinty does merge, compress, split, protect, and more — 100% free, no account, no file uploads, ever.',
+    h1: 'Adobe Acrobat costs $240/year. PDFMinty costs $0 — forever.',
+    icon: 'Sparkles',
+    iconColor: 'text-amber-500',
+    category: 'compare',
+    priority: 0.9,
+    changefreq: 'weekly',
+    type: 'article',
+    longFormBody: `
+      <h1>Adobe Acrobat costs $240/year. PDFMinty costs $0 — forever.</h1>
+      <p>Merge, split, compress, protect, and convert PDFs without an Adobe account, without a subscription, and without your files ever leaving your device.</p>
+    `,
+    faqs: [
+      {
+        q: 'Is PDFMinty really free, or is there a paid tier later?',
+        a: "Every tool on PDFMinty is free with no account and no watermark. There's no hidden upgrade wall.",
+      },
+      {
+        q: 'Do I need to sign up or install anything?',
+        a: 'No. Open the tool in your browser and use it. Nothing to download, nothing to register.',
+      },
+      {
+        q: 'Where do my files go when I use PDFMinty?',
+        a: 'Nowhere but your own device. Processing happens locally in your browser — files are never uploaded to a server.',
+      },
+      {
+        q: 'Can PDFMinty fully replace Adobe Acrobat?',
+        a: "For merging, splitting, compressing, rotating, watermarking, password protection, and image/PDF conversion — yes, for most everyday use. If you rely on Acrobat's advanced enterprise e-signature workflows, complex form logic, or admin/compliance controls, PDFMinty isn't there yet.",
+      },
+      {
+        q: 'Is a browser-based tool as safe as a desktop app?',
+        a: "Since your file never leaves your device, there's no upload step and no server storing a copy of your document — see our related post on PDF tool security for the full picture, including the limits of that claim.",
+      },
+    ],
+  },
 ];
 
 

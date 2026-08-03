@@ -44,6 +44,7 @@ const SignPdfPage = lazyWithRetry(() => import('./pages/SignPdfPage').then((m) =
 const OcrPdfPage = lazyWithRetry(() => import('./pages/OcrPdfPage').then((m) => ({ default: m.OcrPdfPage })));
 const BlogPage = lazyWithRetry(() => import('./pages/BlogPage').then((m) => ({ default: m.BlogPage })));
 const BlogPostPage = lazyWithRetry(() => import('./pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
+const AdobeAlternativePage = lazyWithRetry(() => import('./pages/AdobeAlternativePage').then((m) => ({ default: m.AdobeAlternativePage })));
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -296,6 +297,22 @@ export const App: React.FC = () => {
               element={
                 <ErrorBoundary resetKey="contact">
                   <ContactPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.ADOBE_ALTERNATIVE}
+              element={
+                <ErrorBoundary resetKey="adobe-alternative">
+                  <AdobeAlternativePage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.SWITCH_ADOBE}
+              element={
+                <ErrorBoundary resetKey="switch-adobe">
+                  <AdobeAlternativePage />
                 </ErrorBoundary>
               }
             />

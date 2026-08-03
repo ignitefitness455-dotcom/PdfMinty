@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
+import { EmailJoinForm } from '../components/EmailJoinForm';
 import { useLayout } from '../components/Layout';
 import { SEO } from '../components/SEO';
 import { TOOLS } from '../config/seo-data';
@@ -185,6 +186,10 @@ export const HomePage: React.FC = () => {
       <WhyChooseSection />
 
       <FaqSection />
+
+      <div className="mt-16 max-w-4xl mx-auto px-4">
+        <EmailJoinForm />
+      </div>
 
       <CtaSection />
     </div>

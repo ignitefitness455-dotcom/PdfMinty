@@ -1,4 +1,4 @@
-import { Mail, Shield, FileText } from 'lucide-react';
+import { Mail, Shield, FileText, Sparkles } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -34,6 +34,12 @@ export const Footer: React.FC<FooterProps> = () => {
             className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
           >
             <Shield className="w-4.5 h-4.5 text-emerald-400 fill-emerald-400/10" /> About Us
+          </Link>
+          <Link
+            to={ROUTES.ADOBE_ALTERNATIVE}
+            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
+          >
+            <Sparkles className="w-4.5 h-4.5 text-amber-400 fill-amber-400/10" /> Adobe Alternative
           </Link>
           <Link
             to={ROUTES.CONTACT}
