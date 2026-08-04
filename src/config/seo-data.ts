@@ -2621,15 +2621,33 @@ export const TOOLS: ToolSEOInfo[] = [
       <h3>Can I reorder pages before merging my PDFs?</h3>
       <p>Yes! You can easily drag and drop your PDF files into any order you like before merging them into a single document.</p>
 
-      <div class="my-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl text-center space-y-3">
-        <h3 class="text-xl font-black text-slate-900 dark:text-white m-0">Ready to Combine Your PDFs Safely?</h3>
-        <p class="text-sm text-slate-600 dark:text-slate-300 m-0">
-          Try PdfMinty's Merge PDF tool right now — 100% free, lightning-fast, and completely private in your browser.
-        </p>
-        <div class="pt-2">
-          <a href="/merge-pdf" class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all shadow-md">
-            Merge PDFs Now (Free & Private)
-          </a>
+      <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-black uppercase tracking-widest shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>100% Free & Private Offline Tools</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug m-0">
+            Ready to Combine Your PDFs Safely?
+          </h3>
+          <p class="text-sm text-slate-300 m-0 leading-relaxed font-medium">
+            Try PdfMinty's Merge PDF tool right now — 100% free, lightning-fast, and completely private in your browser.
+          </p>
+          <div class="pt-2">
+            <a href="/merge-pdf" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+              <span>Merge PDFs Now (Free & Private)</span>
+              <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400 font-semibold">
+            <span>⚡ Instant Processing</span>
+            <span class="text-slate-600">•</span>
+            <span>🔒 Zero File Uploads</span>
+            <span class="text-slate-600">•</span>
+            <span>✨ No Account Needed</span>
+          </div>
         </div>
       </div>
     `,
@@ -2739,15 +2757,33 @@ export const TOOLS: ToolSEOInfo[] = [
       <h3>Can I compress scanned PDF files?</h3>
       <p>Yes! Scanned PDFs often contain high-resolution photo scans. PdfMinty resizes and optimizes image streams to shrink the file size dramatically.</p>
 
-      <div class="my-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl text-center space-y-3">
-        <h3 class="text-xl font-black text-slate-900 dark:text-white m-0">Need to Shrink a PDF Right Now?</h3>
-        <p class="text-sm text-slate-600 dark:text-slate-300 m-0">
-          Try PdfMinty's free PDF compressor — 100% private, zero uploads, and instant quality optimization.
-        </p>
-        <div class="pt-2">
-          <a href="/compress-pdf" class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all shadow-md">
-            Compress PDF Now (Free & Private)
-          </a>
+      <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-black uppercase tracking-widest shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>100% Free & Private Offline Tools</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug m-0">
+            Need to Shrink a PDF Right Now?
+          </h3>
+          <p class="text-sm text-slate-300 m-0 leading-relaxed font-medium">
+            Try PdfMinty's free PDF compressor — 100% private, zero uploads, and instant quality optimization.
+          </p>
+          <div class="pt-2">
+            <a href="/compress-pdf" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+              <span>Compress PDF Now (Free & Private)</span>
+              <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400 font-semibold">
+            <span>⚡ Instant Processing</span>
+            <span class="text-slate-600">•</span>
+            <span>🔒 Zero File Uploads</span>
+            <span class="text-slate-600">•</span>
+            <span>✨ No Account Needed</span>
+          </div>
         </div>
       </div>
     `,
@@ -2848,15 +2884,33 @@ export const TOOLS: ToolSEOInfo[] = [
       <h3>Can I remove the password later if I need to?</h3>
       <p>Yes! You can use PdfMinty's Unlock PDF tool to remove the password whenever you want, provided you know the original password.</p>
 
-      <div class="my-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl text-center space-y-3">
-        <h3 class="text-xl font-black text-slate-900 dark:text-white m-0">Ready to Lock Your PDF File Securely?</h3>
-        <p class="text-sm text-slate-600 dark:text-slate-300 m-0">
-          Protect your sensitive documents in 3 easy steps — 100% free, private, and encrypted inside your browser.
-        </p>
-        <div class="pt-2">
-          <a href="/protect-pdf" class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all shadow-md">
-            Protect PDF Now (Free & Private)
-          </a>
+      <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-black uppercase tracking-widest shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>100% Free & Private Offline Tools</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug m-0">
+            Ready to Lock Your PDF File Securely?
+          </h3>
+          <p class="text-sm text-slate-300 m-0 leading-relaxed font-medium">
+            Protect your sensitive documents in 3 easy steps — 100% free, private, and encrypted inside your browser.
+          </p>
+          <div class="pt-2">
+            <a href="/protect-pdf" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+              <span>Protect PDF Now (Free & Private)</span>
+              <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400 font-semibold">
+            <span>⚡ Instant Processing</span>
+            <span class="text-slate-600">•</span>
+            <span>🔒 Zero File Uploads</span>
+            <span class="text-slate-600">•</span>
+            <span>✨ No Account Needed</span>
+          </div>
         </div>
       </div>
     `,
@@ -2876,6 +2930,8 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.9,
     changefreq: 'weekly',
     type: 'article',
+    datePublished: '2026-08-04',
+    dateModified: '2026-08-04',
     longFormBody: `
       <h1>Adobe Acrobat costs $240/year. PDFMinty costs $0 — forever.</h1>
       <p>Merge, split, compress, protect, and convert PDFs without an Adobe account, without a subscription, and without your files ever leaving your device.</p>
@@ -2902,6 +2958,99 @@ export const TOOLS: ToolSEOInfo[] = [
         a: "Since your file never leaves your device, there's no upload step and no server storing a copy of your document — see our related post on PDF tool security for the full picture, including the limits of that claim.",
       },
     ],
+  },
+  {
+    id: 'blog-adobe-security-vulnerabilities-offline-pdf-tools',
+    slug: 'blog/adobe-security-vulnerabilities-offline-pdf-tools',
+    name: "Adobe's Security Vulnerabilities & Why Offline PDF Tools Sidestep Them",
+    ogImage: '/og-image.png',
+    shortDescription: "Adobe just patched critical vulnerabilities and moved to a twice-monthly release cycle. Here's what that means, and why offline PDF tools face a different risk.",
+    metaTitle: 'Is Adobe Acrobat Safe? What Its Latest Patches Reveal',
+    metaDescription: "Adobe just patched critical vulnerabilities and moved to a twice-monthly release cycle. Here's what that means, and why offline PDF tools face a different risk.",
+    h1: 'Is Adobe Acrobat Safe? What Its Latest Security Patches Actually Reveal',
+    icon: 'Shield',
+    category: 'blog',
+    priority: 0.8,
+    changefreq: 'weekly',
+    type: 'article',
+    datePublished: '2026-08-04',
+    dateModified: '2026-08-04',
+    faqs: [
+      {
+        q: 'Is Adobe Acrobat safe to use?',
+        a: "Adobe Acrobat is widely used, but recent security bulletins like APSB26-87 highlight that complex desktop/cloud software carries a large attack surface. Offline browser-based tools eliminate server-side security risks entirely.",
+      },
+      {
+        q: 'Why did Adobe move to a twice-monthly security patch schedule?',
+        a: 'Adobe increased its patch frequency to handle the rising volume and urgency of vulnerability fixes needed across its desktop, cloud, and plugin ecosystem.',
+      },
+      {
+        q: 'Are offline browser-based PDF tools safer than cloud converters?',
+        a: 'Yes, because your documents are processed locally on your device and never uploaded to remote servers. This eliminates risks related to server breaches, data leaks, and cloud account compromises.',
+      },
+    ],
+    longFormBody: `
+      <h1>Is Adobe Acrobat Safe? What Its Latest Security Patches Actually Reveal</h1>
+      <p>On July 28, 2026, Adobe published security bulletin APSB26-87, addressing a critical vulnerability in Adobe's Format Plugins that could allow arbitrary code execution. It's not an isolated incident — Adobe has now moved to releasing security patches twice a month instead of once, splitting its monthly update into two separate release windows.</p>
+
+      <p>That schedule change is worth sitting with for a second. Security teams don't add a second monthly patch cycle because things have gotten quieter. They add one because the volume and urgency of fixes needed a faster release cadence than the old monthly rhythm could support.</p>
+
+      <p>None of this means Adobe is uniquely careless — large, deeply integrated software suites accumulate a large attack surface almost by definition. Acrobat isn't just a PDF viewer anymore; it's a desktop app, a cloud sync client, a plugin host, and an integration point for dozens of other tools. Every one of those is a place a vulnerability can live. Learn more about <a href="/adobe-acrobat-alternative">switching from Adobe Acrobat to a free offline alternative</a>.</p>
+
+      <h2>Why This Matters for How You Handle Your Files</h2>
+      <p>Here's the part that's easy to miss: the risk isn't only "is the software buggy." It's "what does the software do with my file while it's buggy." A tool that uploads your document to a server, stores it in the cloud, and syncs it across devices is exposed to a much bigger blast radius if something goes wrong — server breaches, account compromise, plugin exploits — than a tool that never sends your file anywhere in the first place.</p>
+
+      <p>That's the actual architectural difference between a cloud-processing PDF tool and a browser-only one like PdfMinty. When a tool processes your file entirely client-side, in your browser, there's no upload step, no server-side copy, and no cloud account tied to your document. A vulnerability in a server's file-handling code simply has nothing to reach, because your file was never there.</p>
+
+      <h2>What Browser-Based Processing Does <em>Not</em> Protect You From</h2>
+      <p>To be straightforward about it, "your file never leaves your device" is a real and meaningful security property, but it isn't a blanket guarantee of safety. Browser-based tools still depend on:</p>
+
+      <ul>
+        <li>The security of your own browser and operating system</li>
+        <li>The integrity of the JavaScript libraries the tool is built on (supply-chain risk exists for any web app)</li>
+        <li>You visiting the real site and not a phishing lookalike</li>
+      </ul>
+
+      <p>What it removes from the equation is server-side risk: no centralized database of user documents to breach, no cloud account credentials tied to your files, no plugin ecosystem processing your data on someone else's infrastructure.</p>
+
+      <h2>A Quick Way to Check If a "Private" PDF Tool Actually Is</h2>
+      <p>Open your browser's developer tools (Network tab) while you use any online PDF tool. If you see your file being sent out as a network request the moment you upload it, it's being processed on a server — regardless of what the tool's marketing copy says. If there's no outbound request containing your file, it's genuinely local.</p>
+
+      <h2>The Takeaway</h2>
+      <p>Adobe's patch cadence isn't a scandal — big software has bugs, and patching fast is the correct response. But it's a good moment to ask what your PDF tool actually does with your file the second you hand it over. If the answer is "uploads it somewhere," that's one more system that has to stay secure on your behalf. If the answer is "never leaves your browser," that's one less thing to worry about — which is the whole idea behind how PdfMinty is built.</p>
+
+      <p>Whether you need to <a href="/protect-pdf">password-protect a sensitive PDF</a>, <a href="/unlock-pdf">unlock a document you own</a>, or <a href="/sanitize-pdf">sanitize hidden metadata</a>, PdfMinty runs 100% locally on your machine.</p>
+
+      <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-black uppercase tracking-widest shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>100% Free & Private Offline Tools</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug m-0">
+            Try Free, Private Offline PDF Tools
+          </h3>
+          <p class="text-sm text-slate-300 m-0 leading-relaxed font-medium">
+            Process your documents 100% in your browser. No account required, no file uploads, and no hidden subscriptions.
+          </p>
+          <div class="pt-2">
+            <a href="/adobe-acrobat-alternative" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+              <span>Explore Free Adobe Acrobat Alternative</span>
+              <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400 font-semibold">
+            <span>⚡ Instant Processing</span>
+            <span class="text-slate-600">•</span>
+            <span>🔒 Zero File Uploads</span>
+            <span class="text-slate-600">•</span>
+            <span>✨ No Account Needed</span>
+          </div>
+        </div>
+      </div>
+    `,
   },
   {
     id: 'blog-ilovepdf-vs-smallpdf-vs-pdfminty',
@@ -3106,15 +3255,33 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>ILovePDF and Smallpdf are solid tools with years of history. But in 2026, privacy, speed, and value are the metrics that matter most — and PdfMinty wins on all three.</p>
       <p>Whether you're <a href="/merge-pdf">merging documents</a>, <a href="/split-pdf">splitting pages</a>, <a href="/sign-pdf">signing contracts</a>, or <a href="/sanitize-pdf">clearing hidden metadata</a>, PdfMinty delivers a faster, safer, and more affordable experience than its competitors.</p>
 
-      <div class="my-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl text-center space-y-3">
-        <h3 class="text-xl font-black text-slate-900 dark:text-white m-0">Try PdfMinty Today — No Upload, No Risk, No Cost</h3>
-        <p class="text-sm text-slate-600 dark:text-slate-300 m-0">
-          Ready to switch to a smarter PDF tool? Experience the difference that browser-side processing makes. Your files stay on your device. Your data stays private. And your workflow gets faster.
-        </p>
-        <div class="pt-2">
-          <a href="/#all-tools" class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all shadow-md">
-            Start Using PdfMinty for Free →
-          </a>
+      <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-black uppercase tracking-widest shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>100% Free & Private Offline Tools</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug m-0">
+            Try PdfMinty Today — No Upload, No Risk, No Cost
+          </h3>
+          <p class="text-sm text-slate-300 m-0 leading-relaxed font-medium">
+            Ready to switch to a smarter PDF tool? Experience the difference that browser-side processing makes. Your files stay on your device and your data stays private.
+          </p>
+          <div class="pt-2">
+            <a href="/#all-tools" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+              <span>Start Using PdfMinty for Free</span>
+              <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400 font-semibold">
+            <span>⚡ Instant Processing</span>
+            <span class="text-slate-600">•</span>
+            <span>🔒 Zero File Uploads</span>
+            <span class="text-slate-600">•</span>
+            <span>✨ No Account Needed</span>
+          </div>
         </div>
       </div>
     `,
@@ -3287,15 +3454,33 @@ export const TOOLS: ToolSEOInfo[] = [
         <li><strong>You need to compress again later</strong> — Avoid multiple rounds of lossy compression</li>
       </ul>
 
-      <div class="my-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl text-center space-y-3">
-        <h3 class="text-xl font-black text-slate-900 dark:text-white m-0">Optimize Your PDFs Privately</h3>
-        <p class="text-sm text-slate-600 dark:text-slate-300 m-0">
-          Split pages, organize files, sanitize metadata, and edit documents 100% in your browser with PdfMinty. No file uploads, no accounts, no waiting.
-        </p>
-        <div class="pt-2">
-          <a href="/#all-tools" class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all shadow-md">
-            Explore All PDF Tools for Free →
-          </a>
+      <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-black uppercase tracking-widest shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>100% Free & Private Offline Tools</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug m-0">
+            Optimize Your PDFs Privately
+          </h3>
+          <p class="text-sm text-slate-300 m-0 leading-relaxed font-medium">
+            Split pages, organize files, sanitize metadata, and edit documents 100% in your browser with PdfMinty. No file uploads, no accounts, no waiting.
+          </p>
+          <div class="pt-2">
+            <a href="/#all-tools" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+              <span>Explore All PDF Tools for Free</span>
+              <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400 font-semibold">
+            <span>⚡ Instant Processing</span>
+            <span class="text-slate-600">•</span>
+            <span>🔒 Zero File Uploads</span>
+            <span class="text-slate-600">•</span>
+            <span>✨ No Account Needed</span>
+          </div>
         </div>
       </div>
     `,
@@ -3477,20 +3662,39 @@ export const TOOLS: ToolSEOInfo[] = [
         <li><strong>Tip 4: Check for Hidden Text Layers</strong><br />Some scanned PDFs have an invisible text layer added by OCR software. These convert much better than pure image PDFs.</li>
       </ul>
 
-      <div class="my-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl text-center space-y-3">
-        <h3 class="text-xl font-black text-slate-900 dark:text-white m-0">Explore All PDF Tools Privately</h3>
-        <p class="text-sm text-slate-600 dark:text-slate-300 m-0">
-          Split, merge, sanitize, edit, and organize your PDF files 100% in your browser with PdfMinty. No file uploads, no accounts, no waiting.
-        </p>
-        <div class="pt-2">
-          <a href="/#all-tools" class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all shadow-md">
-            Explore All PDF Tools for Free →
-          </a>
+      <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-black uppercase tracking-widest shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>100% Free & Private Offline Tools</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug m-0">
+            Explore All PDF Tools Privately
+          </h3>
+          <p class="text-sm text-slate-300 m-0 leading-relaxed font-medium">
+            Split, merge, sanitize, edit, and organize your PDF files 100% in your browser with PdfMinty. No file uploads, no accounts, no waiting.
+          </p>
+          <div class="pt-2">
+            <a href="/#all-tools" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+              <span>Explore All PDF Tools for Free</span>
+              <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400 font-semibold">
+            <span>⚡ Instant Processing</span>
+            <span class="text-slate-600">•</span>
+            <span>🔒 Zero File Uploads</span>
+            <span class="text-slate-600">•</span>
+            <span>✨ No Account Needed</span>
+          </div>
         </div>
       </div>
     `,
   },
 ];
+
 
 
 

@@ -14,12 +14,13 @@ export const BlogPage: React.FC = () => {
   const blogPosts = useMemo(() => {
     const posts = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== 'about-us');
     return [...posts].sort((a, b) => {
-      const dateA = new Date(a.datePublished || '2026-07-15').getTime();
-      const dateB = new Date(b.datePublished || '2026-07-15').getTime();
+      const todayStr = new Date().toISOString().split('T')[0];
+      const dateA = new Date(a.datePublished || todayStr).getTime();
+      const dateB = new Date(b.datePublished || todayStr).getTime();
       if (dateB !== dateA) {
         return dateB - dateA; // Newest date first
       }
-      return posts.indexOf(b) - posts.indexOf(a); // Higher array index first if dates are identical
+      return posts.indexOf(b) - posts.indexOf(a); // Higher array index (newest added) first if dates are identical
     });
   }, []);
 

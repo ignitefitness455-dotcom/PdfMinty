@@ -373,7 +373,7 @@ export const AdobeAlternativePage: React.FC = () => {
                         <p>
                           Since your file never leaves your device, there's no upload step and no server storing a copy of your document — see our related post on{' '}
                           <Link
-                            to={ROUTES.TRUST_ARTICLE}
+                            to={ROUTES.ADOBE_SECURITY_ARTICLE}
                             className="text-emerald-600 dark:text-emerald-400 underline font-semibold hover:text-emerald-500"
                           >
                             PDF tool security

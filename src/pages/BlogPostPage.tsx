@@ -61,8 +61,9 @@ export const BlogPostPage: React.FC = () => {
     const articles = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== 'about-us' && t.id !== post.id);
     return [...articles]
       .sort((a, b) => {
-        const dateA = new Date(a.datePublished || '2026-07-15').getTime();
-        const dateB = new Date(b.datePublished || '2026-07-15').getTime();
+        const todayStr = new Date().toISOString().split('T')[0];
+        const dateA = new Date(a.datePublished || todayStr).getTime();
+        const dateB = new Date(b.datePublished || todayStr).getTime();
         if (dateB !== dateA) return dateB - dateA;
         return articles.indexOf(b) - articles.indexOf(a);
       })
@@ -178,22 +179,27 @@ export const BlogPostPage: React.FC = () => {
           [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-2 [&_ol]:mb-6 [&_ol_li]:text-slate-600 dark:[&_ol_li]:text-slate-300 [&_ol_li]:text-base
           [&_strong]:font-semibold [&_strong]:text-slate-900 dark:[&_strong]:text-white
           [&_code]:font-mono [&_code]:text-xs [&_code]:bg-slate-100 dark:[&_code]:bg-slate-900 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded
-          [&_a]:text-emerald-600 dark:[&_a]:text-emerald-400 [&_a]:underline hover:[&_a]:text-emerald-500 font-bold"
+          [&_a:not(.btn-link)]:text-emerald-600 dark:[&_a:not(.btn-link)]:text-emerald-400 [&_a:not(.btn-link)]:underline hover:[&_a:not(.btn-link)]:text-emerald-500 font-bold"
         dangerouslySetInnerHTML={{ __html: cleanHtml }}
         id="blog-post-content"
       />
 
       {/* Offline Sandbox Guarantee Banner */}
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950/40 dark:to-slate-900/40 p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 space-y-4 mt-12">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 m-0">
-          <span className="p-1 rounded-lg bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
-            <Shield className="w-4.5 h-4.5" />
-          </span>
-          PDFMinty Local Sandbox Guarantee
-        </h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400 m-0 leading-relaxed font-medium">
-          As written in the guide above, privacy is our top imperative. PDFMinty runs entirely in your local browser sandbox utilizing WebAssembly. Your files are processed locally in your browser memory and are <strong>never</strong> uploaded to a server or stored externally.
-        </p>
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 p-6 sm:p-8 rounded-2xl border border-emerald-500/30 text-white space-y-4 mt-12 shadow-2xl shadow-emerald-950/20">
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="p-3.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 shrink-0">
+            <Shield className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2 m-0">
+              PDFMinty Local Sandbox Guarantee
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 m-0 leading-relaxed font-medium">
+              As written in the guide above, privacy is our top imperative. PDFMinty runs entirely in your local browser sandbox utilizing WebAssembly. Your files are processed locally in your browser memory and are <strong className="text-emerald-400 font-bold">never</strong> uploaded to a server or stored externally.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Suggested Reads / Related Articles Footer */}

@@ -35,5 +35,6 @@ export const ROUTES = {
   CONTACT: '/contact',
   ADOBE_ALTERNATIVE: '/adobe-acrobat-alternative',
   SWITCH_ADOBE: '/switch-from-adobe-acrobat',
+  ADOBE_SECURITY_ARTICLE: '/blog/adobe-security-vulnerabilities-offline-pdf-tools',
 };
 export default ROUTES;
