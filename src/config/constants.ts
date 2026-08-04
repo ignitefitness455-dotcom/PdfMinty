@@ -279,3 +279,10 @@ export const APP_INFO = {
   URL: 'https://pdfminty.com',
   REPO_URL: 'https://github.com/pdfminty/pdfminty',
 };
+
+export const NORD_AFFILIATE_LINKS = {
+  NORDVPN: 'https://go.nordvpn.net/aff_c?offer_id=15&aff_id=153942&url_id=902',
+  NORDPASS: 'https://go.nordpass.io/aff_c?offer_id=488&aff_id=153942&url_id=9356',
+  NORDVPN_ARABIA: 'https://go.getnord.net/aff_c?offer_id=226&aff_id=153942',
+  THREAT_PROTECTION: 'https://go.nordvpn.net/aff_c?offer_id=725&aff_id=153942',
+};

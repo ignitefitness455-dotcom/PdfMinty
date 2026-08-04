@@ -2,6 +2,7 @@ import { Shield, Lock, FileCheck, CheckCircle2, XCircle, AlertTriangle, Mail, Gl
 import React from 'react';
 
 import SEO from '../components/SEO';
+import { NORD_AFFILIATE_LINKS } from '../config/constants';
 
 export const PrivacyPolicyPage: React.FC = () => {
   return (
@@ -205,6 +206,43 @@ export const PrivacyPolicyPage: React.FC = () => {
             </p>
           </section>
         </div>
+
+        {/* Recommended Security Services */}
+        <section className="bg-surface-container-low border border-border-muted p-6 sm:p-8 rounded-2xl space-y-4 shadow-sm">
+          <h2 className="text-xl font-extrabold text-on-surface flex items-center gap-2">
+            <Shield className="w-5 h-5 text-emerald-500" />
+            Recommended Privacy & Security Tools
+          </h2>
+          <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+            While PdfMinty keeps your files local, your network connection and online accounts require protection. We recommend these trusted security solutions:
+          </p>
+          <div className="grid sm:grid-cols-2 gap-3 pt-1">
+            <a
+              href={NORD_AFFILIATE_LINKS.NORDVPN}
+              target="_blank"
+              rel="nofollow sponsored"
+              className="p-3.5 rounded-xl border border-border-muted bg-surface hover:border-emerald-500/40 transition-colors flex items-center justify-between group"
+            >
+              <div>
+                <p className="font-bold text-xs text-on-surface group-hover:text-emerald-500">NordVPN</p>
+                <p className="text-[11px] text-on-surface-variant">Military-grade VPN encryption</p>
+              </div>
+              <span className="text-xs text-emerald-600 font-bold group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+            </a>
+            <a
+              href={NORD_AFFILIATE_LINKS.NORDPASS}
+              target="_blank"
+              rel="nofollow sponsored"
+              className="p-3.5 rounded-xl border border-border-muted bg-surface hover:border-emerald-500/40 transition-colors flex items-center justify-between group"
+            >
+              <div>
+                <p className="font-bold text-xs text-on-surface group-hover:text-emerald-500">NordPass</p>
+                <p className="text-[11px] text-on-surface-variant">Encrypted password manager</p>
+              </div>
+              <span className="text-xs text-emerald-600 font-bold group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+            </a>
+          </div>
+        </section>
 
         {/* Changes to This Policy & Contact */}
         <section className="bg-surface-container-high border border-border-muted p-6 sm:p-8 rounded-2xl space-y-6 shadow-sm">

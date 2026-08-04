@@ -43,11 +43,114 @@ function injectSwVersion() {
   };
 }
 
+function devApiPlugin() {
+  return {
+    name: 'pdfminty-dev-api',
+    configureServer(server: any) {
+      server.middlewares.use('/api/subscribe', async (req: any, res: any, next: any) => {
+        if (req.method !== 'POST') return next();
+        let body = '';
+        req.on('data', (chunk: Buffer) => {
+          body += chunk.toString();
+        });
+        req.on('end', async () => {
+          try {
+            const { email, name } = JSON.parse(body || '{}');
+            const apiKey = process.env.RESEND_API_KEY;
+            const audienceId = process.env.RESEND_AUDIENCE_ID;
+            const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+            if (!email) {
+              res.statusCode = 400;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Email address is required.' }));
+              return;
+            }
+
+            let resendSuccess = false;
+            if (apiKey) {
+              try {
+                const contactsBody: Record<string, unknown> = { email, unsubscribed: false };
+                if (name) contactsBody.first_name = name;
+                if (audienceId) contactsBody.audience_id = audienceId;
+
+                const contactRes = await fetch('https://api.resend.com/contacts', {
+                  method: 'POST',
+                  headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(contactsBody),
+                });
+
+                if (contactRes.ok) {
+                  resendSuccess = true;
+                } else if (audienceId) {
+                  const audRes = await fetch(
+                    `https://api.resend.com/audiences/${audienceId}/contacts`,
+                    {
+                      method: 'POST',
+                      headers: {
+                        Authorization: `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ email, first_name: name || undefined, unsubscribed: false }),
+                    }
+                  );
+                  if (audRes.ok) resendSuccess = true;
+                }
+              } catch (e) {
+                console.error('[dev-api] Resend audience error:', e);
+              }
+
+              try {
+                await fetch('https://api.resend.com/emails', {
+                  method: 'POST',
+                  headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    from: fromEmail,
+                    to: [email],
+                    subject: 'Welcome to PDFMinty Newsletter!',
+                    html: `<p>Thank you for subscribing to PDFMinty newsletter!</p>`,
+                  }),
+                });
+              } catch (e) {
+                console.error('[dev-api] Welcome email error:', e);
+              }
+            } else {
+              console.log('[dev-api] /api/subscribe received:', { email, name }, '(Set RESEND_API_KEY in .env to send via Resend)');
+            }
+
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(
+              JSON.stringify({
+                success: true,
+                message: 'Thank you for joining!',
+                delivered: resendSuccess,
+              })
+            );
+          } catch (e) {
+            console.error('[dev-api] error:', e);
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Failed to process subscription.' }));
+          }
+        });
+      });
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
     injectSwVersion(),
+    devApiPlugin(),
   ],
   build: {
     outDir: 'dist',

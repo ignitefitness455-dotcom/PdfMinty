@@ -36,5 +36,8 @@ export const ROUTES = {
   ADOBE_ALTERNATIVE: '/adobe-acrobat-alternative',
   SWITCH_ADOBE: '/switch-from-adobe-acrobat',
   ADOBE_SECURITY_ARTICLE: '/blog/adobe-security-vulnerabilities-offline-pdf-tools',
+  COMPARE_SMALLPDF: '/compare/pdfminty-vs-smallpdf',
+  COMPARE_ILOVEPDF: '/compare/pdfminty-vs-ilovepdf',
+  COMPARE_PAGE: '/compare/:postSlug',
 };
 export default ROUTES;

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { EmailJoinForm } from '../components/EmailJoinForm';
 import SEO from '../components/SEO';
+import { NORD_AFFILIATE_LINKS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 
 export const ContactPage: React.FC = () => {
@@ -266,6 +267,35 @@ export const ContactPage: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Location 5: Secure Your Communications */}
+        <div className="bg-surface-container-low border border-border-muted p-6 sm:p-8 rounded-2xl shadow-sm space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🛡️</span>
+            <h3 className="text-lg sm:text-xl font-extrabold text-on-surface">Secure Your Communications</h3>
+          </div>
+          <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed font-medium">
+            Before sending sensitive documents via email, consider encrypting your connection with a VPN.
+          </p>
+          <div className="flex flex-wrap items-center gap-4 pt-1">
+            <a
+              href={NORD_AFFILIATE_LINKS.NORDVPN}
+              target="_blank"
+              rel="nofollow sponsored"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all shadow-md cursor-pointer"
+            >
+              <span>Get NordVPN</span>
+            </a>
+            <a
+              href={NORD_AFFILIATE_LINKS.NORDVPN_ARABIA}
+              target="_blank"
+              rel="nofollow sponsored"
+              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline transition-colors"
+            >
+              NordVPN for Middle East &rarr;
+            </a>
           </div>
         </div>
 

@@ -276,6 +276,30 @@ export const App: React.FC = () => {
               }
             />
             <Route
+              path={ROUTES.COMPARE_SMALLPDF}
+              element={
+                <ErrorBoundary resetKey="compare-smallpdf">
+                  <BlogPostPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.COMPARE_ILOVEPDF}
+              element={
+                <ErrorBoundary resetKey="compare-ilovepdf">
+                  <BlogPostPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path={ROUTES.COMPARE_PAGE}
+              element={
+                <ErrorBoundary resetKey="compare-page">
+                  <BlogPostPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
               path={ROUTES.PRIVACY_POLICY}
               element={
                 <ErrorBoundary resetKey="privacy-policy">
@@ -328,6 +352,8 @@ export const App: React.FC = () => {
             <Route path="/contact-us" element={<Navigate to={ROUTES.CONTACT} replace />} />
             <Route path="/edit-metadata" element={<Navigate to={ROUTES.EDIT_METADATA} replace />} />
             <Route path="/intelligence" element={<Navigate to={ROUTES.AI_ANALYZE} replace />} />
+            <Route path="/pdfminty-vs-smallpdf" element={<Navigate to={ROUTES.COMPARE_SMALLPDF} replace />} />
+            <Route path="/pdfminty-vs-ilovepdf" element={<Navigate to={ROUTES.COMPARE_ILOVEPDF} replace />} />
 
             {/* Safe fallback */}
             <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />

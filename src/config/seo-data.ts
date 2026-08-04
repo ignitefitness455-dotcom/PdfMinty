@@ -3693,7 +3693,378 @@ export const TOOLS: ToolSEOInfo[] = [
       </div>
     `,
   },
+  {
+    id: 'compare-pdfminty-vs-smallpdf',
+    slug: 'compare/pdfminty-vs-smallpdf',
+    name: 'PDFMinty vs SmallPDF — Which One Actually Keeps Files Private?',
+    ogImage: '/og-image.png',
+    shortDescription: 'SmallPDF processes your files on its servers. PDFMinty never uploads them at all. Compare pricing, privacy, and tools side by side.',
+    metaTitle: 'PDFMinty vs SmallPDF — Which One Actually Keeps Files Private?',
+    metaDescription: 'SmallPDF processes your files on its servers. PDFMinty never uploads them at all. Compare pricing, privacy, and tools side by side.',
+    h1: 'PDFMinty vs SmallPDF: Which One Actually Keeps Your Files Private?',
+    icon: 'Shield',
+    category: 'blog',
+    priority: 0.9,
+    changefreq: 'weekly',
+    type: 'article',
+    datePublished: '2026-08-04',
+    dateModified: '2026-08-04',
+    faqs: [
+      {
+        q: "Is SmallPDF's free plan actually private?",
+        a: "No — free and paid tiers both process files on SmallPDF's servers. The privacy difference isn't about the price, it's about the architecture.",
+      },
+      {
+        q: 'Does PDFMinty have AI features like SmallPDF?',
+        a: "Not currently. If you specifically need AI summarization or \"chat with your PDF,\" that's a real gap — SmallPDF (and PDFMinty's own /ai-analyze-pdf tool) covers that differently.",
+      },
+      {
+        q: 'Which is better for very large files?',
+        a: "SmallPDF's server-side processing can handle bulk operations more predictably than a browser can. If you're processing dozens of large files at once, that's worth factoring in.",
+      },
+      {
+        q: 'Is PDFMinty really free with no catch?',
+        a: 'Yes — no account, no watermark, no daily limits on the core tools.',
+      },
+    ],
+    longFormBody: `
+      <h1>PDFMinty vs SmallPDF: Which One Actually Keeps Your Files Private?</h1>
+      <p class="text-lg font-medium text-slate-600 dark:text-slate-300">Both do merge, split, and compress. Only one of them never sees your file.</p>
+
+      <h2>The Core Difference</h2>
+      <p>SmallPDF processes your files on its servers — that's true whether you're using a free or paid plan. Your PDF gets uploaded, processed in SmallPDF's cloud, then sent back to you. Their AI features (document summarization, "chat with your PDF") work the same way: your file's content goes to their servers to generate the answer.</p>
+
+      <p>PDFMinty processes every file locally, inside your browser. Nothing is uploaded. There's no server in the loop at any point.</p>
+
+      <p>Neither approach is "wrong" — SmallPDF's cloud processing is what lets it handle very large files and heavier operations. But if privacy matters more to you than that, the architecture difference is the whole story.</p>
+
+      <h2>Side-by-Side Comparison</h2>
+      <p>Compare key features, privacy models, and pricing between SmallPDF and PDFMinty:</p>
+
+      <div class="not-prose my-8 overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="bg-slate-100 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+              <th class="p-4 font-bold">Feature / Metric</th>
+              <th class="p-4 font-bold text-slate-700 dark:text-slate-300">SmallPDF</th>
+              <th class="p-4 font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">PDFMinty</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Free Plan</td>
+              <td class="p-4">Yes, with daily task limits + ads</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">Yes, unlimited, no ads</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Pro Price</td>
+              <td class="p-4">~$15/mo (~$10/mo billed annually)</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">Free ($0 / forever)</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Files Processed</td>
+              <td class="p-4">On SmallPDF's cloud servers</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">Locally in browser (0 uploads)</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Account Required</td>
+              <td class="p-4">Required for Pro / Unlimited</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">No account required</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">AI Features (Summarize, Q&A)</td>
+              <td class="p-4">Yes — requires uploading file to cloud AI</td>
+              <td class="p-4 bg-emerald-500/5">Not currently offered</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">OCR / Compression</td>
+              <td class="p-4">Pro only for OCR / strong compression</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">Compression: free. OCR: free browser-based</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Merge, Split, Rotate, Watermark, Protect</td>
+              <td class="p-4">✅ Included</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">✅ Included</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Large / Batch File Handling</td>
+              <td class="p-4 font-medium text-slate-900 dark:text-slate-200">Strong (server cloud capacity)</td>
+              <td class="p-4 bg-emerald-500/5">Depends on device browser memory</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-xs text-slate-500 dark:text-slate-400 italic">
+        *Honesty note: SmallPDF's server-side processing genuinely handles bulk or multi-gigabyte files better than a browser memory sandbox can, and offers integrated AI features. PDFMinty focuses strictly on client-side privacy, instant offline tools, and $0 cost.
+      </p>
+
+      <h2>Where Does Your File Actually Go?</h2>
+
+      <div class="not-prose grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+        <div class="p-6 rounded-2xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider">
+            SmallPDF Flow
+          </div>
+          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed m-0">
+            Uploaded to SmallPDF's servers for processing → processed copy sent back to you → subject to retention policy on remote servers.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/30 space-y-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
+            PDFMinty Flow
+          </div>
+          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed m-0">
+            Opened in your browser tab → processed on your device using your browser's own capabilities → never transmitted anywhere → the download you get is the only copy that ever existed outside your original file.
+          </p>
+        </div>
+      </div>
+
+      <div class="not-prose my-6 p-5 rounded-xl bg-slate-900 text-slate-200 border border-slate-800 text-sm space-y-2">
+        <div class="font-bold text-emerald-400 flex items-center gap-2">
+          <span>💡 Practical Tip You Can Verify Yourself:</span>
+        </div>
+        <p class="m-0 text-slate-300 leading-relaxed">
+          Open your browser's developer tools (Network tab) while using either tool. On SmallPDF, you'll see the file being sent out as a network request. On PDFMinty, you won't see any file payload leave your machine.
+        </p>
+      </div>
+
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="not-prose space-y-4 my-8">
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Is SmallPDF's free plan actually private?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            No — free and paid tiers both process files on SmallPDF's servers. The privacy difference isn't about the price, it's about the architecture.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Does PDFMinty have AI features like SmallPDF?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Not currently. If you specifically need AI summarization or "chat with your PDF," that's a real gap — SmallPDF (and PDFMinty's own <a href="/ai-analyze-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold underline">/ai-analyze-pdf</a> tool, where applicable) covers that differently.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Which is better for very large files?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            SmallPDF's server-side processing can handle bulk operations more predictably than a browser can. If you're processing dozens of large files at once, that's worth factoring in.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Is PDFMinty really free with no catch?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Yes — no account, no watermark, no daily limits on the core tools.
+          </p>
+        </div>
+      </div>
+
+      <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-black uppercase tracking-widest shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>100% Free & Private Offline Tools</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug m-0">
+            Try It Without Sending Us Your File
+          </h3>
+          <p class="text-sm text-slate-300 m-0 leading-relaxed font-medium">
+            Experience the difference that local browser processing makes. Your files stay on your device and your data stays private.
+          </p>
+          <div class="pt-2">
+            <a href="/#all-tools" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+              <span>Compare for Yourself →</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400 font-semibold">
+            <span>⚡ Instant Processing</span>
+            <span class="text-slate-600">•</span>
+            <span>🔒 Zero File Uploads</span>
+            <span class="text-slate-600">•</span>
+            <span>✨ No Account Needed</span>
+          </div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: 'compare-pdfminty-vs-ilovepdf',
+    slug: 'compare/pdfminty-vs-ilovepdf',
+    name: 'PDFMinty vs iLovePDF — No Ads, No Uploads, No Monthly Fee',
+    ogImage: '/og-image.png',
+    shortDescription: "iLovePDF's free plan runs ads and uploads your file. PDFMinty doesn't do either. Compare tools, pricing, and privacy side by side.",
+    metaTitle: 'PDFMinty vs iLovePDF — No Ads, No Uploads, No Monthly Fee',
+    metaDescription: "iLovePDF's free plan runs ads and uploads your file. PDFMinty doesn't do either. Compare tools, pricing, and privacy side by side.",
+    h1: 'PDFMinty vs iLovePDF: No Ads. No Uploads. No Monthly Fee.',
+    icon: 'Shield',
+    category: 'blog',
+    priority: 0.9,
+    changefreq: 'weekly',
+    type: 'article',
+    datePublished: '2026-08-04',
+    dateModified: '2026-08-04',
+    faqs: [
+      {
+        q: "Does iLovePDF's free plan upload my files?",
+        a: "Yes — like any browser-based cloud tool, files are sent to iLovePDF's servers for processing, free or paid.",
+      },
+      {
+        q: "Why does iLovePDF show ads on the free plan and PDFMinty doesn't, ever?",
+        a: "iLovePDF's ads help fund the server infrastructure that processes your file. PDFMinty doesn't need that infrastructure, since processing happens on your own device.",
+      },
+      {
+        q: 'Does PDFMinty offer e-signatures or OCR like iLovePDF Premium?',
+        a: "Not currently — that's a genuine gap if those are must-haves for your workflow.",
+      },
+      {
+        q: 'Is there a catch to PDFMinty being free?',
+        a: "No account, no watermark, no task limits on the core tools — it's free the same way it's private: because there's no server-side cost per file to recover.",
+      },
+    ],
+    longFormBody: `
+      <h1>PDFMinty vs iLovePDF: No Ads. No Uploads. No Monthly Fee.</h1>
+      <p class="text-lg font-medium text-slate-600 dark:text-slate-300">iLovePDF's free plan works — but it runs ads and asks you to upload your file first. PDFMinty skips both.</p>
+
+      <h2>The Core Difference</h2>
+      <p>iLovePDF's free tier is genuinely capable — it covers most common PDF tasks. Two tradeoffs come with it: the free web version shows ads, and every file you process is uploaded to iLovePDF's servers, the same as any cloud-based tool. Removing the ads means moving to their Premium plan (~$7–9/mo).</p>
+
+      <p>PDFMinty runs every tool locally in your browser. No ads on any plan, because there's only one plan — free — and no upload step to begin with.</p>
+
+      <h2>Side-by-Side Comparison</h2>
+      <p>Compare key capabilities, ads, pricing, and privacy between iLovePDF and PDFMinty:</p>
+
+      <div class="not-prose my-8 overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="bg-slate-100 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+              <th class="p-4 font-bold">Feature / Metric</th>
+              <th class="p-4 font-bold text-slate-700 dark:text-slate-300">iLovePDF</th>
+              <th class="p-4 font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">PDFMinty</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Free Plan</td>
+              <td class="p-4">Yes, with ads + task/file-size limits</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">Yes, unlimited, no ads</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Premium Price</td>
+              <td class="p-4">~$7–9/mo</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">Free ($0 / forever)</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Files Processed</td>
+              <td class="p-4">On iLovePDF's cloud servers</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">Locally in browser (0 uploads)</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Ads on Free Tier</td>
+              <td class="p-4 font-medium text-slate-900 dark:text-slate-200">Yes (display ads)</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">N/A — zero ads on any tier</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Digital Signatures</td>
+              <td class="p-4">✅ Included (Premium)</td>
+              <td class="p-4 bg-emerald-500/5">Not currently offered</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Desktop / Mobile Apps</td>
+              <td class="p-4">Premium only for standalone desktop</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">Works in any browser, any OS — no app needed</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">Merge, Split, Compress, Rotate, Watermark, Protect</td>
+              <td class="p-4">✅ Included</td>
+              <td class="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">✅ Included</td>
+            </tr>
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+              <td class="p-4 font-semibold text-slate-900 dark:text-white">OCR Engine</td>
+              <td class="p-4 font-medium text-slate-900 dark:text-slate-200">✅ Included (Premium)</td>
+              <td class="p-4 bg-emerald-500/5">Not currently offered</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-xs text-slate-500 dark:text-slate-400 italic">
+        *Honesty note: If you require advanced e-signatures or server OCR workflows, iLovePDF Premium covers those features. PDFMinty focuses on core document manipulation with absolute browser-side privacy and zero ads.
+      </p>
+
+      <h2>What "Free" Actually Costs on Each</h2>
+      <p>iLovePDF's free tier isn't free of tradeoffs — it's ad-supported and rate-limited, which is a completely standard way to run a freemium product. The question is just whether that tradeoff works for you.</p>
+
+      <p>PDFMinty doesn't run ads or limits because it doesn't have server costs to offset in the first place — there's no processing infrastructure behind each file, since it never leaves your device.</p>
+
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="not-prose space-y-4 my-8">
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Does iLovePDF's free plan upload my files?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Yes — like any browser-based cloud tool, files are sent to iLovePDF's servers for processing, free or paid.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Why does iLovePDF show ads on the free plan and PDFMinty doesn't, ever?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            iLovePDF's ads help fund the server infrastructure that processes your file. PDFMinty doesn't need that infrastructure, since processing happens on your own device.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Does PDFMinty offer e-signatures or OCR like iLovePDF Premium?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Not currently — that's a genuine gap if those are must-haves for your workflow.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Is there a catch to PDFMinty being free?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            No account, no watermark, no task limits on the core tools — it's free the same way it's private: because there's no server-side cost per file to recover.
+          </p>
+        </div>
+      </div>
+
+      <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-black uppercase tracking-widest shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>100% Free & Private Offline Tools</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug m-0">
+            Skip the Upload. Skip the Ads.
+          </h3>
+          <p class="text-sm text-slate-300 m-0 leading-relaxed font-medium">
+            Process your PDF documents locally with instant speed and absolute privacy.
+          </p>
+          <div class="pt-2">
+            <a href="/#all-tools" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+              <span>Try PDFMinty Free →</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400 font-semibold">
+            <span>⚡ Instant Processing</span>
+            <span class="text-slate-600">•</span>
+            <span>🔒 Zero File Uploads</span>
+            <span class="text-slate-600">•</span>
+            <span>✨ No Account Needed</span>
+          </div>
+        </div>
+      </div>
+    `,
+  },
 ];
+
 
 
 

@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import SEO from '../components/SEO';
+import { NORD_AFFILIATE_LINKS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 
 export const AboutUsPage: React.FC = () => {
@@ -209,6 +210,79 @@ export const AboutUsPage: React.FC = () => {
               </p>
             </div>
           </div>
+        </section>
+
+        {/* Location 3: Tools We Trust & Recommend */}
+        <section className="bg-surface-container-low border border-border-muted p-6 sm:p-8 rounded-2xl space-y-5 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <h2 className="text-2xl font-extrabold text-on-surface">
+              Tools We Trust & Recommend
+            </h2>
+          </div>
+          <p className="text-sm text-on-surface-variant leading-relaxed font-medium">
+            At PdfMinty, we believe in privacy-first tools. Here are services we personally use and recommend to our community:
+          </p>
+          <ul className="space-y-3.5 pt-1">
+            <li className="flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <a
+                  href={NORD_AFFILIATE_LINKS.NORDVPN}
+                  target="_blank"
+                  rel="nofollow sponsored"
+                  className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                >
+                  NordVPN
+                </a>
+                <span className="text-on-surface-variant font-medium">: For secure browsing and online privacy</span>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <a
+                  href={NORD_AFFILIATE_LINKS.NORDPASS}
+                  target="_blank"
+                  rel="nofollow sponsored"
+                  className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                >
+                  NordPass
+                </a>
+                <span className="text-on-surface-variant font-medium">: For password management and security</span>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <a
+                  href={NORD_AFFILIATE_LINKS.NORDVPN_ARABIA}
+                  target="_blank"
+                  rel="nofollow sponsored"
+                  className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                >
+                  NordVPN Arabia
+                </a>
+                <span className="text-on-surface-variant font-medium">: For users in the Middle East region</span>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <a
+                  href={NORD_AFFILIATE_LINKS.THREAT_PROTECTION}
+                  target="_blank"
+                  rel="nofollow sponsored"
+                  className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                >
+                  Threat Protection
+                </a>
+                <span className="text-on-surface-variant font-medium">: For complete online security</span>
+              </div>
+            </li>
+          </ul>
         </section>
 
         {/* Section 5: Get in Touch & Support */}

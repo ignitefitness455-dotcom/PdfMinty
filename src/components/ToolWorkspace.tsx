@@ -1,6 +1,7 @@
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Shield, ExternalLink } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 
+import { NORD_AFFILIATE_LINKS } from '../config/constants';
 import { useToast } from '../contexts/ToastContext';
 import { downloadBlob } from '../utils/download';
 
@@ -144,6 +145,29 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
         >
           Download Result
         </button>
+      )}
+
+      {result && (
+        <div className="mt-4 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-on-surface">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-500 shrink-0">
+              <Shield className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="font-bold text-on-surface">Security & Privacy Tip</p>
+              <p className="text-on-surface-variant">Sharing or uploading sensitive documents online? Keep your connection encrypted with NordVPN.</p>
+            </div>
+          </div>
+          <a
+            href={NORD_AFFILIATE_LINKS.NORDVPN}
+            target="_blank"
+            rel="nofollow sponsored"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0 transition-colors shadow-sm"
+          >
+            <span>Get NordVPN</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
       )}
     </div>
   );

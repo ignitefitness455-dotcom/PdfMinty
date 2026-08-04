@@ -1,21 +1,30 @@
 import { ArrowLeft, Calendar, Clock, Shield, Copy, Check, BookOpen, ArrowRight } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 
 import { SEO } from '../components/SEO';
+import { NORD_AFFILIATE_LINKS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { TOOLS } from '../config/seo-data';
 
 export const BlogPostPage: React.FC = () => {
-  const { postSlug } = useParams<{ postSlug: string }>();
+  const { postSlug } = useParams<{ postSlug?: string }>();
+  const location = useLocation();
   const [copied, setCopied] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
 
   // Look up the post in our TOOLS data array
   const post = useMemo(() => {
-    const derivedSlug = `blog/${postSlug}`;
-    return TOOLS.find((t) => t.slug === derivedSlug && t.type === 'article');
-  }, [postSlug]);
+    const currentPath = (location?.pathname || '').replace(/^\//, '').replace(/\/$/, '');
+    return TOOLS.find(
+      (t) =>
+        t.type === 'article' &&
+        (t.slug === currentPath ||
+          t.slug === `blog/${postSlug}` ||
+          t.slug === `compare/${postSlug}` ||
+          t.slug === postSlug)
+    );
+  }, [postSlug, location?.pathname]);
 
   // Compute scroll progress for the reading indicator
   useEffect(() => {
@@ -183,6 +192,37 @@ export const BlogPostPage: React.FC = () => {
         dangerouslySetInnerHTML={{ __html: cleanHtml }}
         id="blog-post-content"
       />
+
+      {/* LOCATION 2: Blog Post End Privacy Tip */}
+      <div className="bg-[#f0fdf4] dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 sm:p-7 space-y-3 shadow-sm my-8">
+        <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-300 font-extrabold text-lg">
+          <span className="text-xl">🔒</span>
+          <h3 className="text-lg font-bold text-emerald-950 dark:text-emerald-200 m-0">Privacy Tip</h3>
+        </div>
+        <p className="text-sm text-emerald-900/90 dark:text-emerald-200/90 leading-relaxed font-medium m-0">
+          Working with confidential PDFs? Always use a VPN to protect your connection before downloading or sharing sensitive documents.
+        </p>
+        <div className="pt-1 flex flex-col sm:flex-row sm:items-center gap-2">
+          <a
+            href={NORD_AFFILIATE_LINKS.NORDVPN}
+            target="_blank"
+            rel="nofollow sponsored"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline transition-colors"
+          >
+            <span>Try NordVPN Risk-Free &rarr;</span>
+          </a>
+        </div>
+        <div>
+          <a
+            href={NORD_AFFILIATE_LINKS.THREAT_PROTECTION}
+            target="_blank"
+            rel="nofollow sponsored"
+            className="text-xs text-emerald-800/80 dark:text-emerald-300/80 hover:text-emerald-950 dark:hover:text-emerald-200 underline font-medium transition-colors"
+          >
+            Or try NordVPN Threat Protection for complete security &rarr;
+          </a>
+        </div>
+      </div>
 
       {/* Offline Sandbox Guarantee Banner */}
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 p-6 sm:p-8 rounded-2xl border border-emerald-500/30 text-white space-y-4 mt-12 shadow-2xl shadow-emerald-950/20">

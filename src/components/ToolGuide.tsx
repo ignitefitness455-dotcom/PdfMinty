@@ -1,6 +1,7 @@
-import { HelpCircle, ChevronDown, Check } from 'lucide-react';
+import { HelpCircle, ChevronDown, Check, Shield } from 'lucide-react';
 import React from 'react';
 
+import { NORD_AFFILIATE_LINKS } from '../config/constants';
 import { TOOLS } from '../config/seo-data';
 
 interface ToolGuideProps {
@@ -86,6 +87,38 @@ export const ToolGuide: React.FC<ToolGuideProps> = ({ slug }) => {
                 </div>
               </details>
             ))}
+          </div>
+
+          {/* Recommended Security Tools Box */}
+          <div className="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                <Shield className="w-4 h-4" />
+                <span>Recommended Security Tools</span>
+              </div>
+              <p className="text-xs text-on-surface-variant font-medium">
+                Ensure document confidentiality on any network with VPN encryption & password management.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0 text-xs font-bold">
+              <a
+                href={NORD_AFFILIATE_LINKS.NORDVPN}
+                target="_blank"
+                rel="nofollow sponsored"
+                className="text-emerald-600 dark:text-emerald-400 hover:underline"
+              >
+                NordVPN &rarr;
+              </a>
+              <span className="text-border-muted">|</span>
+              <a
+                href={NORD_AFFILIATE_LINKS.NORDPASS}
+                target="_blank"
+                rel="nofollow sponsored"
+                className="text-emerald-600 dark:text-emerald-400 hover:underline"
+              >
+                NordPass &rarr;
+              </a>
+            </div>
           </div>
         </section>
       )}

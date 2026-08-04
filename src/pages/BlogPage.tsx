@@ -35,6 +35,8 @@ export const BlogPage: React.FC = () => {
       case 'blog-free-esignature':
       case 'blog-remove-metadata':
       case 'blog-ilovepdf-vs-smallpdf-vs-pdfminty':
+      case 'compare-pdfminty-vs-smallpdf':
+      case 'compare-pdfminty-vs-ilovepdf':
         return 'Privacy';
       case 'blog-compress':
       case 'blog-batch-processing':

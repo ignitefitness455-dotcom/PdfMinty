@@ -117,33 +117,68 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     let resendSuccess = false;
 
     if (env.RESEND_API_KEY) {
-      // 1. Add contact to Resend Audience if RESEND_AUDIENCE_ID is configured
-      if (env.RESEND_AUDIENCE_ID) {
-        try {
-          const audienceRes = await fetch(
-            `https://api.resend.com/audiences/${env.RESEND_AUDIENCE_ID}/contacts`,
-            {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${env.RESEND_API_KEY}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                email,
-                first_name: name || undefined,
-                unsubscribed: false,
-              }),
-            }
-          );
-          if (audienceRes.ok) {
-            resendSuccess = true;
-          } else {
-            const audienceErr = await audienceRes.text();
-            console.warn('Resend audience contact creation failed:', audienceErr);
-          }
-        } catch (audErr) {
-          console.error('Resend audience exception:', audErr);
+      // 1. Add contact to Resend Audience / Contacts List
+      const resendApiKey = env.RESEND_API_KEY;
+      const audienceId = env.RESEND_AUDIENCE_ID;
+
+      try {
+        let contactCreated = false;
+
+        // Method A: Standard Resend Contacts API with optional audience_id
+        const contactsBody: Record<string, unknown> = {
+          email,
+          unsubscribed: false,
+        };
+        if (name) {
+          contactsBody.first_name = name;
         }
+        if (audienceId) {
+          contactsBody.audience_id = audienceId;
+        }
+
+        const contactRes = await fetch('https://api.resend.com/contacts', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(contactsBody),
+        });
+
+        if (contactRes.ok) {
+          resendSuccess = true;
+          contactCreated = true;
+        } else {
+          const contactErr = await contactRes.text();
+          console.warn('Resend /contacts creation response:', contactErr);
+
+          // Method B: Fallback to /audiences/:id/contacts if Method A failed and audienceId exists
+          if (audienceId && !contactCreated) {
+            const audienceRes = await fetch(
+              `https://api.resend.com/audiences/${audienceId}/contacts`,
+              {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${resendApiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  email,
+                  first_name: name || undefined,
+                  unsubscribed: false,
+                }),
+              }
+            );
+            if (audienceRes.ok) {
+              resendSuccess = true;
+            } else {
+              const audErrText = await audienceRes.text();
+              console.warn('Resend /audiences/:id/contacts fallback failed:', audErrText);
+            }
+          }
+        }
+      } catch (audErr) {
+        console.error('Resend audience/contacts exception:', audErr);
       }
 
       // 2. Send Welcome email if RESEND_FROM_EMAIL is set

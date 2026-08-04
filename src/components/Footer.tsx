@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
+import { NORD_AFFILIATE_LINKS } from '../config/constants';
 
 interface FooterProps {
   setShowFeedbackModal?: (show: boolean) => void;
@@ -84,6 +85,44 @@ export const Footer: React.FC<FooterProps> = () => {
           <p className="text-xs text-primary-fixed/80 font-semibold uppercase tracking-widest leading-none">
             Developed by & under Proprietorship of PDFMinty. Secure, client-buffered local
             suite.
+          </p>
+          <p className="text-[11px] text-on-surface-variant/70 font-medium pt-2 normal-case tracking-normal">
+            Privacy tools we recommend:{' '}
+            <a
+              href={NORD_AFFILIATE_LINKS.NORDVPN}
+              target="_blank"
+              rel="nofollow sponsored"
+              className="hover:text-emerald-500 underline transition-colors"
+            >
+              NordVPN
+            </a>{' '}
+            |{' '}
+            <a
+              href={NORD_AFFILIATE_LINKS.NORDPASS}
+              target="_blank"
+              rel="nofollow sponsored"
+              className="hover:text-emerald-500 underline transition-colors"
+            >
+              NordPass
+            </a>{' '}
+            |{' '}
+            <a
+              href={NORD_AFFILIATE_LINKS.NORDVPN_ARABIA}
+              target="_blank"
+              rel="nofollow sponsored"
+              className="hover:text-emerald-500 underline transition-colors"
+            >
+              NordVPN Arabia
+            </a>{' '}
+            |{' '}
+            <a
+              href={NORD_AFFILIATE_LINKS.THREAT_PROTECTION}
+              target="_blank"
+              rel="nofollow sponsored"
+              className="hover:text-emerald-500 underline transition-colors"
+            >
+              Threat Protection
+            </a>
           </p>
         </div>
       </div>
