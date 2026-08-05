@@ -37,12 +37,6 @@ export const Footer: React.FC<FooterProps> = () => {
             <Shield className="w-4.5 h-4.5 text-emerald-400 fill-emerald-400/10" /> About Us
           </Link>
           <Link
-            to={ROUTES.ADOBE_ALTERNATIVE}
-            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
-          >
-            <Sparkles className="w-4.5 h-4.5 text-amber-400 fill-amber-400/10" /> Adobe Alternative
-          </Link>
-          <Link
             to={ROUTES.CONTACT}
             className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
           >
@@ -52,7 +46,7 @@ export const Footer: React.FC<FooterProps> = () => {
             to={ROUTES.BLOG}
             className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
           >
-            <FileText className="w-4.5 h-4.5 text-emerald-500 fill-emerald-500/10" /> Blog
+            <FileText className="w-4.5 h-4.5 text-emerald-500 fill-emerald-500/10" /> Knowledge Hub
           </Link>
           <Link
             to={ROUTES.PRIVACY_POLICY}
@@ -65,6 +59,30 @@ export const Footer: React.FC<FooterProps> = () => {
             className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
           >
             <FileText className="w-4.5 h-4.5 text-amber-400 fill-amber-400/10" /> Terms of Service
+          </Link>
+        </div>
+
+        {/* Major SEO Resource & Comparison Links */}
+        <div className="pt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-on-surface-variant/80 border-t border-border-muted/60 max-w-4xl">
+          <span className="text-emerald-500 font-extrabold uppercase tracking-wider text-[11px]">Popular Resources:</span>
+          <Link to="/blog/how-to-convert-pdf-to-word-for-free-2026" className="hover:text-emerald-400 transition-colors">
+            PDF to Word Guide
+          </Link>
+          <span>•</span>
+          <Link to="/blog/how-to-compress-a-pdf-without-losing-quality-2026" className="hover:text-emerald-400 transition-colors">
+            PDF Compression Guide
+          </Link>
+          <span>•</span>
+          <Link to={ROUTES.COMPARE_SMALLPDF} className="hover:text-emerald-400 transition-colors">
+            PDFMinty vs SmallPDF
+          </Link>
+          <span>•</span>
+          <Link to={ROUTES.COMPARE_ILOVEPDF} className="hover:text-emerald-400 transition-colors">
+            PDFMinty vs iLovePDF
+          </Link>
+          <span>•</span>
+          <Link to={ROUTES.TRUST_ARTICLE} className="hover:text-emerald-400 transition-colors">
+            Is Online PDF Upload Safe?
           </Link>
         </div>
 

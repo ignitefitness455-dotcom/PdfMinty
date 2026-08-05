@@ -11,6 +11,7 @@ import { FaqSection } from './home/FaqSection';
 import { HeroSection } from './home/HeroSection';
 import { HowItWorksSection } from './home/HowItWorksSection';
 import { RecommendedToolsSection } from './home/RecommendedToolsSection';
+import { SeoResourcesSection } from '../components/SeoResourcesSection';
 import { SearchBar } from './home/SearchBar';
 import { ToolGrid } from './home/ToolGrid';
 import { WhyChooseSection } from './home/WhyChooseSection';
@@ -190,6 +191,8 @@ export const HomePage: React.FC = () => {
       <WhyChooseSection />
 
       <RecommendedToolsSection />
+
+      <SeoResourcesSection />
 
       <FaqSection />
 
