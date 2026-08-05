@@ -1,6 +1,29 @@
 export const SITE_URL = 'https://pdfminty.com';
 export const SITE_NAME = 'PDFMinty';
 
+export const FAQS = [
+  {
+    q: 'How does PdfMinty process my PDF files privately?',
+    a: 'PdfMinty executes all PDF operations (merging, splitting, compressing, editing) directly inside your web browser using WebAssembly and modern web techniques. Your files are never uploaded to any cloud server, ensuring 100% data privacy and security.',
+  },
+  {
+    q: 'Is PdfMinty completely free to use?',
+    a: 'Yes, 100% free with no hidden fees, subscriptions, usage limits, or account registration required.',
+  },
+  {
+    q: 'Do my files ever leave my computer or mobile device?',
+    a: 'No. All processing happens locally on your device in your browser memory. You can even disconnect from the internet after loading the site and continue editing PDFs offline.',
+  },
+  {
+    q: 'What file formats and PDF versions are supported?',
+    a: 'PdfMinty supports standard PDF documents across all versions, including password-protected PDFs, scanned document pages, and standard image formats (JPEG, PNG, WebP) for PDF conversion.',
+  },
+  {
+    q: 'How does PdfMinty compare to online converters like iLovePDF or Smallpdf?',
+    a: 'Traditional PDF converters upload your confidential documents to external cloud servers to process them. PdfMinty processes everything locally on your own CPU and memory, eliminating privacy risks and server wait times.',
+  },
+];
+
 export interface ToolSEOInfo {
   id: string;
   slug: string;
@@ -36,9 +59,9 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Edit Metadata',
     ogImage: '/og-image.png',
     shortDescription: 'Change PDF title, author, subject, and keywords offline',
-    metaTitle: 'Edit PDF Metadata Free - Change PDF Properties Online | PDFMinty',
+    metaTitle: 'Edit PDF Metadata Free — Clean & Change PDF Info | PDFMinty',
     metaDescription: 'Edit PDF metadata properties including Title, Author, Subject, and Keywords online for free. Secure offline processing.',
-    h1: 'Edit PDF Metadata - Change Document Properties Safely',
+    h1: 'Edit PDF Metadata Free — Clean & Change PDF Properties',
     icon: 'FilePenLine',
     iconColor: 'text-security-green',
     homeRank: 20,
@@ -82,9 +105,9 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Sanitize PDF',
     ogImage: '/og-image.png',
     shortDescription: 'Remove embedded scripts and hidden metadata',
-    metaTitle: 'Sanitize PDF Free - Remove Hidden Metadata and Scripts | PDFMinty',
+    metaTitle: 'Sanitize PDF Free — Remove Hidden Data & Scripts | PDFMinty',
     metaDescription: 'Securely sanitize PDF files. Remove hidden metadata, embedded scripts, and malicious launch actions offline for free.',
-    h1: 'Sanitize PDF - Clean Hidden Data and Malicious Scripts',
+    h1: 'Sanitize PDF Free — Remove Hidden Data & Metadata',
     icon: 'ShieldBan',
     iconColor: 'text-security-green',
     homeRank: 21,
@@ -128,10 +151,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Merge PDF',
     ogImage: '/og-merge-pdf.png',
     shortDescription: 'Combine multiple PDFs into one document',
-    metaTitle: 'Merge PDF Free - Combine PDFs Online Instantly | PDFMinty',
+    metaTitle: 'Merge PDF Files Free — Combine PDFs Online | PDFMinty',
     metaDescription:
       'Merge PDF files free online. Combine multiple PDFs into one secure document locally in your browser. No server uploads — your files stay private.',
-    h1: 'Merge PDF Files Online - Combine Documents Locally',
+    h1: 'Merge PDF Files Free — Combine PDF Documents Online',
     icon: 'Merge',
     iconColor: 'text-security-green',
     badge: 'popular',
@@ -193,10 +216,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Split PDF',
     ogImage: '/og-split-pdf.png',
     shortDescription: 'Extract custom page ranges',
-    metaTitle: 'Split PDF Free - Extract Pages Online Instantly | PDFMinty',
+    metaTitle: 'Split PDF Free — Separate & Extract PDF Pages | PDFMinty',
     metaDescription:
       'Split PDF pages or extract custom page ranges online. Free browser-side utility to separate complex PDF documents into smaller parts securely.',
-    h1: 'Split PDF Online - Separate and Extract Pages',
+    h1: 'Split PDF Free — Separate & Extract PDF Pages Online',
     icon: 'Scissors',
     iconColor: 'text-security-green',
     homeRank: 5,
@@ -257,10 +280,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Rotate PDF',
     ogImage: '/og-rotate-pdf.png',
     shortDescription: 'Rotate specific or all PDF pages',
-    metaTitle: 'Rotate PDF Free - Flip PDF Pages Online Instantly | PDFMinty',
+    metaTitle: 'Rotate PDF Pages Free — Flip PDF Pages Online | PDFMinty',
     metaDescription:
       'Rotate PDF pages clockwise or counterclockwise. Flip individual pages or rotate all pages in seconds from your web browser safely.',
-    h1: 'Rotate PDF Pages Online with Instant Verification',
+    h1: 'Rotate PDF Pages Free — Flip & Permanently Save Pages',
     icon: 'RotateCw',
     iconColor: 'text-security-green',
     homeRank: 12,
@@ -321,10 +344,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Delete Pages',
     ogImage: '/og-delete-pages-pdf.png',
     shortDescription: 'Filter out unneeded pages from PDF',
-    metaTitle: 'Delete PDF Pages Free - Remove Pages from PDF Online | PDFMinty',
+    metaTitle: 'Delete PDF Pages Free — Remove Unwanted Pages | PDFMinty',
     metaDescription:
       'Remove unwanted pages from your PDF file securely. Clean and select visual thumbnail pages to delete in your browser without cloud uploads.',
-    h1: 'Delete PDF Pages Online - Eliminate Unwanted Sheets',
+    h1: 'Delete PDF Pages Free — Remove Unwanted Pages Online',
     icon: 'Trash2',
     iconColor: 'text-security-green',
     badge: 'extractor',
@@ -386,10 +409,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Extract PDF Pages',
     ogImage: '/og-extract-pages-pdf.png',
     shortDescription: 'Extract pages into a brand new PDF',
-    metaTitle: 'Extract PDF Pages Free - Save Specific Pages Online | PDFMinty',
+    metaTitle: 'Extract PDF Pages Free — Save Specific Pages | PDFMinty',
     metaDescription:
       'Isolate and extract specific pages from your PDF documents. Save individual pages as a brand new secure PDF locally, 100% in-browser.',
-    h1: 'Extract PDF Pages Safely - Isolate Crucial Documents',
+    h1: 'Extract PDF Pages Free — Save Specific Pages Online',
     icon: 'CheckSquare',
     iconColor: 'text-security-green',
     badge: 'visual_extract',
@@ -451,10 +474,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Reorder PDF Pages',
     ogImage: '/og-reorder-pdf.png',
     shortDescription: 'Drag and drop to rearrange PDF page order',
-    metaTitle: 'Reorder PDF Pages Free - Arrange PDF Pages Online | PDFMinty',
+    metaTitle: 'Reorder PDF Pages Free — Organize PDF Pages | PDFMinty',
     metaDescription:
       'Rearrange the page order of your PDF document online for free. Drag, drop and organize page thumbnails privately inside your browser.',
-    h1: 'Reorder PDF Pages - Arrange and Organize Pages Online',
+    h1: 'Reorder PDF Pages Free — Organize & Rearrange Pages',
     icon: 'Move',
     iconColor: 'text-security-green',
     badge: 'interactive_order',
@@ -516,10 +539,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Watermark PDF',
     ogImage: '/og-watermark-pdf.png',
     shortDescription: 'Draw custom stamp text overlay on PDF',
-    metaTitle: 'Watermark PDF Free - Add Text Watermarks to PDFs | PDFMinty',
+    metaTitle: 'Add Watermark to PDF Free — Stamp Text on PDF | PDFMinty',
     metaDescription:
       'Protect and stamp your PDF files online with a secure custom watermark. Custom styling, transparency, and positioning locally.',
-    h1: 'Add Watermark to PDF - Overlay Custom Text Seals Safely',
+    h1: 'Add Watermark to PDF Free — Stamp Custom Text Seals',
     icon: 'Bookmark',
     iconColor: 'text-security-green',
     homeRank: 13,
@@ -580,10 +603,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Page Numbers',
     ogImage: '/og-add-page-numbers.png',
     shortDescription: 'Add page identifiers dynamically',
-    metaTitle: 'Add Page Numbers to PDF Free - Number PDF Pages | PDFMinty',
+    metaTitle: 'Add Page Numbers to PDF Free — Number Pages | PDFMinty',
     metaDescription:
       'Insert page numbers into your PDF file. Customize numbering formats, header or footer layouts, and alignment completely in-browser.',
-    h1: 'Add Page Numbers to PDF - Format Documents Instantly',
+    h1: 'Add Page Numbers to PDF Free — Number Document Pages',
     icon: 'Hash',
     iconColor: 'text-security-green',
     homeRank: 14,
@@ -644,10 +667,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Add Blank Page',
     ogImage: '/og-add-blank-page.png',
     shortDescription: 'Insert empty spacing sheets into PDF',
-    metaTitle: 'Insert Blank Page into PDF Free - Add Empty PDF Pages | PDFMinty',
+    metaTitle: 'Add Blank Page to PDF Free — Insert Empty Pages | PDFMinty',
     metaDescription:
       'Add clear blank pages anywhere in your PDF file. Select custom layout sizes like Letter or A4 to insert blank pages securely.',
-    h1: 'Add Blank Page to PDF - Insert Space Margins Safely',
+    h1: 'Add Blank Page to PDF Free — Insert Empty Pages Online',
     icon: 'FilePlus',
     iconColor: 'text-security-green',
     homeRank: 22,
@@ -708,10 +731,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Protect PDF',
     ogImage: '/og-protect-pdf.png',
     shortDescription: 'Encrypt document with password constraint',
-    metaTitle: 'Protect PDF Free - Password Protect PDF Online | PDFMinty',
+    metaTitle: 'Password Protect PDF Free — Secure PDF Online | PDFMinty',
     metaDescription:
       'Secure your PDF files with high-strength file access passwords. Completely local in-browser encryption safeguards sensitive business files.',
-    h1: 'Password Protect PDF - Secure Documents with AES Encryption',
+    h1: 'Password Protect PDF Free — Encrypt & Secure Documents',
     icon: 'Shield',
     iconColor: 'text-security-green',
     badge: 'offline_aes',
@@ -773,10 +796,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Unlock PDF',
     ogImage: '/og-unlock-pdf.png',
     shortDescription: 'Decrypt pages to clean format',
-    metaTitle: 'Unlock PDF Free - Remove PDF Password Security Online | PDFMinty',
+    metaTitle: 'Unlock PDF Free — Remove PDF Password Security | PDFMinty',
     metaDescription:
       'Decrypt standard password protections from your PDFs. Strip file-restrictions and render your unlocked documents instantly in-browser.',
-    h1: 'Unlock PDF - Decrypt Password Restricted PDF Documents',
+    h1: 'Unlock PDF Free — Remove Password & Restrictions',
     icon: 'Lock',
     iconColor: 'text-security-green',
     homeRank: 16,
@@ -837,10 +860,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Image to PDF',
     ogImage: '/og-image-to-pdf.png',
     shortDescription: 'Convert PNG/JPG into beautiful PDFs',
-    metaTitle: 'Image to PDF Free - Convert JPG/PNG to PDF Online | PDFMinty',
+    metaTitle: 'Image to PDF Free — Convert JPG & PNG to PDF | PDFMinty',
     metaDescription:
       'Convert images to PDF documents for free. Assemble JPG, PNG, and WebP files into single clean PDF pages completely inside your web browser.',
-    h1: 'Convert Image to PDF - Turn JPEG and PNG Photos into PDFs',
+    h1: 'Image to PDF Converter Free — Convert JPG & PNG to PDF',
     icon: 'Image',
     iconColor: 'text-security-green',
     badge: 'fast_convert',
@@ -902,10 +925,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'PDF to Image',
     ogImage: '/og-pdf-to-image.png',
     shortDescription: 'Export PDF pages to standard raster images',
-    metaTitle: 'PDF to Image Free - Convert PDF to JPG Online | PDFMinty',
+    metaTitle: 'PDF to Image Converter Free — Convert PDF to JPG | PDFMinty',
     metaDescription:
       'Convert PDF pages to lossless PNG or high-quality JPG images. Zero uploading means document text elements remain private and local.',
-    h1: 'Convert PDF to Image - Export Pages to PNG and JPEG',
+    h1: 'PDF to Image Converter Free — Export Pages to JPG & PNG',
     icon: 'Eye',
     iconColor: 'text-security-green',
     homeRank: 7,
@@ -919,7 +942,7 @@ export const TOOLS: ToolSEOInfo[] = [
       steps: [
         'Upload your PDF document by clicking or dragging files.',
         'Select your output file format (PNG or JPG quality settings).',
-        'Click the conversion button to trigger the browser rendering pipeline.',
+        'Click the conversion button to process your document.',
         'Download your converted images inside a single ZIP folder.',
       ],
     },
@@ -966,10 +989,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'PDF to Markdown',
     ogImage: '/og-pdf-to-markdown.png',
     shortDescription: 'Convert PDF files into structured Markdown text and extract images offline',
-    metaTitle: 'PDF to Markdown Converter Free - Convert PDF to MD Online | PDFMinty',
+    metaTitle: 'PDF to Markdown Free — Convert PDF to MD Online | PDFMinty',
     metaDescription:
       'Convert PDF to Markdown online free. Extract structured text, headings, lists, tables, and images directly in your browser without uploading files.',
-    h1: 'PDF to Markdown - Convert PDF to MD Locally',
+    h1: 'PDF to Markdown Free — Convert PDF to Editable MD',
     icon: 'FileCode2',
     iconColor: 'text-security-green',
     homeRank: 10,
@@ -1007,7 +1030,7 @@ export const TOOLS: ToolSEOInfo[] = [
     ],
     longFormBody: `
       <h1>PDF to Markdown - Convert PDF to MD Locally</h1>
-      <p>Converting PDF documents into clean, developer-friendly Markdown has traditionally required complex backend utilities or uploading sensitive documents to cloud services. PDFMinty solves this by running a high-performance conversion engine 100% inside your web browser. Whether you are migrating technical documentation, extracting academic notes, or preparing content for AI pipelines and static site generators, your data stays strictly private on your device.</p>
+      <p>Converting PDF documents into clean, developer-friendly Markdown has traditionally required complex backend utilities or uploading sensitive documents to cloud services. PDFMinty solves this by converting your files directly inside your web browser. Whether you are migrating technical documentation, extracting academic notes, or preparing content for AI pipelines and static site generators, your data stays strictly private on your device.</p>
       
       <h2>Intelligent Structure Detection</h2>
       <p>Our client-side parser goes beyond simple text scraping. It employs spatial heuristics to recognize multi-column reading orders, cluster font sizes into semantic Markdown headings (H1, H2, H3), detect bulleted and numbered lists, and format aligned columns into clean pipe tables. Furthermore, repeating page numbers and headers are stripped automatically so your final Markdown output remains clean and contiguous.</p>
@@ -1030,10 +1053,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'AI Analyze',
     ogImage: '/og-intelligence.png',
     shortDescription: 'Summarize or ask questions via secure, privacy-guaranteed AI',
-    metaTitle: 'AI PDF Analyzer Free - Chat with PDFs Online | PDFMinty',
+    metaTitle: 'AI PDF Analyzer Free — Chat & Summarize PDFs | PDFMinty',
     metaDescription:
       'Analyze PDF files with edge AI. Securely summarize, chat with, and extract deep structural details from your PDF contents with privacy in mind.',
-    h1: 'AI Analyze PDF - Summarize and Query Documents with Gemini',
+    h1: 'AI PDF Analyzer Free — Chat & Summarize PDF Documents',
     icon: 'Sparkles',
     iconColor: 'text-security-green',
     badge: 'ai_hybrid',
@@ -1095,10 +1118,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Grayscale PDF',
     ogImage: '/og-grayscale-pdf.png',
     shortDescription: 'Convert color PDFs to black & white',
-    metaTitle: 'Grayscale PDF - Convert Color PDFs to Black & White Online | PDFMinty',
+    metaTitle: 'Grayscale PDF Free — Convert PDF to Black & White | PDFMinty',
     metaDescription:
       'Convert color PDFs to grayscale online for free. Make your PDF files black and white to save printer ink. 100% private in-browser tool.',
-    h1: 'Convert Color PDFs to Black & White (Grayscale)',
+    h1: 'Grayscale PDF Free — Convert Color PDF to Black & White',
     icon: 'Printer',
     iconColor: 'text-security-green',
     badge: 'fast_convert',
@@ -1156,10 +1179,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Flatten PDF',
     ogImage: '/og-flatten-pdf.png',
     shortDescription: 'Flatten PDF forms and make fields non-editable',
-    metaTitle: 'Flatten PDF - Make Interactive Forms Non-Editable Online | PDFMinty',
+    metaTitle: 'Flatten PDF Free — Lock Forms & Fields Online | PDFMinty',
     metaDescription:
       'Flatten interactive PDF forms online for free. Prevent edits to your forms and comments by locking values into static page graphics instantly.',
-    h1: 'Flatten PDF Forms and Interactive Fields',
+    h1: 'Flatten PDF Free — Make Interactive Forms Non-Editable',
     icon: 'FileText',
     iconColor: 'text-security-green',
     badge: 'secure',
@@ -1217,10 +1240,10 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Repair PDF',
     ogImage: '/og-repair-pdf.png',
     shortDescription: 'Repair corrupted or broken PDF files',
-    metaTitle: 'Repair PDF - Fix Corrupted & Damaged PDF Documents Online | PDFMinty',
+    metaTitle: 'Repair PDF Free — Fix Corrupted & Damaged PDFs | PDFMinty',
     metaDescription:
       'Repair corrupted or unreadable PDF files online for free. Rebuild cross-reference tables, fix headers, and clean trailing junk bytes locally in-browser.',
-    h1: 'Repair Corrupted and Damaged PDF Files',
+    h1: 'Repair PDF Free — Fix Corrupted & Damaged PDF Files',
     icon: 'Wrench',
     iconColor: 'text-security-green',
     badge: 'secure',
@@ -1278,9 +1301,9 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'Sign PDF',
     ogImage: '/og-image.png',
     shortDescription: 'Draw, type, or upload custom e-signatures onto PDF pages offline',
-    metaTitle: 'Sign PDF Free - Add Electronic Signature to PDF Online | PDFMinty',
+    metaTitle: 'Sign PDF Free — Add Electronic Signature Online | PDFMinty',
     metaDescription: 'Sign PDF files online for free. Create custom e-signatures using drawing, typing, or images and place them on your PDF documents. 100% private and offline.',
-    h1: 'Sign PDF - Add Electronic Signatures Free & Securely',
+    h1: 'Sign PDF Free — Add Electronic Signature to Documents',
     icon: 'FilePenLine',
     iconColor: 'text-security-green',
     badge: 'popular',
@@ -1343,9 +1366,9 @@ export const TOOLS: ToolSEOInfo[] = [
     name: 'OCR PDF',
     ogImage: '/og-image.png',
     shortDescription: 'Extract clean, searchable text or Markdown from scanned and image-only PDFs with AI Vision',
-    metaTitle: 'OCR PDF Free - Extract Text from Scanned PDF Online | PDFMinty',
+    metaTitle: 'OCR PDF Free — Extract Text from Scanned PDF | PDFMinty',
     metaDescription: 'Extract text from scanned PDFs and images online for free. Leverage highly accurate Multimodal AI Vision OCR to convert scans into selectable Markdown.',
-    h1: 'OCR PDF - Extract Text & Table Content from Scanned PDFs',
+    h1: 'OCR PDF Free — Extract Text & Tables from Scanned PDFs',
     icon: 'Sparkles',
     iconColor: 'text-security-green',
     badge: 'ai_hybrid',
@@ -2465,7 +2488,7 @@ export const TOOLS: ToolSEOInfo[] = [
       
       <p>When you upload a confidential document to a remote server, control over your personal data vanishes. The document travels across public networks, gets stored on unfamiliar servers, and becomes exposed to unexpected data breaches, unauthorized logging, or vague cloud retention policies. We built PdfMinty to fix this major security risk.</p>
 
-      <p>PdfMinty was engineered from the ground up as a zero-upload, client-side PDF platform. Utilizing modern web browser capabilities like WebAssembly (Wasm), JavaScript Web Workers, and local memory buffers, PdfMinty executes every single document operation locally inside your web browser. Your files never touch a remote server, never cross the internet, and never leave your device.</p>
+      <p>PdfMinty was engineered from the ground up as a zero-upload, client-side PDF platform. PdfMinty executes every document operation directly inside your web browser. Your files never touch a remote server, never cross the internet, and never leave your device.</p>
 
       <h2>What We Offer: 22+ Free Online PDF Tools</h2>
       <p>PdfMinty provides a comprehensive, growing suite of 22 powerful PDF tools designed for speed, accuracy, and absolute confidentiality:</p>
@@ -2557,7 +2580,7 @@ export const TOOLS: ToolSEOInfo[] = [
       },
       {
         q: 'Are my confidential documents uploaded to any server?',
-        a: 'No. PdfMinty uses 100% client-side WebAssembly technology. Your files never leave your computer or touch any remote cloud server.',
+        a: 'No. PdfMinty processes all files 100% inside your web browser. Your files never leave your computer or touch any remote cloud server.',
       },
       {
         q: 'Can I reorder pages before merging my PDFs?',
@@ -2616,7 +2639,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>Your original files stay safely on your computer. PdfMinty processes your files locally in your browser memory and generates a brand new merged PDF for you to save.</p>
 
       <h3>Are my confidential documents uploaded to any server?</h3>
-      <p>No. PdfMinty uses 100% client-side WebAssembly technology. Your files never leave your computer or touch any remote cloud server.</p>
+      <p>No. PdfMinty processes all files 100% inside your web browser. Your files never leave your computer or touch any remote cloud server.</p>
 
       <h3>Can I reorder pages before merging my PDFs?</h3>
       <p>Yes! You can easily drag and drop your PDF files into any order you like before merging them into a single document.</p>
@@ -2854,7 +2877,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>Click <strong>"Choose File"</strong> or drag and drop your PDF file into the drop box. Type in a secret password in the password input field. Be sure to use a combination of uppercase letters, numbers, and symbols to make your lock extra secure!</p>
 
       <h3>Step 3: Click "Encrypt PDF" and Save Your Locked File</h3>
-      <p>Click the green <strong>"Protect PDF"</strong> button. Your browser encrypts the PDF document locally using client-side WebAssembly routines. Click <strong>"Download Protected PDF"</strong> to save your password-locked file to your device!</p>
+      <p>Click the green <strong>"Protect PDF"</strong> button. Your browser encrypts the PDF document locally using secure in-browser encryption. Click <strong>"Download Protected PDF"</strong> to save your password-locked file to your device!</p>
 
       <h2>Tips for Creating a Strong Password You Won't Forget</h2>
       <p>A password lock is only as strong as the password you choose. Follow these simple tips when locking your document:</p>
@@ -3071,7 +3094,7 @@ export const TOOLS: ToolSEOInfo[] = [
     faqs: [
       {
         q: 'Which PDF tool is safest for sensitive documents?',
-        a: 'PdfMinty is the safest option because it processes all PDF files 100% locally in your browser using WebAssembly. Your files are never uploaded to remote servers, eliminating cloud security risks.',
+        a: 'PdfMinty is the safest option because it processes all PDF files 100% locally in your web browser. Your files are never uploaded to remote servers, eliminating cloud security risks.',
       },
       {
         q: 'Is PdfMinty faster than ILovePDF and Smallpdf?',
@@ -3796,7 +3819,7 @@ export const TOOLS: ToolSEOInfo[] = [
       </div>
 
       <p class="text-xs text-slate-500 dark:text-slate-400 italic">
-        *Honesty note: SmallPDF's server-side processing genuinely handles bulk or multi-gigabyte files better than a browser memory sandbox can, and offers integrated AI features. PDFMinty focuses strictly on client-side privacy, instant offline tools, and $0 cost.
+        *Honesty note: SmallPDF's server-side processing handles very large files on cloud servers, whereas PDFMinty processes everything privately right inside your browser without uploading, and offers integrated AI features. PDFMinty focuses strictly on client-side privacy, instant offline tools, and $0 cost.
       </p>
 
       <h2>Where Does Your File Actually Go?</h2>

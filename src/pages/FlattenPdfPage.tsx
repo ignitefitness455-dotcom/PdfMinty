@@ -2,6 +2,7 @@ import { ArrowLeft, RefreshCw, AlertCircle, FileText, Download } from 'lucide-re
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -91,7 +92,7 @@ export const FlattenPdfPage: React.FC = () => {
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl md:text-3xl font-black text-primary tracking-tight">
-            Flatten PDF Forms
+            Flatten PDF Free — Make Interactive Forms Non-Editable
           </h1>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             Limit: {limitMB}MB
@@ -214,6 +215,8 @@ export const FlattenPdfPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <FAQSection toolId="flatten-pdf" />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { Download, FilePenLine, AlertCircle, ArrowLeft } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -90,7 +91,7 @@ export default function EditMetadataPage() {
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Edit PDF Metadata
+            Edit PDF Metadata Free — Clean & Change PDF Properties
           </h1>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             Limit: {limitMB}MB
@@ -302,6 +303,8 @@ export default function EditMetadataPage() {
           </div>
         </div>
       </div>
+
+      <FAQSection toolId="edit-metadata" />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { EmailJoinForm } from '../components/EmailJoinForm';
 import { useLayout } from '../components/Layout';
 import { SEO } from '../components/SEO';
+import { SeoResourcesSection } from '../components/SeoResourcesSection';
 import { TOOLS } from '../config/seo-data';
 import { useDebounce } from '../hooks/useDebounce';
 
@@ -11,7 +12,6 @@ import { FaqSection } from './home/FaqSection';
 import { HeroSection } from './home/HeroSection';
 import { HowItWorksSection } from './home/HowItWorksSection';
 import { RecommendedToolsSection } from './home/RecommendedToolsSection';
-import { SeoResourcesSection } from '../components/SeoResourcesSection';
 import { SearchBar } from './home/SearchBar';
 import { ToolGrid } from './home/ToolGrid';
 import { WhyChooseSection } from './home/WhyChooseSection';

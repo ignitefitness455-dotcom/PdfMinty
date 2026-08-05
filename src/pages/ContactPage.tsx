@@ -1,10 +1,8 @@
-import { Mail, Clock, Send, CheckCircle2, Copy, Shield, Sparkles, MessageSquare, AlertCircle } from 'lucide-react';
+import { Mail, Clock, Send, CheckCircle2, Copy, Shield, Sparkles, MessageSquare } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { EmailJoinForm } from '../components/EmailJoinForm';
 import SEO from '../components/SEO';
-import { NORD_AFFILIATE_LINKS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 
 export const ContactPage: React.FC = () => {
@@ -53,7 +51,7 @@ export const ContactPage: React.FC = () => {
             Contact Us
           </h1>
           <p className="text-base sm:text-lg font-medium text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-            PdfMinty is a fast, 100% client-side PDF utility suite built for absolute privacy, speed, and simplicity. All file processing happens locally inside your browser memory without uploading your documents to remote cloud servers.
+            PdfMinty is a fast, 100% private PDF utility suite built for simplicity, security, and speed. All file processing happens directly inside your web browser without uploading your documents to remote cloud servers.
           </p>
         </div>
 
@@ -235,7 +233,7 @@ export const ContactPage: React.FC = () => {
                 About PdfMinty
               </h3>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                PdfMinty is built to provide ultra-fast, completely private PDF utilities. Powered by browser WebAssembly technology, your PDF documents never leave your computer.
+                PdfMinty is built to provide ultra-fast, completely private PDF utilities. Your PDF documents are processed locally and never leave your computer.
               </p>
               <div className="pt-2 border-t border-border-muted">
                 <Link
@@ -246,65 +244,7 @@ export const ContactPage: React.FC = () => {
                 </Link>
               </div>
             </div>
-
-            <div className="bg-surface-container-low border border-border-muted p-6 rounded-2xl space-y-4 shadow-sm">
-              <h3 className="text-base font-extrabold text-on-surface flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-amber-500" />
-                Frequently Asked
-              </h3>
-              <div className="space-y-3 text-xs">
-                <div>
-                  <h4 className="font-bold text-on-surface">When will I receive a reply?</h4>
-                  <p className="text-on-surface-variant mt-0.5">We typically respond to all emails within 24-48 hours.</p>
-                </div>
-                <div>
-                  <h4 className="font-bold text-on-surface">Are my PDF files uploaded?</h4>
-                  <p className="text-on-surface-variant mt-0.5">No, all PDF operations run 100% locally in your browser memory.</p>
-                </div>
-                <div>
-                  <h4 className="font-bold text-on-surface">Can I request new tools?</h4>
-                  <p className="text-on-surface-variant mt-0.5">Yes! We welcome suggestions for new PDF tools and features.</p>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
-
-        {/* Location 5: Secure Your Communications */}
-        <div className="bg-surface-container-low border border-border-muted p-6 sm:p-8 rounded-2xl shadow-sm space-y-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🛡️</span>
-            <h3 className="text-lg sm:text-xl font-extrabold text-on-surface">Secure Your Communications</h3>
-          </div>
-          <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed font-medium">
-            Before sending sensitive documents via email, consider encrypting your connection with a VPN.
-          </p>
-          <div className="flex flex-wrap items-center gap-4 pt-1">
-            <a
-              href={NORD_AFFILIATE_LINKS.NORDVPN}
-              target="_blank"
-              rel="nofollow sponsored"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all shadow-md cursor-pointer"
-            >
-              <span>Get NordVPN</span>
-            </a>
-            <a
-              href={NORD_AFFILIATE_LINKS.NORDVPN_ARABIA}
-              target="_blank"
-              rel="nofollow sponsored"
-              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline transition-colors"
-            >
-              NordVPN for Middle East &rarr;
-            </a>
-          </div>
-        </div>
-
-        {/* Newsletter Subscription Section */}
-        <div className="pt-6 border-t border-border-muted">
-          <EmailJoinForm
-            title="Join PDFMinty Newsletter"
-            subtitle="Subscribe to receive security updates, local productivity workflows, and new features."
-          />
         </div>
       </div>
     </div>

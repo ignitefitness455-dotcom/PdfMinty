@@ -1,149 +1,139 @@
-import { Mail, Shield, FileText, Sparkles } from 'lucide-react';
+import { ShieldCheck, BookOpen } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
-import { NORD_AFFILIATE_LINKS } from '../config/constants';
 
-interface FooterProps {
-  setShowFeedbackModal?: (show: boolean) => void;
-}
-
-export const Footer: React.FC<FooterProps> = () => {
-
+export const Footer: React.FC = () => {
   return (
-    <footer
-      id="footer-menu"
-      className="border-t border-border-muted bg-surface-container-lowest py-16 transition-colors duration-200 font-sans"
-    >
-      <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center gap-8">
-        <div className="flex flex-wrap justify-center items-center gap-4 text-xs font-semibold">
-          <span className="px-3.5 py-1.5 bg-surface-container-high text-security-green rounded-full border border-border-muted flex items-center gap-1.5 shadow-sm">
-            🛡️ Privacy Secure
-          </span>
-          <span className="px-3.5 py-1.5 bg-surface-container-high text-primary-fixed rounded-full border border-border-muted flex items-center gap-1.5 shadow-sm">
-            📂 100% Offline Core
-          </span>
-          <span className="px-3.5 py-1.5 bg-surface-container-high text-tertiary-fixed-dim rounded-full border border-border-muted flex items-center gap-1.5 shadow-sm">
-            ✨ Free Forever
-          </span>
+    <footer className="bg-surface-container-low border-t border-border-muted pt-12 pb-8 font-sans text-on-surface-variant transition-colors duration-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        {/* Main Footer Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Col 1: Brand & Security Statement */}
+          <div className="space-y-4 md:col-span-1">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 p-0.5 shadow-md shadow-emerald-500/20 flex items-center justify-center overflow-hidden">
+                <img src="/logo.svg" alt="PdfMinty Logo" className="w-full h-full object-contain p-0.5" />
+              </div>
+              <span className="font-black text-xl text-on-surface">PdfMinty</span>
+            </div>
+            <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
+              Free, privacy-first PDF utility suite. All document operations execute locally inside your web browser. Your files are never uploaded to remote cloud servers.
+            </p>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Zero Upload Guarantee</span>
+            </div>
+          </div>
+
+          {/* Col 2: Popular Tools */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider">Popular Tools</h4>
+            <ul className="space-y-2 text-xs font-medium">
+              <li>
+                <Link to={ROUTES.MERGE} className="hover:text-emerald-500 transition-colors">
+                  Merge PDF Files
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.SPLIT} className="hover:text-emerald-500 transition-colors">
+                  Split PDF Pages
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.GRAYSCALE} className="hover:text-emerald-500 transition-colors">
+                  Grayscale PDF
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.PROTECT} className="hover:text-emerald-500 transition-colors">
+                  Protect & Encrypt PDF
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.PDF_TO_IMG} className="hover:text-emerald-500 transition-colors">
+                  Convert PDF to Image
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 3: Resources & Guides */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider">Resources</h4>
+            <ul className="space-y-2 text-xs font-medium">
+              <li>
+                <Link to={ROUTES.BLOG} className="hover:text-emerald-500 transition-colors flex items-center gap-1">
+                  <BookOpen className="w-3 h-3 text-emerald-500" />
+                  <span>Knowledge Hub</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.COMPARE_SMALLPDF} className="hover:text-emerald-500 transition-colors">
+                  PdfMinty vs SmallPDF
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.COMPARE_ILOVEPDF} className="hover:text-emerald-500 transition-colors">
+                  PdfMinty vs iLovePDF
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.ADOBE_SECURITY_ARTICLE} className="hover:text-emerald-500 transition-colors">
+                  Adobe vs Browser Security
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.TRUST_ARTICLE} className="hover:text-emerald-500 transition-colors">
+                  Is Online PDF Safe?
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 4: Important Links */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider">Company & Legal</h4>
+            <ul className="space-y-2 text-xs font-medium">
+              <li>
+                <Link to={ROUTES.ABOUT_US} className="hover:text-emerald-500 transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.CONTACT} className="hover:text-emerald-500 transition-colors">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.PRIVACY_POLICY} className="hover:text-emerald-500 transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to={ROUTES.TERMS_OF_SERVICE} className="hover:text-emerald-500 transition-colors">
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-sm font-bold text-on-surface-variant">
-          <Link
-            to={ROUTES.ABOUT_US}
-            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
-          >
-            <Shield className="w-4.5 h-4.5 text-emerald-400 fill-emerald-400/10" /> About Us
-          </Link>
-          <Link
-            to={ROUTES.CONTACT}
-            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
-          >
-            <Mail className="w-4.5 h-4.5 text-sky-400 fill-sky-400/10" /> Contact
-          </Link>
-          <Link
-            to={ROUTES.BLOG}
-            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
-          >
-            <FileText className="w-4.5 h-4.5 text-emerald-500 fill-emerald-500/10" /> Knowledge Hub
-          </Link>
-          <Link
-            to={ROUTES.PRIVACY_POLICY}
-            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
-          >
-            <Shield className="w-4.5 h-4.5 text-sky-400 fill-sky-400/10" /> Privacy Policy
-          </Link>
-          <Link
-            to={ROUTES.TERMS_OF_SERVICE}
-            className="inline-flex items-center gap-2 hover:text-[#00FFC2] hover:-translate-y-0.5 transition-all text-on-surface-variant decoration-none font-bold text-sm"
-          >
-            <FileText className="w-4.5 h-4.5 text-amber-400 fill-amber-400/10" /> Terms of Service
-          </Link>
-        </div>
-
-        {/* Major SEO Resource & Comparison Links */}
-        <div className="pt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-on-surface-variant/80 border-t border-border-muted/60 max-w-4xl">
-          <span className="text-emerald-500 font-extrabold uppercase tracking-wider text-[11px]">Popular Resources:</span>
-          <Link to="/blog/how-to-convert-pdf-to-word-for-free-2026" className="hover:text-emerald-400 transition-colors">
-            PDF to Word Guide
-          </Link>
-          <span>•</span>
-          <Link to="/blog/how-to-compress-a-pdf-without-losing-quality-2026" className="hover:text-emerald-400 transition-colors">
-            PDF Compression Guide
-          </Link>
-          <span>•</span>
-          <Link to={ROUTES.COMPARE_SMALLPDF} className="hover:text-emerald-400 transition-colors">
-            PDFMinty vs SmallPDF
-          </Link>
-          <span>•</span>
-          <Link to={ROUTES.COMPARE_ILOVEPDF} className="hover:text-emerald-400 transition-colors">
-            PDFMinty vs iLovePDF
-          </Link>
-          <span>•</span>
-          <Link to={ROUTES.TRUST_ARTICLE} className="hover:text-emerald-400 transition-colors">
-            Is Online PDF Upload Safe?
-          </Link>
-        </div>
-
-        <div className="max-w-2xl text-xs text-on-surface-variant/80 space-y-3 leading-relaxed border-t border-border-muted pt-6 select-none">
-          <p className="font-extrabold text-primary">PDFMinty Copyright & Safety Guarantee</p>
-          <p className="font-medium">
-            © {new Date().getFullYear()} PDFMinty. All rights reserved. PDFMinty is an independent, client-side
-            offline toolkit. We process all your PDF modifications entirely inside your
-            browser's memory using secure Web Worker technology, meaning your files never touch
-            a remote server and absolute device sovereignty is maintained.
-          </p>
-          <p className="font-medium">
-            Offering a friction-free, account-less alternative to online cloud converters, our
-            utilities let you merge, split, and edit your critical documents under full
-            local device control. PDFMinty is committed to persistent data privacy and
-            utility-grade performance, completely free of charge.
-          </p>
-          <p className="text-xs text-primary-fixed/80 font-semibold uppercase tracking-widest leading-none">
-            Developed by & under Proprietorship of PDFMinty. Secure, client-buffered local
-            suite.
-          </p>
-          <p className="text-[11px] text-on-surface-variant/70 font-medium pt-2 normal-case tracking-normal">
-            Privacy tools we recommend:{' '}
-            <a
-              href={NORD_AFFILIATE_LINKS.NORDVPN}
-              target="_blank"
-              rel="nofollow sponsored"
-              className="hover:text-emerald-500 underline transition-colors"
-            >
-              NordVPN
-            </a>{' '}
-            |{' '}
-            <a
-              href={NORD_AFFILIATE_LINKS.NORDPASS}
-              target="_blank"
-              rel="nofollow sponsored"
-              className="hover:text-emerald-500 underline transition-colors"
-            >
-              NordPass
-            </a>{' '}
-            |{' '}
-            <a
-              href={NORD_AFFILIATE_LINKS.NORDVPN_ARABIA}
-              target="_blank"
-              rel="nofollow sponsored"
-              className="hover:text-emerald-500 underline transition-colors"
-            >
-              NordVPN Arabia
-            </a>{' '}
-            |{' '}
-            <a
-              href={NORD_AFFILIATE_LINKS.THREAT_PROTECTION}
-              target="_blank"
-              rel="nofollow sponsored"
-              className="hover:text-emerald-500 underline transition-colors"
-            >
-              Threat Protection
-            </a>
-          </p>
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-border-muted flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <p>© {new Date().getFullYear()} PdfMinty. All rights reserved. Built for 100% file privacy.</p>
+          <div className="flex items-center gap-4 text-on-surface-variant/80 font-medium">
+            <span>Client-side PDF Suite</span>
+            <span>•</span>
+            <span>Zero Data Logs</span>
+            <span>•</span>
+            <span>Open & Free</span>
+          </div>
         </div>
       </div>
     </footer>
   );
 };
+
+export default Footer;

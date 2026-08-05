@@ -1,87 +1,51 @@
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { HelpCircle, ChevronDown } from 'lucide-react';
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 
-import { TOOLS } from '../../config/seo-data';
+import { FAQS } from '../../config/seo-data';
 
 export const FaqSection: React.FC = () => {
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
-  const toolsCount = TOOLS.filter((t) => t.type === 'tool').length;
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const faqs = [
-    {
-      q: 'Are my files safe with PDFMinty?',
-      a: 'Absolutely! All standard file computations (merge, split, edit) are performed fully client-side inside your browser window. Your private files are never uploaded to our servers, keeping your documents 100% confidential.',
-    },
-    {
-      q: 'How much does it cost to use PDFMinty?',
-      a: 'PDFMinty is completely, unconditionally free. There are no payment screens, registration gates, daily execution counts, or premium capabilities hidden behind subscriptions.',
-    },
-    {
-      q: 'Does PDFMinty work offline without an active network?',
-      a: `Yes! Since all operations run purely inside your client browser, our core suite of ${toolsCount} tools works flawlessly even if you are entirely disconnected from the internet.`,
-    },
-    {
-      q: 'Can I use PDFMinty on my tablet or mobile device?',
-      a: 'Yes, our modern responsive layout is optimized for desktops, tablets, and smartphones alike. No apps to install—just open PDFMinty and edit instantly.',
-    },
-  ];
-
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map((faq) => ({
-      '@type': 'Question',
-      name: faq.q,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.a,
-      },
-    })),
+  const toggleFaq = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <div className="mt-24 relative z-20" id="faq-section">
-      <Helmet>
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      </Helmet>
-      <h2 className="text-2xl md:text-3xl font-black text-primary text-center tracking-tight mb-2">
-        Frequently Asked Questions
-      </h2>
-      <p className="text-on-surface-variant text-xs md:text-sm text-center mb-12 max-w-md mx-auto font-medium">
-        Quick clarity on core PDFMinty features, standards, and operations.
-      </p>
+    <div className="mt-24 relative z-20 max-w-4xl mx-auto">
+      <div className="text-center mb-12">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-3">
+          <HelpCircle className="w-4 h-4" />
+          <span>Frequently Asked Questions</span>
+        </div>
+        <h2 className="text-2xl md:text-4xl font-black text-primary tracking-tight font-sans">
+          Got Questions? We Have Answers.
+        </h2>
+        <p className="text-on-surface-variant text-xs md:text-sm mt-2 font-medium">
+          Everything you need to know about PDFMinty's private, in-browser PDF tools.
+        </p>
+      </div>
 
-      <div className="max-w-3xl mx-auto space-y-4">
-        {faqs.map((faq, i) => {
-          const isOpen = openFaqIndex === i;
+      <div className="space-y-4">
+        {FAQS.map((faq, index) => {
+          const isOpen = openIndex === index;
           return (
             <div
-              key={faq.q}
-              className="bg-surface-container-low border border-border-muted rounded-2xl overflow-hidden shadow-sm transition-all duration-300"
+              key={index}
+              className="border border-border-muted rounded-2xl bg-surface-container-low overflow-hidden transition-all duration-200"
             >
               <button
-                type="button"
-                id={`faq-button-${i}`}
-                onClick={() => setOpenFaqIndex(isOpen ? null : i)}
-                aria-expanded={isOpen}
-                aria-controls={`faq-panel-${i}`}
-                className="w-full flex items-center justify-between p-5 text-left font-bold text-primary text-sm md:text-base hover:bg-surface-container-high transition-colors cursor-pointer"
+                onClick={() => toggleFaq(index)}
+                className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm md:text-base text-primary hover:text-emerald-500 transition-colors cursor-pointer"
               >
                 <span>{faq.q}</span>
-                {isOpen ? (
-                  <ChevronUp className="w-5 h-5 text-security-green shrink-0 transition-transform" aria-hidden="true" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-on-surface-variant/60 shrink-0 transition-transform" aria-hidden="true" />
-                )}
+                <ChevronDown
+                  className={`w-5 h-5 text-on-surface-variant shrink-0 transition-transform duration-200 ${
+                    isOpen ? 'rotate-180 text-emerald-500' : ''
+                  }`}
+                />
               </button>
               {isOpen && (
-                <div
-                  id={`faq-panel-${i}`}
-                  role="region"
-                  aria-labelledby={`faq-button-${i}`}
-                  className="p-5 pt-0 border-t border-border-muted text-on-surface-variant text-xs md:text-sm leading-relaxed font-semibold bg-surface-container-lowest/30"
-                >
+                <div className="px-5 pb-5 pt-1 text-xs md:text-sm text-on-surface-variant leading-relaxed border-t border-border-muted/50 font-medium">
                   {faq.a}
                 </div>
               )}

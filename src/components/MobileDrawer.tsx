@@ -43,7 +43,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
       aria-label="Navigation menu"
       onKeyDown={onKeyDown}
       tabIndex={-1}
-      className="lg:hidden fixed inset-0 z-40 bg-background pt-20 flex flex-col animate-fadein outline-none"
+      className="fixed inset-0 z-40 bg-background/95 backdrop-blur-md pt-20 flex flex-col animate-fadein outline-none"
       id="mobile_drawer"
     >
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">

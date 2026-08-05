@@ -13,7 +13,7 @@ export const WhyChooseSection: React.FC = () => {
           Why Choose PDFMinty?
         </h2>
         <p className="text-on-surface-variant text-xs md:text-sm text-center mb-16 max-w-md mx-auto font-medium">
-          Professional grade web tools with zero security compromises.
+          Professional-grade document tools with zero security compromises.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -26,8 +26,8 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">Privacy First</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Your documents never leave your computer. All operations run strictly inside your
-              local browser memory to maintain absolute file confidentiality.
+              Your documents never leave your computer. All file processing happens locally on your
+              device to ensure total document privacy.
             </p>
           </div>
 
@@ -38,10 +38,10 @@ export const WhyChooseSection: React.FC = () => {
             <div className="w-16 h-16 rounded-full bg-surface-container-high border border-border-muted flex items-center justify-center mb-5 shadow-inner">
               <UserX className="w-6 h-6 text-critical-red fill-critical-red/10" aria-hidden="true" />
             </div>
-            <h3 className="text-base font-bold text-primary mb-2.5">No Account</h3>
+            <h3 className="text-base font-bold text-primary mb-2.5">No Account Required</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Skip tedious signups. Enjoy high-performance, direct tools without credentials,
-              subscription gates, or trackable identifiers.
+              Skip signups and passwords. Access fast, direct tools instantly without creating an account or
+              leaving personal data.
             </p>
           </div>
 
@@ -54,8 +54,8 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">Completely Free</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Enjoy unlimited editing and division with no paywalls, hidden monthly
-              fees, restricted trial counts, or watermarks.
+              Enjoy unlimited file editing and organizing with no paywalls, subscriptions, daily limits,
+              or watermarks.
             </p>
           </div>
 
@@ -68,8 +68,8 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">{toolsCount} Tools</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Get complete document coverage with {toolsCount} local tools including Merge, Split,
-              Rotate, Watermark, and even private AI PDF Analysis.
+              Get comprehensive document tools including Merge, Split, Rotate, Watermark, and private AI PDF
+              Analysis.
             </p>
           </div>
 
@@ -80,10 +80,10 @@ export const WhyChooseSection: React.FC = () => {
             <div className="w-16 h-16 rounded-full bg-surface-container-high border border-border-muted flex items-center justify-center mb-5 shadow-inner">
               <WifiOff className="w-6 h-6 text-[#00FFC2] fill-[#00FFC2]/10" aria-hidden="true" />
             </div>
-            <h3 className="text-base font-bold text-primary mb-2.5">100% Offline</h3>
+            <h3 className="text-base font-bold text-primary mb-2.5">Works Offline</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Our core toolkit operates entirely without an active network connection. Complete
-              heavy conversions on commutes or in air-gapped security cleanrooms.
+              Our core tools operate even without an active internet connection, so you can work securely
+              on travel or off the grid.
             </p>
           </div>
 
@@ -96,8 +96,8 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">Instant Execution</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Skip upload buffers and long queues. Local client-side processing means files compile
-              instantly inside your browser memory for immediate download.
+              No waiting for file uploads or downloads. Local browser processing means files convert and save
+              in seconds.
             </p>
           </div>
         </div>

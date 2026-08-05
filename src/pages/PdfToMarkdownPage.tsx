@@ -14,6 +14,7 @@ import {
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
+import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -325,7 +326,7 @@ export const PdfToMarkdownPage: React.FC = () => {
       setImages(result.images || []);
       setPageCount(result.pageCount || 1);
       setIsScannedResult(!!result.isScannedOrImageOnly);
-      showToast('Successfully converted PDF to Markdown!', 'success');
+      showToast('Successfully converted PDF to Markdown Free — Convert PDF to Editable MD!', 'success');
     } catch (err: unknown) {
       if (myToken !== operationTokenRef.current) return;
       logger.error('PDF to Markdown error:', err);
@@ -660,6 +661,8 @@ export const PdfToMarkdownPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      <FAQSection toolId="pdf-to-markdown" />
     </div>
   );
 };

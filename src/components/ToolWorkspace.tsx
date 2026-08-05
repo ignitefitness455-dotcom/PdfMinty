@@ -161,7 +161,7 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
           <a
             href={NORD_AFFILIATE_LINKS.NORDVPN}
             target="_blank"
-            rel="nofollow sponsored"
+            rel="nofollow sponsored noreferrer"
             className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0 transition-colors shadow-sm"
           >
             <span>Get NordVPN</span>

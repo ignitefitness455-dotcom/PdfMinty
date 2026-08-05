@@ -34,7 +34,7 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
   const nextTool = currentToolIndex >= 0 && currentToolIndex < TOOLS.length - 1 ? TOOLS[currentToolIndex + 1] : null;
 
   // Default values for homepage or custom non-tool pathways.
-  const title = titleOverride || item?.metaTitle || 'PDFMinty — Privacy-First Free PDF Toolkit & Editor';
+  const title = titleOverride || item?.metaTitle || 'Free Offline PDF Tools & Editor — 100% Private | PDFMinty';
   const description =
     descriptionOverride ||
     item?.metaDescription ||

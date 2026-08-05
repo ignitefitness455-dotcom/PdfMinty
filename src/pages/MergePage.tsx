@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { EmptyState } from '../components/EmptyState';
+import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -133,7 +134,7 @@ export const MergePage: React.FC = () => {
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Merge PDF Documents
+            Merge PDF Files Free — Combine PDF Documents Online
           </h1>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             Limit: {TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB}MB per file
@@ -307,6 +308,8 @@ export const MergePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <FAQSection toolId="merge" />
     </div>
   );
 };

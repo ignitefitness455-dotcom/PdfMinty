@@ -12,11 +12,11 @@ export const CtaSection: React.FC = () => {
       <div className="absolute bottom-[-100px] left-[-100px] w-[400px] h-[400px] pointer-events-none opacity-5" style={{ background: 'radial-gradient(circle, var(--custom-primary-fixed-dim) 0%, transparent 70%)' }} aria-hidden="true"></div>
       <div className="relative z-10 max-w-xl mx-auto space-y-5">
         <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-tight font-sans">
-          Ready to secure your PDF workflow?
+          Ready to manage your PDFs with total privacy?
         </h2>
         <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed font-semibold">
-          Choose any tool from our security workspace to load document files local-first. Instant
-          execution, no subscription gates, 100% data integrity.
+          Select any tool above to process your documents privately on your device. Fast performance,
+          no subscriptions, and 100% file privacy guaranteed.
         </p>
         <div className="pt-4">
           <button

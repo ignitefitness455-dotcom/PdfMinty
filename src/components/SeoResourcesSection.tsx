@@ -85,7 +85,7 @@ export const SeoResourcesSection: React.FC = () => {
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-full text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
           <BookOpen className="w-3.5 h-3.5" />
-          <span>SEO Knowledge & Resource Hub</span>
+          <span>Knowledge & Resource Hub</span>
         </div>
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           PDF Guides, Comparisons & Resources

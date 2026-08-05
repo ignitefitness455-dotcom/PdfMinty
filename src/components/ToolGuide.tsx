@@ -104,7 +104,7 @@ export const ToolGuide: React.FC<ToolGuideProps> = ({ slug }) => {
               <a
                 href={NORD_AFFILIATE_LINKS.NORDVPN}
                 target="_blank"
-                rel="nofollow sponsored"
+                rel="nofollow sponsored noreferrer"
                 className="text-emerald-600 dark:text-emerald-400 hover:underline"
               >
                 NordVPN &rarr;
@@ -113,7 +113,7 @@ export const ToolGuide: React.FC<ToolGuideProps> = ({ slug }) => {
               <a
                 href={NORD_AFFILIATE_LINKS.NORDPASS}
                 target="_blank"
-                rel="nofollow sponsored"
+                rel="nofollow sponsored noreferrer"
                 className="text-emerald-600 dark:text-emerald-400 hover:underline"
               >
                 NordPass &rarr;

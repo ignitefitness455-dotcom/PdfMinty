@@ -39,7 +39,7 @@ export const RecommendedToolsSection: React.FC = () => {
             <a
               href={NORD_AFFILIATE_LINKS.NORDVPN}
               target="_blank"
-              rel="nofollow sponsored"
+              rel="nofollow sponsored noreferrer"
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-sm transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
             >
               <span>Get NordVPN</span>
@@ -67,7 +67,7 @@ export const RecommendedToolsSection: React.FC = () => {
             <a
               href={NORD_AFFILIATE_LINKS.NORDPASS}
               target="_blank"
-              rel="nofollow sponsored"
+              rel="nofollow sponsored noreferrer"
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-sm transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
             >
               <span>Get NordPass</span>

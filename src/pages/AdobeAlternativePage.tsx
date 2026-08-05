@@ -255,7 +255,7 @@ export const AdobeAlternativePage: React.FC = () => {
                   <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Password protect / unlock</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/5">
-                    ✅ (AES-GCM, client-side)
+                    ✅ (In-browser encryption)
                   </td>
                 </tr>
                 <tr>
@@ -275,10 +275,6 @@ export const AdobeAlternativePage: React.FC = () => {
               </tbody>
             </table>
           </div>
-
-          <p className="text-xs text-on-surface-variant/80 leading-relaxed font-medium">
-            Keep that last row in there. A comparison table with zero honest gaps reads as marketing, not information — and it's the row most likely to get screenshotted in a "gotcha" review if you leave it out.
-          </p>
         </section>
 
         {/* Section 2 — Why people are switching right now */}
@@ -287,7 +283,7 @@ export const AdobeAlternativePage: React.FC = () => {
             Why people are switching right now
           </h2>
 
-          <div className="space-y-4 text-sm sm:text-base text-on-surface-variant leading-relaxed">
+          <div className="space-y-4 text-sm sm:text-base text-on-surface-variant leading-relaxed font-medium">
             <p>
               Adobe Acrobat's subscription price has been a recurring complaint for years, and it hasn't gotten cheaper. If you only need the PDF tasks most people actually do — combining files before sending them, shrinking a file to fit an email limit, pulling out a few pages, adding a signature or a password — a full Creative Cloud subscription is a lot of tool for a small job.
             </p>

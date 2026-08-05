@@ -8,17 +8,15 @@ export const HowItWorksSection: React.FC = () => {
       <div className="mt-24 border border-border-muted rounded-[32px] p-8 md:p-12 bg-surface-container-low/50 backdrop-blur-md relative overflow-hidden z-20 shadow-xl flex flex-col md:flex-row items-center gap-10">
         <div className="flex-1 space-y-5">
           <span className="inline-flex items-center gap-1.5 text-[10px] bg-security-green/10 text-security-green border border-security-green/20 px-3.5 py-1.5 rounded-full font-black tracking-widest uppercase animate-pulse">
-            Local Dev-Sandbox Architecture
+            100% In-Browser Privacy
           </span>
           <h2 className="text-2xl md:text-3xl font-black text-primary tracking-tight leading-tight">
-            Fast, Private Interactive Workspace
+            Fast, Private Document Processing
           </h2>
           <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed font-medium">
-            PDFMinty processes all your documents locally within your device's memory. With its secure
-            client-side architecture, operations happen instantly without transmission queues, file
-            upload limits, or cloud exposures. Experience absolute control over your contract
-            agreements, confidential datasheets, and forms with a distraction-free desktop
-            environment.
+            PDFMinty processes your documents directly on your computer or phone. Because your files stay on
+            your device, processing happens instantly with no upload delays, file size limits, or cloud storage
+            risks. Manage confidential contracts, forms, and financial records with complete peace of mind.
           </p>
         </div>
         <div className="w-full md:w-80 shrink-0 border border-border-muted rounded-[24px] overflow-hidden shadow-2xl bg-surface-container-low p-5">
@@ -30,7 +28,7 @@ export const HowItWorksSection: React.FC = () => {
                 <div className="w-2 h-2 rounded-full bg-warning-amber"></div>
                 <div className="w-2 h-2 rounded-full bg-security-green"></div>
                 <span className="text-[9px] text-on-surface-variant font-mono ml-2">
-                  client-workspace.pdf
+                  document.pdf
                 </span>
               </div>
               <div className="px-1.5 py-0.5 rounded bg-security-green/10 text-security-green text-[8px] font-black uppercase">
@@ -49,7 +47,7 @@ export const HowItWorksSection: React.FC = () => {
             <div className="flex items-center gap-1.5 whitespace-nowrap">
               <div className="flex-1 bg-surface-container-lowest p-2 rounded-md border border-border-muted flex items-center justify-between shadow-sm">
                 <span className="text-[8px] text-on-surface-variant font-bold max-w-[120px] truncate">
-                  client_contract.pdf
+                  contract_draft.pdf
                 </span>
                 <span className="text-[7px] text-on-surface-variant/60 font-mono">1.2 MB</span>
               </div>
@@ -83,7 +81,7 @@ export const HowItWorksSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2">Select Tool</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">
-              Choose one of our free PDF tools to combine or split files.
+              Choose any tool to merge, split, rotate, or edit your PDFs.
             </p>
           </div>
           <div
@@ -95,7 +93,7 @@ export const HowItWorksSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2">Add Files</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">
-              Upload your documents directly. Your files never touch our servers.
+              Select your documents directly. Your files stay on your device and are never uploaded.
             </p>
           </div>
           <div
@@ -107,7 +105,7 @@ export const HowItWorksSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2">Download</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">
-              Receive your processed document instantly with maximum privacy.
+              Save your processed document instantly with guaranteed complete privacy.
             </p>
           </div>
         </div>
