@@ -1,15 +1,33 @@
 import { ShieldCheck, Calendar, ArrowLeft } from 'lucide-react';
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 
 import SEO from '../components/SEO';
 import { ROUTES } from '../config/routes';
 import { TOOLS } from '../config/seo-data';
 
 export const BlogPostPage: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { postSlug, slug: paramSlug } = useParams<{ postSlug?: string; slug?: string }>();
+  const location = useLocation();
 
-  const article = TOOLS.find((p) => (p.slug === slug || p.id === slug) && p.type === 'article');
+  const currentPath = location.pathname.replace(/^\//, '').replace(/\/$/, '');
+  const targetSlug = postSlug || paramSlug || currentPath;
+
+  const article = TOOLS.find((p) => {
+    if (p.type !== 'article') return false;
+
+    // Exact match on full path or ID
+    if (p.slug === currentPath || p.id === currentPath) return true;
+
+    // Match if slug / postSlug parameter matches
+    if (targetSlug) {
+      if (p.slug === targetSlug || p.id === targetSlug) return true;
+      if (p.slug === `blog/${targetSlug}` || p.slug === `compare/${targetSlug}`) return true;
+      if (p.slug.endsWith(`/${targetSlug}`)) return true;
+    }
+
+    return false;
+  });
 
   if (!article) {
     return (
