@@ -145,16 +145,77 @@ function devApiPlugin() {
   };
 }
 
+function generateSitemapPlugin() {
+  return {
+    name: 'pdfminty-generate-sitemap',
+    apply: 'build' as const,
+    async writeBundle(options: { dir?: string }) {
+      const outDir = options.dir || resolve(process.cwd(), 'dist');
+      const publicDir = resolve(process.cwd(), 'public');
+      try {
+        const { generateSitemapXml } = await import('./scripts/generate-sitemap');
+        const { sitemapXml, imageSitemapXml } = generateSitemapXml();
+
+        [outDir, publicDir].forEach((dir) => {
+          try {
+            writeFileSync(resolve(dir, 'sitemap.xml'), sitemapXml, 'utf-8');
+            writeFileSync(resolve(dir, 'sitemap-images.xml'), imageSitemapXml, 'utf-8');
+          } catch {
+            // Ignore if directory doesn't exist
+          }
+        });
+        console.log('[pdfminty] sitemap.xml & sitemap-images.xml successfully generated.');
+      } catch (err) {
+        console.error('[pdfminty] Failed to generate sitemap during bundle build:', err);
+      }
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
     injectSwVersion(),
     devApiPlugin(),
+    generateSitemapPlugin(),
   ],
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    target: 'es2020',
+    cssCodeSplit: true,
+    minify: 'esbuild',
+    cssMinify: true,
+    modulePreload: {
+      polyfill: false,
+    },
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('pdf-lib') || id.includes('@cantoo/pdf-lib')) {
+              return 'vendor-pdflib';
+            }
+            if (id.includes('pdfjs-dist')) {
+              return 'vendor-pdfjs';
+            }
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('jszip')) {
+              return 'vendor-jszip';
+            }
+            if (id.includes('@google/genai')) {
+              return 'vendor-genai';
+            }
+          }
+        },
+      },
+    },
   },
   server: {
     port: 3000,
