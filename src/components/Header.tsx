@@ -32,6 +32,8 @@ export const Header: React.FC<HeaderProps> = ({
               <img
                 src="/logo.svg"
                 alt="PdfMinty Logo"
+                width="36"
+                height="36"
                 className="w-full h-full object-contain p-0.5"
                 onError={() => setLogoLoaded(false)}
               />

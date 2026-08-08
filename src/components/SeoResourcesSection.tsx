@@ -12,7 +12,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'POPULAR',
       badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
       description: 'Learn how to convert PDF documents to editable Word files for free without ruining layout or formatting.',
-      link: '/blog/how-to-convert-pdf-to-word-for-free-2026',
+      link: '/blog/how-to-convert-pdf-to-word-for-free-2026/',
       icon: FileText,
     },
     {
@@ -21,7 +21,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'TOP FEATURED',
       badgeColor: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
       description: 'Replace expensive ~$240/year Adobe subscriptions with a 100% private, free client-side PDF utility suite.',
-      link: ROUTES.ADOBE_ALTERNATIVE,
+      link: `${ROUTES.ADOBE_ALTERNATIVE}/`,
       icon: Sparkles,
     },
     {
@@ -30,7 +30,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'GUIDE',
       badgeColor: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20',
       description: 'Understand lossy vs. lossless PDF reduction, image stream optimization, and how to shrink PDFs safely.',
-      link: '/blog/how-to-compress-a-pdf-without-losing-quality-2026',
+      link: '/blog/how-to-compress-a-pdf-without-losing-quality-2026/',
       icon: Cpu,
     },
     {
@@ -39,7 +39,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'PRIVACY FIRST',
       badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
       description: 'Compare zero-upload browser processing against SmallPDF’s cloud server storage model.',
-      link: ROUTES.COMPARE_SMALLPDF,
+      link: `${ROUTES.COMPARE_SMALLPDF}/`,
       icon: Scale,
     },
     {
@@ -48,7 +48,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'NO ADS',
       badgeColor: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
       description: 'In-depth speed, security, and feature breakdown vs iLovePDF. No file limits or ad trackers.',
-      link: ROUTES.COMPARE_ILOVEPDF,
+      link: `${ROUTES.COMPARE_ILOVEPDF}/`,
       icon: Scale,
     },
     {
@@ -57,7 +57,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'MUST READ',
       badgeColor: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
       description: 'Crucial security analysis explaining the privacy hazards of sending sensitive PDFs to remote servers.',
-      link: ROUTES.TRUST_ARTICLE,
+      link: `${ROUTES.TRUST_ARTICLE}/`,
       icon: Shield,
     },
     {
@@ -66,7 +66,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'TUTORIAL',
       badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
       description: 'How to sign contracts and legal documents locally on your device without third-party server exposure.',
-      link: '/blog/free-pdf-e-signature-sign-documents-without-uploading',
+      link: '/blog/free-pdf-e-signature-sign-documents-without-uploading/',
       icon: Lock,
     },
     {
@@ -75,7 +75,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'SAFETY',
       badgeColor: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
       description: 'Step-by-step guide to sanitizing author names, GPS location tags, and hidden edit history from PDFs.',
-      link: '/blog/how-to-remove-pdf-metadata-for-privacy',
+      link: '/blog/how-to-remove-pdf-metadata-for-privacy/',
       icon: Shield,
     },
   ];

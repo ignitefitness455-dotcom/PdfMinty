@@ -32,12 +32,25 @@
     <meta name="twitter:description" content="Free privacy-first PDF toolkit. Merge, split, compress, protect, and edit PDFs 100% in your browser. No uploads, no sign-up, complete confidentiality." />
     <meta name="twitter:image" content="https://pdfminty.com/og-image.png" />
 
+    <!-- DNS Prefetch & Preconnect for Third-Party Services -->
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+
     <!-- Deferred Third-Party Scripts (AdSense & Analytics) -->
     <script>
       (function() {
+        var loaded = false;
         function loadThirdPartyScripts() {
-          if (window._thirdPartyLoaded) return;
+          if (loaded || window._thirdPartyLoaded) return;
+          loaded = true;
           window._thirdPartyLoaded = true;
+
+          var events = ['touchstart', 'scroll', 'pointermove', 'keydown', 'click'];
+          events.forEach(function(e) {
+            window.removeEventListener(e, loadThirdPartyScripts, { passive: true });
+          });
 
           // Google Tag Manager / Analytics
           var g = document.createElement('script');
@@ -66,11 +79,20 @@
           document.body.appendChild(cf);
         }
 
-        if (document.readyState === 'complete') {
-          setTimeout(loadThirdPartyScripts, 1500);
+        var events = ['touchstart', 'scroll', 'pointermove', 'keydown', 'click'];
+        events.forEach(function(e) {
+          window.addEventListener(e, loadThirdPartyScripts, { passive: true, once: true });
+        });
+
+        if ('requestIdleCallback' in window) {
+          window.addEventListener('load', function() {
+            requestIdleCallback(function() {
+              setTimeout(loadThirdPartyScripts, 2500);
+            });
+          });
         } else {
           window.addEventListener('load', function() {
-            setTimeout(loadThirdPartyScripts, 1500);
+            setTimeout(loadThirdPartyScripts, 4000);
           });
         }
       })();

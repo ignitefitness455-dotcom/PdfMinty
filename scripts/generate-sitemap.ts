@@ -32,7 +32,7 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
   for (const route of staticRoutes) {
     if (!addedPaths.has(route.path)) {
       addedPaths.add(route.path);
-      const loc = route.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${route.path}`;
+      const loc = route.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${route.path}/`;
       urlEntries.push({
         loc,
         lastmod: currentDate,
@@ -53,7 +53,7 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
     const rawSlug = item.slug.startsWith('/') ? item.slug : `/${item.slug}`;
     if (!addedPaths.has(rawSlug)) {
       addedPaths.add(rawSlug);
-      const loc = `${SITE_URL}${rawSlug}`;
+      const loc = `${SITE_URL}${rawSlug}/`;
       const isTool = item.type === 'tool';
       const priority = isTool ? '0.9' : '0.8';
       const changefreq = isTool ? 'weekly' : 'weekly';

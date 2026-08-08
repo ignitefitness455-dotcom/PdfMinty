@@ -13,10 +13,10 @@
 /*.json /404 404
 
 # 301 Redirects for renamed tool slugs
-/about /about-us 301
-/contact-us /contact 301
-/edit-metadata /edit-pdf-metadata 301
-/intelligence /ai-analyze-pdf 301
+/about /about-us/ 301
+/contact-us /contact/ 301
+/edit-metadata /edit-pdf-metadata/ 301
+/intelligence /ai-analyze-pdf/ 301
 
 # SPA fallback for blog routes.
 /blog/* /index.html 200
