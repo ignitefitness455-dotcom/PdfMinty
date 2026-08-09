@@ -127,7 +127,7 @@ export const BlogPostPage: React.FC = () => {
             </button>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-on-surface tracking-tight leading-tight">
+          <h1 className="text-[28px] sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.18] sm:leading-[1.12] text-slate-900 dark:text-white border-l-4 sm:border-l-8 border-emerald-500 pl-3.5 sm:pl-6 my-4">
             {article.h1 || article.name}
           </h1>
 
@@ -161,25 +161,33 @@ export const BlogPostPage: React.FC = () => {
 
         {/* Article Body */}
         <div
-          className="prose dark:prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tight prose-a:text-emerald-600 dark:prose-a:text-emerald-400 prose-img:rounded-2xl leading-relaxed text-sm sm:text-base text-on-surface-variant"
+          className="blog-prose prose dark:prose-invert max-w-none"
           dangerouslySetInnerHTML={{ __html: article.longFormBody || article.shortDescription }}
         />
 
-        {/* Closing CTA */}
-        <div className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-xl">
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-            Ready to process your PDFs securely?
-          </h2>
-          <p className="text-xs sm:text-sm font-bold text-emerald-100 max-w-xl mx-auto">
-            Use PdfMinty's free, 100% private in-browser tools today. No uploads, zero trace.
-          </p>
-          <div className="pt-2">
-            <Link
-              to={ROUTES.HOME}
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-emerald-900 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg hover:bg-emerald-50 hover:scale-105 active:scale-100"
-            >
-              <span>Explore All Free PDF Tools →</span>
-            </Link>
+        {/* Closing CTA Banner */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-900 text-white p-8 sm:p-12 text-center space-y-6 shadow-2xl shadow-emerald-950/40 border-2 border-emerald-400/40 my-12">
+          <div className="absolute -top-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-emerald-300/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative z-10 space-y-4 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-black uppercase tracking-widest shadow-sm">
+              <ShieldCheck className="w-4 h-4 text-emerald-200" />
+              <span>Zero Uploads • 100% In-Browser</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md m-0">
+              Ready to process your PDFs securely?
+            </h2>
+            <p className="text-sm sm:text-base font-semibold text-emerald-50 max-w-xl mx-auto leading-relaxed drop-shadow-sm m-0">
+              Use PdfMinty's free, 100% private in-browser tools today. No uploads, zero server traces.
+            </p>
+            <div className="pt-2">
+              <Link
+                to={ROUTES.HOME}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-emerald-50 text-emerald-950 font-black text-sm sm:text-base rounded-2xl transition-all shadow-2xl hover:scale-105 active:scale-95 no-underline"
+              >
+                <span>Explore All Free PDF Tools →</span>
+              </Link>
+            </div>
           </div>
         </div>
 

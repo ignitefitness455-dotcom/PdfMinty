@@ -352,6 +352,11 @@ export const App: React.FC = () => {
             <Route path="/contact-us" element={<Navigate to={ROUTES.CONTACT} replace />} />
             <Route path="/edit-metadata" element={<Navigate to={ROUTES.EDIT_METADATA} replace />} />
             <Route path="/intelligence" element={<Navigate to={ROUTES.AI_ANALYZE} replace />} />
+            <Route path="/protect" element={<Navigate to={ROUTES.PROTECT} replace />} />
+            <Route path="/unlock" element={<Navigate to={ROUTES.UNLOCK} replace />} />
+            <Route path="/merge" element={<Navigate to={ROUTES.MERGE} replace />} />
+            <Route path="/split" element={<Navigate to={ROUTES.SPLIT} replace />} />
+            <Route path="/rotate" element={<Navigate to={ROUTES.ROTATE} replace />} />
             <Route path="/pdfminty-vs-smallpdf" element={<Navigate to={ROUTES.COMPARE_SMALLPDF} replace />} />
             <Route path="/pdfminty-vs-ilovepdf" element={<Navigate to={ROUTES.COMPARE_ILOVEPDF} replace />} />
 
