@@ -39,7 +39,11 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
     descriptionOverride ||
     item?.metaDescription ||
     'Free, privacy-first offline-capable PDF toolkit. Combine, split, protect, rotate and convert PDFs 100% inside your browser safely with zero server uploads.';
-  const canonicalUrl = item ? `${SITE_URL}/${item.slug}/` : SITE_URL;
+  const canonicalUrl = item
+    ? `${SITE_URL}/${item.slug}`
+    : currentSlug
+    ? `${SITE_URL}/${currentSlug}`
+    : SITE_URL;
   const ogType = item?.type === 'article' ? 'article' : 'website';
 
   // Per-tool og:image if declared in seo-data, else generic.
@@ -60,8 +64,8 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
       <meta name="language" content="English" />
       <meta name="revisit-after" content="7 days" />
       <link rel="canonical" href={canonicalUrl} />
-      {prevTool && <link rel="prev" href={`${SITE_URL}/${prevTool.slug}/`} />}
-      {nextTool && <link rel="next" href={`${SITE_URL}/${nextTool.slug}/`} />}
+      {prevTool && <link rel="prev" href={`${SITE_URL}/${prevTool.slug}`} />}
+      {nextTool && <link rel="next" href={`${SITE_URL}/${nextTool.slug}`} />}
 
       {/* Open Graph Tags */}
       <meta property="og:type" content={ogType} />
