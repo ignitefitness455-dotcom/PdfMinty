@@ -53,7 +53,8 @@ export default function InternalSEO() {
     return undefined;
   }, []);
 
-  const tool = Array.isArray(toolsList) ? toolsList.find((t) => t && t.slug && `/${t.slug}` === location.pathname) : undefined;
+  const cleanPathname = (location.pathname || '').replace(/\/$/, '');
+  const tool = Array.isArray(toolsList) ? toolsList.find((t) => t && t.slug && `/${t.slug}` === cleanPathname) : undefined;
   if (!tool) return null;
   const APP_URL = SITE_URL;
   const structuredData: unknown[] = [
