@@ -158,10 +158,10 @@ async function run(): Promise<void> {
       schemas.push({
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": `PDFMinty - ${item.name}`,
+        "name": `PdfMinty - ${item.name}`,
         "url": `https://pdfminty.com/${item.slug}`,
-        "description": item.metaDescription,
-        "applicationCategory": "BusinessApplication",
+        "description": item.metaDescription || item.shortDescription,
+        "applicationCategory": "UtilityApplication",
         "operatingSystem": "All",
         "browserRequirements": "Requires HTML5, WebAssembly",
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
@@ -171,14 +171,7 @@ async function run(): Promise<void> {
           "Free to use",
           "No registration required",
           "Works offline (PWA)"
-        ],
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "1247",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
+        ]
       });
       
       // 2. HowTo Schema
@@ -222,21 +215,121 @@ async function run(): Promise<void> {
           }))
         });
       }
+    } else if (item.slug === 'about-us') {
+      schemas.push(
+        {
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          "name": item.metaTitle,
+          "description": item.metaDescription,
+          "url": `${SITE_URL}/about-us`,
+          "publisher": {
+            "@type": "Organization",
+            "name": SITE_NAME,
+            "url": SITE_URL
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/`},
+            {"@type": "ListItem", "position": 2, "name": "About Us", "item": `${SITE_URL}/about-us`}
+          ]
+        }
+      );
+    } else if (item.slug === 'contact') {
+      schemas.push(
+        {
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          "name": item.metaTitle,
+          "description": item.metaDescription,
+          "url": `${SITE_URL}/contact`,
+          "publisher": {
+            "@type": "Organization",
+            "name": SITE_NAME,
+            "url": SITE_URL
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/`},
+            {"@type": "ListItem", "position": 2, "name": "Contact Us", "item": `${SITE_URL}/contact`}
+          ]
+        }
+      );
+    } else if (item.slug === 'privacy-policy' || item.slug === 'terms-of-service') {
+      schemas.push(
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": item.metaTitle,
+          "description": item.metaDescription,
+          "url": `${SITE_URL}/${item.slug}`
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/`},
+            {"@type": "ListItem", "position": 2, "name": item.name, "item": `${SITE_URL}/${item.slug}`}
+          ]
+        }
+      );
+    } else if (item.slug === 'blog') {
+      schemas.push(
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": "PdfMinty Knowledge Hub",
+          "url": `${SITE_URL}/blog`,
+          "description": "Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.",
+          "publisher": {
+            "@type": "Organization",
+            "name": SITE_NAME,
+            "logo": `${SITE_URL}/logo-192.png`
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/`},
+            {"@type": "ListItem", "position": 2, "name": "Knowledge Hub", "item": `${SITE_URL}/blog`}
+          ]
+        }
+      );
     } else if (item.type === 'article') {
       // 1. Article Schema
       schemas.push({
         "@context": "https://schema.org",
         "@type": "Article",
-        "headline": item.h1,
+        "headline": item.h1 || item.name,
         "description": item.metaDescription,
         "url": pageUrl,
+        "datePublished": item.datePublished || "2026-07-16",
+        "dateModified": item.dateModified || item.datePublished || "2026-08-08",
+        "author": {
+          "@type": "Organization",
+          "name": "PdfMinty Editorial Team",
+          "url": SITE_URL
+        },
         "publisher": {
           "@type": "Organization",
           "name": SITE_NAME,
           "logo": {
             "@type": "ImageObject",
-            "url": `${SITE_URL}/og-image.png`
+            "url": `${SITE_URL}/logo-192.png`
           }
+        },
+        "image": {
+          "@type": "ImageObject",
+          "url": item.ogImage ? `${SITE_URL}${item.ogImage}` : `${SITE_URL}/og-image.png`,
+          "width": 1200,
+          "height": 630
         },
         "mainEntityOfPage": {
           "@type": "WebPage",
@@ -244,7 +337,18 @@ async function run(): Promise<void> {
         }
       });
 
-      // 2. FAQPage Schema
+      // 2. BreadcrumbList Schema
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/`},
+          {"@type": "ListItem", "position": 2, "name": "Knowledge Hub", "item": `${SITE_URL}/blog`},
+          {"@type": "ListItem", "position": 3, "name": item.name, "item": pageUrl}
+        ]
+      });
+
+      // 3. FAQPage Schema
       if (item.faqs && item.faqs.length > 0) {
         schemas.push({
           "@context": "https://schema.org",
@@ -328,6 +432,95 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
     fs.writeFileSync(path.join(targetFolder, "index.html"), preRenderedHtml, "utf8");
     logger.info(`Pre-rendered static HTML created for ${item.name} at: ${targetFolder}/index.html`);
   });
+
+  // ----------------------------------------------------
+  // Pre-render the Blog Index Page (dist/blog/index.html)
+  // ----------------------------------------------------
+  logger.info("Pre-rendering static HTML for the Blog Index (/blog)...");
+  const blogTargetFolder = path.join(distDir, "blog");
+  if (!fs.existsSync(blogTargetFolder)) {
+    fs.mkdirSync(blogTargetFolder, { recursive: true });
+  }
+
+  const articles = TOOLS.filter((t: ToolSEOInfo) => t.type === 'article');
+  const articlesListHtml = articles
+    .map(
+      (a: ToolSEOInfo) => `
+      <article class="border border-slate-200 dark:border-slate-800 rounded-2xl p-6 bg-white dark:bg-slate-900 shadow-sm">
+        <div class="flex items-center gap-3 text-xs text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider mb-2">
+          <span>${a.category || 'Guide'}</span>
+          <span>•</span>
+          <time datetime="${a.datePublished || '2026-01-01'}">${a.datePublished || '2026-01-01'}</time>
+        </div>
+        <h2 class="text-xl font-bold mb-2">
+          <a href="/${a.slug}" class="hover:text-emerald-600 transition-colors">${a.h1 || a.name}</a>
+        </h2>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">${a.metaDescription || a.shortDescription || ''}</p>
+        <a href="/${a.slug}" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider hover:underline">Read Full Article →</a>
+      </article>`
+    )
+    .join('\n');
+
+  const blogHeadMeta = `
+  <title>PdfMinty Knowledge Hub — Free Guides & PDF Tutorials</title>
+  <meta name="description" content="Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.">
+  <link rel="canonical" href="${SITE_URL}/blog">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="PdfMinty Knowledge Hub — Free Guides & PDF Tutorials">
+  <meta property="og:description" content="Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.">
+  <meta property="og:url" content="${SITE_URL}/blog">
+  <meta property="og:image" content="${SITE_URL}/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PdfMinty Knowledge Hub — Free Guides & PDF Tutorials">
+  <meta name="twitter:description" content="Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.">
+  <meta name="twitter:image" content="${SITE_URL}/og-image.png">
+  <link rel="alternate" hreflang="en" href="${SITE_URL}/blog" />
+  <link rel="alternate" hreflang="x-default" href="${SITE_URL}/blog" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "PdfMinty Knowledge Hub",
+    "description": "Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.",
+    "url": "${SITE_URL}/blog",
+    "publisher": {
+      "@type": "Organization",
+      "name": "${SITE_NAME}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "${SITE_URL}/og-image.png"
+      }
+    }
+  }
+  </script>
+  `;
+
+  let blogHtml = optimizedBase.replace("</head>", `${blogHeadMeta}\n</head>`);
+
+  const blogPreRenderedContent = `
+    <div id="root">
+      <noscript>
+        <main class="max-w-5xl mx-auto py-12 px-6 font-sans">
+          <header class="text-center max-w-3xl mx-auto mb-12">
+            <h1 class="text-3xl font-black mb-4">PdfMinty Knowledge Hub</h1>
+            <p class="text-base text-slate-600 dark:text-slate-300">
+              Free, privacy-first guides, tutorials, and deep-dives on PDF security, formatting, and offline workflows.
+            </p>
+          </header>
+
+          <section class="grid gap-6 md:grid-cols-2">
+            ${articlesListHtml}
+          </section>
+        </main>
+      </noscript>
+    </div>
+  `;
+
+  blogHtml = blogHtml.replace(/<div\s+id="root"\s*><\/div>/i, blogPreRenderedContent);
+  blogHtml = blogHtml.replace(/<div\s+id="root"\s*>\s*<\/div>/i, blogPreRenderedContent);
+
+  fs.writeFileSync(path.join(blogTargetFolder, "index.html"), blogHtml, "utf8");
+  logger.info("Successfully pre-rendered static HTML for Blog Index at dist/blog/index.html");
 
   // ----------------------------------------------------
   // Pre-render the Homepage (dist/index.html)

@@ -123,7 +123,7 @@ export const AdobeAlternativePage: React.FC = () => {
     },
     {
       q: 'Where do my files go when I use PDFMinty?',
-      a: 'Nowhere but your own device. Processing happens locally in your browser — files are never uploaded to a server.',
+      a: 'Nowhere but your own device for standard PDF tools. Processing happens locally in your browser memory without cloud file uploads.',
     },
     {
       q: 'Can PDFMinty fully replace Adobe Acrobat?',
@@ -398,7 +398,7 @@ export const AdobeAlternativePage: React.FC = () => {
           <div className="pt-2">
             <Link
               to={ROUTES.HOME}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-900 font-black text-base rounded-2xl transition-all shadow-lg hover:bg-emerald-50 hover:scale-105 active:scale-100"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-900 dark:!bg-white dark:!text-emerald-900 hover:dark:!bg-emerald-50 font-black text-base rounded-2xl transition-all shadow-lg hover:bg-emerald-50 hover:scale-105 active:scale-100"
             >
               <span>Try PDFMinty →</span>
             </Link>

@@ -1,35 +1,62 @@
 import { TOOLS } from '../src/config/seo-data';
 
-interface Env {
-  ENVIRONMENT?: string;
-  BUILD_DATE?: string;
+function escapeXml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+export const onRequest: PagesFunction = async () => {
   const siteUrl = 'https://pdfminty.com';
 
-  // BUILD_DATE is injected at deploy time via Cloudflare Pages environment variable.
-  // Set BUILD_DATE in your Cloudflare Pages project settings to the current date (YYYY-MM-DD).
-  // Falls back to a recent date if not set.
-  const BUILD_DATE = (context.env.BUILD_DATE) || (typeof process !== 'undefined' && process.env?.BUILD_DATE) || new Date().toISOString().split('T')[0];
-  
-  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n';
-  xml += '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n';
+  const staticRoutes = [
+    { path: '', priority: '1.0', changefreq: 'daily', lastmod: '2026-02-10' },
+    { path: '/blog', priority: '0.9', changefreq: 'daily', lastmod: '2026-02-10' },
+    { path: '/adobe-acrobat-alternative', priority: '0.8', changefreq: 'weekly', lastmod: '2026-02-05' },
+    { path: '/switch-from-adobe-acrobat', priority: '0.8', changefreq: 'weekly', lastmod: '2026-02-05' },
+    { path: '/about-us', priority: '0.5', changefreq: 'monthly', lastmod: '2026-01-20' },
+    { path: '/contact', priority: '0.5', changefreq: 'monthly', lastmod: '2026-01-20' },
+    { path: '/privacy-policy', priority: '0.3', changefreq: 'monthly', lastmod: '2026-02-01' },
+    { path: '/terms-of-service', priority: '0.3', changefreq: 'monthly', lastmod: '2026-02-01' },
+  ];
 
-  // Homepage
-  xml += `  <url>\n    <loc>${siteUrl}</loc>\n    <lastmod>${BUILD_DATE}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n    <image:image>\n      <image:loc>${siteUrl}/og-image.png</image:loc>\n    </image:image>\n  </url>\n`;
+  const addedPaths = new Set<string>();
+  const entries: Array<{ loc: string; priority: string; changefreq: string; lastmod: string; image: string }> = [];
 
-  // Tools & Articles from TOOLS config, sorted by priority and then alphabetically
-  const entries = TOOLS.map((tool) => {
-    const priority = tool.priority !== undefined ? String(tool.priority) : (tool.type === 'tool' ? '0.8' : '0.7');
-    return {
-      loc: `${siteUrl}/${tool.slug}`,
-      priority,
-      changefreq: tool.changefreq || 'monthly',
-      image: tool.ogImage ? `${siteUrl}${tool.ogImage}` : `${siteUrl}/og-image.png`,
-    };
-  });
+  for (const route of staticRoutes) {
+    if (!addedPaths.has(route.path)) {
+      addedPaths.add(route.path);
+      entries.push({
+        loc: `${siteUrl}${route.path}`,
+        priority: route.priority,
+        changefreq: route.changefreq,
+        lastmod: route.lastmod,
+        image: `${siteUrl}/og-image.png`,
+      });
+    }
+  }
+
+  for (const tool of TOOLS) {
+    const rawSlug = tool.slug.startsWith('/') ? tool.slug : `/${tool.slug}`;
+    if (!addedPaths.has(rawSlug)) {
+      addedPaths.add(rawSlug);
+      const isTool = tool.type === 'tool';
+      const priority = isTool ? '0.9' : '0.8';
+      const changefreq = 'weekly';
+      const lastmod = tool.dateModified || tool.datePublished || '2026-02-01';
+
+      entries.push({
+        loc: `${siteUrl}${rawSlug}`,
+        priority,
+        changefreq,
+        lastmod,
+        image: tool.ogImage ? `${siteUrl}${tool.ogImage}` : `${siteUrl}/og-image.png`,
+      });
+    }
+  }
 
   entries.sort((a, b) => {
     const diff = parseFloat(b.priority) - parseFloat(a.priority);
@@ -37,8 +64,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return a.loc.localeCompare(b.loc);
   });
 
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n';
+  xml += '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n';
+
   for (const entry of entries) {
-    xml += `  <url>\n    <loc>${entry.loc}</loc>\n    <lastmod>${BUILD_DATE}</lastmod>\n    <changefreq>${entry.changefreq}</changefreq>\n    <priority>${entry.priority}</priority>\n    <image:image>\n      <image:loc>${entry.image}</image:loc>\n    </image:image>\n  </url>\n`;
+    xml += `  <url>\n    <loc>${escapeXml(entry.loc)}</loc>\n    <lastmod>${entry.lastmod}</lastmod>\n    <changefreq>${entry.changefreq}</changefreq>\n    <priority>${entry.priority}</priority>\n    <image:image>\n      <image:loc>${escapeXml(entry.image)}</image:loc>\n    </image:image>\n  </url>\n`;
   }
 
   xml += '</urlset>\n';
@@ -52,4 +83,5 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     },
   });
 };
+
 

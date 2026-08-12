@@ -51,7 +51,7 @@ export const ContactPage: React.FC = () => {
             Contact Us
           </h1>
           <p className="text-base sm:text-lg font-medium text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-            PdfMinty is a fast, 100% private PDF utility suite built for simplicity, security, and speed. All file processing happens directly inside your web browser without uploading your documents to remote cloud servers.
+            PdfMinty is a fast, privacy-focused PDF utility suite built for simplicity, security, and speed. Standard file processing happens directly inside your web browser without uploading your documents to remote cloud servers.
           </p>
         </div>
 

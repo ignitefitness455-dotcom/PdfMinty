@@ -515,7 +515,7 @@ export const PdfToMarkdownPage: React.FC = () => {
                   </div>
                   <div className="pl-6 space-y-1 text-slate-600 font-medium leading-relaxed">
                     <p>Or use our offline tools: <Link to={ROUTES.HOME} className="underline text-emerald-700 hover:text-emerald-800 font-bold">Merge, Split</Link></p>
-                    <p>Upgrade for unlimited AI analysis</p>
+                    <p>Rate limit reached. Please wait a few minutes before trying again.</p>
                   </div>
                 </div>
               ) : (

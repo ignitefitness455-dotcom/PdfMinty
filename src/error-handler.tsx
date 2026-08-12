@@ -236,8 +236,20 @@ export function reportErrorToTelemetry(
     fileContext: fileContext ? formatFileContextForLog(fileContext) : null,
   });
 
+  // Sanitize fileContext to completely strip raw fileName and sensitive fields before telemetry transmission
+  const anonymizedContext = fileContext
+    ? {
+        fileSizeCategory: formatBytes(fileContext.fileSize),
+        pdfVersion: fileContext.pdfVersion || 'Unknown',
+        isEncrypted: !!fileContext.isEncrypted,
+        pageCount: fileContext.pageCount,
+        processingStep: fileContext.processingStep || 'processing',
+        toolName: fileContext.toolName,
+      }
+    : null;
+
   // Persistently record error locally as well
-  addRecordedError(cleanMessage, cleanStack, fileContext);
+  addRecordedError(cleanMessage, cleanStack, anonymizedContext);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REPORT_TIMEOUT_MS);
@@ -248,7 +260,7 @@ export function reportErrorToTelemetry(
     body: JSON.stringify({
       message: cleanMessage,
       stack: cleanStack,
-      fileContext: fileContext || null,
+      fileContext: anonymizedContext,
       fileContextLog: formatFileContextForLog(fileContext),
       timestamp: new Date().toISOString(),
       url: typeof window !== 'undefined' ? window.location.href : '',

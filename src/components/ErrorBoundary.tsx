@@ -110,14 +110,28 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
               </pre>
             )}
           </div>
-          <button
-            id="error-boundary-reload-btn"
-            onClick={this.handleReload}
-            className="inline-flex items-center gap-2 bg-[#00FFC2] hover:bg-[#00e6af] text-black font-semibold px-6 py-3 rounded-xl shadow-lg transition-transform active:scale-95 duration-100 cursor-pointer"
-          >
-            <RefreshCw className="w-4.5 h-4.5" />
-            Reload Application
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button
+              id="error-boundary-reload-btn"
+              onClick={this.handleReload}
+              className="inline-flex items-center gap-2 bg-[#00FFC2] hover:bg-[#00e6af] text-black font-semibold px-6 py-3 rounded-xl shadow-lg transition-transform active:scale-95 duration-100 cursor-pointer text-xs uppercase tracking-wider"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Reload Application
+            </button>
+            <a
+              href="/blog"
+              className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all text-xs uppercase tracking-wider"
+            >
+              Knowledge Hub
+            </a>
+            <a
+              href="/"
+              className="inline-flex items-center gap-2 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-on-surface font-bold px-6 py-3 rounded-xl transition-all text-xs uppercase tracking-wider"
+            >
+              Home Page
+            </a>
+          </div>
         </div>
       );
     }

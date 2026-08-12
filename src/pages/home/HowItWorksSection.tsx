@@ -93,7 +93,7 @@ export const HowItWorksSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2">Add Files</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">
-              Select your documents directly. Your files stay on your device and are never uploaded.
+              Select your documents directly. Files for standard tools stay on your device in browser memory.
             </p>
           </div>
           <div
@@ -105,7 +105,7 @@ export const HowItWorksSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2">Download</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">
-              Save your processed document instantly with guaranteed complete privacy.
+              Save your processed document instantly with privacy-first client-side handling.
             </p>
           </div>
         </div>

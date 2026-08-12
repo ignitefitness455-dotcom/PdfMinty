@@ -2,6 +2,7 @@ import { Moon, Sun, ShieldCheck, Menu, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { ROUTES } from '../config/routes';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface HeaderProps {
@@ -67,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
           <Link to="/blog" className="hover:text-emerald-500 transition-colors">
             Blog
           </Link>
-          <Link to="/about" className="hover:text-emerald-500 transition-colors">
+          <Link to={ROUTES.ABOUT_US} className="hover:text-emerald-500 transition-colors">
             About
           </Link>
           <Link to="/contact" className="hover:text-emerald-500 transition-colors">

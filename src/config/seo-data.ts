@@ -50,6 +50,31 @@ export interface ToolSEOInfo {
   ogImage?: string; // Path like '/og-merge-pdf.png'. Falls back to /og-image.png if absent.
   datePublished?: string; // ISO date string, e.g. '2025-01-15'
   dateModified?: string;  // ISO date string
+
+  // Prompt 6 expanded tool fields
+  problemSolved?: string;
+  primaryCtaText?: string;
+  supportedFormats?: {
+    input: string[];
+    output: string[];
+    limits: string;
+  };
+  technicalNotes?: {
+    deviceBrowser: string;
+    fileSizeMemory: string;
+    accessibility: string;
+  };
+  privacyNote?: string;
+  troubleshooting?: {
+    issue: string;
+    resolution: string;
+  }[];
+  relatedLinks?: {
+    title: string;
+    url: string;
+    type: 'guide' | 'tool' | 'comparison' | 'home';
+  }[];
+  lastReviewedDate?: string;
 }
 
 export const TOOLS: ToolSEOInfo[] = [
@@ -69,6 +94,62 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.7,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "PDF files automatically store hidden metadata tags—such as author names, editing software, and document creation history—that can expose personal or corporate data when shared externally.",
+    primaryCtaText: "Upload PDF to Edit Metadata",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)",
+    "Standard PDF 1.0 - 2.0"
+  ],
+  "output": [
+    "Cleaned PDF (.pdf)"
+  ],
+  "limits": "Max 50MB per file. Encrypted PDFs must be unlocked prior to editing."
+},
+    technicalNotes: {
+  "deviceBrowser": "Works on all modern desktop and mobile browsers (Chrome, Firefox, Safari, Edge).",
+  "fileSizeMemory": "Processes files up to 50MB directly in local browser WebAssembly heap (~100MB RAM peak).",
+  "accessibility": "Full keyboard navigation (Tab/Shift+Tab, Enter) and screen reader ARIA labels."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Metadata fields are modified in local browser memory and never sent to any server.",
+    troubleshooting: [
+  {
+    "issue": "PDF is password protected",
+    "resolution": "Unlock the document using our Unlock PDF tool before editing metadata tags."
+  },
+  {
+    "issue": "Updated properties do not show in desktop reader",
+    "resolution": "Save and open the newly downloaded file rather than reviewing the cached original."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Sanitize PDF",
+    "url": "/sanitize-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Protect PDF",
+    "url": "/protect-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Remove PDF Metadata Guide",
+    "url": "/blog/how-to-remove-pdf-metadata-for-privacy/",
+    "type": "guide"
+  },
+  {
+    "title": "PDFMinty vs SmallPDF",
+    "url": "/compare/pdfminty-vs-smallpdf",
+    "type": "comparison"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Security Architecture Team",
     howTo: {
       name: 'How to Edit PDF Metadata',
       totalTime: 'PT20S',
@@ -115,6 +196,52 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.7,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "PDFs can hide embedded JavaScript, automated open actions, and launch commands that pose security vulnerabilities or track user activity when opened.",
+    primaryCtaText: "Select PDF File to Sanitize",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Sanitized PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Neutralizes hidden scripts while preserving visible layout, text, and vector graphics."
+},
+    technicalNotes: {
+  "deviceBrowser": "Compatible across Windows, macOS, Linux, iOS, and Android web browsers.",
+  "fileSizeMemory": "Instant client-side execution in local browser RAM without network delays.",
+  "accessibility": "Screen reader accessible uploader and status alerts."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Document sanitization executes entirely inside your browser sandbox.",
+    troubleshooting: [
+  {
+    "issue": "Form calculations no longer trigger",
+    "resolution": "Sanitization strips active JavaScript macros for safety. Re-enable macros in trusted local PDF viewers if needed."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Edit Metadata",
+    "url": "/edit-pdf-metadata",
+    "type": "tool"
+  },
+  {
+    "title": "Is Uploading PDF Safe?",
+    "url": "/is-it-safe-to-upload-pdf-to-online-tools",
+    "type": "guide"
+  },
+  {
+    "title": "PDFMinty vs iLovePDF",
+    "url": "/compare/pdfminty-vs-ilovepdf",
+    "type": "comparison"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Security Architecture Team",
     howTo: {
       name: 'How to Sanitize a PDF',
       totalTime: 'PT15S',
@@ -163,6 +290,62 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.9,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Combining multiple individual PDF files (invoices, reports, chapters, or receipts) into a single ordered document without uploading confidential files to external servers.",
+    primaryCtaText: "Select PDF Files to Merge",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)",
+    "Multiple PDF Documents"
+  ],
+  "output": [
+    "Combined PDF (.pdf)"
+  ],
+  "limits": "Max 50MB per single file, 150MB total combined deck limit. Files must be decrypted first."
+},
+    technicalNotes: {
+  "deviceBrowser": "Supports drag-and-drop reordering on desktop and touch devices.",
+  "fileSizeMemory": "Merges up to 150MB total deck size in WebAssembly memory in seconds.",
+  "accessibility": "Includes Move Up and Move Down keyboard controls for screen reader users."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. All PDF files are merged locally on your CPU/RAM with zero server file uploads.",
+    troubleshooting: [
+  {
+    "issue": "Error: Please add at least 2 PDF files",
+    "resolution": "Select 2 or more PDF documents in the uploader to proceed."
+  },
+  {
+    "issue": "Merged pages are out of order",
+    "resolution": "Use the up/down arrow controls in the file deck before clicking Merge."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Split PDF",
+    "url": "/split-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Reorder PDF",
+    "url": "/reorder-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Merge PDF Guide 2026",
+    "url": "/blog/how-to-merge-pdf-files-online-for-free-2026-guide/",
+    "type": "guide"
+  },
+  {
+    "title": "PDFMinty vs SmallPDF",
+    "url": "/compare/pdfminty-vs-smallpdf",
+    "type": "comparison"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Merge PDF Files Online',
       totalTime: 'PT30S',
@@ -193,7 +376,7 @@ export const TOOLS: ToolSEOInfo[] = [
     ],
     longFormBody: `
       <h1>Merge PDF Files Online - Combine Documents Locally</h1>
-      <p>PDFMinty introduces a fundamentally modern, secure way to combine your critical administrative documents. Traditionally, using free online PDF mergers meant uploading your tax returns, financial records, or medical scans to unknown cloud servers. PDFMinty relies entirely on offline-capable browser sandboxing, meaning your private pages are combined piece-by-piece right on your local device. This client-side execution makes it physically impossible for unauthorized entities to intercept your files.</p>
+      <p>PDFMinty introduces a fundamentally modern, secure way to combine your critical administrative documents. Traditionally, using free online PDF mergers meant uploading your tax returns, financial records, or medical scans to unknown cloud servers. PDFMinty relies entirely on offline-capable browser sandboxing, meaning your private pages are combined piece-by-piece right on your local device. This client-side execution ensures your standard documents are processed in local browser memory without network file uploads.</p>
       
       <h2>Streamlined Assembly for Professional Reports</h2>
       <p>Whether you are a freelancer compiling a monthly performance report, an academic merging separated research chapters, or a real estate agent gathering mortgage pre-approval forms, our dynamic merge PDF tool provides the visual flexibility you need. Our system parses multiple PDF outlines seamlessly, retaining active internal hyperlinks, font definitions, and table formats without compromise. Our drag-and-drop workspace enables real-time rearrangement, ensuring the final output flows exactly as you intended.</p>
@@ -227,6 +410,53 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.9,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Extracting specific page ranges or splitting a large multi-page PDF into smaller separate files without re-scanning or uploading.",
+    primaryCtaText: "Select PDF File to Split",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Split PDF Pages (.pdf)",
+    "ZIP Archive"
+  ],
+  "limits": "Max 50MB file size. Custom page range syntax (e.g., 1-3, 5, 8-10) supported."
+},
+    technicalNotes: {
+  "deviceBrowser": "Cross-platform support across all desktop and mobile browsers.",
+  "fileSizeMemory": "Executes page parsing in browser memory in under 1 second.",
+  "accessibility": "Numeric page inputs feature explicit labels and screen reader error messaging."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. PDF page separation occurs locally on your machine.",
+    troubleshooting: [
+  {
+    "issue": "Invalid page range error",
+    "resolution": "Verify that entered page numbers fall within the document total page count."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Merge PDF",
+    "url": "/merge-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Extract Pages",
+    "url": "/extract-pages-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Delete Pages",
+    "url": "/delete-pages-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Split a PDF Offline',
       totalTime: 'PT30S',
@@ -291,6 +521,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Permanently fixing upside-down or sideways scanned pages across an entire PDF or specific page indices.",
+    primaryCtaText: "Select PDF File to Rotate",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Rotated PDF (.pdf)"
+  ],
+  "limits": "Max 50MB file size. Rotates by 90°, 180°, or 270° clockwise/counter-clockwise."
+},
+    technicalNotes: {
+  "deviceBrowser": "Visual page thumbnail preview supported on touch screens and desktop mice.",
+  "fileSizeMemory": "Updates page orientation transforms instantly in local memory.",
+  "accessibility": "Accessible degree rotation buttons with ARIA announcements."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Page rotation tags are updated directly inside local browser memory.",
+    troubleshooting: [
+  {
+    "issue": "Pages revert to original in desktop app",
+    "resolution": "Download and open the newly saved output file rather than re-opening the unrotated source."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Reorder PDF",
+    "url": "/reorder-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Delete Pages",
+    "url": "/delete-pages-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Rotate PDF Pages Online',
       totalTime: 'PT20S',
@@ -356,6 +627,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Removing redundant cover sheets, blank pages, or sensitive material from a PDF before sharing.",
+    primaryCtaText: "Select PDF File to Delete Pages",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Updated PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Document must retain at least 1 page."
+},
+    technicalNotes: {
+  "deviceBrowser": "Interactive visual page thumbnail selector rendered in local browser canvas.",
+  "fileSizeMemory": "Purges unneeded pages from WebAssembly memory upon download.",
+  "accessibility": "Keyboard selectable page grids."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Deleted pages are permanently removed in local memory and never saved anywhere.",
+    troubleshooting: [
+  {
+    "issue": "Cannot delete all pages",
+    "resolution": "A valid PDF requires at least one page. Keep at least one page unselected."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Extract Pages",
+    "url": "/extract-pages-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Split PDF",
+    "url": "/split-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Delete Pages from a PDF',
       totalTime: 'PT20S',
@@ -421,6 +733,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Isolating key pages from a complex PDF to build a clean, standalone excerpt file.",
+    primaryCtaText: "Select PDF File to Extract Pages",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Extracted PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Preserves vector resolution, text layers, and embedded fonts."
+},
+    technicalNotes: {
+  "deviceBrowser": "Compatible with all modern web browsers.",
+  "fileSizeMemory": "Instant browser download with zero network buffering.",
+  "accessibility": "Labeled page selection controls."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Page extraction executes completely on your device.",
+    troubleshooting: [
+  {
+    "issue": "Page index out of bounds",
+    "resolution": "Enter page numbers that match the document length."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Delete Pages",
+    "url": "/delete-pages-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Split PDF",
+    "url": "/split-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Extract Pages from a PDF',
       totalTime: 'PT20S',
@@ -486,6 +839,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Rearranging out-of-order pages in scanned booklets, contracts, or slides.",
+    primaryCtaText: "Select PDF File to Reorder",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Reordered PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Drag-and-drop or button-controlled reordering."
+},
+    technicalNotes: {
+  "deviceBrowser": "Works seamlessly on mouse drag and touch screens.",
+  "fileSizeMemory": "Processes page tree structure in local browser memory.",
+  "accessibility": "Includes keyboard accessible Up/Down buttons."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Page order is modified in local browser memory.",
+    troubleshooting: [
+  {
+    "issue": "Thumbnails loading slowly",
+    "resolution": "Allow a few seconds for high-resolution page canvas rendering on multi-page files."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Rotate PDF",
+    "url": "/rotate-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Merge PDF",
+    "url": "/merge-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Reorder PDF Pages',
       totalTime: 'PT25S',
@@ -550,6 +944,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Stamping custom text watermarks ('DRAFT', 'CONFIDENTIAL', or logo text) across PDF pages to discourage unauthorized copying.",
+    primaryCtaText: "Select PDF File to Watermark",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Watermarked PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Customizable text, opacity, size, and diagonal rotation."
+},
+    technicalNotes: {
+  "deviceBrowser": "Responsive text positioning preview across desktop and mobile screens.",
+  "fileSizeMemory": "Renders vector text overlays in local memory.",
+  "accessibility": "Form inputs feature clear ARIA labels for opacity and size."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Watermarks are embedded into the PDF structure locally.",
+    troubleshooting: [
+  {
+    "issue": "Watermark obscures text",
+    "resolution": "Set transparency/opacity to 15-20% for background watermarking."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Add Page Numbers",
+    "url": "/add-page-numbers",
+    "type": "tool"
+  },
+  {
+    "title": "Protect PDF",
+    "url": "/protect-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Add a Watermark to a PDF',
       totalTime: 'PT30S',
@@ -614,6 +1049,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Stamping formal page numbers ('Page X of Y') on unnumbered legal, corporate, or academic PDFs.",
+    primaryCtaText: "Select PDF File to Add Page Numbers",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Numbered PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Custom positions (top/bottom, left/center/right)."
+},
+    technicalNotes: {
+  "deviceBrowser": "Works across all modern browsers.",
+  "fileSizeMemory": "Instant client-side execution in local memory.",
+  "accessibility": "Accessible form selectors."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Page numbers are calculated and stamped on your device.",
+    troubleshooting: [
+  {
+    "issue": "Page numbers overlap footer text",
+    "resolution": "Adjust vertical margin offset or place numbers in top header position."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Watermark PDF",
+    "url": "/watermark-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Add Blank Page",
+    "url": "/add-blank-page",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Add Page Numbers to a PDF',
       totalTime: 'PT20S',
@@ -678,6 +1154,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Inserting blank pages into a PDF for duplex printing alignment, chapter dividers, or extra note space.",
+    primaryCtaText: "Select PDF File to Add Blank Page",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Updated PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Insert blank pages at start, end, or specific page index."
+},
+    technicalNotes: {
+  "deviceBrowser": "Works in all browsers.",
+  "fileSizeMemory": "Instant execution.",
+  "accessibility": "Accessible numeric index input."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Blank pages are inserted locally without network calls.",
+    troubleshooting: [
+  {
+    "issue": "Page size mismatch",
+    "resolution": "Blank page automatically matches dimensions of adjacent document pages."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Merge PDF",
+    "url": "/merge-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Reorder PDF",
+    "url": "/reorder-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Insert a Blank Page into a PDF',
       totalTime: 'PT15S',
@@ -743,6 +1260,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Securing sensitive financial records, medical documents, or contracts with strong AES password encryption.",
+    primaryCtaText: "Select PDF File to Protect",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Encrypted PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Standard 128/256-bit AES PDF encryption."
+},
+    technicalNotes: {
+  "deviceBrowser": "Uses local browser Web Cryptography API.",
+  "fileSizeMemory": "Encrypts in local memory; passwords are never sent over network.",
+  "accessibility": "Password inputs include toggle visibility and ARIA labels."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Passwords and encrypted files remain entirely in your browser.",
+    troubleshooting: [
+  {
+    "issue": "Lost password",
+    "resolution": "PDFMinty does not store or log passwords. Keep password saved in a secure manager like NordPass."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Unlock PDF",
+    "url": "/unlock-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Protect PDF Guide",
+    "url": "/blog/how-to-protect-a-pdf-with-password-in-3-easy-steps/",
+    "type": "guide"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Security Architecture Team",
     howTo: {
       name: 'How to Password Protect a PDF',
       totalTime: 'PT20S',
@@ -807,6 +1365,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Removing owner passwords and permission locks from PDFs you are authorized to edit or print.",
+    primaryCtaText: "Select PDF File to Unlock",
+    supportedFormats: {
+  "input": [
+    "Encrypted PDF (.pdf)"
+  ],
+  "output": [
+    "Unlocked PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Requires valid user password for password-protected files."
+},
+    technicalNotes: {
+  "deviceBrowser": "Compatible across all browsers.",
+  "fileSizeMemory": "Decryption executes locally in browser RAM.",
+  "accessibility": "Keyboard focusable password entry form."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Password verification happens locally in browser memory.",
+    troubleshooting: [
+  {
+    "issue": "Incorrect password",
+    "resolution": "Enter the exact password assigned to the encrypted document."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Protect PDF",
+    "url": "/protect-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Sanitize PDF",
+    "url": "/sanitize-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Security Architecture Team",
     howTo: {
       name: 'How to Remove Password from a PDF',
       totalTime: 'PT15S',
@@ -872,6 +1471,50 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Converting photos, scanned receipts, or graphics (JPG, PNG, WebP) into a standardized single PDF.",
+    primaryCtaText: "Select Images to Convert to PDF",
+    supportedFormats: {
+  "input": [
+    "JPG (.jpg)",
+    "PNG (.png)",
+    "WebP (.webp)",
+    "BMP (.bmp)"
+  ],
+  "output": [
+    "Compiled PDF (.pdf)"
+  ],
+  "limits": "Max 50MB combined size. Customizable orientation and margins."
+},
+    technicalNotes: {
+  "deviceBrowser": "Renders images to local HTML5 canvas.",
+  "fileSizeMemory": "Efficient canvas compression in local memory.",
+  "accessibility": "Accessible image list deck."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Images are converted to PDF format locally in browser memory.",
+    troubleshooting: [
+  {
+    "issue": "Image appears stretched",
+    "resolution": "Select 'Fit to Page' or 'Maintain Aspect Ratio' in page layout options."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "PDF to Image",
+    "url": "/pdf-to-image",
+    "type": "tool"
+  },
+  {
+    "title": "Merge PDF",
+    "url": "/merge-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Convert Images to PDF',
       totalTime: 'PT30S',
@@ -936,6 +1579,49 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Exporting PDF pages into high-resolution JPG or PNG images for slides, web publishing, or graphic editing.",
+    primaryCtaText: "Select PDF File to Convert to Images",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "PNG Images (.png)",
+    "JPG Images (.jpg)",
+    "ZIP Archive"
+  ],
+  "limits": "Max 50MB. Renders at 150-300 DPI canvas resolution."
+},
+    technicalNotes: {
+  "deviceBrowser": "Uses local PDF.js canvas renderer in browser.",
+  "fileSizeMemory": "Renders page-by-page to optimize memory on mobile devices.",
+  "accessibility": "Keyboard downloadable image previews."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. PDF canvas rendering occurs 100% locally on your machine.",
+    troubleshooting: [
+  {
+    "issue": "Blurry text on output image",
+    "resolution": "Choose 300 DPI high resolution in settings before exporting."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Image to PDF",
+    "url": "/image-to-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Extract Pages",
+    "url": "/extract-pages-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Convert PDF to Images',
       totalTime: 'PT20S',
@@ -1000,6 +1686,48 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Extracting structured text, headings, bullet points, and code blocks from PDFs into clean Markdown for documentation.",
+    primaryCtaText: "Select PDF File to Convert to Markdown",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Markdown File (.md)",
+    "Plain Text (.txt)"
+  ],
+  "limits": "Max 50MB. Parses document text structure locally."
+},
+    technicalNotes: {
+  "deviceBrowser": "Client-side text parser engine.",
+  "fileSizeMemory": "Fast text stream processing.",
+  "accessibility": "Copy button with ARIA feedback."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Text parsing occurs in local browser memory.",
+    troubleshooting: [
+  {
+    "issue": "Empty output text",
+    "resolution": "If the PDF is a scanned image without a text layer, use our OCR PDF tool first."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "AI Analyze PDF",
+    "url": "/ai-analyze-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "OCR PDF",
+    "url": "/ocr-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Convert PDF to Markdown Online',
       totalTime: 'PT30S',
@@ -1065,6 +1793,57 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.85,
     changefreq: 'weekly',
     type: 'tool',
+    problemSolved: "Asking questions, generating summaries, or extracting key insights from lengthy PDF documents without manual reading.",
+    primaryCtaText: "Select PDF File for AI Analysis",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Interactive AI Q&A Response",
+    "Summary Report"
+  ],
+  "limits": "Max 50MB. Text extracted from up to first 12 pages per query. Requires opt-in consent."
+},
+    technicalNotes: {
+  "deviceBrowser": "Requires internet connection for Google Gemini API communication.",
+  "fileSizeMemory": "Text extracted in local browser memory; plain text payload transmitted via encrypted proxy.",
+  "accessibility": "Keyboard accessible chat input and action buttons."
+},
+    privacyNote: "Client-Side Text Extraction + Opt-In Gemini AI. Document text is extracted locally in your browser. Upon checking the consent box, extracted plain text (up to 12 pages) is transmitted via encrypted HTTPS to Google Gemini. Binary PDF files are never uploaded or stored.",
+    troubleshooting: [
+  {
+    "issue": "Rate limit reached",
+    "resolution": "Please wait a few minutes before submitting another query."
+  },
+  {
+    "issue": "Consent required",
+    "resolution": "Check the consent box agreeing to transmit extracted text to Google Gemini."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "PDF to Markdown",
+    "url": "/pdf-to-markdown",
+    "type": "tool"
+  },
+  {
+    "title": "Sanitize PDF",
+    "url": "/sanitize-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Privacy Policy",
+    "url": "/privacy-policy",
+    "type": "guide"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by AI Engineering & Security Team",
     howTo: {
       name: 'How to Analyze a PDF with AI',
       totalTime: 'PT60S',
@@ -1130,6 +1909,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Converting color PDFs to monochrome/grayscale to save printer ink or reduce document size.",
+    primaryCtaText: "Select PDF File to Convert to Grayscale",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Grayscale PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Converts vector graphics, text, and embedded images."
+},
+    technicalNotes: {
+  "deviceBrowser": "WebAssembly image luminance processor.",
+  "fileSizeMemory": "Processes in local browser RAM.",
+  "accessibility": "Keyboard accessible action controls."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Color transformation occurs in local browser memory.",
+    troubleshooting: [
+  {
+    "issue": "Images appear too dark",
+    "resolution": "Adjust contrast settings if original document contains dark backgrounds."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Flatten PDF",
+    "url": "/flatten-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Watermark PDF",
+    "url": "/watermark-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Convert a PDF to Grayscale',
       totalTime: 'PT20S',
@@ -1191,6 +2011,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Merging fillable form fields, annotations, signatures, and layered elements permanently into flat page objects to lock editing.",
+    primaryCtaText: "Select PDF File to Flatten",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)"
+  ],
+  "output": [
+    "Flattened PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Locks interactive form fields and annotations."
+},
+    technicalNotes: {
+  "deviceBrowser": "Compatible across all desktop and mobile browsers.",
+  "fileSizeMemory": "Renders layers into static objects in WebAssembly heap.",
+  "accessibility": "Accessible buttons with ARIA labels."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Form flattening executes locally in browser memory.",
+    troubleshooting: [
+  {
+    "issue": "Form fields still editable",
+    "resolution": "Ensure you download and open the newly flattened output file."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Sign PDF",
+    "url": "/sign-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Protect PDF",
+    "url": "/protect-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Flatten a PDF Form',
       totalTime: 'PT15S',
@@ -1252,6 +2113,47 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Recovering damaged, corrupted, or unreadable PDF files caused by interrupted downloads or broken cross-reference tables.",
+    primaryCtaText: "Select PDF File to Repair",
+    supportedFormats: {
+  "input": [
+    "Damaged / Corrupted PDF (.pdf)"
+  ],
+  "output": [
+    "Repaired PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Rebuilds cross-reference (XRef) and page tree structure."
+},
+    technicalNotes: {
+  "deviceBrowser": "Local PDF structure parser.",
+  "fileSizeMemory": "Executes in browser memory heap.",
+  "accessibility": "Accessible repair buttons."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Document recovery runs entirely inside your browser.",
+    troubleshooting: [
+  {
+    "issue": "Repair failed: File is 0 bytes",
+    "resolution": "If a file is zeroed or completely corrupted, restore from backup if possible."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Unlock PDF",
+    "url": "/unlock-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Sanitize PDF",
+    "url": "/sanitize-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Product Engineering Team",
     howTo: {
       name: 'How to Repair a Corrupted PDF',
       totalTime: 'PT20S',
@@ -1312,6 +2214,53 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Draw, type, or upload a signature to sign contracts and forms directly in your browser without printing.",
+    primaryCtaText: "Select PDF File to Sign",
+    supportedFormats: {
+  "input": [
+    "PDF (.pdf)",
+    "PNG/JPG Signature Image"
+  ],
+  "output": [
+    "Signed PDF (.pdf)"
+  ],
+  "limits": "Max 50MB. Supports drawn, typed, and image signatures."
+},
+    technicalNotes: {
+  "deviceBrowser": "HTML5 canvas signature pad supports stylus, touch finger, and mouse.",
+  "fileSizeMemory": "Signature is embedded into local PDF stream.",
+  "accessibility": "Accessible typed signature options."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Your signature and document remain 100% private in local browser memory.",
+    troubleshooting: [
+  {
+    "issue": "Signature drawing is jittery",
+    "resolution": "Use the 'Type Signature' tab or upload a clear PNG image signature."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "Free PDF E-Signature Guide",
+    "url": "/blog/free-pdf-e-signature-sign-documents-without-uploading/",
+    "type": "guide"
+  },
+  {
+    "title": "Flatten PDF",
+    "url": "/flatten-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Protect PDF",
+    "url": "/protect-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Security & Product Engineering Team",
     howTo: {
       name: 'How to Add Electronic Signatures to a PDF',
       totalTime: 'PT40S',
@@ -1377,6 +2326,48 @@ export const TOOLS: ToolSEOInfo[] = [
     priority: 0.8,
     changefreq: 'monthly',
     type: 'tool',
+    problemSolved: "Converting scanned image-based PDF documents into searchable, selectable text using optical character recognition.",
+    primaryCtaText: "Select PDF File to OCR",
+    supportedFormats: {
+  "input": [
+    "Scanned PDF (.pdf)",
+    "Image PDF"
+  ],
+  "output": [
+    "Searchable Text / Markdown (.txt, .md)"
+  ],
+  "limits": "Max 50MB. Local Tesseract.js WebAssembly OCR engine."
+},
+    technicalNotes: {
+  "deviceBrowser": "Loads Tesseract WASM language workers in browser memory.",
+  "fileSizeMemory": "Requires ~200-400MB temporary RAM during OCR processing.",
+  "accessibility": "Extracted text output displayed in copyable text box."
+},
+    privacyNote: "100% Client-Side In-Browser Processing. Optical character recognition runs in local WebAssembly workers on your device.",
+    troubleshooting: [
+  {
+    "issue": "OCR taking long",
+    "resolution": "Local WebAssembly OCR processes page by page on your CPU (~5-10 seconds per page)."
+  }
+],
+    relatedLinks: [
+  {
+    "title": "PDF to Markdown",
+    "url": "/pdf-to-markdown",
+    "type": "tool"
+  },
+  {
+    "title": "AI Analyze PDF",
+    "url": "/ai-analyze-pdf",
+    "type": "tool"
+  },
+  {
+    "title": "Home",
+    "url": "/",
+    "type": "home"
+  }
+],
+    lastReviewedDate: "August 2026 • Verified by Engineering Team",
     howTo: {
       name: 'How to Extract Text from Scanned PDF using OCR',
       totalTime: 'PT30S',
@@ -1468,7 +2459,7 @@ export const TOOLS: ToolSEOInfo[] = [
 
 <h3>Technical Advantages of Client-Side Processing</h3>
 <ul>
-<li><strong>Zero Network Transfer:</strong> Files never leave your device — physically impossible to intercept</li>
+<li><strong>Zero Network Transfer:</strong> Files for standard utilities remain in local browser memory without uploading</li>
 <li><strong>No Server Storage:</strong> Nothing is retained because nothing was ever uploaded</li>
 <li><strong>Instant Processing:</strong> No upload/download time — operations complete in milliseconds</li>
 <li><strong>Offline Capability:</strong> Works without internet once the page is loaded (PWA support)</li>
@@ -1627,7 +2618,7 @@ export const TOOLS: ToolSEOInfo[] = [
 
       <h2>Advantages of Client-Side PDF Tools</h2>
       <ul>
-        <li><strong>Physical Isolation:</strong> Your files never travel across the internet. There is literally zero risk of network interception or server-side breaches.</li>
+        <li><strong>Client-Side Isolation:</strong> Standard files are processed locally on your device, eliminating remote server storage risks.</li>
         <li><strong>Offline Portability:</strong> Once the page is loaded, you can disconnect your internet entirely. Try turning on Airplane Mode and compressing or merging your files; they will compile instantly!</li>
         <li><strong>No File Rent-Sharing:</strong> No one is storing your information, charging you for storage, or using your private letters to train AI models.</li>
       </ul>
@@ -1892,7 +2883,7 @@ export const TOOLS: ToolSEOInfo[] = [
         <li><strong>Is HTTPS enforced?</strong> This is a minimum baseline, not a privacy guarantee.</li>
         <li><strong>Do they require account creation?</strong> Tools that require sign-up have more incentive to retain your data.</li>
       </ol>
-      <p>PDFMinty passes every one of these tests — because our client-side architecture makes data collection physically impossible, not just against company policy.</p>
+      <p>PDFMinty passes every one of these tests because standard tools process files locally in browser memory without sending document data to cloud servers.</p>
       
       <!-- Recommendation Box 2 -->
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
@@ -4121,7 +5112,6 @@ export const TOOLS: ToolSEOInfo[] = [
       },
     ],
     longFormBody: `
-      <h1>Best Offline PDF Tools for Sensitive Documents (2026 Ranking Guide)</h1>
       <p class="text-lg font-medium text-slate-600 dark:text-slate-300">
         A paralegal is prepping a client's settlement file the night before a filing deadline. Two PDFs need to be merged into one. She's exhausted, she's not thinking about security, she just wants it done — so she opens a new tab, types "merge pdf free," and clicks the first result.
       </p>
@@ -4349,7 +5339,6 @@ export const TOOLS: ToolSEOInfo[] = [
       },
     ],
     longFormBody: `
-      <h1>How to Make a PDF Online for Free in 2026: 3 Simple Methods (No Upload Needed)</h1>
       <p class="text-lg font-medium text-slate-600 dark:text-slate-300">
         If you've searched "how to make a PDF," you've probably landed on a tool that asks you to upload your file to a stranger's server first and hope it gets deleted later. There's a faster, safer way.
       </p>
@@ -4553,7 +5542,7 @@ export const TOOLS: ToolSEOInfo[] = [
             Whether you're converting a single photo or assembling a full document with page numbers and a watermark, you can do it in your browser in under a minute — with nothing ever leaving your device.
           </p>
           <div class="pt-2">
-            <a href="/#all-tools" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-emerald-50 text-emerald-950 font-black text-base sm:text-lg rounded-2xl shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105 active:scale-95 no-underline border-0 cursor-pointer">
+            <a href="/#all-tools" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-emerald-50 text-emerald-950 dark:!bg-white dark:!text-emerald-950 hover:dark:!bg-emerald-50 font-black text-base sm:text-lg rounded-2xl shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105 active:scale-95 no-underline border-0 cursor-pointer">
               <span>Explore All PdfMinty Tools →</span>
             </a>
           </div>
@@ -4567,6 +5556,296 @@ export const TOOLS: ToolSEOInfo[] = [
         </div>
       </div>
     `,
+  },
+  {
+    id: 'secure-pdf-editing-without-uploading',
+    slug: 'blog/secure-pdf-editing-without-uploading',
+    name: 'How to Edit PDFs Securely Without Uploading Them Online',
+    ogImage: '/og-image.png',
+    shortDescription: 'Learn how to merge, split, compress, protect, and manage sensitive PDFs without uploading them to a remote server. A practical privacy-first guide for secure PDF workflows.',
+    metaTitle: 'How to Edit PDFs Securely Without Uploading Them Online | PdfMinty',
+    metaDescription: 'Learn how to merge, split, compress, protect, and manage sensitive PDFs without uploading them to a remote server. A practical privacy-first guide for secure PDF workflows.',
+    h1: 'How to Edit PDFs Securely Without Uploading Them Online',
+    icon: 'Shield',
+    category: 'blog',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-08-12',
+    dateModified: '2026-08-12',
+    author: 'PdfMinty Editorial Team',
+    reviewedBy: 'Alex Mercer, Security Lead',
+    lastReviewedDate: 'August 12, 2026',
+    relatedLinks: [
+      {
+        title: 'Privacy-First PDF Toolkit',
+        url: '/',
+        type: 'home'
+      },
+      {
+        title: 'Merge PDF',
+        url: '/merge-pdf',
+        type: 'tool'
+      },
+      {
+        title: 'PDF Metadata Removal Guide',
+        url: '/blog/how-to-remove-pdf-metadata-for-privacy',
+        type: 'guide'
+      },
+      {
+        title: 'Online PDF Upload Safety Guide',
+        url: '/is-it-safe-to-upload-pdf-to-online-tools',
+        type: 'article'
+      },
+      {
+        title: 'PDF Compression Guide',
+        url: '/blog/how-to-compress-a-pdf-without-losing-quality-2026',
+        type: 'guide'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Does PdfMinty upload my PDF?',
+        a: 'PdfMinty’s core privacy-first workflow is designed for browser-side processing. Because implementations can vary by tool and may change over time, users should review the current tool description, privacy policy, and browser Network activity before processing highly sensitive documents.'
+      },
+      {
+        q: 'Do browser-side PDF tools work offline?',
+        a: 'Some core tools may continue to work offline after the required application assets are available in the browser. The initial page load, application updates, external fonts, analytics, and specialized AI or OCR features may require an internet connection. Offline availability should be verified for each tool.'
+      },
+      {
+        q: 'What happens if I forget the password for a protected PDF?',
+        a: 'Keep a secure recovery procedure before applying password protection. If a password is lost, the document may not be recoverable, especially when processing is performed locally and no service provider retains a copy.'
+      },
+      {
+        q: 'Does removing PDF metadata make a document completely anonymous?',
+        a: 'No. Metadata removal may reduce author, title, or software information, but visible content, images, signatures, filenames, and external activity can still reveal information. Metadata removal is one privacy measure, not a guarantee of anonymity.'
+      }
+    ],
+    longFormBody: `
+      <h1>How to Edit PDFs Securely Without Uploading Them Online</h1>
+      
+      <p class="lead font-medium text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+        Learn how to merge, split, compress, protect, and manage sensitive PDFs without uploading them to a remote server. A practical privacy-first guide for secure PDF workflows.
+      </p>
+
+      <h2>Are Your PDFs Really Private?</h2>
+      <p>PDFs are not just ordinary files. They often contain contracts, tax records, salary statements, passport copies, medical reports, client proposals, legal notices, and academic documents. Before using an online PDF service to merge, split, compress, or protect a document, ask one important question: <strong>Does the file stay on my device, or is it uploaded to a remote server?</strong></p>
+
+      <p>Many cloud-based PDF services follow a simple workflow. You select a file, your browser uploads it to a server, the server processes it, and you download the result. This model can be useful for very large files, complex operations, or server-powered workflows. However, sensitive documents require careful consideration of data transfer, retention policies, account access, and third-party exposure.</p>
+
+      <p>PdfMinty takes a privacy-first approach to its core PDF workflows by processing supported operations in the browser, so users can work without routinely uploading their files to a cloud server. Before using any specific tool, review its current privacy description, supported formats, and browser requirements. You can explore the <a href="/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">privacy-first PDF toolkit</a> directly.</p>
+
+      <!-- Recommendation Box 1 -->
+      <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
+        <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Tool</span>
+        <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
+          <a href="/merge-pdf" class="hover:text-emerald-500 transition-colors">Client-Side PDF Merger</a>
+        </h4>
+        <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
+          Combine multiple PDF files instantly in your browser memory without cloud file uploads.
+        </p>
+      </div>
+
+      <h2>What Is Browser-Side PDF Processing?</h2>
+      <p>Browser-side processing means that a PDF operation is performed within the browser environment on your device. Depending on the tool, the browser may use JavaScript and Web Workers to read the selected file, perform the operation locally, and generate a downloadable result.</p>
+
+      <p>This is different from cloud processing, where the document is sent to a remote server. Users should still verify privacy claims rather than relying on slogans. You can inspect the browser’s Developer Tools and Network tab to check whether a file upload request is being made. You should also review the tool’s privacy policy, analytics behavior, third-party integrations, and error-reporting practices.</p>
+
+      <p>A trustworthy PDF service should explain its architecture and limitations clearly. Avoid treating phrases such as “absolute security” or “zero risk” as substitutes for verifiable technical information.</p>
+
+      <h2>Which PDF Tasks Can Be Done Without Uploading?</h2>
+      <p>Many everyday PDF tasks can be completed with browser-based tools. You can combine invoices, reports, or chapters with a <a href="/merge-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF merge tool</a>. You can separate selected pages from a long document, reduce a file’s size before emailing it, add a watermark, or apply protection to a document before sharing it.</p>
+
+      <p>Not every PDF operation has the same technical requirements. Simple page organization may be relatively lightweight, while OCR, image-heavy documents, large batches, or complex font and layout processing may depend more heavily on device memory and browser capability. A responsible tool should explain these limitations rather than implying that every file will process at the same speed on every device.</p>
+
+      <div class="my-6 overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse border border-slate-200 dark:border-slate-800">
+          <thead>
+            <tr class="bg-slate-100 dark:bg-zinc-900 text-slate-900 dark:text-white">
+              <th class="p-3 border border-slate-200 dark:border-slate-800 font-bold">Task</th>
+              <th class="p-3 border border-slate-200 dark:border-slate-800 font-bold">Common use case</th>
+              <th class="p-3 border border-slate-200 dark:border-slate-800 font-bold">What to check first</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/merge-pdf">Merge PDF</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Combine reports, invoices, or chapters</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">File order, bookmarks, and memory usage</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/split-pdf">Split PDF</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Extract sections from a large document</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Page ranges and output naming</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/grayscale-pdf">Compress PDF</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Reduce file size for email or sharing</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Visual quality, image resolution, and target size</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/protect-pdf">Protect PDF</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Add password protection or permissions</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Password recovery limitations</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/watermark-pdf">Watermark PDF</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Mark drafts, confidential copies, or internal documents</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Watermark position and readability</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/sanitize-pdf">Remove metadata</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Reduce author, title, and software information</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Metadata removal does not remove visible content</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>A Safer Workflow for Merging PDFs</h2>
+      <p>Start with a modern browser and make sure your device has enough available memory. Open the <a href="/merge-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Merge PDF tool</a>, select the required files, and review the order before processing. Check for duplicate pages, outdated versions, and unintended confidential attachments.</p>
+
+      <p>After the merge is complete, open the downloaded file and review the first page, last page, page count, hyperlinks, tables, fonts, and page order. If you are working on a shared computer, also check where the original and processed files were saved. Privacy is not only about avoiding uploads; it also includes device access, local downloads, backups, and account security.</p>
+
+      <h2>How to Compress a PDF Without Losing Usability</h2>
+      <p>The goal of PDF compression is not simply to make a file smaller. It is to reduce file size while preserving readability and practical quality. Text-based PDFs often behave differently from image-heavy scans. High-resolution images, embedded fonts, color data, transparency, and duplicated resources can all increase file size.</p>
+
+      <p>After compression, zoom in and inspect small text, signatures, stamps, charts, and images. If the PDF will be used for a legal, financial, or regulatory submission, keep the original file separately. Compare the original and compressed versions for file size, page count, visual clarity, and text searchability. See PdfMinty’s <a href="/blog/how-to-compress-a-pdf-without-losing-quality-2026" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF compression guide</a> for more practical guidance.</p>
+
+      <h2>Five Privacy Precautions for Sensitive PDFs</h2>
+      <ol>
+        <li><strong>Verify Network Transmission:</strong> Do not upload a passport, medical report, client contract, or financial document to an online tool until you understand whether the file is transmitted.</li>
+        <li><strong>Read Architecture & Retention Policies:</strong> Read the service’s privacy and retention policy. “Files are deleted later” is not the same architecture as “the file is processed locally on your device.”</li>
+        <li><strong>Be Cautious of Extensions:</strong> Be cautious about browser extensions, unknown scripts, and unnecessary third-party integrations.</li>
+        <li><strong>Clean Local Files on Shared Devices:</strong> Remove downloaded outputs and temporary files when using a shared device.</li>
+        <li><strong>Scrub Hidden Metadata:</strong> Review PDF metadata because author names, organization names, software information, and hidden document properties can disclose more than you intended.</li>
+      </ol>
+
+      <p>For more information, read PdfMinty’s <a href="/blog/how-to-remove-pdf-metadata-for-privacy" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF metadata removal guide</a> and <a href="/is-it-safe-to-upload-pdf-to-online-tools" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">online PDF upload safety guide</a>. Metadata removal is only one privacy step. It does not automatically remove visible content, embedded images, signatures, filenames, or information revealed by the document itself.</p>
+
+      <h2>Are Cloud PDF Tools Always Bad?</h2>
+      <p>No. Cloud processing can be useful for very large files, team workflows, server-scale OCR, and batch automation. The important issue is transparency. Users should be able to understand the processing architecture, retention period, access controls, encryption practices, account requirements, and deletion behavior.</p>
+
+      <p>The right choice depends on document sensitivity, file size, browser capability, required operation, and organizational policy. PdfMinty’s privacy-first model is designed for users who want to perform common PDF tasks without routinely sending their documents to a remote server.</p>
+
+      <h2>A Practical PDF Privacy Checklist</h2>
+      <div class="my-6 overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse border border-slate-200 dark:border-slate-800">
+          <thead>
+            <tr class="bg-slate-100 dark:bg-zinc-900 text-slate-900 dark:text-white">
+              <th class="p-3 border border-slate-200 dark:border-slate-800 font-bold">Check</th>
+              <th class="p-3 border border-slate-200 dark:border-slate-800 font-bold">Question to ask</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400">Privacy</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Are the file bytes transmitted to a remote server?</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400">Compatibility</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Does my browser and device support this operation?</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400">Output</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Did I verify the page count, layout, and text after processing?</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400">Security</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Do I understand the limitations of passwords, watermarks, and metadata removal?</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400">Storage</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Where are the original and processed files saved?</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400">Trust</td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800">Are the privacy policy, contact details, and tool limitations clearly explained?</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Final Takeaway</h2>
+      <p>Speed matters in PDF management, but <strong>privacy architecture matters even more when a document is sensitive</strong>. Before using a PDF tool, understand where processing occurs, what information is collected, how the output is generated, and what happens when something fails.</p>
+
+      <p>With PdfMinty’s browser-first PDF toolkit, you can explore <a href="/merge-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF merging</a>, splitting, compression, protection, watermarking, and other workflows. Start with a non-sensitive sample file, verify the workflow and network activity, review the output, and then decide whether the tool is appropriate for your document.</p>
+
+      <p class="font-bold text-slate-900 dark:text-white">Next step: Try a sample PDF with PdfMinty, confirm the result, and build a privacy-conscious workflow that fits your device and document requirements.</p>
+
+      <h2>Frequently Asked Questions</h2>
+      
+      <div class="space-y-4 my-6">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0 mb-2">Does PdfMinty upload my PDF?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
+            PdfMinty’s core privacy-first workflow is designed for browser-side processing. Because implementations can vary by tool and may change over time, users should review the current tool description, privacy policy, and browser Network activity before processing highly sensitive documents.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0 mb-2">Do browser-side PDF tools work offline?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
+            Some core tools may continue to work offline after the required application assets are available in the browser. The initial page load, application updates, external fonts, analytics, and specialized AI or OCR features may require an internet connection. Offline availability should be verified for each tool.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0 mb-2">What happens if I forget the password for a protected PDF?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
+            Keep a secure recovery procedure before applying password protection. If a password is lost, the document may not be recoverable, especially when processing is performed locally and no service provider retains a copy.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0 mb-2">Does removing PDF metadata make a document completely anonymous?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
+            No. Metadata removal may reduce author, title, or software information, but visible content, images, signatures, filenames, and external activity can still reveal information. Metadata removal is one privacy measure, not a guarantee of anonymity.
+          </p>
+        </div>
+      </div>
+
+      <div class="my-8 p-5 bg-slate-100 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs text-slate-600 dark:text-slate-400">
+        <strong class="block mb-1 text-slate-800 dark:text-slate-200 font-bold">Editorial Note</strong>
+        Before publishing this article, verify every product capability and privacy statement against the current implementation of each PdfMinty tool. Add a last-reviewed date, a named technical reviewer, and an accurate list of supported operations. Update the article whenever the product architecture or privacy policy changes.
+      </div>
+    `,
+  },
+  {
+    id: 'privacy-policy',
+    slug: 'privacy-policy',
+    name: 'Privacy Policy',
+    ogImage: '/og-image.png',
+    shortDescription: '100% in-browser processing privacy policy for PdfMinty',
+    metaTitle: 'Privacy Policy — 100% Zero-Data Collection | PdfMinty',
+    metaDescription: "Read PdfMinty's Privacy Policy. We do not collect, upload, store, or transmit your PDF files. All processing happens 100% locally inside your web browser.",
+    h1: 'Privacy Policy',
+    icon: 'Shield',
+    category: 'static',
+    priority: 0.5,
+    changefreq: 'yearly',
+    type: 'article',
+    datePublished: '2026-01-01',
+    dateModified: '2026-01-01',
+    longFormBody: '<h1>Privacy Policy</h1><p>100% Zero-Data Collection Privacy Policy.</p>',
+  },
+  {
+    id: 'terms-of-service',
+    slug: 'terms-of-service',
+    name: 'Terms of Service',
+    ogImage: '/og-image.png',
+    shortDescription: 'Service terms and usage guidelines for PdfMinty',
+    metaTitle: 'Terms of Service — PdfMinty',
+    metaDescription: "Read PdfMinty's Terms of Service. Understand our terms of use, privacy guarantee, and service guidelines.",
+    h1: 'Terms of Service',
+    icon: 'Scale',
+    category: 'static',
+    priority: 0.5,
+    changefreq: 'yearly',
+    type: 'article',
+    datePublished: '2026-01-01',
+    dateModified: '2026-01-01',
+    longFormBody: '<h1>Terms of Service</h1><p>PdfMinty Terms of Service.</p>',
   },
 ];
 

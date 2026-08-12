@@ -104,12 +104,12 @@ export const IsSafePdfArticlePage: React.FC = () => {
             Keep your sensitive documents safe.
           </h2>
           <p className="text-base sm:text-lg font-bold text-emerald-100 max-w-xl mx-auto">
-            Process your PDFs 100% locally with PDFMinty. Zero uploads, zero risk.
+            Process your standard PDFs locally in browser memory with PDFMinty.
           </p>
           <div className="pt-2">
             <Link
               to={ROUTES.HOME}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-900 font-black text-base rounded-2xl transition-all shadow-lg hover:bg-emerald-50 hover:scale-105 active:scale-100"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-900 dark:!bg-white dark:!text-emerald-900 hover:dark:!bg-emerald-50 font-black text-base rounded-2xl transition-all shadow-lg hover:bg-emerald-50 hover:scale-105 active:scale-100"
             >
               <span>Start Using Free Tools</span>
               <ArrowRight className="w-5 h-5" />

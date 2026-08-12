@@ -19,11 +19,11 @@ export const Footer: React.FC = () => {
               <span className="font-black text-xl text-on-surface">PdfMinty</span>
             </div>
             <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
-              Free, privacy-first PDF utility suite. All document operations execute locally inside your web browser. Your files are never uploaded to remote cloud servers.
+              Free, privacy-first PDF utility suite. Core document tools run 100% locally in your browser without uploads. AI and OCR features utilize secure, encrypted API processing.
             </p>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Zero Upload Guarantee</span>
+              <span>In-Browser Privacy First</span>
             </div>
           </div>
 

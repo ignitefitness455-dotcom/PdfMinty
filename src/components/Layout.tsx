@@ -34,6 +34,7 @@ import InternalSEO, { Breadcrumbs } from './InternalSEO';
 import { MobileDrawer } from './MobileDrawer';
 import { RelatedBlogs } from './RelatedBlogs';
 import { RelatedTools } from './RelatedTools';
+import { ToolContentSection } from './ToolContentSection';
 import { ToolGuide } from './ToolGuide';
 import { ToolLongForm } from './ToolLongForm';
 
@@ -145,7 +146,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   }), []);
 
   const toolsList = useMemo<ToolInfo[]>(() => TOOLS
-    .filter((t) => t.type === 'tool')
     .map((t) => ({
       name: t.name,
       slug: t.slug,
@@ -195,12 +195,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               const activeSlug = location.pathname.replace(/^\//, '').replace(/\/$/, '');
               const activeItem = TOOLS.find((t) => t.slug === activeSlug);
               if (activeItem?.type === 'tool') {
-                return (
-                  <>
-                    <ToolLongForm slug={activeSlug} />
-                    <ToolGuide slug={activeSlug} />
-                  </>
-                );
+                return <ToolContentSection tool={activeItem} />;
               }
               return null;
             })()}

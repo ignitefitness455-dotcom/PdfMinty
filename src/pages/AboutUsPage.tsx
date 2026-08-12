@@ -71,9 +71,9 @@ export const AboutUsPage: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
                 <Lock className="w-5 h-5" />
               </div>
-              <h3 className="text-base font-bold text-on-surface">100% In-Browser Privacy</h3>
+              <h3 className="text-base font-bold text-on-surface">In-Browser Privacy</h3>
               <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
-                Your files remain strictly on your computer or phone. Zero server uploads, guaranteed.
+                Standard PDF tools process files directly in your browser memory on your local device.
               </p>
             </div>
 
@@ -135,7 +135,7 @@ export const AboutUsPage: React.FC = () => {
           <div className="pt-2">
             <Link
               to={ROUTES.HOME}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-900 font-black text-base rounded-2xl transition-all shadow-lg hover:bg-emerald-50 hover:scale-105 active:scale-100"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-900 dark:!bg-white dark:!text-emerald-900 hover:dark:!bg-emerald-50 font-black text-base rounded-2xl transition-all shadow-lg hover:bg-emerald-50 hover:scale-105 active:scale-100"
             >
               <span>Explore All PDF Tools</span>
               <ArrowRight className="w-5 h-5" />

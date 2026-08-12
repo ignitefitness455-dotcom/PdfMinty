@@ -1,36 +1,80 @@
 import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-import { SITE_URL } from '../config/routes';
-import { TOOLS } from '../config/seo-data';
-
-import { useLayout } from './Layout';
+import { SITE_URL, SITE_NAME, TOOLS, FAQS } from '../config/seo-data';
 
 export const Breadcrumbs: React.FC = () => {
   const { pathname = '/' } = useLocation() || {};
-  const { toolsList = [] } = useLayout() || {};
-  const currentTool = useMemo(() => {
-    if (!pathname || pathname === '/' || !Array.isArray(toolsList)) return null;
-    const segments = pathname.toLowerCase().split('/').filter(Boolean);
-    return toolsList.find((t) => t && t.slug && segments.includes(t.slug.toLowerCase()));
-  }, [toolsList, pathname]);
+  
+  const cleanSlug = useMemo(() => {
+    if (!pathname || pathname === '/') return '';
+    return pathname.toLowerCase().replace(/^\//, '').replace(/\/$/, '');
+  }, [pathname]);
 
-  if (pathname === '/' || !currentTool) {
+  if (!cleanSlug) {
     return null;
   }
 
+  const currentItem = TOOLS.find((t) => t && t.slug && t.slug.toLowerCase() === cleanSlug);
+
+  if (cleanSlug === 'blog') {
+    return (
+      <nav aria-label="Breadcrumb" className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
+        <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
+          Home
+        </Link>
+        <span>/</span>
+        <span className="text-slate-600 dark:text-slate-400 uppercase font-sans">
+          Knowledge Hub
+        </span>
+      </nav>
+    );
+  }
+
+  if (cleanSlug === 'about-us' || cleanSlug === 'contact' || cleanSlug === 'privacy-policy' || cleanSlug === 'terms-of-service') {
+    const title = currentItem?.name || (cleanSlug === 'about-us' ? 'About Us' : cleanSlug === 'contact' ? 'Contact Us' : cleanSlug === 'privacy-policy' ? 'Privacy Policy' : 'Terms of Service');
+    return (
+      <nav aria-label="Breadcrumb" className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
+        <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
+          Home
+        </Link>
+        <span>/</span>
+        <span className="text-slate-600 dark:text-slate-400 uppercase font-sans">
+          {title}
+        </span>
+      </nav>
+    );
+  }
+
+  if (!currentItem) {
+    return null;
+  }
+
+  const isArticle = currentItem.type === 'article';
+
   return (
-    <nav className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
+    <nav aria-label="Breadcrumb" className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
       <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
         Home
       </Link>
       <span>/</span>
-      <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
-        Tools
-      </Link>
-      <span>/</span>
-      <span className="text-slate-600 dark:text-slate-400 uppercase font-sans">
-        {currentTool.name}
+      {isArticle ? (
+        <>
+          <Link to="/blog" className="hover:text-emerald-600 transition-colors uppercase font-sans">
+            Knowledge Hub
+          </Link>
+          <span>/</span>
+        </>
+      ) : (
+        <>
+          <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
+            Tools
+          </Link>
+          <span>/</span>
+        </>
+      )}
+      <span className="text-slate-600 dark:text-slate-400 uppercase font-sans truncate max-w-[200px] sm:max-w-xs">
+        {currentItem.name}
       </span>
     </nav>
   );
@@ -38,106 +82,337 @@ export const Breadcrumbs: React.FC = () => {
 
 export default function InternalSEO() {
   const location = useLocation();
-  const { toolsList = [] } = useLayout() || {};
 
-  // Read the nonce from the first inline script tag that middleware injected.
-  // Memoize so we don't query the DOM on every render.
   const nonce = React.useMemo(() => {
     if (typeof document === 'undefined') return undefined;
     const scriptWithNonce = document.querySelector('script[nonce]') as HTMLScriptElement | null;
-    // In modern browsers, script.nonce returns the nonce value (or empty string).
-    // In older browsers, we fall back to reading the attribute.
     if (scriptWithNonce) {
       return scriptWithNonce.nonce || scriptWithNonce.getAttribute('nonce') || undefined;
     }
     return undefined;
   }, []);
 
-  const cleanPathname = (location.pathname || '').replace(/\/$/, '');
-  const tool = Array.isArray(toolsList) ? toolsList.find((t) => t && t.slug && `/${t.slug}` === cleanPathname) : undefined;
-  if (!tool) return null;
-  const APP_URL = SITE_URL;
-  const structuredData: unknown[] = [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: tool.name,
-      description: tool.description,
-      url: `${APP_URL}/${tool.slug}`,
-      applicationCategory: 'UtilityApplication',
-      operatingSystem: 'Any',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Home',
-          item: `${APP_URL}/`,
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: tool.name,
-          item: `${APP_URL}/${tool.slug}`,
-        },
-      ],
-    },
-  ];
+  const cleanSlug = (location?.pathname || '').replace(/^\//, '').replace(/\/$/, '');
+  const structuredData: Record<string, unknown>[] = [];
 
-  const seoInfo = TOOLS.find((t) => t.slug === tool.slug);
-  if (seoInfo && seoInfo.type === 'article') {
-    structuredData.push({
-      '@context': 'https://schema.org',
-      '@type': 'Article',
-      headline: seoInfo.h1,
-      description: seoInfo.metaDescription,
-      url: `${APP_URL}/${seoInfo.slug}`,
-      datePublished: seoInfo.datePublished || '2025-01-01',
-      dateModified: seoInfo.dateModified || new Date().toISOString(),
-      author: {
-        '@type': 'Organization',
-        name: 'PDFMinty',
-        url: APP_URL,
-      },
-      publisher: {
-        '@type': 'Organization',
-        name: 'PDFMinty',
-        logo: {
-          '@type': 'ImageObject',
-          url: `${APP_URL}/logo.png`,
+  // 1. Homepage (`/`)
+  if (!cleanSlug) {
+    structuredData.push(
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: SITE_NAME,
+        url: `${SITE_URL}/`,
+        description: 'Free, privacy-first offline-capable PDF toolkit. Combine, split, protect, rotate and convert PDFs 100% inside your browser safely with zero server uploads.',
+        publisher: {
+          '@type': 'Organization',
+          name: SITE_NAME,
+          logo: `${SITE_URL}/logo-192.png`,
         },
       },
-      image: {
-        '@type': 'ImageObject',
-        url: seoInfo.ogImage ? `${APP_URL}${seoInfo.ogImage}` : `${APP_URL}/og-image.png`,
-        width: 1200,
-        height: 630,
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: SITE_NAME,
+        url: `${SITE_URL}/`,
+        logo: `${SITE_URL}/logo-192.png`,
+        contactPoint: {
+          '@type': 'ContactPoint',
+          email: 'pdfminty@gmail.com',
+          contactType: 'customer support',
+        },
       },
-      mainEntityOfPage: {
-        '@type': 'WebPage',
-        '@id': `${APP_URL}/${seoInfo.slug}`,
-      },
-    });
-
-    if (seoInfo.faqs && seoInfo.faqs.length > 0) {
-      structuredData.push({
+      {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
-        mainEntity: seoInfo.faqs.map((f) => ({
+        mainEntity: FAQS.map((faq) => ({
           '@type': 'Question',
-          name: f.q,
+          name: faq.q,
           acceptedAnswer: {
             '@type': 'Answer',
-            text: f.a,
+            text: faq.a,
           },
         })),
+      }
+    );
+  } else if (cleanSlug === 'blog') {
+    // 2. Blog Index (`/blog`)
+    structuredData.push(
+      {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: 'PdfMinty Knowledge Hub',
+        url: `${SITE_URL}/blog`,
+        description: 'Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.',
+        publisher: {
+          '@type': 'Organization',
+          name: SITE_NAME,
+          logo: `${SITE_URL}/logo-192.png`,
+        },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: `${SITE_URL}/`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Knowledge Hub',
+            item: `${SITE_URL}/blog`,
+          },
+        ],
+      }
+    );
+  } else {
+    // 3. Tool, Article, or Static Page
+    const seoInfo = TOOLS.find((t) => t && t.slug === cleanSlug);
+    if (!seoInfo) return null;
+
+    if (seoInfo.type === 'tool') {
+      structuredData.push({
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: `PdfMinty - ${seoInfo.name}`,
+        description: seoInfo.shortDescription || seoInfo.metaDescription,
+        url: `${SITE_URL}/${seoInfo.slug}`,
+        applicationCategory: 'UtilityApplication',
+        operatingSystem: 'All',
+        browserRequirements: 'Requires HTML5, WebAssembly',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        featureList: [
+          '100% client-side processing',
+          'No file uploads to servers',
+          'Free to use',
+          'No registration required',
+          'Works offline (PWA)',
+        ],
       });
+
+      if (seoInfo.howTo) {
+        structuredData.push({
+          '@context': 'https://schema.org',
+          '@type': 'HowTo',
+          name: seoInfo.howTo.name,
+          totalTime: seoInfo.howTo.totalTime,
+          step: seoInfo.howTo.steps.map((stepText, index) => ({
+            '@type': 'HowToStep',
+            url: `${SITE_URL}/${seoInfo.slug}#step${index + 1}`,
+            name: stepText,
+            itemListElement: [{ '@type': 'HowToDirection', text: stepText }],
+          })),
+        });
+      }
+
+      structuredData.push({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: `${SITE_URL}/`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: seoInfo.name,
+            item: `${SITE_URL}/${seoInfo.slug}`,
+          },
+        ],
+      });
+
+      if (seoInfo.faqs && seoInfo.faqs.length > 0) {
+        structuredData.push({
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: seoInfo.faqs.map((f) => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: f.a,
+            },
+          })),
+        });
+      }
+    } else if (cleanSlug === 'about-us') {
+      structuredData.push(
+        {
+          '@context': 'https://schema.org',
+          '@type': 'AboutPage',
+          name: seoInfo.metaTitle,
+          description: seoInfo.metaDescription,
+          url: `${SITE_URL}/about-us`,
+          publisher: {
+            '@type': 'Organization',
+            name: SITE_NAME,
+            url: SITE_URL,
+          },
+        },
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: `${SITE_URL}/`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'About Us',
+              item: `${SITE_URL}/about-us`,
+            },
+          ],
+        }
+      );
+    } else if (cleanSlug === 'contact') {
+      structuredData.push(
+        {
+          '@context': 'https://schema.org',
+          '@type': 'ContactPage',
+          name: seoInfo.metaTitle,
+          description: seoInfo.metaDescription,
+          url: `${SITE_URL}/contact`,
+          publisher: {
+            '@type': 'Organization',
+            name: SITE_NAME,
+            url: SITE_URL,
+          },
+        },
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: `${SITE_URL}/`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Contact Us',
+              item: `${SITE_URL}/contact`,
+            },
+          ],
+        }
+      );
+    } else if (cleanSlug === 'privacy-policy' || cleanSlug === 'terms-of-service') {
+      structuredData.push(
+        {
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: seoInfo.metaTitle,
+          description: seoInfo.metaDescription,
+          url: `${SITE_URL}/${cleanSlug}`,
+        },
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: `${SITE_URL}/`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: seoInfo.name,
+              item: `${SITE_URL}/${cleanSlug}`,
+            },
+          ],
+        }
+      );
+    } else if (seoInfo.type === 'article') {
+      structuredData.push({
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: seoInfo.h1 || seoInfo.name,
+        description: seoInfo.metaDescription,
+        url: `${SITE_URL}/${seoInfo.slug}`,
+        datePublished: seoInfo.datePublished || '2026-07-16',
+        dateModified: seoInfo.dateModified || seoInfo.datePublished || '2026-08-08',
+        author: {
+          '@type': 'Organization',
+          name: 'PdfMinty Editorial Team',
+          url: SITE_URL,
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: SITE_NAME,
+          logo: {
+            '@type': 'ImageObject',
+            url: `${SITE_URL}/logo-192.png`,
+          },
+        },
+        image: {
+          '@type': 'ImageObject',
+          url: seoInfo.ogImage ? `${SITE_URL}${seoInfo.ogImage}` : `${SITE_URL}/og-image.png`,
+          width: 1200,
+          height: 630,
+        },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': `${SITE_URL}/${seoInfo.slug}`,
+        },
+      });
+
+      structuredData.push({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: `${SITE_URL}/`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Knowledge Hub',
+            item: `${SITE_URL}/blog`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: seoInfo.name,
+            item: `${SITE_URL}/${seoInfo.slug}`,
+          },
+        ],
+      });
+
+      if (seoInfo.faqs && seoInfo.faqs.length > 0) {
+        structuredData.push({
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: seoInfo.faqs.map((f) => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: f.a,
+            },
+          })),
+        });
+      }
     }
   }
+
+  if (structuredData.length === 0) return null;
 
   return (
     <script

@@ -5,13 +5,13 @@ export interface RecordedError {
   timestamp: string;
   url: string;
   fileContext?: {
-    fileName?: string;
-    fileSizeFormatted?: string;
+    fileSizeCategory?: string;
     pdfVersion?: string;
     isEncrypted?: boolean;
-    pageCount?: number;
+    pageCountRange?: string;
     processingStep?: string;
     toolName?: string;
+    errorCategory?: string;
   } | null;
   userAgent: string;
 }

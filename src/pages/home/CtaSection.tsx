@@ -16,7 +16,7 @@ export const CtaSection: React.FC = () => {
         </h2>
         <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed font-semibold">
           Select any tool above to process your documents privately on your device. Fast performance,
-          no subscriptions, and 100% file privacy guaranteed.
+          no subscriptions, and privacy-first client-side processing.
         </p>
         <div className="pt-4">
           <button

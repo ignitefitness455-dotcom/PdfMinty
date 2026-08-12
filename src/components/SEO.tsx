@@ -39,11 +39,10 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
     descriptionOverride ||
     item?.metaDescription ||
     'Free, privacy-first offline-capable PDF toolkit. Combine, split, protect, rotate and convert PDFs 100% inside your browser safely with zero server uploads.';
-  const canonicalUrl = item
-    ? `${SITE_URL}/${item.slug}`
-    : currentSlug
-    ? `${SITE_URL}/${currentSlug}`
-    : SITE_URL;
+  const rawSlug = item?.slug || currentSlug;
+  const cleanSlug = rawSlug ? (rawSlug.startsWith('/') ? rawSlug : `/${rawSlug}`) : '';
+  const canonicalUrl = `${SITE_URL}${cleanSlug}`;
+
   const ogType = item?.type === 'article' ? 'article' : 'website';
 
   // Per-tool og:image if declared in seo-data, else generic.

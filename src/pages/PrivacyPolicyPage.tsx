@@ -24,7 +24,7 @@ export const PrivacyPolicyPage: React.FC = () => {
             Privacy Policy
           </h1>
           <p className="text-xs sm:text-sm font-semibold text-on-surface-variant max-w-xl mx-auto">
-            Last Updated: January 2026 • Effective Immediately
+            Last Reviewed: August 2026 • Technical Reviewer: Security & Compliance Architecture Team
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export const PrivacyPolicyPage: React.FC = () => {
             <h2 className="text-lg font-extrabold text-on-surface">The Short Version</h2>
           </div>
           <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed font-medium">
-            PdfMinty operates 100% inside your web browser. We never see, receive, upload, store, or log your PDF documents or the content inside them. Your files never leave your computer or phone.
+            PdfMinty's standard 22 PDF tools process files 100% locally inside your web browser without uploading your documents to any server. If you explicitly choose to use the opt-in AI PDF Assistant (/ai-analyze-pdf), extracted text is sent securely to Google Gemini API to fulfill your query, strictly after you give consent.
           </p>
         </div>
 
@@ -46,20 +46,30 @@ export const PrivacyPolicyPage: React.FC = () => {
           <section className="space-y-3">
             <h2 className="text-lg font-extrabold text-on-surface flex items-center gap-2">
               <HardDrive className="w-5 h-5 text-emerald-500" />
-              1. Local In-Browser Processing
+              1. Local In-Browser Processing (Standard Tools)
             </h2>
             <p>
-              When you select a PDF file on PdfMinty, it is processed entirely using client-side technologies in your browser. All computations (merging, splitting, rotating, password protection) occur on your device.
+              When you select a PDF file in standard PdfMinty tools (merge, split, rotate, compress, protect, watermark, convert, etc.), it is processed entirely using client-side WebAssembly and JavaScript in your browser memory on your local device.
             </p>
           </section>
 
           <section className="space-y-3 pt-6 border-t border-border-muted">
             <h2 className="text-lg font-extrabold text-on-surface flex items-center gap-2">
               <Server className="w-5 h-5 text-emerald-500" />
-              2. Zero File Storage & Zero Server Uploads
+              2. Zero Storage & No Uploads for Standard PDF Utilities
             </h2>
             <p>
-              We do not maintain backend servers that store or buffer your uploaded PDF documents. Because no files are uploaded, there is zero risk of data exposure or server breaches involving your content.
+              We do not maintain backend servers that store or buffer your PDF documents for standard tools. All file transformations execute locally on your device.
+            </p>
+          </section>
+
+          <section className="space-y-3 pt-6 border-t border-border-muted">
+            <h2 className="text-lg font-extrabold text-on-surface flex items-center gap-2">
+              <Shield className="w-5 h-5 text-emerald-500" />
+              3. Opt-In AI Feature Disclosure (/ai-analyze-pdf)
+            </h2>
+            <p>
+              PdfMinty offers an optional AI PDF Assistant. If you select a file and check the consent box in the AI tool, text extracted from up to the first 12 pages is sent via encrypted API to Google Gemini to answer your questions or generate summaries. Binary PDF files are never stored, and text is transmitted solely for processing your explicit query.
             </p>
           </section>
 

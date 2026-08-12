@@ -1,3 +1,5 @@
+import { TOOLS } from '../src/config/seo-data';
+
 import { getCorsOrigin, getCorsHeaders } from './utils/cors';
 
 export const onRequest: PagesFunction = async (context) => {
@@ -81,8 +83,37 @@ export const onRequest: PagesFunction = async (context) => {
     newResponse.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
   } else if (contentType.includes('text/html')) {
     newResponse.headers.set('Cache-Control', 'no-cache, must-revalidate');
-    newResponse.headers.set('X-Robots-Tag', 'index, follow');
     newResponse.headers.set('Content-Language', 'en');
+
+    // Check for nonexistent article slugs under /blog/ or /compare/
+    const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
+    const isSubArticleRoute = cleanPath.startsWith('blog/') || cleanPath.startsWith('compare/');
+    
+    if (isSubArticleRoute && cleanPath !== 'blog') {
+      const isValidArticle = TOOLS.some((item) => {
+        if (item.slug === cleanPath) return true;
+        if (cleanPath.startsWith('blog/')) {
+          const sub = cleanPath.slice(5);
+          if (item.slug === sub || item.slug === `blog/${sub}`) return true;
+        }
+        if (cleanPath.startsWith('compare/')) {
+          const sub = cleanPath.slice(8);
+          if (item.slug === sub || item.slug === `compare/${sub}`) return true;
+        }
+        return false;
+      });
+
+      if (!isValidArticle) {
+        // Return 404 status code so crawlers don't index empty shell
+        return new Response(hasNoBody ? null : response.body, {
+          status: 404,
+          statusText: 'Not Found',
+          headers: newResponse.headers,
+        });
+      }
+    }
+
+    newResponse.headers.set('X-Robots-Tag', 'index, follow');
   } else if (contentType.includes('application/json') || url.pathname.startsWith('/api/')) {
     newResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
   }

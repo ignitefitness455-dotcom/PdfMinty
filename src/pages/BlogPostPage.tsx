@@ -183,7 +183,7 @@ export const BlogPostPage: React.FC = () => {
             <div className="pt-2">
               <Link
                 to={ROUTES.HOME}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-emerald-50 text-emerald-950 font-black text-sm sm:text-base rounded-2xl transition-all shadow-2xl hover:scale-105 active:scale-95 no-underline"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-emerald-50 text-emerald-950 dark:!bg-white dark:!text-emerald-950 hover:dark:!bg-emerald-50 font-black text-sm sm:text-base rounded-2xl transition-all shadow-2xl hover:scale-105 active:scale-95 no-underline"
               >
                 <span>Explore All Free PDF Tools →</span>
               </Link>

@@ -26,8 +26,7 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">Privacy First</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Your documents never leave your computer. All file processing happens locally on your
-              device to ensure total document privacy.
+              Your standard documents stay on your device. Local PDF operations run in browser memory for privacy-first handling.
             </p>
           </div>
 
@@ -54,8 +53,7 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">Completely Free</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Enjoy unlimited file editing and organizing with no paywalls, subscriptions, daily limits,
-              or watermarks.
+              Enjoy file editing and organizing with no paywalls, subscriptions, artificial limits, or watermarks.
             </p>
           </div>
 
@@ -68,8 +66,7 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">{toolsCount} Tools</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Get comprehensive document tools including Merge, Split, Rotate, Watermark, and private AI PDF
-              Analysis.
+              Get comprehensive document tools including Merge, Split, Rotate, Watermark, and opt-in AI PDF Analysis.
             </p>
           </div>
 
@@ -82,8 +79,7 @@ export const WhyChooseSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2.5">Works Offline</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed font-semibold">
-              Our core tools operate even without an active internet connection, so you can work securely
-              on travel or off the grid.
+              Our 22 standard PDF utilities operate without an active internet connection, so you can work off the grid.
             </p>
           </div>
 

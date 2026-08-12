@@ -8,23 +8,30 @@ import { logger } from '../src/utils/logger';
 const __filename: string = fileURLToPath(import.meta.url);
 const __dirname: string = path.dirname(__filename);
 
-export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: string } {
-  const currentDate = new Date().toISOString().split('T')[0];
+export function escapeXml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
-  // Map of static additional routes not in TOOLS array directly
-  const staticRoutes: Array<{ path: string; priority: string; changefreq: string }> = [
-    { path: '/', priority: '1.0', changefreq: 'daily' },
-    { path: '/blog', priority: '0.9', changefreq: 'daily' },
-    { path: '/adobe-acrobat-alternative', priority: '0.8', changefreq: 'weekly' },
-    { path: '/switch-from-adobe-acrobat', priority: '0.8', changefreq: 'weekly' },
-    { path: '/about-us', priority: '0.5', changefreq: 'monthly' },
-    { path: '/contact', priority: '0.5', changefreq: 'monthly' },
-    { path: '/privacy-policy', priority: '0.3', changefreq: 'monthly' },
-    { path: '/terms-of-service', priority: '0.3', changefreq: 'monthly' },
+export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: string } {
+  // Static canonical routes with substantive content update dates
+  const staticRoutes: Array<{ path: string; priority: string; changefreq: string; lastmod: string }> = [
+    { path: '', priority: '1.0', changefreq: 'daily', lastmod: '2026-02-10' },
+    { path: '/blog', priority: '0.9', changefreq: 'daily', lastmod: '2026-02-10' },
+    { path: '/adobe-acrobat-alternative', priority: '0.8', changefreq: 'weekly', lastmod: '2026-02-05' },
+    { path: '/switch-from-adobe-acrobat', priority: '0.8', changefreq: 'weekly', lastmod: '2026-02-05' },
+    { path: '/about-us', priority: '0.5', changefreq: 'monthly', lastmod: '2026-01-20' },
+    { path: '/contact', priority: '0.5', changefreq: 'monthly', lastmod: '2026-01-20' },
+    { path: '/privacy-policy', priority: '0.3', changefreq: 'monthly', lastmod: '2026-02-01' },
+    { path: '/terms-of-service', priority: '0.3', changefreq: 'monthly', lastmod: '2026-02-01' },
   ];
 
   const urlEntries: Array<{ loc: string; lastmod: string; changefreq: string; priority: string }> = [];
-  const imageEntries: Array<{ loc: string; imageLoc: string; title: string }> = [];
+  const imageEntries: Array<{ loc: string; imageLoc: string; title: string; caption: string }> = [];
 
   const addedPaths = new Set<string>();
 
@@ -32,10 +39,10 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
   for (const route of staticRoutes) {
     if (!addedPaths.has(route.path)) {
       addedPaths.add(route.path);
-      const loc = route.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${route.path}`;
+      const loc = `${SITE_URL}${route.path}`;
       urlEntries.push({
         loc,
-        lastmod: currentDate,
+        lastmod: route.lastmod,
         changefreq: route.changefreq,
         priority: route.priority,
       });
@@ -43,12 +50,13 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
       imageEntries.push({
         loc,
         imageLoc: `${SITE_URL}/og-image.png`,
-        title: 'PDFMinty — Free Privacy-First PDF Toolkit',
+        title: 'PdfMinty — Free Privacy-First PDF Toolkit',
+        caption: 'Free in-browser PDF utilities with zero server uploads',
       });
     }
   }
 
-  // Add all tools and articles from seo-data.ts
+  // Add all tools and articles from canonical seo-data registry
   for (const item of TOOLS as ToolSEOInfo[]) {
     const rawSlug = item.slug.startsWith('/') ? item.slug : `/${item.slug}`;
     if (!addedPaths.has(rawSlug)) {
@@ -56,23 +64,25 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
       const loc = `${SITE_URL}${rawSlug}`;
       const isTool = item.type === 'tool';
       const priority = isTool ? '0.9' : '0.8';
-      const changefreq = isTool ? 'weekly' : 'weekly';
+      const changefreq = 'weekly';
+      const lastmod = item.dateModified || item.datePublished || '2026-02-01';
 
       urlEntries.push({
         loc,
-        lastmod: currentDate,
+        lastmod,
         changefreq,
         priority,
       });
 
-      const ogImage = item.slug.startsWith('blog/')
-        ? `${SITE_URL}/og-image.png`
-        : `${SITE_URL}/og-${item.id}.png`;
+      const ogImage = item.ogImage
+        ? `${SITE_URL}${item.ogImage}`
+        : `${SITE_URL}/og-image.png`;
 
       imageEntries.push({
         loc,
         imageLoc: ogImage,
-        title: item.metaTitle || item.name || item.h1 || 'PDFMinty Tool',
+        title: item.metaTitle || item.name || item.h1 || 'PdfMinty Tool',
+        caption: item.shortDescription || `${item.name} PDF tool`,
       });
     }
   }
@@ -81,7 +91,7 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
   const xmlUrls = urlEntries
     .map(
       (entry) => `  <url>
-    <loc>${entry.loc}</loc>
+    <loc>${escapeXml(entry.loc)}</loc>
     <lastmod>${entry.lastmod}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
@@ -98,10 +108,11 @@ ${xmlUrls}
   const xmlImageUrls = imageEntries
     .map(
       (entry) => `  <url>
-    <loc>${entry.loc}</loc>
+    <loc>${escapeXml(entry.loc)}</loc>
     <image:image>
-      <image:loc>${entry.imageLoc}</image:loc>
-      <image:title>${entry.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</image:title>
+      <image:loc>${escapeXml(entry.imageLoc)}</image:loc>
+      <image:title>${escapeXml(entry.title)}</image:title>
+      <image:caption>${escapeXml(entry.caption)}</image:caption>
     </image:image>
   </url>`
     )
@@ -141,3 +152,4 @@ if (process.argv[1] && process.argv[1].endsWith('generate-sitemap.ts')) {
     process.exit(1);
   });
 }
+

@@ -22,7 +22,7 @@ export const TermsOfServicePage: React.FC = () => {
             Terms of Service
           </h1>
           <p className="text-xs sm:text-sm font-semibold text-on-surface-variant max-w-xl mx-auto">
-            Last Updated: January 2026 • Effective Immediately
+            Last Reviewed: August 2026 • Technical Reviewer: Legal & Product Architecture Team
           </p>
         </div>
 
@@ -44,7 +44,7 @@ export const TermsOfServicePage: React.FC = () => {
               2. Nature of Service & In-Browser Processing
             </h2>
             <p>
-              PdfMinty provides free PDF tools designed to operate locally within your web browser. All file manipulation and data processing occur on your local device. PdfMinty does not transmit or store your documents on remote servers.
+              PdfMinty provides free PDF tools designed to operate locally within your web browser for standard PDF utilities. For opt-in AI features (/ai-analyze-pdf), extracted text content is transmitted securely via API to Google Gemini only after explicit user consent. Standard PDF utilities do not transmit or store your documents on remote servers.
             </p>
           </section>
 
