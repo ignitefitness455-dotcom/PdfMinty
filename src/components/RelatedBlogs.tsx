@@ -69,7 +69,7 @@ export const RelatedBlogs: React.FC = () => {
         {relatedBlogs.map((post) => (
           <Link
             key={post.id}
-            to={`/${post.slug}/`}
+            to={`/${post.slug}`}
             className="group flex flex-col justify-between p-5 bg-surface-container-low border border-border-muted rounded-2xl hover:border-emerald-500/50 hover:shadow-lg transition-all"
           >
             <div className="space-y-3">

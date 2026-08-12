@@ -24,7 +24,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const entries = TOOLS.map((tool) => {
     const priority = tool.priority !== undefined ? String(tool.priority) : (tool.type === 'tool' ? '0.8' : '0.7');
     return {
-      loc: `${siteUrl}/${tool.slug}/`,
+      loc: `${siteUrl}/${tool.slug}`,
       priority,
       changefreq: tool.changefreq || 'monthly',
       image: tool.ogImage ? `${siteUrl}${tool.ogImage}` : `${siteUrl}/og-image.png`,

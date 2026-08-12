@@ -68,7 +68,7 @@ export const RelatedTools: React.FC = () => {
         {related.map((tool) => (
           <Link
             key={tool.slug}
-            to={`/${tool.slug}/`}
+            to={`/${tool.slug}`}
             className="p-4 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-all hover:shadow-sm"
           >
             <span className="font-bold text-sm text-slate-800 block hover:text-emerald-700 transition-colors">
