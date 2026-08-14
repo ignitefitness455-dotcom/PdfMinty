@@ -29,8 +29,9 @@ export const onRequest: PagesFunction = async () => {
   for (const route of staticRoutes) {
     if (!addedPaths.has(route.path)) {
       addedPaths.add(route.path);
+      const slashedPath = route.path.endsWith('/') ? route.path : `${route.path}/`;
       entries.push({
-        loc: `${siteUrl}${route.path}`,
+        loc: `${siteUrl}${slashedPath}`,
         priority: route.priority,
         changefreq: route.changefreq,
         lastmod: route.lastmod,
@@ -43,13 +44,14 @@ export const onRequest: PagesFunction = async () => {
     const rawSlug = tool.slug.startsWith('/') ? tool.slug : `/${tool.slug}`;
     if (!addedPaths.has(rawSlug)) {
       addedPaths.add(rawSlug);
+      const slashedSlug = rawSlug.endsWith('/') ? rawSlug : `${rawSlug}/`;
       const isTool = tool.type === 'tool';
       const priority = isTool ? '0.9' : '0.8';
       const changefreq = 'weekly';
       const lastmod = tool.dateModified || tool.datePublished || '2026-02-01';
 
       entries.push({
-        loc: `${siteUrl}${rawSlug}`,
+        loc: `${siteUrl}${slashedSlug}`,
         priority,
         changefreq,
         lastmod,

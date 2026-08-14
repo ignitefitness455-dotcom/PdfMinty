@@ -34,6 +34,5 @@ User-agent: SemrushBot-BA
 Disallow: /
 
 Sitemap: https://pdfminty.com/sitemap.xml
-Sitemap: https://pdfminty.com/sitemap-images.xml
 
 Host: https://pdfminty.com

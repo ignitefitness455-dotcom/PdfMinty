@@ -41,7 +41,8 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
     'Free, privacy-first offline-capable PDF toolkit. Combine, split, protect, rotate and convert PDFs 100% inside your browser safely with zero server uploads.';
   const rawSlug = item?.slug || currentSlug;
   const cleanSlug = rawSlug ? (rawSlug.startsWith('/') ? rawSlug : `/${rawSlug}`) : '';
-  const canonicalUrl = `${SITE_URL}${cleanSlug}`;
+  const slashedPath = cleanSlug.endsWith('/') ? cleanSlug : `${cleanSlug}/`;
+  const canonicalUrl = `${SITE_URL}${slashedPath}`;
 
   const ogType = item?.type === 'article' ? 'article' : 'website';
 
@@ -62,9 +63,9 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
       <meta name="publisher" content="PDFMinty" />
       <meta name="language" content="English" />
       <meta name="revisit-after" content="7 days" />
-      <link rel="canonical" href={canonicalUrl} />
-      {prevTool && <link rel="prev" href={`${SITE_URL}/${prevTool.slug}`} />}
-      {nextTool && <link rel="next" href={`${SITE_URL}/${nextTool.slug}`} />}
+       <link rel="canonical" href={canonicalUrl} />
+      {prevTool && <link rel="prev" href={`${SITE_URL}/${prevTool.slug}/`} />}
+      {nextTool && <link rel="next" href={`${SITE_URL}/${nextTool.slug}/`} />}
 
       {/* Open Graph Tags */}
       <meta property="og:type" content={ogType} />
@@ -79,6 +80,7 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
 
       {/* Twitter Cards */}
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content={canonicalUrl} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />

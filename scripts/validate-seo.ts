@@ -121,10 +121,10 @@ function generateTestSchemas(slug: string) {
         '@context': 'https://schema.org',
         '@type': 'WebApplication',
         name: `PdfMinty - ${item.name}`,
-        url: `${SITE_URL}/${item.slug}`,
+        url: `${SITE_URL}/${item.slug}/`,
         description: item.shortDescription || item.metaDescription,
         applicationCategory: 'UtilityApplication',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', availability: 'https://schema.org/InStock' },
       });
       if (item.howTo) {
         schemas.push({ '@context': 'https://schema.org', '@type': 'HowTo', name: item.howTo.name });
@@ -134,7 +134,7 @@ function generateTestSchemas(slug: string) {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
-          { '@type': 'ListItem', position: 2, name: item.name, item: `${SITE_URL}/${item.slug}` },
+          { '@type': 'ListItem', position: 2, name: item.name, item: `${SITE_URL}/${item.slug}/` },
         ],
       });
     } else if (item.type === 'article') {
@@ -142,7 +142,7 @@ function generateTestSchemas(slug: string) {
         '@context': 'https://schema.org',
         '@type': 'Article',
         headline: item.h1 || item.name,
-        url: `${SITE_URL}/${item.slug}`,
+        url: `${SITE_URL}/${item.slug}/`,
         author: { '@type': 'Organization', name: 'PdfMinty Editorial Team' },
       });
       schemas.push({
@@ -150,8 +150,8 @@ function generateTestSchemas(slug: string) {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
-          { '@type': 'ListItem', position: 2, name: 'Knowledge Hub', item: `${SITE_URL}/blog` },
-          { '@type': 'ListItem', position: 3, name: item.name, item: `${SITE_URL}/${item.slug}` },
+          { '@type': 'ListItem', position: 2, name: 'Knowledge Hub', item: `${SITE_URL}/blog/` },
+          { '@type': 'ListItem', position: 3, name: item.name, item: `${SITE_URL}/${item.slug}/` },
         ],
       });
     }

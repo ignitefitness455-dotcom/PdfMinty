@@ -232,7 +232,7 @@ export const BlogPage: React.FC = () => {
               </span>
             </div>
 
-            <Link to={`/${featuredPost.slug}`} className="block group-hover:text-emerald-300 transition-colors">
+            <Link to={`/${featuredPost.slug}/`} className="block group-hover:text-emerald-300 transition-colors">
               <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight text-white">
                 {featuredPost.name}
               </h2>
@@ -263,7 +263,7 @@ export const BlogPage: React.FC = () => {
               </div>
 
               <Link
-                to={`/${featuredPost.slug}`}
+                to={`/${featuredPost.slug}/`}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md group-hover:translate-x-1"
               >
                 <span>Read Full Article</span>
@@ -281,7 +281,7 @@ export const BlogPage: React.FC = () => {
             const category = getPostCategory(post.id);
             const readingTime = getReadingTime(post.longFormBody);
             const formattedDate = getFormattedDate(post);
-            const targetPath = `/${post.slug}`;
+            const targetPath = `/${post.slug}/`;
 
             return (
               <article

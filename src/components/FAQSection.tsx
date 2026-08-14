@@ -1,6 +1,5 @@
 import { ChevronDown, HelpCircle } from 'lucide-react';
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 
 import { FAQItem, getToolFaqs } from '../data/toolFaqs';
 
@@ -46,26 +45,8 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
     return null;
   }
 
-  // Generate FAQPage JSON-LD schema without aggregateRating or review data
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map((faq) => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer,
-      },
-    })),
-  };
-
   return (
     <section className={`py-10 ${className}`} id="faq-section">
-      <Helmet>
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      </Helmet>
-
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 md:p-8 shadow-sm space-y-6 transition-colors">
         {/* Header */}
         <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">

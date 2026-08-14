@@ -120,7 +120,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
               Reload Application
             </button>
             <a
-              href="/blog"
+              href="/blog/"
               className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all text-xs uppercase tracking-wider"
             >
               Knowledge Hub

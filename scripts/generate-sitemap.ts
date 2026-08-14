@@ -17,7 +17,7 @@ export function escapeXml(unsafe: string): string {
     .replace(/'/g, '&apos;');
 }
 
-export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: string } {
+export function generateSitemapXml(): { sitemapXml: string } {
   // Static canonical routes with substantive content update dates
   const staticRoutes: Array<{ path: string; priority: string; changefreq: string; lastmod: string }> = [
     { path: '', priority: '1.0', changefreq: 'daily', lastmod: '2026-02-10' },
@@ -30,8 +30,15 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
     { path: '/terms-of-service', priority: '0.3', changefreq: 'monthly', lastmod: '2026-02-01' },
   ];
 
-  const urlEntries: Array<{ loc: string; lastmod: string; changefreq: string; priority: string }> = [];
-  const imageEntries: Array<{ loc: string; imageLoc: string; title: string; caption: string }> = [];
+  const urlEntries: Array<{
+    loc: string;
+    lastmod: string;
+    changefreq: string;
+    priority: string;
+    imageLoc: string;
+    title: string;
+    caption: string;
+  }> = [];
 
   const addedPaths = new Set<string>();
 
@@ -39,16 +46,13 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
   for (const route of staticRoutes) {
     if (!addedPaths.has(route.path)) {
       addedPaths.add(route.path);
-      const loc = `${SITE_URL}${route.path}`;
+      const slashedPath = route.path.endsWith('/') ? route.path : `${route.path}/`;
+      const loc = `${SITE_URL}${slashedPath}`;
       urlEntries.push({
         loc,
         lastmod: route.lastmod,
         changefreq: route.changefreq,
         priority: route.priority,
-      });
-
-      imageEntries.push({
-        loc,
         imageLoc: `${SITE_URL}/og-image.png`,
         title: 'PdfMinty — Free Privacy-First PDF Toolkit',
         caption: 'Free in-browser PDF utilities with zero server uploads',
@@ -61,25 +65,21 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
     const rawSlug = item.slug.startsWith('/') ? item.slug : `/${item.slug}`;
     if (!addedPaths.has(rawSlug)) {
       addedPaths.add(rawSlug);
-      const loc = `${SITE_URL}${rawSlug}`;
+      const slashedSlug = rawSlug.endsWith('/') ? rawSlug : `${rawSlug}/`;
+      const loc = `${SITE_URL}${slashedSlug}`;
       const isTool = item.type === 'tool';
       const priority = isTool ? '0.9' : '0.8';
       const changefreq = 'weekly';
       const lastmod = item.dateModified || item.datePublished || '2026-02-01';
+      const ogImage = item.ogImage
+        ? `${SITE_URL}${item.ogImage}`
+        : `${SITE_URL}/og-image.png`;
 
       urlEntries.push({
         loc,
         lastmod,
         changefreq,
         priority,
-      });
-
-      const ogImage = item.ogImage
-        ? `${SITE_URL}${item.ogImage}`
-        : `${SITE_URL}/og-image.png`;
-
-      imageEntries.push({
-        loc,
         imageLoc: ogImage,
         title: item.metaTitle || item.name || item.h1 || 'PdfMinty Tool',
         caption: item.shortDescription || `${item.name} PDF tool`,
@@ -87,7 +87,7 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
     }
   }
 
-  // Construct sitemap.xml
+  // Construct sitemap.xml with embedded image tags
   const xmlUrls = urlEntries
     .map(
       (entry) => `  <url>
@@ -95,20 +95,6 @@ export function generateSitemapXml(): { sitemapXml: string; imageSitemapXml: str
     <lastmod>${entry.lastmod}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
-  </url>`
-    )
-    .join('\n');
-
-  const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${xmlUrls}
-</urlset>`;
-
-  // Construct sitemap-images.xml
-  const xmlImageUrls = imageEntries
-    .map(
-      (entry) => `  <url>
-    <loc>${escapeXml(entry.loc)}</loc>
     <image:image>
       <image:loc>${escapeXml(entry.imageLoc)}</image:loc>
       <image:title>${escapeXml(entry.title)}</image:title>
@@ -118,20 +104,20 @@ ${xmlUrls}
     )
     .join('\n');
 
-  const imageSitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+  const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-${xmlImageUrls}
+${xmlUrls}
 </urlset>`;
 
-  return { sitemapXml, imageSitemapXml };
+  return { sitemapXml };
 }
 
 async function run(): Promise<void> {
   const publicDir = path.join(__dirname, '../public');
   const distDir = path.join(__dirname, '../dist');
 
-  const { sitemapXml, imageSitemapXml } = generateSitemapXml();
+  const { sitemapXml } = generateSitemapXml();
 
   const targets = [publicDir, distDir];
 
@@ -141,8 +127,7 @@ async function run(): Promise<void> {
     }
 
     fs.writeFileSync(path.join(dir, 'sitemap.xml'), sitemapXml, 'utf8');
-    fs.writeFileSync(path.join(dir, 'sitemap-images.xml'), imageSitemapXml, 'utf8');
-    logger.info(`Generated sitemap.xml & sitemap-images.xml in ${dir}`);
+    logger.info(`Generated sitemap.xml in ${dir}`);
   }
 }
 

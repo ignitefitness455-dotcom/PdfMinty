@@ -154,17 +154,16 @@ function generateSitemapPlugin() {
       const publicDir = resolve(process.cwd(), 'public');
       try {
         const { generateSitemapXml } = await import('./scripts/generate-sitemap');
-        const { sitemapXml, imageSitemapXml } = generateSitemapXml();
+        const { sitemapXml } = generateSitemapXml();
 
         [outDir, publicDir].forEach((dir) => {
           try {
             writeFileSync(resolve(dir, 'sitemap.xml'), sitemapXml, 'utf-8');
-            writeFileSync(resolve(dir, 'sitemap-images.xml'), imageSitemapXml, 'utf-8');
           } catch {
             // Ignore if directory doesn't exist
           }
         });
-        console.log('[pdfminty] sitemap.xml & sitemap-images.xml successfully generated.');
+        console.log('[pdfminty] sitemap.xml successfully generated.');
       } catch (err) {
         console.error('[pdfminty] Failed to generate sitemap during bundle build:', err);
       }

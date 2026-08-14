@@ -2453,7 +2453,7 @@ export const TOOLS: ToolSEOInfo[] = [
 <h2>Why Browser-Side (Client-Side) Processing is Safer</h2>
 <p>Browser-side processing, also called client-side processing, fundamentally changes the security model. Instead of uploading your file to a server, the entire operation happens inside your web browser. The file is loaded into your browser's memory, processed by JavaScript and WebAssembly running on your device, and the result is generated locally. The file never travels across the network.</p>
 
-<p>This is the approach PDFMinty takes with all of its PDF tools. When you use <a href="/merge-pdf">Merge PDF</a> or <a href="/split-pdf">Split PDF</a>, your files are processed entirely on your computer. Even if you disconnect your internet after loading the page, the tools continue to work because they don't need a server connection.</p>
+<p>This is the approach PDFMinty takes with all of its PDF tools. When you use <a href="/merge-pdf/">Merge PDF</a> or <a href="/split-pdf/">Split PDF</a>, your files are processed entirely on your computer. Even if you disconnect your internet after loading the page, the tools continue to work because they don't need a server connection.</p>
 
 <p>The technical foundation of this approach is WebAssembly (WASM), a binary instruction format that allows high-performance code to run in web browsers at near-native speed. PDF processing libraries like pdf-lib and pdfjs-dist are compiled to WebAssembly, enabling them to manipulate PDF files directly in your browser without any server roundtrips.</p>
 
@@ -2495,13 +2495,13 @@ export const TOOLS: ToolSEOInfo[] = [
 <p>Beyond choosing the right tool, here are additional practices to protect your PDF documents:</p>
 
 <h3>1. Use Privacy-First Tools Like PDFMinty</h3>
-<p>PDFMinty offers a complete, growing suite of PDF tools that all process files locally: <a href="/edit-pdf-metadata">Edit Metadata</a>, <a href="/sanitize-pdf">Sanitize PDF</a>, <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, <a href="/rotate-pdf">Rotate PDF</a>, <a href="/delete-pages-pdf">Delete Pages</a>, <a href="/extract-pages-pdf">Extract PDF Pages</a>, <a href="/reorder-pdf">Reorder PDF Pages</a>, <a href="/watermark-pdf">Watermark PDF</a>, <a href="/add-page-numbers">Page Numbers</a>, <a href="/add-blank-page">Add Blank Page</a>, <a href="/protect-pdf">Protect PDF</a>, <a href="/unlock-pdf">Unlock PDF</a>, <a href="/image-to-pdf">Image to PDF</a>, <a href="/pdf-to-image">PDF to Image</a>, <a href="/pdf-to-markdown">PDF to Markdown</a>, <a href="/ai-analyze-pdf">AI Analyze</a>, <a href="/grayscale-pdf">Grayscale PDF</a>, <a href="/flatten-pdf">Flatten PDF</a>, and <a href="/repair-pdf">Repair PDF</a>.</p>
+<p>PDFMinty offers a complete, growing suite of PDF tools that all process files locally: <a href="/edit-pdf-metadata/">Edit Metadata</a>, <a href="/sanitize-pdf/">Sanitize PDF</a>, <a href="/merge-pdf/">Merge PDF</a>, <a href="/split-pdf/">Split PDF</a>, <a href="/rotate-pdf/">Rotate PDF</a>, <a href="/delete-pages-pdf/">Delete Pages</a>, <a href="/extract-pages-pdf/">Extract PDF Pages</a>, <a href="/reorder-pdf/">Reorder PDF Pages</a>, <a href="/watermark-pdf/">Watermark PDF</a>, <a href="/add-page-numbers/">Page Numbers</a>, <a href="/add-blank-page/">Add Blank Page</a>, <a href="/protect-pdf/">Protect PDF</a>, <a href="/unlock-pdf/">Unlock PDF</a>, <a href="/image-to-pdf/">Image to PDF</a>, <a href="/pdf-to-image/">PDF to Image</a>, <a href="/pdf-to-markdown/">PDF to Markdown</a>, <a href="/ai-analyze-pdf/">AI Analyze</a>, <a href="/grayscale-pdf/">Grayscale PDF</a>, <a href="/flatten-pdf/">Flatten PDF</a>, and <a href="/repair-pdf/">Repair PDF</a>.</p>
 
 <h3>2. Password-Protect Sensitive PDFs Before Sharing</h3>
-<p>If you must share a PDF externally, encrypt it first. PDFMinty's <a href="/protect-pdf">Protect PDF</a> tool adds AES-256 encryption — even if the file is intercepted, it can't be opened without the password.</p>
+<p>If you must share a PDF externally, encrypt it first. PDFMinty's <a href="/protect-pdf/">Protect PDF</a> tool adds AES-256 encryption — even if the file is intercepted, it can't be opened without the password.</p>
 
 <h3>3. Redact Sensitive Information</h3>
-<p>Before sharing a PDF, remove sensitive information. Use <a href="/delete-pages-pdf">Delete Pages</a> to remove sections containing personal data, or use <a href="/split-pdf">Split PDF</a> to extract only the pages you want to share.</p>
+<p>Before sharing a PDF, remove sensitive information. Use <a href="/delete-pages-pdf/">Delete Pages</a> to remove sections containing personal data, or use <a href="/split-pdf/">Split PDF</a> to extract only the pages you want to share.</p>
 
 <h3>4. Avoid Public WiFi for Sensitive Operations</h3>
 <p>While PDFMinty's client-side processing is safe even on public WiFi (because nothing is transmitted), if you're forced to use server-based tools, always use a VPN on public networks.</p>
@@ -2548,7 +2548,7 @@ export const TOOLS: ToolSEOInfo[] = [
 <h2>Conclusion</h2>
 <p>The safest way to process PDF files online is to not upload them at all. Browser-side processing with tools like PDFMinty provides the same functionality as traditional online PDF tools, but with fundamentally better privacy, security, and speed. Your files never leave your device, processing happens instantly, and you retain complete control.</p>
 
-<p>Try PDFMinty's <a href="/merge-pdf">Merge PDF</a> tool today to experience private PDF processing. Your files deserve better than unknown servers.</p>
+<p>Try PDFMinty's <a href="/merge-pdf/">Merge PDF</a> tool today to experience private PDF processing. Your files deserve better than unknown servers.</p>
 `,
   },
   {
@@ -2604,7 +2604,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/the-complete-guide-to-pdf-metadata-and-how-to-remove-it" class="hover:text-emerald-500 transition-colors">The Complete Guide to PDF Metadata and How to Clean It</a>
+          <a href="/blog/the-complete-guide-to-pdf-metadata-and-how-to-remove-it/" class="hover:text-emerald-500 transition-colors">The Complete Guide to PDF Metadata and How to Clean It</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Learn how to detect hidden tracking metadata in your PDF files and scrub it securely with our detailed step-by-step guide.
@@ -2627,7 +2627,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/free-pdf-e-signature-sign-documents-without-uploading" class="hover:text-emerald-500 transition-colors">Free PDF E-Signature: Sign Documents Without Uploading</a>
+          <a href="/blog/free-pdf-e-signature-sign-documents-without-uploading/" class="hover:text-emerald-500 transition-colors">Free PDF E-Signature: Sign Documents Without Uploading</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Discover how to add electronic signatures to your PDFs completely offline without uploading files to any third-party server.
@@ -2672,7 +2672,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/how-to-batch-process-50-pdfs-in-under-2-minutes" class="hover:text-emerald-500 transition-colors">How to Batch Process 50 PDFs in Under 2 Minutes</a>
+          <a href="/blog/how-to-batch-process-50-pdfs-in-under-2-minutes/" class="hover:text-emerald-500 transition-colors">How to Batch Process 50 PDFs in Under 2 Minutes</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Skip compressing files one by one—learn how to batch process up to 50 PDF files simultaneously in under 2 minutes.
@@ -2690,15 +2690,15 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>Step-by-Step Guide & Size Reduction Alternatives</h2>
       <p>While dedicated size reduction algorithms are being refined, you can significantly shrink your PDF file size locally right now using our complementary tools:</p>
       <ul>
-        <li><a href="/grayscale-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Grayscale PDF</a>: Convert high-color CMYK/RGB PDF elements to crisp black & white, dramatically cutting file byte size.</li>
-        <li><a href="/sanitize-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Sanitize PDF</a>: Strip heavy embedded metadata, thumbnail caches, and hidden revision streams in seconds.</li>
+        <li><a href="/grayscale-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Grayscale PDF</a>: Convert high-color CMYK/RGB PDF elements to crisp black & white, dramatically cutting file byte size.</li>
+        <li><a href="/sanitize-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Sanitize PDF</a>: Strip heavy embedded metadata, thumbnail caches, and hidden revision streams in seconds.</li>
       </ul>
 
       <!-- Recommendation Box 2 -->
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026" class="hover:text-emerald-500 transition-colors">Why Privacy-First PDF Tools Matter in 2026</a>
+          <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026/" class="hover:text-emerald-500 transition-colors">Why Privacy-First PDF Tools Matter in 2026</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Discover why offline PDF processing tools are essential for digital data security and privacy compliance in 2026.
@@ -2749,7 +2749,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/why-offline-pdf-editors-are-the-future-of-privacy" class="hover:text-emerald-500 transition-colors">Why Offline PDF Editors are the Future of Privacy</a>
+          <a href="/blog/why-offline-pdf-editors-are-the-future-of-privacy/" class="hover:text-emerald-500 transition-colors">Why Offline PDF Editors are the Future of Privacy</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Learn how offline PDF editors keep your files 100% secure and protected from online portal vulnerabilities.
@@ -2769,7 +2769,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/how-to-compress-pdf-without-losing-quality-locally" class="hover:text-emerald-500 transition-colors">How to Compress PDF Without Losing Quality Locally</a>
+          <a href="/blog/how-to-compress-pdf-without-losing-quality-locally/" class="hover:text-emerald-500 transition-colors">How to Compress PDF Without Losing Quality Locally</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           After scrubbing metadata, learn safe compression techniques to shrink PDF file sizes without degrading quality.
@@ -2834,7 +2834,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/free-pdf-e-signature-sign-documents-without-uploading" class="hover:text-emerald-500 transition-colors">Free PDF E-Signature: Sign Documents Without Uploading</a>
+          <a href="/blog/free-pdf-e-signature-sign-documents-without-uploading/" class="hover:text-emerald-500 transition-colors">Free PDF E-Signature: Sign Documents Without Uploading</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Learn how to sign legally binding documents for free without paid subscriptions or server uploads.
@@ -2889,7 +2889,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/the-complete-guide-to-pdf-metadata-and-how-to-remove-it" class="hover:text-emerald-500 transition-colors">The Complete Guide to PDF Metadata and How to Clean It</a>
+          <a href="/blog/the-complete-guide-to-pdf-metadata-and-how-to-remove-it/" class="hover:text-emerald-500 transition-colors">The Complete Guide to PDF Metadata and How to Clean It</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Find out how to clean device tags, author names, and software tracking info from your PDF before sharing it.
@@ -2954,7 +2954,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/how-to-compress-pdf-without-losing-quality-locally" class="hover:text-emerald-500 transition-colors">How to Compress PDF Without Losing Quality Locally</a>
+          <a href="/blog/how-to-compress-pdf-without-losing-quality-locally/" class="hover:text-emerald-500 transition-colors">How to Compress PDF Without Losing Quality Locally</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Troubled by large files when sending emails? Learn how to shrink PDF size locally without losing document quality.
@@ -3059,7 +3059,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/why-offline-pdf-editors-are-the-future-of-privacy" class="hover:text-emerald-500 transition-colors">Why Offline PDF Editors are the Future of Privacy</a>
+          <a href="/blog/why-offline-pdf-editors-are-the-future-of-privacy/" class="hover:text-emerald-500 transition-colors">Why Offline PDF Editors are the Future of Privacy</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Learn how client-side browser technology guarantees maximum document privacy when batch processing files.
@@ -3144,7 +3144,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026" class="hover:text-emerald-500 transition-colors">Why Privacy-First PDF Tools Matter in 2026</a>
+          <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026/" class="hover:text-emerald-500 transition-colors">Why Privacy-First PDF Tools Matter in 2026</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Learn why privacy-first offline PDF tools are essential for protecting confidential agreements and personal files in the digital age.
@@ -3303,7 +3303,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/how-to-batch-process-50-pdfs-in-under-2-minutes" class="hover:text-emerald-500 transition-colors">How to Batch Process 50 PDFs in Under 2 Minutes</a>
+          <a href="/blog/how-to-batch-process-50-pdfs-in-under-2-minutes/" class="hover:text-emerald-500 transition-colors">How to Batch Process 50 PDFs in Under 2 Minutes</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Need to sign or process multiple documents at once? Learn how to bulk process PDF files quickly and for free.
@@ -3387,7 +3387,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Read</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026" class="hover:text-emerald-500 transition-colors">Why Privacy-First PDF Tools Matter in 2026</a>
+          <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026/" class="hover:text-emerald-500 transition-colors">Why Privacy-First PDF Tools Matter in 2026</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Discover why browser-side processing is critical to prevent data breaches when handling sensitive PDF documents.
@@ -3411,12 +3411,12 @@ export const TOOLS: ToolSEOInfo[] = [
         <li>Select "clear all" or remove individual fields (author, dates, GPS/XMP data)</li>
         <li>Download the cleaned file — the original never touched a remote server</li>
       </ol>
-      <p>PDFMinty's <a href="/sanitize-pdf" class="hover:text-emerald-500 transition-colors">Sanitize PDF tool</a> does exactly this: it strips author info, timestamps, embedded XMP/GPS data, and producer/software fields, running fully client-side in WebAssembly. Nothing is uploaded, logged, or stored — the processing happens on your own machine, the same principle covered in our earlier post on <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026" class="hover:text-emerald-500 transition-colors">why privacy-first PDF tools matter in 2026</a>.</p>
+      <p>PDFMinty's <a href="/sanitize-pdf/" class="hover:text-emerald-500 transition-colors">Sanitize PDF tool</a> does exactly this: it strips author info, timestamps, embedded XMP/GPS data, and producer/software fields, running fully client-side in WebAssembly. Nothing is uploaded, logged, or stored — the processing happens on your own machine, the same principle covered in our earlier post on <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026/" class="hover:text-emerald-500 transition-colors">why privacy-first PDF tools matter in 2026</a>.</p>
 
-      <p>If you only need to edit specific fields rather than wipe everything — for example, replacing your name with a company name before distribution — the <a href="/edit-metadata" class="hover:text-emerald-500 transition-colors">Edit Metadata tool</a> lets you update individual fields without touching the rest of the document.</p>
+      <p>If you only need to edit specific fields rather than wipe everything — for example, replacing your name with a company name before distribution — the <a href="/edit-metadata/" class="hover:text-emerald-500 transition-colors">Edit Metadata tool</a> lets you update individual fields without touching the rest of the document.</p>
 
       <h2>Metadata Removal vs. Password Protection: You Often Need Both</h2>
-      <p>Removing metadata hides who made the file and how. It does not stop someone from opening or copying the file itself. For documents that also need access control — contracts, financial statements, HR files — pair metadata removal with encryption using the <a href="/protect" class="hover:text-emerald-500 transition-colors">Protect PDF tool</a>, which adds AES-GCM password protection, also fully offline. Metadata removal handles the invisible fingerprint; password protection handles who gets in at all.</p>
+      <p>Removing metadata hides who made the file and how. It does not stop someone from opening or copying the file itself. For documents that also need access control — contracts, financial statements, HR files — pair metadata removal with encryption using the <a href="/protect/" class="hover:text-emerald-500 transition-colors">Protect PDF tool</a>, which adds AES-GCM password protection, also fully offline. Metadata removal handles the invisible fingerprint; password protection handles who gets in at all.</p>
 
       <h2>A Quick Pre-Send Checklist</h2>
       <p>Before sharing any PDF externally, it's worth a 30-second habit check:</p>
@@ -3447,7 +3447,7 @@ export const TOOLS: ToolSEOInfo[] = [
           Try PDFMinty's Sanitize PDF tool — 100% free, private, and your file never leaves your browser.
         </p>
         <div class="pt-2">
-          <a href="/sanitize-pdf" class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all shadow-md">
+          <a href="/sanitize-pdf/" class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all shadow-md">
             Sanitize PDF Now (Free & Offline)
           </a>
         </div>
@@ -3484,10 +3484,10 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>What We Offer: 22+ Free Online PDF Tools</h2>
       <p>PdfMinty provides a comprehensive, growing suite of 22 powerful PDF tools designed for speed, accuracy, and absolute confidentiality:</p>
       <ul>
-        <li><strong>PDF Organization:</strong> <a href="/merge-pdf">Merge PDF</a>, <a href="/split-pdf">Split PDF</a>, <a href="/rotate-pdf">Rotate PDF</a>, <a href="/delete-pages-pdf">Delete Pages</a>, <a href="/extract-pages-pdf">Extract Pages</a>, <a href="/reorder-pdf">Reorder Pages</a>, and <a href="/add-blank-page">Add Blank Page</a>.</li>
-        <li><strong>Privacy & Security:</strong> <a href="/sanitize-pdf">Sanitize PDF</a> (remove hidden author details, timestamps, and GPS/XMP data), <a href="/edit-pdf-metadata">Edit Metadata</a>, <a href="/protect-pdf">Protect PDF</a> (AES-GCM encryption), <a href="/unlock-pdf">Unlock PDF</a>, and <a href="/sign-pdf">Free e-Signatures</a>.</li>
-        <li><strong>Conversion & Formatting:</strong> <a href="/image-to-pdf">Image to PDF</a>, <a href="/pdf-to-image">PDF to Image</a>, <a href="/pdf-to-markdown">PDF to Markdown</a>, <a href="/grayscale-pdf">Grayscale PDF</a>, <a href="/flatten-pdf">Flatten PDF</a>, <a href="/repair-pdf">Repair PDF</a>, <a href="/add-page-numbers">Add Page Numbers</a>, and <a href="/watermark-pdf">Watermark PDF</a>.</li>
-        <li><strong>AI & OCR Intelligence:</strong> <a href="/ocr-pdf">OCR PDF</a> for extracting text from scanned images, and <a href="/ai-analyze-pdf">AI Analyze PDF</a> for local document summaries and structural insights.</li>
+        <li><strong>PDF Organization:</strong> <a href="/merge-pdf/">Merge PDF</a>, <a href="/split-pdf/">Split PDF</a>, <a href="/rotate-pdf/">Rotate PDF</a>, <a href="/delete-pages-pdf/">Delete Pages</a>, <a href="/extract-pages-pdf/">Extract Pages</a>, <a href="/reorder-pdf/">Reorder Pages</a>, and <a href="/add-blank-page/">Add Blank Page</a>.</li>
+        <li><strong>Privacy & Security:</strong> <a href="/sanitize-pdf/">Sanitize PDF</a> (remove hidden author details, timestamps, and GPS/XMP data), <a href="/edit-pdf-metadata/">Edit Metadata</a>, <a href="/protect-pdf/">Protect PDF</a> (AES-GCM encryption), <a href="/unlock-pdf/">Unlock PDF</a>, and <a href="/sign-pdf/">Free e-Signatures</a>.</li>
+        <li><strong>Conversion & Formatting:</strong> <a href="/image-to-pdf/">Image to PDF</a>, <a href="/pdf-to-image/">PDF to Image</a>, <a href="/pdf-to-markdown/">PDF to Markdown</a>, <a href="/grayscale-pdf/">Grayscale PDF</a>, <a href="/flatten-pdf/">Flatten PDF</a>, <a href="/repair-pdf/">Repair PDF</a>, <a href="/add-page-numbers/">Add Page Numbers</a>, and <a href="/watermark-pdf/">Watermark PDF</a>.</li>
+        <li><strong>AI & OCR Intelligence:</strong> <a href="/ocr-pdf/">OCR PDF</a> for extracting text from scanned images, and <a href="/ai-analyze-pdf/">AI Analyze PDF</a> for local document summaries and structural insights.</li>
       </ul>
 
       <h2>Who Runs PdfMinty</h2>
@@ -3600,7 +3600,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>Follow these four easy steps to combine your PDF files quickly and safely on any device (computer, tablet, or phone):</p>
 
       <h3>Step 1: Open the Merge PDF Tool on PdfMinty</h3>
-      <p>Go to <a href="https://pdfminty.com/merge-pdf">PdfMinty.com/merge-pdf</a>. You do not need to create an account, log in, or enter a credit card number. The tool is immediately ready to use.</p>
+      <p>Go to <a href="https://pdfminty.com/merge-pdf/">PdfMinty.com/merge-pdf</a>. You do not need to create an account, log in, or enter a credit card number. The tool is immediately ready to use.</p>
 
       <h3>Step 2: Add Your PDF Files</h3>
       <p>Click the big green button that says <strong>"Choose Files"</strong> or simply drag and drop your PDF documents directly into the box on your screen. You can select two files, ten files, or even more at once.</p>
@@ -3650,7 +3650,7 @@ export const TOOLS: ToolSEOInfo[] = [
             Try PdfMinty's Merge PDF tool right now — 100% free, lightning-fast, and completely private in your browser.
           </p>
           <div class="pt-2">
-            <a href="/merge-pdf" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+            <a href="/merge-pdf/" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
               <span>Merge PDFs Now (Free & Private)</span>
               <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
             </a>
@@ -3738,7 +3738,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>Follow these easy steps to reduce your PDF file size in seconds:</p>
 
       <h3>Step 1: Open the PDF Optimization Article or Grayscale Tool</h3>
-      <p>Visit <a href="https://pdfminty.com/blog/how-to-compress-a-pdf-without-losing-quality-2026">PdfMinty Compression Guide</a> or use our local <a href="https://pdfminty.com/grayscale-pdf">Grayscale PDF Tool</a> to reduce file footprint.</p>
+      <p>Visit <a href="https://pdfminty.com/blog/how-to-compress-a-pdf-without-losing-quality-2026/">PdfMinty Compression Guide</a> or use our local <a href="https://pdfminty.com/grayscale-pdf/">Grayscale PDF Tool</a> to reduce file footprint.</p>
 
       <h3>Step 2: Drop Your Oversized PDF File</h3>
       <p>Click <strong>"Choose File"</strong> or simply drag and drop your large PDF into the green drop zone on the screen.</p>
@@ -3786,7 +3786,7 @@ export const TOOLS: ToolSEOInfo[] = [
             Try PdfMinty's free PDF compressor — 100% private, zero uploads, and instant quality optimization.
           </p>
           <div class="pt-2">
-            <a href="/blog/how-to-compress-a-pdf-without-losing-quality-2026" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+            <a href="/blog/how-to-compress-a-pdf-without-losing-quality-2026/" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
               <span>Read Compression Guide (Free & Private)</span>
               <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
             </a>
@@ -3862,7 +3862,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>Step-by-Step Guide: How to Password Protect a PDF in 3 Easy Steps</h2>
 
       <h3>Step 1: Open PdfMinty's Protect PDF Tool</h3>
-      <p>Visit <a href="https://pdfminty.com/protect-pdf">PdfMinty.com/protect-pdf</a>. The tool loads instantly in your web browser with no registration or fees required.</p>
+      <p>Visit <a href="https://pdfminty.com/protect-pdf/">PdfMinty.com/protect-pdf</a>. The tool loads instantly in your web browser with no registration or fees required.</p>
 
       <h3>Step 2: Upload Your File and Set a Strong Password</h3>
       <p>Click <strong>"Choose File"</strong> or drag and drop your PDF file into the drop box. Type in a secret password in the password input field. Be sure to use a combination of uppercase letters, numbers, and symbols to make your lock extra secure!</p>
@@ -3913,7 +3913,7 @@ export const TOOLS: ToolSEOInfo[] = [
             Protect your sensitive documents in 3 easy steps — 100% free, private, and encrypted inside your browser.
           </p>
           <div class="pt-2">
-            <a href="/protect-pdf" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+            <a href="/protect-pdf/" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
               <span>Protect PDF Now (Free & Private)</span>
               <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
             </a>
@@ -4009,7 +4009,7 @@ export const TOOLS: ToolSEOInfo[] = [
 
       <p>That schedule change is worth sitting with for a second. Security teams don't add a second monthly patch cycle because things have gotten quieter. They add one because the volume and urgency of fixes needed a faster release cadence than the old monthly rhythm could support.</p>
 
-      <p>None of this means Adobe is uniquely careless — large, deeply integrated software suites accumulate a large attack surface almost by definition. Acrobat isn't just a PDF viewer anymore; it's a desktop app, a cloud sync client, a plugin host, and an integration point for dozens of other tools. Every one of those is a place a vulnerability can live. Learn more about <a href="/adobe-acrobat-alternative">switching from Adobe Acrobat to a free offline alternative</a>.</p>
+      <p>None of this means Adobe is uniquely careless — large, deeply integrated software suites accumulate a large attack surface almost by definition. Acrobat isn't just a PDF viewer anymore; it's a desktop app, a cloud sync client, a plugin host, and an integration point for dozens of other tools. Every one of those is a place a vulnerability can live. Learn more about <a href="/adobe-acrobat-alternative/">switching from Adobe Acrobat to a free offline alternative</a>.</p>
 
       <h2>Why This Matters for How You Handle Your Files</h2>
       <p>Here's the part that's easy to miss: the risk isn't only "is the software buggy." It's "what does the software do with my file while it's buggy." A tool that uploads your document to a server, stores it in the cloud, and syncs it across devices is exposed to a much bigger blast radius if something goes wrong — server breaches, account compromise, plugin exploits — than a tool that never sends your file anywhere in the first place.</p>
@@ -4033,7 +4033,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>The Takeaway</h2>
       <p>Adobe's patch cadence isn't a scandal — big software has bugs, and patching fast is the correct response. But it's a good moment to ask what your PDF tool actually does with your file the second you hand it over. If the answer is "uploads it somewhere," that's one more system that has to stay secure on your behalf. If the answer is "never leaves your browser," that's one less thing to worry about — which is the whole idea behind how PdfMinty is built.</p>
 
-      <p>Whether you need to <a href="/protect-pdf">password-protect a sensitive PDF</a>, <a href="/unlock-pdf">unlock a document you own</a>, or <a href="/sanitize-pdf">sanitize hidden metadata</a>, PdfMinty runs 100% locally on your machine.</p>
+      <p>Whether you need to <a href="/protect-pdf/">password-protect a sensitive PDF</a>, <a href="/unlock-pdf/">unlock a document you own</a>, or <a href="/sanitize-pdf/">sanitize hidden metadata</a>, PdfMinty runs 100% locally on your machine.</p>
 
       <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
         <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -4050,7 +4050,7 @@ export const TOOLS: ToolSEOInfo[] = [
             Process your documents 100% in your browser. No account required, no file uploads, and no hidden subscriptions.
           </p>
           <div class="pt-2">
-            <a href="/adobe-acrobat-alternative" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
+            <a href="/adobe-acrobat-alternative/" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
               <span>Explore Free Adobe Acrobat Alternative</span>
               <span class="text-lg leading-none transition-transform duration-200 group-hover:translate-x-1">→</span>
             </a>
@@ -4111,13 +4111,13 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>What Are These Tools? A Quick Overview</h2>
       
       <h3>ILovePDF</h3>
-      <p>ILovePDF has been around since 2010 and is one of the most recognized names in online PDF tools. It offers a wide range of features including <a href="/merge-pdf">merge</a>, <a href="/split-pdf">split</a>, compress, convert, and more. However, it operates on a server-upload model — meaning your files are sent to their servers for processing.</p>
+      <p>ILovePDF has been around since 2010 and is one of the most recognized names in online PDF tools. It offers a wide range of features including <a href="/merge-pdf/">merge</a>, <a href="/split-pdf/">split</a>, compress, convert, and more. However, it operates on a server-upload model — meaning your files are sent to their servers for processing.</p>
       
       <h3>Smallpdf</h3>
       <p>Smallpdf is a Swiss-based PDF platform known for its clean interface and broad feature set. It's popular in enterprise environments and offers integrations with Google Drive and Dropbox. Like ILovePDF, it uploads your files to the cloud for processing.</p>
       
       <h3>PdfMinty</h3>
-      <p>PdfMinty is the privacy-first challenger in this space. Built on modern browser technology, PdfMinty delivers <a href="/is-it-safe-to-upload-pdf-to-online-tools">100% browser-side processing</a> — no upload needed. Your files never leave your computer, making it the most secure option for sensitive documents.</p>
+      <p>PdfMinty is the privacy-first challenger in this space. Built on modern browser technology, PdfMinty delivers <a href="/is-it-safe-to-upload-pdf-to-online-tools/">100% browser-side processing</a> — no upload needed. Your files never leave your computer, making it the most secure option for sensitive documents.</p>
 
       <h2>Feature-by-Feature Comparison</h2>
       
@@ -4197,11 +4197,11 @@ export const TOOLS: ToolSEOInfo[] = [
       </div>
 
       <h2>Privacy: The Most Important Factor Nobody Talks About</h2>
-      <p>Here's the uncomfortable truth about most online PDF tools: when you upload a file, you lose control of it. Check out our detailed guide on <a href="/is-it-safe-to-upload-pdf-to-online-tools">is it safe to upload PDFs to online tools</a> to learn more about server risks.</p>
+      <p>Here's the uncomfortable truth about most online PDF tools: when you upload a file, you lose control of it. Check out our detailed guide on <a href="/is-it-safe-to-upload-pdf-to-online-tools/">is it safe to upload PDFs to online tools</a> to learn more about server risks.</p>
       
       <p>ILovePDF and Smallpdf both process files on remote servers. That means your documents — contracts, medical records, financial statements, legal agreements — travel across the internet and sit on someone else's server, even if only temporarily.</p>
       
-      <p>Both companies claim to delete files after a set period (usually 1–2 hours). But "claimed deletion" is not the same as guaranteed privacy. Server logs, caching, and third-party integrations can all create exposure points. Learn why <a href="/blog/why-offline-pdf-editors-are-the-future-of-privacy">browser-based PDF editing is more secure</a> in our technical breakdown.</p>
+      <p>Both companies claim to delete files after a set period (usually 1–2 hours). But "claimed deletion" is not the same as guaranteed privacy. Server logs, caching, and third-party integrations can all create exposure points. Learn why <a href="/blog/why-offline-pdf-editors-are-the-future-of-privacy/">browser-based PDF editing is more secure</a> in our technical breakdown.</p>
       
       <p><strong>PdfMinty takes a fundamentally different approach.</strong> With 100% browser-side processing, your PDF is handled entirely within your own browser using JavaScript and WebAssembly. The file never leaves your device. There's no upload, no server storage, and no deletion policy needed — because nothing was ever sent anywhere.</p>
 
@@ -4260,14 +4260,14 @@ export const TOOLS: ToolSEOInfo[] = [
       <ul>
         <li>Privacy is non-negotiable for your documents</li>
         <li>You want the fastest processing without upload delays</li>
-        <li>You need batch processing or want to <a href="/sign-pdf">digitally sign PDFs</a> securely</li>
-        <li>You need to <a href="/blog/how-to-compress-a-pdf-without-losing-quality-2026">reduce PDF file sizes</a> or <a href="/blog/how-to-convert-pdf-to-word-for-free-2026">convert PDF to Word for free</a></li>
+        <li>You need batch processing or want to <a href="/sign-pdf/">digitally sign PDFs</a> securely</li>
+        <li>You need to <a href="/blog/how-to-compress-a-pdf-without-losing-quality-2026/">reduce PDF file sizes</a> or <a href="/blog/how-to-convert-pdf-to-word-for-free-2026/">convert PDF to Word for free</a></li>
         <li>You're signing contracts, handling medical records, or processing financial documents</li>
       </ul>
 
       <h2>The Verdict: PdfMinty Is the Smarter Choice in 2026</h2>
       <p>ILovePDF and Smallpdf are solid tools with years of history. But in 2026, privacy, speed, and value are the metrics that matter most — and PdfMinty wins on all three.</p>
-      <p>Whether you're <a href="/merge-pdf">merging documents</a>, <a href="/split-pdf">splitting pages</a>, <a href="/sign-pdf">signing contracts</a>, or <a href="/sanitize-pdf">clearing hidden metadata</a>, PdfMinty delivers a faster, safer, and more affordable experience than its competitors.</p>
+      <p>Whether you're <a href="/merge-pdf/">merging documents</a>, <a href="/split-pdf/">splitting pages</a>, <a href="/sign-pdf/">signing contracts</a>, or <a href="/sanitize-pdf/">clearing hidden metadata</a>, PdfMinty delivers a faster, safer, and more affordable experience than its competitors.</p>
 
       <div class="not-prose my-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/30 group">
         <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -4379,18 +4379,18 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>If you compress a PDF that was already compressed, you're applying lossy compression twice — which degrades quality significantly with minimal size reduction.</p>
 
       <h3>Mistake #3: Using Untrusted Online Tools</h3>
-      <p>Many free online PDF compressors upload your file to a remote server. This is a privacy risk, especially for sensitive documents. Check out our <a href="/is-it-safe-to-upload-pdf-to-online-tools">online PDF security guide</a> to learn why server uploads expose your files.</p>
+      <p>Many free online PDF compressors upload your file to a remote server. This is a privacy risk, especially for sensitive documents. Check out our <a href="/is-it-safe-to-upload-pdf-to-online-tools/">online PDF security guide</a> to learn why server uploads expose your files.</p>
 
       <h3>Mistake #4: Not Previewing Before Downloading</h3>
       <p>Always preview the compressed PDF before downloading. Check that text is sharp, images look acceptable, and no pages are missing.</p>
 
       <h2>How to Reduce PDF Size Safely with Browser-Side PDF Tools</h2>
-      <p>PdfMinty provides the fastest and most private browser-side PDF suite in 2026. Here's why it stands out: <a href="/blog/why-offline-pdf-editors-are-the-future-of-privacy">100% browser-side processing</a> — no file uploads needed. Your file never leaves your device.</p>
+      <p>PdfMinty provides the fastest and most private browser-side PDF suite in 2026. Here's why it stands out: <a href="/blog/why-offline-pdf-editors-are-the-future-of-privacy/">100% browser-side processing</a> — no file uploads needed. Your file never leaves your device.</p>
 
       <h3>Step-by-Step Guide: Trimming & Optimizing PDFs</h3>
       <ol class="list-decimal pl-6 space-y-3 mb-6">
         <li><strong>Step 1: Visit PdfMinty.com</strong><br />Open your browser and navigate to pdfminty.com. No account creation required.</li>
-        <li><strong>Step 2: Select a Tool (<a href="/split-pdf">Split PDF</a>, <a href="/delete-pages-pdf">Delete Pages</a>, or <a href="/sanitize-pdf">Sanitize PDF</a>)</strong><br />Choose the appropriate tool from the homepage depending on your task.</li>
+        <li><strong>Step 2: Select a Tool (<a href="/split-pdf/">Split PDF</a>, <a href="/delete-pages-pdf/">Delete Pages</a>, or <a href="/sanitize-pdf/">Sanitize PDF</a>)</strong><br />Choose the appropriate tool from the homepage depending on your task.</li>
         <li><strong>Step 3: Load Your PDF (Locally)</strong><br />Drag your PDF into the upload area or click to browse. Remember — this file stays on your device. PdfMinty processes it entirely within your browser.</li>
         <li><strong>Step 4: Remove Unnecessary Pages or Metadata</strong><br />Select specific pages to extract or remove heavy unneeded sections to slim down your file instantly.</li>
         <li><strong>Step 5: Process Instantly</strong><br />PdfMinty handles the document instantly using your device's browser engine. No upload wait time. No server queue.</li>
@@ -4399,7 +4399,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>That's it. You get a clean, perfectly structured PDF in seconds — without ever uploading sensitive records to a remote server.</p>
 
       <h2>PdfMinty vs. Other Online PDF Platforms</h2>
-      <p>Check out our detailed comparison guide on <a href="/blog/ilovepdf-vs-smallpdf-vs-pdfminty-2026">ILovePDF vs Smallpdf vs PdfMinty</a> to see how different platforms compare on privacy, features, and processing speed.</p>
+      <p>Check out our detailed comparison guide on <a href="/blog/ilovepdf-vs-smallpdf-vs-pdfminty-2026/">ILovePDF vs Smallpdf vs PdfMinty</a> to see how different platforms compare on privacy, features, and processing speed.</p>
       <div class="overflow-x-auto my-6">
         <table class="w-full text-left border-collapse border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
           <thead>
@@ -4456,8 +4456,8 @@ export const TOOLS: ToolSEOInfo[] = [
       <ul>
         <li><strong>Tip 1: Start with Medium Compression Settings in Your PDF Generator</strong><br />When creating PDFs from Word or Canva, choose medium export quality for a balanced size.</li>
         <li><strong>Tip 2: Optimize Images Before Creating the PDF</strong><br />If you're creating a PDF from scratch, resize images to 150–300 DPI before embedding them. This reduces the source file size before compression even begins.</li>
-        <li><strong>Tip 3: Remove Unnecessary Pages with Split PDF</strong><br />Use PdfMinty's <a href="/split-pdf">split PDF</a> or <a href="/delete-pages-pdf">delete pages</a> tools to remove blank pages, extra covers, or appendix sections you don't need. Fewer pages = smaller file size.</li>
-        <li><strong>Tip 4: Sanitize & Clean Metadata</strong><br />Remove hidden streams, embedded scripts, or heavy metadata attachments using PdfMinty's <a href="/sanitize-pdf">Sanitize PDF tool</a>. You can also learn <a href="/blog/how-to-convert-pdf-to-word-for-free-2026">how to convert PDF to Word for free</a> if you need to edit document content directly.</li>
+        <li><strong>Tip 3: Remove Unnecessary Pages with Split PDF</strong><br />Use PdfMinty's <a href="/split-pdf/">split PDF</a> or <a href="/delete-pages-pdf/">delete pages</a> tools to remove blank pages, extra covers, or appendix sections you don't need. Fewer pages = smaller file size.</li>
+        <li><strong>Tip 4: Sanitize & Clean Metadata</strong><br />Remove hidden streams, embedded scripts, or heavy metadata attachments using PdfMinty's <a href="/sanitize-pdf/">Sanitize PDF tool</a>. You can also learn <a href="/blog/how-to-convert-pdf-to-word-for-free-2026/">how to convert PDF to Word for free</a> if you need to edit document content directly.</li>
       </ul>
 
       <h2>When Should You NOT Compress a PDF?</h2>
@@ -4526,7 +4526,7 @@ export const TOOLS: ToolSEOInfo[] = [
       },
       {
         q: 'Can I convert a password-protected PDF to Word?',
-        a: 'You\'ll need to remove the password first. Use PdfMinty\'s <a href="/unlock-pdf">PDF unlock tool</a>, then convert.',
+        a: 'You\'ll need to remove the password first. Use PdfMinty\'s <a href="/unlock-pdf/">PDF unlock tool</a>, then convert.',
       },
       {
         q: 'Does converting a PDF to Word reduce quality?',
@@ -4575,7 +4575,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>The Best Free PDF to Word Converters in 2026</h2>
 
       <h3>1. PdfMinty — Best for Privacy + Speed</h3>
-      <p>PdfMinty stands out from every other converter on this list for one critical reason: <a href="/is-it-safe-to-upload-pdf-to-online-tools">100% browser-side processing</a> — no upload needed. You can also compare PdfMinty against other leading converters in our <a href="/blog/ilovepdf-vs-smallpdf-vs-pdfminty-2026">ILovePDF vs Smallpdf vs PdfMinty comparison</a>.</p>
+      <p>PdfMinty stands out from every other converter on this list for one critical reason: <a href="/is-it-safe-to-upload-pdf-to-online-tools/">100% browser-side processing</a> — no upload needed. You can also compare PdfMinty against other leading converters in our <a href="/blog/ilovepdf-vs-smallpdf-vs-pdfminty-2026/">ILovePDF vs Smallpdf vs PdfMinty comparison</a>.</p>
       <p>When you convert a PDF to Word using PdfMinty, the entire process happens inside your browser. Your document never travels to a remote server. This is essential for anyone converting contracts, medical records, financial documents, or any sensitive material.</p>
       <p><strong>Pros:</strong></p>
       <ul>
@@ -4671,8 +4671,8 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>Pro Tips for Better PDF to Word Conversions</h2>
       <ul>
         <li><strong>Tip 1: Use the Original Source File When Possible</strong><br />If you created the PDF from a Word document, go back to the original .docx file instead of converting.</li>
-        <li><strong>Tip 2: Convert Page by Page for Complex Documents</strong><br />For very complex layouts, try <a href="/split-pdf">splitting the PDF</a> into individual pages and converting them separately.</li>
-        <li><strong>Tip 3: Optimize Large File Sizes Before Sharing</strong><br />If your output file or source document is too large to email, check out our guide on <a href="/blog/how-to-compress-a-pdf-without-losing-quality-2026">how to compress a PDF without losing quality</a>.</li>
+        <li><strong>Tip 2: Convert Page by Page for Complex Documents</strong><br />For very complex layouts, try <a href="/split-pdf/">splitting the PDF</a> into individual pages and converting them separately.</li>
+        <li><strong>Tip 3: Optimize Large File Sizes Before Sharing</strong><br />If your output file or source document is too large to email, check out our guide on <a href="/blog/how-to-compress-a-pdf-without-losing-quality-2026/">how to compress a PDF without losing quality</a>.</li>
         <li><strong>Tip 4: Check for Hidden Text Layers</strong><br />Some scanned PDFs have an invisible text layer added by OCR software. These convert much better than pure image PDFs.</li>
       </ul>
 
@@ -4857,7 +4857,7 @@ export const TOOLS: ToolSEOInfo[] = [
         <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
           <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Does PDFMinty have AI features like SmallPDF?</h3>
           <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
-            Not currently. If you specifically need AI summarization or "chat with your PDF," that's a real gap — SmallPDF (and PDFMinty's own <a href="/ai-analyze-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold underline">/ai-analyze-pdf</a> tool, where applicable) covers that differently.
+            Not currently. If you specifically need AI summarization or "chat with your PDF," that's a real gap — SmallPDF (and PDFMinty's own <a href="/ai-analyze-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold underline">/ai-analyze-pdf</a> tool, where applicable) covers that differently.
           </p>
         </div>
 
@@ -5278,7 +5278,7 @@ export const TOOLS: ToolSEOInfo[] = [
             Ready to Try 100% In-Browser PDF Processing?
           </h3>
           <p class="text-sm text-slate-300 m-0 leading-relaxed font-medium">
-            <a href="/merge-pdf" class="text-emerald-400 font-bold hover:underline">Merge</a> or <a href="/protect-pdf" class="text-emerald-400 font-bold hover:underline">password-protect</a> your next file without it ever leaving your device.
+            <a href="/merge-pdf/" class="text-emerald-400 font-bold hover:underline">Merge</a> or <a href="/protect-pdf/" class="text-emerald-400 font-bold hover:underline">password-protect</a> your next file without it ever leaving your device.
           </p>
           <div class="pt-2">
             <a href="/#all-tools" class="btn-link inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline !no-underline border-0 cursor-pointer">
@@ -5365,7 +5365,7 @@ export const TOOLS: ToolSEOInfo[] = [
 
       <p>This is what most people actually mean when they search "how to make a PDF" — they don't want to build a document from scratch, they want to turn something they already have into a proper PDF file.</p>
 
-      <p>With <a href="/image-to-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PdfMinty's Image to PDF tool</a>, you can:</p>
+      <p>With <a href="/image-to-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PdfMinty's Image to PDF tool</a>, you can:</p>
 
       <ul class="space-y-2 my-4">
         <li>Drag in one or more JPG or PNG files</li>
@@ -5389,7 +5389,7 @@ export const TOOLS: ToolSEOInfo[] = [
 
       <p>If you've got a resume plus a cover letter, three scanned pages of the same form, or a set of invoices you need to send as one document, converting isn't the problem — combining is.</p>
 
-      <p><a href="/merge-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PdfMinty's Merge tool</a> lets you:</p>
+      <p><a href="/merge-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PdfMinty's Merge tool</a> lets you:</p>
 
       <ul class="space-y-2 my-4">
         <li>Upload multiple PDFs (or images converted with Method 1)</li>
@@ -5397,7 +5397,7 @@ export const TOOLS: ToolSEOInfo[] = [
         <li>Download a single, correctly ordered PDF</li>
       </ul>
 
-      <p>If your merged document needs a spacer — for double-sided printing, a section break, or a placeholder for a signature page — <a href="/add-blank-page" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">the Add Blank Page tool</a> inserts one exactly where you need it, without re-uploading the whole file to a different tool.</p>
+      <p>If your merged document needs a spacer — for double-sided printing, a section break, or a placeholder for a signature page — <a href="/add-blank-page/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">the Add Blank Page tool</a> inserts one exactly where you need it, without re-uploading the whole file to a different tool.</p>
 
       <p>This method is commonly used for:</p>
 
@@ -5414,10 +5414,10 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>Sometimes "making a PDF" isn't about converting something you already have — it's about producing a finished, professional document. PdfMinty's toolkit lets you start from a blank canvas and layer on the finishing touches:</p>
 
       <ul class="space-y-3 my-4">
-        <li><a href="/add-blank-page" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Add a blank page</a> to start your document or insert new sections</li>
-        <li><a href="/add-page-numbers" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Add page numbers</a> so a multi-page document reads cleanly</li>
-        <li><a href="/watermark-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Add a watermark</a> — "Draft," "Confidential," or your own logo — across every page</li>
-        <li><a href="/protect-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Password-protect the file</a> before you send it, so only the intended reader can open it</li>
+        <li><a href="/add-blank-page/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Add a blank page</a> to start your document or insert new sections</li>
+        <li><a href="/add-page-numbers/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Add page numbers</a> so a multi-page document reads cleanly</li>
+        <li><a href="/watermark-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Add a watermark</a> — "Draft," "Confidential," or your own logo — across every page</li>
+        <li><a href="/protect-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Password-protect the file</a> before you send it, so only the intended reader can open it</li>
       </ul>
 
       <p>This combination is popular for:</p>
@@ -5476,9 +5476,9 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>How to Choose the Right Method</h2>
 
       <ul class="space-y-2 my-4">
-        <li><strong>Start with a photo, scan, or image?</strong> → Use <a href="/image-to-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Image to PDF</a>.</li>
-        <li><strong>Already have two or more files to combine?</strong> → Use <a href="/merge-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Merge</a> (add a blank page if you need a spacer).</li>
-        <li><strong>Building something new, like a report or contract?</strong> → Start with a <a href="/add-blank-page" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">blank page</a>, then add <a href="/add-page-numbers" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">page numbers</a>, a <a href="/watermark-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">watermark</a>, or a <a href="/protect-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">password</a>.</li>
+        <li><strong>Start with a photo, scan, or image?</strong> → Use <a href="/image-to-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Image to PDF</a>.</li>
+        <li><strong>Already have two or more files to combine?</strong> → Use <a href="/merge-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Merge</a> (add a blank page if you need a spacer).</li>
+        <li><strong>Building something new, like a report or contract?</strong> → Start with a <a href="/add-blank-page/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">blank page</a>, then add <a href="/add-page-numbers/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">page numbers</a>, a <a href="/watermark-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">watermark</a>, or a <a href="/protect-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">password</a>.</li>
       </ul>
 
       <h2>Frequently Asked Questions</h2>
@@ -5639,7 +5639,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
         <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-2">💡 Recommended Tool</span>
         <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">
-          <a href="/merge-pdf" class="hover:text-emerald-500 transition-colors">Client-Side PDF Merger</a>
+          <a href="/merge-pdf/" class="hover:text-emerald-500 transition-colors">Client-Side PDF Merger</a>
         </h4>
         <p class="text-sm text-slate-600 dark:text-slate-400 m-0">
           Combine multiple PDF files instantly in your browser memory without cloud file uploads.
@@ -5654,7 +5654,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>A trustworthy PDF service should explain its architecture and limitations clearly. Avoid treating phrases such as “absolute security” or “zero risk” as substitutes for verifiable technical information.</p>
 
       <h2>Which PDF Tasks Can Be Done Without Uploading?</h2>
-      <p>Many everyday PDF tasks can be completed with browser-based tools. You can combine invoices, reports, or chapters with a <a href="/merge-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF merge tool</a>. You can separate selected pages from a long document, reduce a file’s size before emailing it, add a watermark, or apply protection to a document before sharing it.</p>
+      <p>Many everyday PDF tasks can be completed with browser-based tools. You can combine invoices, reports, or chapters with a <a href="/merge-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF merge tool</a>. You can separate selected pages from a long document, reduce a file’s size before emailing it, add a watermark, or apply protection to a document before sharing it.</p>
 
       <p>Not every PDF operation has the same technical requirements. Simple page organization may be relatively lightweight, while OCR, image-heavy documents, large batches, or complex font and layout processing may depend more heavily on device memory and browser capability. A responsible tool should explain these limitations rather than implying that every file will process at the same speed on every device.</p>
 
@@ -5669,32 +5669,32 @@ export const TOOLS: ToolSEOInfo[] = [
           </thead>
           <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
             <tr>
-              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/merge-pdf">Merge PDF</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/merge-pdf/">Merge PDF</a></td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Combine reports, invoices, or chapters</td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">File order, bookmarks, and memory usage</td>
             </tr>
             <tr>
-              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/split-pdf">Split PDF</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/split-pdf/">Split PDF</a></td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Extract sections from a large document</td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Page ranges and output naming</td>
             </tr>
             <tr>
-              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/grayscale-pdf">Compress PDF</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/grayscale-pdf/">Compress PDF</a></td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Reduce file size for email or sharing</td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Visual quality, image resolution, and target size</td>
             </tr>
             <tr>
-              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/protect-pdf">Protect PDF</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/protect-pdf/">Protect PDF</a></td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Add password protection or permissions</td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Password recovery limitations</td>
             </tr>
             <tr>
-              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/watermark-pdf">Watermark PDF</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/watermark-pdf/">Watermark PDF</a></td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Mark drafts, confidential copies, or internal documents</td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Watermark position and readability</td>
             </tr>
             <tr>
-              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/sanitize-pdf">Remove metadata</a></td>
+              <td class="p-3 border border-slate-200 dark:border-slate-800 font-bold text-emerald-600 dark:text-emerald-400"><a href="/sanitize-pdf/">Remove metadata</a></td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Reduce author, title, and software information</td>
               <td class="p-3 border border-slate-200 dark:border-slate-800">Metadata removal does not remove visible content</td>
             </tr>
@@ -5703,14 +5703,14 @@ export const TOOLS: ToolSEOInfo[] = [
       </div>
 
       <h2>A Safer Workflow for Merging PDFs</h2>
-      <p>Start with a modern browser and make sure your device has enough available memory. Open the <a href="/merge-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Merge PDF tool</a>, select the required files, and review the order before processing. Check for duplicate pages, outdated versions, and unintended confidential attachments.</p>
+      <p>Start with a modern browser and make sure your device has enough available memory. Open the <a href="/merge-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">Merge PDF tool</a>, select the required files, and review the order before processing. Check for duplicate pages, outdated versions, and unintended confidential attachments.</p>
 
       <p>After the merge is complete, open the downloaded file and review the first page, last page, page count, hyperlinks, tables, fonts, and page order. If you are working on a shared computer, also check where the original and processed files were saved. Privacy is not only about avoiding uploads; it also includes device access, local downloads, backups, and account security.</p>
 
       <h2>How to Compress a PDF Without Losing Usability</h2>
       <p>The goal of PDF compression is not simply to make a file smaller. It is to reduce file size while preserving readability and practical quality. Text-based PDFs often behave differently from image-heavy scans. High-resolution images, embedded fonts, color data, transparency, and duplicated resources can all increase file size.</p>
 
-      <p>After compression, zoom in and inspect small text, signatures, stamps, charts, and images. If the PDF will be used for a legal, financial, or regulatory submission, keep the original file separately. Compare the original and compressed versions for file size, page count, visual clarity, and text searchability. See PdfMinty’s <a href="/blog/how-to-compress-a-pdf-without-losing-quality-2026" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF compression guide</a> for more practical guidance.</p>
+      <p>After compression, zoom in and inspect small text, signatures, stamps, charts, and images. If the PDF will be used for a legal, financial, or regulatory submission, keep the original file separately. Compare the original and compressed versions for file size, page count, visual clarity, and text searchability. See PdfMinty’s <a href="/blog/how-to-compress-a-pdf-without-losing-quality-2026/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF compression guide</a> for more practical guidance.</p>
 
       <h2>Five Privacy Precautions for Sensitive PDFs</h2>
       <ol>
@@ -5721,7 +5721,7 @@ export const TOOLS: ToolSEOInfo[] = [
         <li><strong>Scrub Hidden Metadata:</strong> Review PDF metadata because author names, organization names, software information, and hidden document properties can disclose more than you intended.</li>
       </ol>
 
-      <p>For more information, read PdfMinty’s <a href="/blog/how-to-remove-pdf-metadata-for-privacy" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF metadata removal guide</a> and <a href="/is-it-safe-to-upload-pdf-to-online-tools" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">online PDF upload safety guide</a>. Metadata removal is only one privacy step. It does not automatically remove visible content, embedded images, signatures, filenames, or information revealed by the document itself.</p>
+      <p>For more information, read PdfMinty’s <a href="/blog/how-to-remove-pdf-metadata-for-privacy/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF metadata removal guide</a> and <a href="/is-it-safe-to-upload-pdf-to-online-tools/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">online PDF upload safety guide</a>. Metadata removal is only one privacy step. It does not automatically remove visible content, embedded images, signatures, filenames, or information revealed by the document itself.</p>
 
       <h2>Are Cloud PDF Tools Always Bad?</h2>
       <p>No. Cloud processing can be useful for very large files, team workflows, server-scale OCR, and batch automation. The important issue is transparency. Users should be able to understand the processing architecture, retention period, access controls, encryption practices, account requirements, and deletion behavior.</p>
@@ -5769,7 +5769,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>Final Takeaway</h2>
       <p>Speed matters in PDF management, but <strong>privacy architecture matters even more when a document is sensitive</strong>. Before using a PDF tool, understand where processing occurs, what information is collected, how the output is generated, and what happens when something fails.</p>
 
-      <p>With PdfMinty’s browser-first PDF toolkit, you can explore <a href="/merge-pdf" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF merging</a>, splitting, compression, protection, watermarking, and other workflows. Start with a non-sensitive sample file, verify the workflow and network activity, review the output, and then decide whether the tool is appropriate for your document.</p>
+      <p>With PdfMinty’s browser-first PDF toolkit, you can explore <a href="/merge-pdf/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF merging</a>, splitting, compression, protection, watermarking, and other workflows. Start with a non-sensitive sample file, verify the workflow and network activity, review the output, and then decide whether the tool is appropriate for your document.</p>
 
       <p class="font-bold text-slate-900 dark:text-white">Next step: Try a sample PDF with PdfMinty, confirm the result, and build a privacy-conscious workflow that fits your device and document requirements.</p>
 

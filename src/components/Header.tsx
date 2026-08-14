@@ -65,13 +65,13 @@ export const Header: React.FC<HeaderProps> = ({
           >
             Tools
           </a>
-          <Link to="/blog" className="hover:text-emerald-500 transition-colors">
+          <Link to={ROUTES.BLOG} className="hover:text-emerald-500 transition-colors">
             Blog
           </Link>
           <Link to={ROUTES.ABOUT_US} className="hover:text-emerald-500 transition-colors">
             About
           </Link>
-          <Link to="/contact" className="hover:text-emerald-500 transition-colors">
+          <Link to={ROUTES.CONTACT} className="hover:text-emerald-500 transition-colors">
             Contact
           </Link>
         </nav>

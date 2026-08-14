@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 import { SITE_URL, SITE_NAME, TOOLS, FAQS } from '../config/seo-data';
+import { ROUTES } from '../config/routes';
 
 export const Breadcrumbs: React.FC = () => {
   const { pathname = '/' } = useLocation() || {};
@@ -60,7 +61,7 @@ export const Breadcrumbs: React.FC = () => {
       <span>/</span>
       {isArticle ? (
         <>
-          <Link to="/blog" className="hover:text-emerald-600 transition-colors uppercase font-sans">
+          <Link to={ROUTES.BLOG} className="hover:text-emerald-600 transition-colors uppercase font-sans">
             Knowledge Hub
           </Link>
           <span>/</span>
@@ -136,13 +137,13 @@ export default function InternalSEO() {
       }
     );
   } else if (cleanSlug === 'blog') {
-    // 2. Blog Index (`/blog`)
+    // 2. Blog Index (`/blog/`)
     structuredData.push(
       {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
         name: 'PdfMinty Knowledge Hub',
-        url: `${SITE_URL}/blog`,
+        url: `${SITE_URL}/blog/`,
         description: 'Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.',
         publisher: {
           '@type': 'Organization',
@@ -164,7 +165,7 @@ export default function InternalSEO() {
             '@type': 'ListItem',
             position: 2,
             name: 'Knowledge Hub',
-            item: `${SITE_URL}/blog`,
+            item: `${SITE_URL}/blog/`,
           },
         ],
       }
@@ -180,11 +181,16 @@ export default function InternalSEO() {
         '@type': 'WebApplication',
         name: `PdfMinty - ${seoInfo.name}`,
         description: seoInfo.shortDescription || seoInfo.metaDescription,
-        url: `${SITE_URL}/${seoInfo.slug}`,
+        url: `${SITE_URL}/${seoInfo.slug}/`,
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'All',
         browserRequirements: 'Requires HTML5, WebAssembly',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+        },
         featureList: [
           '100% client-side processing',
           'No file uploads to servers',
@@ -202,7 +208,7 @@ export default function InternalSEO() {
           totalTime: seoInfo.howTo.totalTime,
           step: seoInfo.howTo.steps.map((stepText, index) => ({
             '@type': 'HowToStep',
-            url: `${SITE_URL}/${seoInfo.slug}#step${index + 1}`,
+            url: `${SITE_URL}/${seoInfo.slug}/#step${index + 1}`,
             name: stepText,
             itemListElement: [{ '@type': 'HowToDirection', text: stepText }],
           })),
@@ -223,7 +229,7 @@ export default function InternalSEO() {
             '@type': 'ListItem',
             position: 2,
             name: seoInfo.name,
-            item: `${SITE_URL}/${seoInfo.slug}`,
+            item: `${SITE_URL}/${seoInfo.slug}/`,
           },
         ],
       });
@@ -249,11 +255,11 @@ export default function InternalSEO() {
           '@type': 'AboutPage',
           name: seoInfo.metaTitle,
           description: seoInfo.metaDescription,
-          url: `${SITE_URL}/about-us`,
+          url: `${SITE_URL}/about-us/`,
           publisher: {
             '@type': 'Organization',
             name: SITE_NAME,
-            url: SITE_URL,
+            url: `${SITE_URL}/`,
           },
         },
         {
@@ -270,7 +276,7 @@ export default function InternalSEO() {
               '@type': 'ListItem',
               position: 2,
               name: 'About Us',
-              item: `${SITE_URL}/about-us`,
+              item: `${SITE_URL}/about-us/`,
             },
           ],
         }
@@ -282,11 +288,11 @@ export default function InternalSEO() {
           '@type': 'ContactPage',
           name: seoInfo.metaTitle,
           description: seoInfo.metaDescription,
-          url: `${SITE_URL}/contact`,
+          url: `${SITE_URL}/contact/`,
           publisher: {
             '@type': 'Organization',
             name: SITE_NAME,
-            url: SITE_URL,
+            url: `${SITE_URL}/`,
           },
         },
         {
@@ -303,7 +309,7 @@ export default function InternalSEO() {
               '@type': 'ListItem',
               position: 2,
               name: 'Contact Us',
-              item: `${SITE_URL}/contact`,
+              item: `${SITE_URL}/contact/`,
             },
           ],
         }
@@ -315,7 +321,7 @@ export default function InternalSEO() {
           '@type': 'WebPage',
           name: seoInfo.metaTitle,
           description: seoInfo.metaDescription,
-          url: `${SITE_URL}/${cleanSlug}`,
+          url: `${SITE_URL}/${cleanSlug}/`,
         },
         {
           '@context': 'https://schema.org',
@@ -331,7 +337,7 @@ export default function InternalSEO() {
               '@type': 'ListItem',
               position: 2,
               name: seoInfo.name,
-              item: `${SITE_URL}/${cleanSlug}`,
+              item: `${SITE_URL}/${cleanSlug}/`,
             },
           ],
         }
@@ -342,13 +348,13 @@ export default function InternalSEO() {
         '@type': 'Article',
         headline: seoInfo.h1 || seoInfo.name,
         description: seoInfo.metaDescription,
-        url: `${SITE_URL}/${seoInfo.slug}`,
+        url: `${SITE_URL}/${seoInfo.slug}/`,
         datePublished: seoInfo.datePublished || '2026-07-16',
         dateModified: seoInfo.dateModified || seoInfo.datePublished || '2026-08-08',
         author: {
           '@type': 'Organization',
           name: 'PdfMinty Editorial Team',
-          url: SITE_URL,
+          url: `${SITE_URL}/`,
         },
         publisher: {
           '@type': 'Organization',
@@ -366,7 +372,7 @@ export default function InternalSEO() {
         },
         mainEntityOfPage: {
           '@type': 'WebPage',
-          '@id': `${SITE_URL}/${seoInfo.slug}`,
+          '@id': `${SITE_URL}/${seoInfo.slug}/`,
         },
       });
 
@@ -384,13 +390,13 @@ export default function InternalSEO() {
             '@type': 'ListItem',
             position: 2,
             name: 'Knowledge Hub',
-            item: `${SITE_URL}/blog`,
+            item: `${SITE_URL}/blog/`,
           },
           {
             '@type': 'ListItem',
             position: 3,
             name: seoInfo.name,
-            item: `${SITE_URL}/${seoInfo.slug}`,
+            item: `${SITE_URL}/${seoInfo.slug}/`,
           },
         ],
       });

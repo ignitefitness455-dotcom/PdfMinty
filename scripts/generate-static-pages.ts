@@ -143,7 +143,7 @@ async function run(): Promise<void> {
   const optimizedBase: string = cleanBaseTemplate(baseHtml);
   
   TOOLS.forEach((item: ToolSEOInfo) => {
-    const pageUrl: string = `${SITE_URL}/${item.slug}`;
+    const pageUrl: string = `${SITE_URL}/${item.slug}/`;
     const targetFolder: string = path.join(distDir, item.slug);
     
     if (!fs.existsSync(targetFolder)) {
@@ -159,12 +159,12 @@ async function run(): Promise<void> {
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": `PdfMinty - ${item.name}`,
-        "url": `https://pdfminty.com/${item.slug}`,
+        "url": `https://pdfminty.com/${item.slug}/`,
         "description": item.metaDescription || item.shortDescription,
         "applicationCategory": "UtilityApplication",
         "operatingSystem": "All",
         "browserRequirements": "Requires HTML5, WebAssembly",
-        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock"},
         "featureList": [
           "100% client-side processing",
           "No file uploads to servers",
@@ -196,7 +196,7 @@ async function run(): Promise<void> {
         "@type": "BreadcrumbList",
         "itemListElement": [
           {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://pdfminty.com/"},
-          {"@type": "ListItem", "position": 2, "name": item.name, "item": `https://pdfminty.com/${item.slug}`}
+          {"@type": "ListItem", "position": 2, "name": item.name, "item": `https://pdfminty.com/${item.slug}/`}
         ]
       });
 
@@ -222,11 +222,11 @@ async function run(): Promise<void> {
           "@type": "AboutPage",
           "name": item.metaTitle,
           "description": item.metaDescription,
-          "url": `${SITE_URL}/about-us`,
+          "url": `${SITE_URL}/about-us/`,
           "publisher": {
             "@type": "Organization",
             "name": SITE_NAME,
-            "url": SITE_URL
+            "url": `${SITE_URL}/`
           }
         },
         {
@@ -234,7 +234,7 @@ async function run(): Promise<void> {
           "@type": "BreadcrumbList",
           "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/`},
-            {"@type": "ListItem", "position": 2, "name": "About Us", "item": `${SITE_URL}/about-us`}
+            {"@type": "ListItem", "position": 2, "name": "About Us", "item": `${SITE_URL}/about-us/`}
           ]
         }
       );
@@ -245,11 +245,11 @@ async function run(): Promise<void> {
           "@type": "ContactPage",
           "name": item.metaTitle,
           "description": item.metaDescription,
-          "url": `${SITE_URL}/contact`,
+          "url": `${SITE_URL}/contact/`,
           "publisher": {
             "@type": "Organization",
             "name": SITE_NAME,
-            "url": SITE_URL
+            "url": `${SITE_URL}/`
           }
         },
         {
@@ -257,7 +257,7 @@ async function run(): Promise<void> {
           "@type": "BreadcrumbList",
           "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/`},
-            {"@type": "ListItem", "position": 2, "name": "Contact Us", "item": `${SITE_URL}/contact`}
+            {"@type": "ListItem", "position": 2, "name": "Contact Us", "item": `${SITE_URL}/contact/`}
           ]
         }
       );
@@ -268,14 +268,14 @@ async function run(): Promise<void> {
           "@type": "WebPage",
           "name": item.metaTitle,
           "description": item.metaDescription,
-          "url": `${SITE_URL}/${item.slug}`
+          "url": `${SITE_URL}/${item.slug}/`
         },
         {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/`},
-            {"@type": "ListItem", "position": 2, "name": item.name, "item": `${SITE_URL}/${item.slug}`}
+            {"@type": "ListItem", "position": 2, "name": item.name, "item": `${SITE_URL}/${item.slug}/`}
           ]
         }
       );
@@ -285,7 +285,7 @@ async function run(): Promise<void> {
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           "name": "PdfMinty Knowledge Hub",
-          "url": `${SITE_URL}/blog`,
+          "url": `${SITE_URL}/blog/`,
           "description": "Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.",
           "publisher": {
             "@type": "Organization",
@@ -298,7 +298,7 @@ async function run(): Promise<void> {
           "@type": "BreadcrumbList",
           "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/`},
-            {"@type": "ListItem", "position": 2, "name": "Knowledge Hub", "item": `${SITE_URL}/blog`}
+            {"@type": "ListItem", "position": 2, "name": "Knowledge Hub", "item": `${SITE_URL}/blog/`}
           ]
         }
       );
@@ -315,7 +315,7 @@ async function run(): Promise<void> {
         "author": {
           "@type": "Organization",
           "name": "PdfMinty Editorial Team",
-          "url": SITE_URL
+          "url": `${SITE_URL}/`
         },
         "publisher": {
           "@type": "Organization",
@@ -343,7 +343,7 @@ async function run(): Promise<void> {
         "@type": "BreadcrumbList",
         "itemListElement": [
           {"@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/`},
-          {"@type": "ListItem", "position": 2, "name": "Knowledge Hub", "item": `${SITE_URL}/blog`},
+          {"@type": "ListItem", "position": 2, "name": "Knowledge Hub", "item": `${SITE_URL}/blog/`},
           {"@type": "ListItem", "position": 3, "name": item.name, "item": pageUrl}
         ]
       });
@@ -369,11 +369,6 @@ async function run(): Promise<void> {
     const jsonLdMarkup: string = schemas
       .map((schema: Record<string, unknown>) => `<script type="application/ld+json">${JSON.stringify(schema)}</script>`)
       .join('\n  ');
-      
-    const hreflangTags: string = `
-  <link rel="alternate" hreflang="en" href="${pageUrl}" />
-  <link rel="alternate" hreflang="x-default" href="${pageUrl}" />
-`;
 
     // Set custom page head meta tags
     const headMeta: string = `
@@ -386,10 +381,10 @@ async function run(): Promise<void> {
   <meta property="og:url" content="${pageUrl}">
   <meta property="og:image" content="${SITE_URL}/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="${pageUrl}">
   <meta name="twitter:title" content="${item.metaTitle}">
   <meta name="twitter:description" content="${item.metaDescription}">
   <meta name="twitter:image" content="${SITE_URL}/og-image.png">
-  ${hreflangTags}
   ${jsonLdMarkup}
   `;
   
@@ -464,25 +459,24 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
   const blogHeadMeta = `
   <title>PdfMinty Knowledge Hub — Free Guides & PDF Tutorials</title>
   <meta name="description" content="Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.">
-  <link rel="canonical" href="${SITE_URL}/blog">
+  <link rel="canonical" href="${SITE_URL}/blog/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="PdfMinty Knowledge Hub — Free Guides & PDF Tutorials">
   <meta property="og:description" content="Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.">
-  <meta property="og:url" content="${SITE_URL}/blog">
+  <meta property="og:url" content="${SITE_URL}/blog/">
   <meta property="og:image" content="${SITE_URL}/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="${SITE_URL}/blog/">
   <meta name="twitter:title" content="PdfMinty Knowledge Hub — Free Guides & PDF Tutorials">
   <meta name="twitter:description" content="Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.">
   <meta name="twitter:image" content="${SITE_URL}/og-image.png">
-  <link rel="alternate" hreflang="en" href="${SITE_URL}/blog" />
-  <link rel="alternate" hreflang="x-default" href="${SITE_URL}/blog" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": "PdfMinty Knowledge Hub",
     "description": "Explore expert guides, security tips, and privacy-first PDF tutorials in the PdfMinty Knowledge Hub.",
-    "url": "${SITE_URL}/blog",
+    "url": "${SITE_URL}/blog/",
     "publisher": {
       "@type": "Organization",
       "name": "${SITE_NAME}",
@@ -609,12 +603,8 @@ ${toolsListHtml}
 
   let homepageHtml: string = baseHtml;
 
-  // 1. Inject FAQ schema and dynamic hreflang tags before </head>
-  const homepageHreflangTags = `
-  <link rel="alternate" hreflang="en" href="https://pdfminty.com" />
-  <link rel="alternate" hreflang="x-default" href="https://pdfminty.com" />
-`;
-  homepageHtml = homepageHtml.replace("</head>", `${homepageFaqSchema}\n${homepageHreflangTags}\n</head>`);
+  // 1. Inject FAQ schema before </head>
+  homepageHtml = homepageHtml.replace("</head>", `${homepageFaqSchema}\n</head>`);
 
   // 2. Inject pre-rendered content into #root
   const homepageRootContent = `
