@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-import { SITE_URL, SITE_NAME, TOOLS, FAQS } from '../config/seo-data';
 import { ROUTES } from '../config/routes';
+import { SITE_URL, SITE_NAME, TOOLS, FAQS } from '../config/seo-data';
 
 export const Breadcrumbs: React.FC = () => {
   const { pathname = '/' } = useLocation() || {};
@@ -192,11 +192,11 @@ export default function InternalSEO() {
           availability: 'https://schema.org/InStock',
         },
         featureList: [
-          '100% client-side processing',
-          'No file uploads to servers',
+          '100% client-side processing for standard tools',
+          'Zero file uploads for our standard PDF tools',
+          'The AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box',
           'Free to use',
           'No registration required',
-          'Works offline (PWA)',
         ],
       });
 

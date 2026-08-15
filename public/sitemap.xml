@@ -504,7 +504,7 @@
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
       <image:title>PDFMinty vs SmallPDF — Which One Actually Keeps Files Private?</image:title>
-      <image:caption>SmallPDF processes your files on its servers. PDFMinty never uploads them at all. Compare pricing, privacy, and tools side by side.</image:caption>
+      <image:caption>SmallPDF processes all files on cloud servers. PDFMinty processes 21 standard tools 100% locally with zero uploads (plus opt-in AI with consent). Compare side by side.</image:caption>
     </image:image>
   </url>
   <url>
@@ -515,7 +515,7 @@
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
       <image:title>PDFMinty vs iLovePDF — No Ads, No Uploads, No Monthly Fee</image:title>
-      <image:caption>iLovePDF&apos;s free plan runs ads and uploads your file. PDFMinty doesn&apos;t do either. Compare tools, pricing, and privacy side by side.</image:caption>
+      <image:caption>iLovePDF&apos;s free plan runs ads and uploads your files. PDFMinty offers 21 zero-upload standard tools with no ads. Compare tools, pricing, and privacy side by side.</image:caption>
     </image:image>
   </url>
   <url>

@@ -93,7 +93,7 @@ export const HowItWorksSection: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-primary mb-2">Add Files</h3>
             <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">
-              Select your documents directly. Files for standard tools stay on your device in browser memory.
+              Select your documents directly. Our standard PDF tools process files locally in browser memory (the AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box).
             </p>
           </div>
           <div

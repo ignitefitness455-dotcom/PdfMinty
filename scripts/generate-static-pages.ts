@@ -166,11 +166,11 @@ async function run(): Promise<void> {
         "browserRequirements": "Requires HTML5, WebAssembly",
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock"},
         "featureList": [
-          "100% client-side processing",
-          "No file uploads to servers",
+          "100% client-side processing for standard tools",
+          "Zero file uploads for our standard PDF tools",
+          "The AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box",
           "Free to use",
-          "No registration required",
-          "Works offline (PWA)"
+          "No registration required"
         ]
       });
       
@@ -557,7 +557,7 @@ ${toolsListHtml}
     <p>Yes, PDFMinty is 100% free to use. All ${toolsCount} tools are available without subscription, payment, or registration.</p>
  
     <h3>Are my files uploaded to your server?</h3>
-    <p>No. PDFMinty is a privacy-first tool. All PDF processing happens entirely in your browser using client-side JavaScript. Your files never leave your device.</p>
+    <p>For our standard PDF tools, no. Files are processed entirely in your browser using client-side JavaScript and WebAssembly without leaving your device. The only exception is the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box.</p>
  
     <h3>What is the maximum file size?</h3>
     <p>PDFMinty can handle individual PDF files up to 100MB and combined operations up to 150MB total. Performance depends on your device's memory and processing power.</p>
@@ -584,7 +584,7 @@ ${toolsListHtml}
       {
         "@type": "Question",
         "name": "Are my files uploaded to your server?",
-        "acceptedAnswer": {"@type": "Answer", "text": "No. PDFMinty is a privacy-first tool. All PDF processing happens entirely in your browser using client-side JavaScript. Your files never leave your device."}
+        "acceptedAnswer": {"@type": "Answer", "text": "For our standard PDF tools, no. Files are processed entirely in your browser using client-side JavaScript and WebAssembly without leaving your device. The only exception is the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box."}
       },
       {
         "@type": "Question",

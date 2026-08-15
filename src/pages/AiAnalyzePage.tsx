@@ -231,7 +231,7 @@ export const AiAnalyzePage: React.FC = () => {
           </span>
         </div>
         <p className="text-slate-500 text-sm">
-          Upload standard PDF files, extract context indices offline, and query answers or summaries securely via Gemini. Files must be under {TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB} MB.
+          PDF text is extracted locally on your device; the AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box.
         </p>
       </div>
 

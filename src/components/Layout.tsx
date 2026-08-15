@@ -35,8 +35,6 @@ import { MobileDrawer } from './MobileDrawer';
 import { RelatedBlogs } from './RelatedBlogs';
 import { RelatedTools } from './RelatedTools';
 import { ToolContentSection } from './ToolContentSection';
-import { ToolGuide } from './ToolGuide';
-import { ToolLongForm } from './ToolLongForm';
 
 interface ToolInfo {
   name: string;

@@ -51,7 +51,7 @@ export const AboutUsPage: React.FC = () => {
               </div>
               <h2 className="text-xl font-extrabold text-on-surface">The PdfMinty Solution</h2>
               <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed font-medium">
-                PdfMinty processes all your files directly in your web browser. By performing every operation locally on your device, your documents never touch a remote server or travel across the internet.
+                PdfMinty processes your files directly in your web browser for our standard PDF tools without server uploads. The only exception is the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box.
               </p>
             </div>
           </div>

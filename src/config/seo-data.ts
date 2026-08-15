@@ -4,7 +4,7 @@ export const SITE_NAME = 'PDFMinty';
 export const FAQS = [
   {
     q: 'How does PdfMinty process my PDF files privately?',
-    a: 'PdfMinty executes all PDF operations (merging, splitting, compressing, editing) directly inside your web browser using WebAssembly and modern web techniques. Your files are never uploaded to any cloud server, ensuring 100% data privacy and security.',
+    a: 'PdfMinty executes our standard PDF tools (merging, splitting, compressing, editing, signing) 100% locally inside your web browser using WebAssembly and client-side JavaScript without uploading files to any server. The only exception is the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box.',
   },
   {
     q: 'Is PdfMinty completely free to use?',
@@ -12,7 +12,7 @@ export const FAQS = [
   },
   {
     q: 'Do my files ever leave my computer or mobile device?',
-    a: 'No. All processing happens locally on your device in your browser memory. You can even disconnect from the internet after loading the site and continue editing PDFs offline.',
+    a: 'For our standard PDF tools, no — processing happens entirely in your local browser memory and works offline. The only exception is the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box.',
   },
   {
     q: 'What file formats and PDF versions are supported?',
@@ -20,7 +20,7 @@ export const FAQS = [
   },
   {
     q: 'How does PdfMinty compare to online converters like iLovePDF or Smallpdf?',
-    a: 'Traditional PDF converters upload your confidential documents to external cloud servers to process them. PdfMinty processes everything locally on your own CPU and memory, eliminating privacy risks and server wait times.',
+    a: 'Traditional PDF converters upload your confidential documents to external cloud servers to process them. PdfMinty processes standard tools locally on your own CPU and memory, eliminating privacy risks and server wait times.',
   },
 ];
 
@@ -3479,7 +3479,7 @@ export const TOOLS: ToolSEOInfo[] = [
       
       <p>When you upload a confidential document to a remote server, control over your personal data vanishes. The document travels across public networks, gets stored on unfamiliar servers, and becomes exposed to unexpected data breaches, unauthorized logging, or vague cloud retention policies. We built PdfMinty to fix this major security risk.</p>
 
-      <p>PdfMinty was engineered from the ground up as a zero-upload, client-side PDF platform. PdfMinty executes every document operation directly inside your web browser. Your files never touch a remote server, never cross the internet, and never leave your device.</p>
+      <p>PdfMinty was engineered from the ground up as a zero-upload, client-side PDF platform. PdfMinty executes all standard document operations directly inside your web browser without server uploads. The only exception is the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box.</p>
 
       <h2>What We Offer: 22+ Free Online PDF Tools</h2>
       <p>PdfMinty provides a comprehensive, growing suite of 22 powerful PDF tools designed for speed, accuracy, and absolute confidentiality:</p>
@@ -4085,7 +4085,7 @@ export const TOOLS: ToolSEOInfo[] = [
     faqs: [
       {
         q: 'Which PDF tool is safest for sensitive documents?',
-        a: 'PdfMinty is the safest option because it processes all PDF files 100% locally in your web browser. Your files are never uploaded to remote servers, eliminating cloud security risks.',
+        a: 'PdfMinty provides 100% local, browser-side processing for our standard PDF tools with zero server uploads, keeping documents private on your device (the AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box).',
       },
       {
         q: 'Is PdfMinty faster than ILovePDF and Smallpdf?',
@@ -4712,9 +4712,9 @@ export const TOOLS: ToolSEOInfo[] = [
     slug: 'compare/pdfminty-vs-smallpdf',
     name: 'PDFMinty vs SmallPDF — Which One Actually Keeps Files Private?',
     ogImage: '/og-image.png',
-    shortDescription: 'SmallPDF processes your files on its servers. PDFMinty never uploads them at all. Compare pricing, privacy, and tools side by side.',
+    shortDescription: 'SmallPDF processes all files on cloud servers. PDFMinty processes our standard PDF tools 100% locally with zero uploads (and the AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box). Compare side by side.',
     metaTitle: 'PDFMinty vs SmallPDF — Which One Actually Keeps Files Private?',
-    metaDescription: 'SmallPDF processes your files on its servers. PDFMinty never uploads them at all. Compare pricing, privacy, and tools side by side.',
+    metaDescription: 'SmallPDF processes all files on cloud servers. PDFMinty processes our standard PDF tools 100% locally with zero uploads (and the AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box). Compare side by side.',
     h1: 'PDFMinty vs SmallPDF: Which One Actually Keeps Your Files Private?',
     icon: 'Shield',
     category: 'blog',
@@ -4748,7 +4748,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>The Core Difference</h2>
       <p>SmallPDF processes your files on its servers — that's true whether you're using a free or paid plan. Your PDF gets uploaded, processed in SmallPDF's cloud, then sent back to you. Their AI features (document summarization, "chat with your PDF") work the same way: your file's content goes to their servers to generate the answer.</p>
 
-      <p>PDFMinty processes every file locally, inside your browser. Nothing is uploaded. There's no server in the loop at any point.</p>
+      <p>PDFMinty processes our standard PDF tools locally inside your browser with zero server uploads (and includes the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box).</p>
 
       <p>Neither approach is "wrong" — SmallPDF's cloud processing is what lets it handle very large files and heavier operations. But if privacy matters more to you than that, the architecture difference is the whole story.</p>
 
@@ -4911,9 +4911,9 @@ export const TOOLS: ToolSEOInfo[] = [
     slug: 'compare/pdfminty-vs-ilovepdf',
     name: 'PDFMinty vs iLovePDF — No Ads, No Uploads, No Monthly Fee',
     ogImage: '/og-image.png',
-    shortDescription: "iLovePDF's free plan runs ads and uploads your file. PDFMinty doesn't do either. Compare tools, pricing, and privacy side by side.",
+    shortDescription: "iLovePDF's free plan runs ads and uploads your files. PDFMinty offers zero-upload standard PDF tools with no ads. Compare tools, pricing, and privacy side by side.",
     metaTitle: 'PDFMinty vs iLovePDF — No Ads, No Uploads, No Monthly Fee',
-    metaDescription: "iLovePDF's free plan runs ads and uploads your file. PDFMinty doesn't do either. Compare tools, pricing, and privacy side by side.",
+    metaDescription: "iLovePDF's free plan runs ads and uploads your files. PDFMinty offers zero-upload standard PDF tools with no ads. Compare tools, pricing, and privacy side by side.",
     h1: 'PDFMinty vs iLovePDF: No Ads. No Uploads. No Monthly Fee.',
     icon: 'Shield',
     category: 'blog',
@@ -4947,7 +4947,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>The Core Difference</h2>
       <p>iLovePDF's free tier is genuinely capable — it covers most common PDF tasks. Two tradeoffs come with it: the free web version shows ads, and every file you process is uploaded to iLovePDF's servers, the same as any cloud-based tool. Removing the ads means moving to their Premium plan (~$7–9/mo).</p>
 
-      <p>PDFMinty runs every tool locally in your browser. No ads on any plan, because there's only one plan — free — and no upload step to begin with.</p>
+      <p>PDFMinty runs our standard PDF tools locally in your browser without file uploads (and includes the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box).</p>
 
       <h2>Side-by-Side Comparison</h2>
       <p>Compare key capabilities, ads, pricing, and privacy between iLovePDF and PDFMinty:</p>
