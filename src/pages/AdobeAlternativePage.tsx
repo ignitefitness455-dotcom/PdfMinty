@@ -328,6 +328,55 @@ export const AdobeAlternativePage: React.FC = () => {
           </div>
         </section>
 
+        {/* Deep Analysis: Architectural and Economic Comparison */}
+        <section className="bg-surface-container-low border border-border-muted rounded-3xl p-6 sm:p-10 shadow-sm space-y-8 text-on-surface" id="adobe_in_depth_comparison">
+          <div className="space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              Why Professionals & Teams Are Moving Away From Subscription PDF Suites
+            </h2>
+            <p className="text-sm sm:text-base text-on-surface-variant leading-relaxed">
+              For decades, Adobe Acrobat Pro has remained the enterprise default for PDF manipulation. However, annual subscription costs exceeding $240/year per user, heavy background telemetry processes, and forced cloud synchronizations have prompted businesses, researchers, and individuals to adopt lightweight, client-side alternatives.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-surface p-6 rounded-2xl border border-border-muted space-y-3">
+              <h3 className="text-base font-bold flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                The Hidden Cost of Legacy PDF Software
+              </h3>
+              <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+                Standard desktop PDF editors require multi-gigabyte installations, continuous licensing verification checks, and mandatory document uploading for basic tasks like document compression or mobile sharing. For teams that only require standard merge, split, annotate, and sanitize capabilities, this creates substantial recurring overhead.
+              </p>
+            </div>
+
+            <div className="bg-surface p-6 rounded-2xl border border-border-muted space-y-3">
+              <h3 className="text-base font-bold flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                The WebAssembly Privacy Revolution
+              </h3>
+              <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+                PdfMinty utilizes compiled WebAssembly binaries (`pdf-lib`, `pdfjs-dist`) that execute locally inside your web browser sandbox. You achieve near-native execution speed without installing desktop binaries or risking document confidentiality across external cloud servers.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold">When Is Acrobat Still Necessary?</h3>
+            <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+              We believe in honest technology recommendations. You should retain Adobe Acrobat Pro if your workflow strictly requires:
+            </p>
+            <ul className="list-disc pl-5 text-xs sm:text-sm text-on-surface-variant space-y-1.5">
+              <li>Complex dynamic XML Forms Architecture (XFA) processing.</li>
+              <li>Enterprise-level multi-signer routing workflows with strict cryptographic hardware token authentication.</li>
+              <li>High-end prepress color separation and commercial print offset calibrations.</li>
+            </ul>
+            <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+              For everyday document handling—such as merging reports, extracting confidential pages, redacting metadata, or adding signatures—PdfMinty provides an instant, zero-cost, and private solution.
+            </p>
+          </div>
+        </section>
+
         {/* Section 4 — FAQ */}
         <section className="space-y-6 bg-surface-container-low border border-border-muted rounded-3xl p-6 sm:p-8 shadow-sm">
           <div className="flex items-center gap-3">

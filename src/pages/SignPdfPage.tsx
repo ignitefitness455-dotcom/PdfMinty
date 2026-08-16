@@ -681,6 +681,69 @@ export const SignPdfPage: React.FC = () => {
         </div>
       )}
 
+      {/* Comprehensive E-Signature Guide Section */}
+      <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8 text-slate-700 leading-relaxed" id="esignature_guide_section">
+        <div className="space-y-3">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            How to Sign PDF Documents Online for Free (Zero Uploads)
+          </h2>
+          <p className="text-sm sm:text-base text-slate-600">
+            Adding your electronic signature to agreements, employment contracts, NDA forms, and invoices shouldn't require expensive monthly software licenses or sending confidential files to third-party cloud servers. PdfMinty provides a full-featured, legally recognized e-signature suite that runs directly inside your web browser.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
+            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
+              01
+            </div>
+            <h3 className="font-bold text-slate-900 text-sm">Draw Freehand</h3>
+            <p className="text-xs text-slate-600">
+              Draw your handwritten signature naturally using your mouse, trackpad, Apple Pencil, or mobile touchscreen with custom ink colors.
+            </p>
+          </div>
+
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
+            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
+              02
+            </div>
+            <h3 className="font-bold text-slate-900 text-sm">Type Signature</h3>
+            <p className="text-xs text-slate-600">
+              Type your full legal name and choose from elegant handwriting fonts to automatically generate a clean, professional signature stamp.
+            </p>
+          </div>
+
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
+            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
+              03
+            </div>
+            <h3 className="font-bold text-slate-900 text-sm">Upload Image</h3>
+            <p className="text-xs text-slate-600">
+              Upload a scanned photo or transparent PNG of your existing physical signature and position it anywhere on any page.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-slate-900">Are Browser-Based Electronic Signatures Legally Binding?</h3>
+          <p className="text-sm text-slate-600">
+            Yes. Electronic signatures created with PdfMinty comply with major global digital signature frameworks:
+          </p>
+          <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600">
+            <li><strong>United States:</strong> Fully recognized under the <strong>ESIGN Act (2000)</strong> and the <strong>Uniform Electronic Transactions Act (UETA)</strong>.</li>
+            <li><strong>European Union:</strong> Compliant with the <strong>eIDAS Regulation (EU No 910/2014)</strong> for Standard Electronic Signatures (SES).</li>
+            <li><strong>United Kingdom:</strong> Recognized under the <strong>Electronic Communications Act 2000</strong>.</li>
+          </ul>
+        </div>
+
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-xs text-emerald-900">
+          <p className="font-bold">🔒 Client-Side Confidentiality</p>
+          <p className="leading-normal text-slate-600">
+            Your contracts, tax filings, and legal agreements are processed 100% inside your browser's local memory sandbox using WebAssembly. No files, signature vectors, or images are ever uploaded or retained on any remote server.
+          </p>
+        </div>
+      </section>
+
       <FAQSection toolId="sign-pdf" />
 
       {/* Signature Creation Modal */}

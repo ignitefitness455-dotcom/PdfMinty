@@ -237,6 +237,58 @@ export const GrayscalePdfPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Deep Content & Comprehensive Guide Section */}
+      <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8 text-slate-700 leading-relaxed" id="grayscale_guide_section">
+        <div className="space-y-3">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            Comprehensive Guide to Converting Color PDFs to Grayscale (Black & White)
+          </h2>
+          <p className="text-sm sm:text-base text-slate-600">
+            Converting high-resolution color PDF documents to pure monochrome (grayscale) is one of the most effective strategies for slashing file byte size, optimizing documents for bulk office printing, and preparing legal or academic filings according to strict publication guidelines.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
+            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Key Advantages of Grayscale Conversion
+            </h3>
+            <ul className="text-xs space-y-1.5 text-slate-600 list-disc pl-4">
+              <li><strong>Major File Size Reduction:</strong> Strips redundant 24-bit RGB and 32-bit CMYK color channels, compressing documents by up to 60-80%.</li>
+              <li><strong>Save Expensive Printer Toner:</strong> Eliminates color cartridge bleeding and prevents accidental color print billing.</li>
+              <li><strong>Institutional Compliance:</strong> Meets official submission criteria for courts, patent registries, and academic libraries that enforce monochrome requirements.</li>
+            </ul>
+          </div>
+
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
+            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Luminance-Preserving Conversion Algorithms
+            </h3>
+            <p className="text-xs text-slate-600 leading-normal">
+              PdfMinty uses standard ITU-R BT.601 luminance weighting <code>(Y = 0.299R + 0.587G + 0.114B)</code> during page re-rasterization. This ensures that yellow highlights, subtle charts, and colored contrast text remain perfectly legible without muddying into solid black or washing out into white.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-slate-900">How to Convert PDFs to Monochrome in 3 Easy Steps</h3>
+          <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-600">
+            <li><strong>Select File:</strong> Upload or drag-and-drop your target color PDF into the converter above.</li>
+            <li><strong>Select Resolution:</strong> Choose from Normal (1.0x for web sharing), High (1.5x for crisp text), or Ultra (2.0x for archival print).</li>
+            <li><strong>Process & Download:</strong> Click "Convert & Download" to process each page locally in your browser memory and save your monochrome document.</li>
+          </ol>
+        </div>
+
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-xs text-emerald-900">
+          <p className="font-bold">🔒 100% Client-Side Privacy</p>
+          <p className="leading-normal text-slate-600">
+            All document rasterization, color math, and PDF reconstruction take place locally on your computer using WebAssembly and HTML5 Canvas. Your confidential pages are never uploaded to any cloud server.
+          </p>
+        </div>
+      </section>
+
       <FAQSection toolId="grayscale-pdf" />
     </div>
   );

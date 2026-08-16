@@ -226,6 +226,61 @@ export default function SanitizePdfPage() {
         </div>
       </div>
 
+      {/* Deep Content & Comprehensive Guide Section */}
+      <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8 text-slate-700 leading-relaxed" id="sanitize_guide_section">
+        <div className="space-y-3">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            Understanding PDF Document Sanitization & Threat Neutralization
+          </h2>
+          <p className="text-sm sm:text-base text-slate-600">
+            PDF documents are much more than static visual pages; they are structured, interactive binary containers capable of embedding executable JavaScript scripts, remote network triggers, automated form actions, and rich XML Metadata (XMP) packages. Sanitization is the process of inspecting and systematically purging hidden data layers and active elements to make documents safe for public release.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
+            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              What Gets Removed During Sanitization?
+            </h3>
+            <ul className="text-xs space-y-1.5 text-slate-600 list-disc pl-4">
+              <li><strong>Embedded JavaScript & Triggers:</strong> Removes executable scripts attached to button clicks or page load triggers (`/OpenAction`, `/JS`).</li>
+              <li><strong>Hidden Metadata & XMP Packages:</strong> Strips camera GPS tags, revision histories, and author fingerprints.</li>
+              <li><strong>External Launch Actions:</strong> Neutralizes commands that attempt to execute external software or open unverified URLs (`/Launch`).</li>
+              <li><strong>Form Scripting & Stored Data:</strong> Clears unrendered calculation scripts and background tracking fields.</li>
+            </ul>
+          </div>
+
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
+            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Who Needs PDF Sanitization?
+            </h3>
+            <ul className="text-xs space-y-1.5 text-slate-600 list-disc pl-4">
+              <li><strong>Legal & Compliance Teams:</strong> Disclose filings and evidence without exposing draft revisions or privileged metadata.</li>
+              <li><strong>Government & Whistleblowers:</strong> Protect the anonymity of reporters, researchers, and public servants.</li>
+              <li><strong>Cybersecurity Officers:</strong> Disarm potentially weaponized PDF attachments before opening or distributing them to team members.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-slate-900">How to Sanitize PDFs Securely in Your Browser</h3>
+          <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-600">
+            <li><strong>Select File:</strong> Drag and drop your target document into the uploader above.</li>
+            <li><strong>Automatic Engine Analysis:</strong> Our WebAssembly engine scans the internal object dictionary for JavaScript, OpenAction hooks, and XMP streams.</li>
+            <li><strong>Download Clean Document:</strong> Download the sanitized, fully sterilized PDF with complete confidence.</li>
+          </ol>
+        </div>
+
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-xs text-emerald-900">
+          <p className="font-bold">🔒 Total Offline Privacy Protection</p>
+          <p className="leading-normal text-slate-600">
+            PdfMinty operates 100% inside your browser environment. Your confidential files are never transmitted across the network or stored in external databases, guaranteeing total data security and GDPR/HIPAA alignment.
+          </p>
+        </div>
+      </section>
+
       <FAQSection toolId="sanitize-pdf" />
     </div>
   );
