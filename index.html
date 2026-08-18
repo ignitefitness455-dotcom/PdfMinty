@@ -33,12 +33,10 @@
     <meta name="twitter:image" content="https://pdfminty.com/og-image.png" />
 
     <!-- DNS Prefetch & Preconnect for Third-Party Services -->
-    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-    <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
 
-    <!-- Deferred Third-Party Scripts (AdSense & Analytics) -->
+    <!-- Deferred Third-Party Scripts (Analytics) -->
     <script>
       (function() {
         var loaded = false;
@@ -63,13 +61,6 @@
           window.gtag = gtag;
           gtag('js', new Date());
           gtag('config', 'G-5WYDTKWS1J');
-
-          // Google AdSense
-          var ads = document.createElement('script');
-          ads.async = true;
-          ads.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3862038139324053';
-          ads.crossOrigin = 'anonymous';
-          document.head.appendChild(ads);
 
           // Cloudflare Web Analytics
           var cf = document.createElement('script');
