@@ -13,11 +13,14 @@ const ThemeContext = createContext<ThemeContextType>({
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('theme');
-      if (saved) {
-        return saved === 'dark';
+      try {
+        const saved = localStorage.getItem('theme-preference') || localStorage.getItem('theme');
+        if (saved) {
+          return saved === 'dark';
+        }
+      } catch {
+        // ignore
       }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     return false;
   });
@@ -26,10 +29,24 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const root = document.documentElement;
     if (isDark) {
       root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      root.classList.remove('light');
+      root.style.colorScheme = 'dark';
+      try {
+        localStorage.setItem('theme-preference', 'dark');
+        localStorage.setItem('theme', 'dark');
+      } catch {
+        // ignore localStorage write errors in sandboxed/private environments
+      }
     } else {
       root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      root.classList.add('light');
+      root.style.colorScheme = 'light';
+      try {
+        localStorage.setItem('theme-preference', 'light');
+        localStorage.setItem('theme', 'light');
+      } catch {
+        // ignore localStorage write errors in sandboxed/private environments
+      }
     }
   }, [isDark]);
 

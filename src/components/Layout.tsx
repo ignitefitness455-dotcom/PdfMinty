@@ -67,16 +67,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
-  // Theme management logic - Default to system preference or stored preference
+  // Theme management logic - Default to light mode (unless user explicitly selected dark)
   const [theme, setThemeSetting] = useState<'light' | 'dark'>(() => {
     try {
-      const saved = localStorage.getItem('theme-preference');
+      const saved = localStorage.getItem('theme-preference') || localStorage.getItem('theme');
       if (saved === 'dark' || saved === 'light') return saved;
-      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-      }
     } catch {
-      // localStorage or matchMedia may throw in private browsing mode or old webviews
+      // localStorage may throw in private browsing mode or old webviews
     }
     return 'light';
   });
@@ -94,30 +91,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
     try {
       localStorage.setItem('theme-preference', theme);
+      localStorage.setItem('theme', theme);
     } catch {
       // Ignore write errors
     }
   }, [theme]);
-
-  // Listen for OS theme changes if user hasn't explicitly set a preference
-  useEffect(() => {
-    if (!window.matchMedia) return;
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      try {
-        const saved = localStorage.getItem('theme-preference');
-        if (!saved) {
-          setThemeSetting(e.matches ? 'dark' : 'light');
-        }
-      } catch {
-        // ignore
-      }
-    };
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    }
-  }, []);
 
   const iconMap = useMemo<Record<string, React.ComponentType<{ className?: string }>>>(() => ({
     Merge,
@@ -144,6 +122,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   }), []);
 
   const toolsList = useMemo<ToolInfo[]>(() => TOOLS
+    .filter((t) => t.type === 'tool')
     .map((t) => ({
       name: t.name,
       slug: t.slug,

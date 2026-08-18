@@ -187,13 +187,12 @@
     <link rel="apple-touch-icon" sizes="167x167" href="/logo-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/logo-192.png" />
 
-    <!-- Anti-flicker Theme Script -->
+    <!-- Anti-flicker Theme Script (Defaults strictly to Light Mode) -->
     <script>
       (function() {
         try {
-          var saved = localStorage.getItem('theme-preference');
-          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (saved === 'dark' || (!saved && prefersDark)) {
+          var saved = localStorage.getItem('theme-preference') || localStorage.getItem('theme');
+          if (saved === 'dark') {
             document.documentElement.classList.add('dark');
             document.documentElement.style.colorScheme = 'dark';
           } else {

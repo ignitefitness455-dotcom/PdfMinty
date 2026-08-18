@@ -5811,6 +5811,240 @@ export const TOOLS: ToolSEOInfo[] = [
     `,
   },
   {
+    id: 'how-to-add-page-numbers-to-a-pdf-for-free',
+    slug: 'blog/how-to-add-page-numbers-to-a-pdf-for-free',
+    name: 'How to Add Page Numbers to a PDF for Free in 2026',
+    ogImage: '/og-image.png',
+    shortDescription: 'Add page numbers to a PDF for free — skip the cover page, start from any page, choose the format you need. 100% browser-based, zero uploads, zero sign-up.',
+    metaTitle: 'How to Add Page Numbers to a PDF for Free in 2026 (No Upload, No Sign-Up) | PdfMinty',
+    metaDescription: 'Add page numbers to a PDF for free — skip the cover page, start from any page, choose the format you need. 100% browser-based, zero uploads, zero sign-up.',
+    h1: 'How to Add Page Numbers to a PDF for Free in 2026 (Without Uploading It Anywhere)',
+    icon: 'Hash',
+    category: 'blog',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-08-18',
+    dateModified: '2026-08-18',
+    author: 'PdfMinty Editorial Team',
+    reviewedBy: 'Alex Mercer, Security Lead',
+    lastReviewedDate: 'August 18, 2026',
+    relatedLinks: [
+      {
+        title: 'Add Page Numbers Tool',
+        url: '/add-page-numbers/',
+        type: 'tool',
+      },
+      {
+        title: 'How to Make a PDF Online Free',
+        url: '/blog/how-to-make-a-pdf-online-free/',
+        type: 'guide',
+      },
+      {
+        title: 'How to Merge PDF Files Online Free',
+        url: '/blog/how-to-merge-pdf-files-online-for-free-2026-guide/',
+        type: 'guide',
+      },
+      {
+        title: 'Is It Safe to Upload PDF to Online Tools?',
+        url: '/is-it-safe-to-upload-pdf-to-online-tools/',
+        type: 'article',
+      },
+      {
+        title: 'How to Edit PDFs Securely Without Uploading',
+        url: '/blog/secure-pdf-editing-without-uploading/',
+        type: 'guide',
+      },
+    ],
+    faqs: [
+      {
+        q: 'Does adding page numbers upload my file anywhere?',
+        a: "Not with PdfMinty — the entire process runs in your browser using your device's own processing power. The PDF never leaves your computer or phone.",
+      },
+      {
+        q: 'Can I start numbering from a specific page, like page 3?',
+        a: 'Yes. Set the starting page to the page you want numbering to begin on, and set the starting number separately (usually 1) so your cover and table of contents stay unnumbered.',
+      },
+      {
+        q: 'Will this work on my phone?',
+        a: "Yes — since everything runs in the browser itself rather than on a server, it works the same way on a laptop, tablet, or phone browser.",
+      },
+      {
+        q: 'Is it really free, with no watermark or sign-up?',
+        a: "Yes. There's no account required and no watermark added to your file.",
+      },
+      {
+        q: 'What if I need to change the numbers after downloading?',
+        a: "Just re-open the edited PDF in the same tool and re-run it with your updated settings — there's no limit on how many times you can process a file.",
+      },
+    ],
+    longFormBody: `
+      <h1>How to Add Page Numbers to a PDF for Free in 2026 (Without Uploading It Anywhere)</h1>
+      
+      <p class="lead font-medium text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+        You finish a 40-page report at midnight, send it off, and someone replies: <em>"Can you tell me what's on page 12?"</em> There's no page 12 — because the PDF was never numbered in the first place. It's a small detail, but it's the difference between a document that looks finished and one that looks rushed.
+      </p>
+
+      <p>
+        Adding page numbers to a PDF should be a 30-second job. In practice, most people run into one of two problems: the free tool they find wants them to sign up, or it wants them to upload their file to a stranger's server first. If that file happens to be a signed contract, a manuscript, a medical form, or anything you'd rather not hand over, that "quick fix" suddenly feels riskier than it should.
+      </p>
+
+      <p>
+        Here's how to add clean, correctly-positioned page numbers to any PDF for free — including how to skip the cover page, start numbering from a specific page, and avoid the mistakes that force people to redo the whole thing.
+      </p>
+
+      <h2>Why Page Numbers Still Matter in a Digital World</h2>
+      <p>
+        It's tempting to think page numbers are a leftover habit from the paper era. They're not. They still solve real problems:
+      </p>
+
+      <ul class="space-y-2 my-4">
+        <li><strong>Long reports and proposals:</strong> Colleagues and clients reference "page 8" in emails and meetings. Without numbers, that reference is meaningless.</li>
+        <li><strong>Academic papers and theses:</strong> Most universities require sequential numbering, often with the title page and table of contents excluded from the count.</li>
+        <li><strong>Legal and contract documents:</strong> Numbered pages make it obvious if a page is missing, swapped, or added later.</li>
+        <li><strong>Manuscripts for self-publishing (KDP and similar platforms):</strong> Interior files are usually expected to carry consistent pagination separate from the cover, and get rejected or flagged when the numbering is inconsistent with the front matter.</li>
+        <li><strong>Multi-file projects:</strong> Once you merge several PDFs into one (see our guide on <a href="/blog/how-to-merge-pdf-files-online-for-free-2026-guide/" class="text-emerald-600 dark:text-emerald-400 underline font-medium">merging PDF files for free</a>), the original per-file numbering breaks, and you need a fresh, single sequence across the whole document.</li>
+      </ul>
+
+      <h2>The Hidden Cost of "Free" Page Number Tools</h2>
+      <p>
+        Type "add page numbers to PDF" into Google and you'll get a long list of tools. Almost all of them work the same way behind the scenes: you upload your file to their server, their server stamps the numbers on, and you download the result. Many of these services are upfront about it — they mention that your file sits on their cloud storage for an hour or two before it's automatically deleted.
+      </p>
+
+      <p>
+        For a public flyer, that's a non-issue. But plenty of the documents people number are anything but public — signed agreements, financial statements, unpublished manuscripts, HR files. Every upload is one more copy of your file sitting somewhere outside your control, even briefly. We've written more about what actually happens when you upload a PDF to a random online tool, if you want the fuller picture on <a href="/is-it-safe-to-upload-pdf-to-online-tools/" class="text-emerald-600 dark:text-emerald-400 underline font-medium">why uploading sensitive PDFs is riskier than it looks</a>.
+      </p>
+
+      <p>
+        The alternative is processing the file entirely on your own device. Your browser opens the PDF, stamps the numbers directly onto the pages using your device's own processing power, and rebuilds the file — all without a single byte ever leaving your computer or phone. That's exactly how PdfMinty's tools work, including page numbering.
+      </p>
+
+      <h2>How to Add Page Numbers to a PDF Without Uploading It</h2>
+      <p>
+        Here's the full process using PdfMinty's <a href="/add-page-numbers/" class="text-emerald-600 dark:text-emerald-400 underline font-bold">Add Page Numbers tool</a>:
+      </p>
+
+      <ol class="space-y-4 my-6">
+        <li>
+          <strong>Open the Add Page Numbers tool:</strong> Head to the <a href="/add-page-numbers/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Add Page Numbers tool</a> on PdfMinty and drop in your PDF (or tap to select it from your device). Nothing is sent anywhere — the file loads directly into your browser memory.
+        </li>
+        <li>
+          <strong>Choose the position:</strong> Bottom-center is the standard choice for most reports and manuscripts, but you can place numbers in any corner or the header if your document already has a footer with other content.
+        </li>
+        <li>
+          <strong>Set your starting page and starting number:</strong> This is the step most tools handle badly. If you don't want your cover page or table of contents numbered, this is where you tell the tool to skip them (more on this below).
+        </li>
+        <li>
+          <strong>Preview the result:</strong> Check that the numbers land cleanly and don't overlap existing footers, page borders, or table content.
+        </li>
+        <li>
+          <strong>Download the finished PDF:</strong> The whole process — upload, edit, preview, export — happens in your browser tab. Close the tab, and there's no trace of your file left on any server, because it was never there to begin with.
+        </li>
+      </ol>
+
+      <p>
+        The same "everything stays local" approach applies whether you're numbering a fresh PDF or one you just <a href="/blog/how-to-make-a-pdf-online-free/" class="text-emerald-600 dark:text-emerald-400 underline font-medium">built from photos or a blank page</a> — the numbering step never requires a second trip through someone else's cloud. For an overarching overview of privacy workflows, read our guide on <a href="/blog/secure-pdf-editing-without-uploading/" class="text-emerald-600 dark:text-emerald-400 underline font-medium">how to edit PDFs securely without uploading</a>.
+      </p>
+
+      <h2>How to Skip the Cover Page and Start Numbering from Page 3</h2>
+      <p>
+        This is one of the most common frustrations people run into, so it's worth walking through directly. Say you have a 20-page document: page 1 is the cover, page 2 is the table of contents, and the actual content — which you want labeled as "page 1" — starts on page 3.
+      </p>
+
+      <p>
+        The fix is simple once you know where to look: instead of numbering the <em>file</em> from page 1, you set the <strong>starting page</strong> (page 3, in this example) and, separately, the <strong>starting number</strong> you want to appear on that page (usually 1). The tool then leaves your cover and table of contents untouched and begins the visible numbering exactly where you told it to.
+      </p>
+
+      <p>
+        This same setting handles related cases too — starting a chapter's numbering from a specific page, continuing numbering from a previous document, or excluding an appendix from the main sequence.
+      </p>
+
+      <h2>Common Page-Numbering Mistakes (and How to Avoid Them)</h2>
+      <p>
+        A little care here saves you from re-exporting the whole document later:
+      </p>
+
+      <ul class="space-y-3 my-4">
+        <li><strong>Numbers overlapping existing content:</strong> If your document already has footnotes, page borders, or a footer with a date or filename, a number placed carelessly can land right on top of it. Always check the preview before downloading.</li>
+        <li><strong>Numbering the cover page by accident:</strong> It's the single most common complaint people post in PDF support forums — the numbers "start on the wrong page." Set your starting page deliberately rather than accepting the default.</li>
+        <li><strong>Wrong starting number for excerpts:</strong> If you're sharing a section of a larger document that should logically start at "page 45" rather than "page 1," set the starting number explicitly instead of leaving it at the default.</li>
+        <li><strong>Renumbering after edits:</strong> If you add, remove, or reorder pages after numbering, the stamped numbers won't update automatically — you'll need to re-run the tool on the final version of the file.</li>
+      </ul>
+
+      <h2>A Quick Note for Authors and Self-Publishers</h2>
+      <p>
+        If you're preparing a manuscript interior for KDP or a similar print-on-demand platform, page numbering isn't just cosmetic — it has to match your front matter exactly, and it has to be consistent with your trim size and margins, or the file can get flagged during review. It's worth numbering your interior <em>after</em> your layout, margins, and bleed are finalized, not before — otherwise you'll end up numbering the file twice. If your cover and interior are separate files, remember that page numbers belong on the interior only, never on the cover file.
+      </p>
+
+      <h2>Frequently Asked Questions: Adding Page Numbers to a PDF</h2>
+      <div class="space-y-4 my-8 not-prose">
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Does adding page numbers upload my file anywhere?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Not with PdfMinty — the entire process runs in your browser using your device's own processing power. The PDF never leaves your computer or phone.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Can I start numbering from a specific page, like page 3?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Yes. Set the starting page to the page you want numbering to begin on, and set the starting number separately (usually 1) so your cover and table of contents stay unnumbered.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Will this work on my phone?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Yes — since everything runs in the browser itself rather than on a server, it works the same way on a laptop, tablet, or phone browser.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Is it really free, with no watermark or sign-up?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Yes. There's no account required and no watermark added to your file.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">What if I need to change the numbers after downloading?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Just re-open the edited PDF in the same tool and re-run it with your updated settings — there's no limit on how many times you can process a file.
+          </p>
+        </div>
+      </div>
+
+      <div class="not-prose my-12 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-900 text-white border-2 border-emerald-400/40 shadow-2xl shadow-emerald-950/40 relative overflow-hidden text-center group">
+        <div class="absolute -top-20 -left-20 w-56 h-56 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-20 -right-20 w-56 h-56 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-5">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-black uppercase tracking-widest shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-ping"></span>
+            <span>100% Free & Private Offline Tool</span>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-snug m-0 drop-shadow-md">
+            Ready to Number Your PDF?
+          </h3>
+          <p class="text-base sm:text-lg text-emerald-50 m-0 leading-relaxed font-semibold drop-shadow-sm">
+            Head over to PdfMinty's Add Page Numbers tool and get a properly paginated PDF in under a minute — no upload, no sign-up, no watermark.
+          </p>
+          <div class="pt-2">
+            <a href="/add-page-numbers/" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-emerald-50 text-emerald-950 dark:!bg-white dark:!text-emerald-950 hover:dark:!bg-emerald-50 font-black text-base sm:text-lg rounded-2xl shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105 active:scale-95 no-underline border-0 cursor-pointer">
+              <span>Open Add Page Numbers Tool →</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-emerald-100 font-bold">
+            <span>⚡ Instant Browser Processing</span>
+            <span>•</span>
+            <span>🔒 Zero File Uploads</span>
+            <span>•</span>
+            <span>✨ No Account Needed</span>
+          </div>
+        </div>
+      </div>
+    `,
+  },
+  {
     id: 'privacy-policy',
     slug: 'privacy-policy',
     name: 'Privacy Policy',

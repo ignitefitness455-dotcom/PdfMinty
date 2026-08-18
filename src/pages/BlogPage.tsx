@@ -46,6 +46,7 @@ export const BlogPage: React.FC = () => {
       case 'blog-metadata':
       case 'blog-merge-pdf':
       case 'blog-how-to-convert-pdf-to-word-for-free-2026':
+      case 'how-to-add-page-numbers-to-a-pdf-for-free':
         return 'Tutorials';
       default:
         return 'Tutorials';
