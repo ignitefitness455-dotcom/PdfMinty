@@ -137,6 +137,9 @@ async function run(): Promise<void> {
     // Purge any homepage-only JSON-LD structured script elements to avoid duplication
     clean = clean.replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/gi, "");
     
+    // Reset #root container
+    clean = clean.replace(/<div\s+id="root"[\s\S]*?<\/div>/i, '<div id="root"></div>');
+
     return clean;
   }
   
@@ -399,7 +402,7 @@ async function run(): Promise<void> {
 <h2>Related PDF Tools</h2>
 <p>Explore more free, privacy-first PDF tools:</p>
 <ul>
-${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> — ${t.shortDescription || t.description}</li>`).join('\n')}
+${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a> — ${t.shortDescription || t.description}</li>`).join('\n')}
 </ul>
 `;
     };
@@ -412,11 +415,9 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
     // Pre-inject longFormBody directly inside the React hydration root element (#root) for raw HTML crawler response!
     const preRenderedContent: string = `
     <div id="root">
-      <noscript>
-        <article class="prose max-w-4xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
-          ${finalBody}
-        </article>
-      </noscript>
+      <article class="prose max-w-4xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
+        ${finalBody}
+      </article>
     </div>
     `;
     
@@ -448,10 +449,10 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
           <time datetime="${a.datePublished || '2026-01-01'}">${a.datePublished || '2026-01-01'}</time>
         </div>
         <h2 class="text-xl font-bold mb-2">
-          <a href="/${a.slug}" class="hover:text-emerald-600 transition-colors">${a.h1 || a.name}</a>
+          <a href="/${a.slug}/" class="hover:text-emerald-600 transition-colors">${a.h1 || a.name}</a>
         </h2>
         <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">${a.metaDescription || a.shortDescription || ''}</p>
-        <a href="/${a.slug}" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider hover:underline">Read Full Article →</a>
+        <a href="/${a.slug}/" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider hover:underline">Read Full Article →</a>
       </article>`
     )
     .join('\n');
@@ -493,20 +494,18 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
 
   const blogPreRenderedContent = `
     <div id="root">
-      <noscript>
-        <main class="max-w-5xl mx-auto py-12 px-6 font-sans">
-          <header class="text-center max-w-3xl mx-auto mb-12">
-            <h1 class="text-3xl font-black mb-4">PdfMinty Knowledge Hub</h1>
-            <p class="text-base text-slate-600 dark:text-slate-300">
-              Free, privacy-first guides, tutorials, and deep-dives on PDF security, formatting, and offline workflows.
-            </p>
-          </header>
+      <main class="max-w-5xl mx-auto py-12 px-6 font-sans">
+        <header class="text-center max-w-3xl mx-auto mb-12">
+          <h1 class="text-3xl font-black mb-4">PdfMinty Knowledge Hub</h1>
+          <p class="text-base text-slate-600 dark:text-slate-300">
+            Free, privacy-first guides, tutorials, and deep-dives on PDF security, formatting, and offline workflows.
+          </p>
+        </header>
 
-          <section class="grid gap-6 md:grid-cols-2">
-            ${articlesListHtml}
-          </section>
-        </main>
-      </noscript>
+        <section class="grid gap-6 md:grid-cols-2">
+          ${articlesListHtml}
+        </section>
+      </main>
     </div>
   `;
 
@@ -524,7 +523,7 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}">${t.name}</a> —
   const toolsCount = TOOLS.filter((t: ToolSEOInfo) => t.type === 'tool').length;
   const toolsListHtml = TOOLS
     .filter((t: ToolSEOInfo) => t.type === 'tool')
-    .map((t: ToolSEOInfo) => `      <li><a href="/${t.slug}">${t.name}</a> — ${t.shortDescription || t.description}</li>`)
+    .map((t: ToolSEOInfo) => `      <li><a href="/${t.slug}/">${t.name}</a> — ${t.shortDescription || t.description}</li>`)
     .join('\n');
   
   const homepageContent = `
@@ -601,21 +600,35 @@ ${toolsListHtml}
   </script>
 `;
 
-  let homepageHtml: string = baseHtml;
+  let homepageHtml: string = cleanBaseTemplate(baseHtml);
 
-  // 1. Inject FAQ schema before </head>
-  homepageHtml = homepageHtml.replace("</head>", `${homepageFaqSchema}\n</head>`);
+  const homepageHead = `
+  <title>PDFMinty — Free Privacy-First PDF Toolkit</title>
+  <meta name="description" content="Free privacy-first PDF toolkit. Merge, split, compress, protect, and edit PDFs 100% in your browser. No uploads, no sign-up, complete confidentiality.">
+  <link rel="canonical" href="${SITE_URL}/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${SITE_URL}/">
+  <meta property="og:title" content="PDFMinty — Free Privacy-First PDF Toolkit">
+  <meta property="og:description" content="Free privacy-first PDF toolkit. Merge, split, compress, protect, and edit PDFs 100% in your browser. No uploads, no sign-up, complete confidentiality.">
+  <meta property="og:image" content="${SITE_URL}/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="${SITE_URL}/">
+  <meta name="twitter:title" content="PDFMinty — Free Privacy-First PDF Toolkit">
+  <meta name="twitter:description" content="Free privacy-first PDF toolkit. Merge, split, compress, protect, and edit PDFs 100% in your browser. No uploads, no sign-up, complete confidentiality.">
+  <meta name="twitter:image" content="${SITE_URL}/og-image.png">
+  ${homepageFaqSchema}
+  `;
+
+  // 1. Inject Head meta and FAQ schema before </head>
+  homepageHtml = homepageHtml.replace("</head>", `${homepageHead}\n</head>`);
 
   // 2. Inject pre-rendered content into #root
   const homepageRootContent = `
     <div id="root">
-      <noscript>
-        ${homepageContent}
-      </noscript>
+      ${homepageContent}
     </div>
   `;
-  homepageHtml = homepageHtml.replace(/<div\s+id="root"\s*><\/div>/i, homepageRootContent);
-  homepageHtml = homepageHtml.replace(/<div\s+id="root"\s*>\s*<\/div>/i, homepageRootContent);
+  homepageHtml = homepageHtml.replace(/<div\s+id="root"[\s\S]*?<\/div>/i, homepageRootContent.trim());
 
   fs.writeFileSync(distIndexHtmlPath, homepageHtml, "utf8");
   logger.info("Successfully pre-rendered static HTML for the Homepage at dist/index.html");
