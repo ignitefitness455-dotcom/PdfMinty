@@ -1,16 +1,18 @@
 <div align="center">
   <h1>PDFMinty</h1>
-  <p><strong>Privacy-First, Client-Side PDF Toolkit with AI Intelligence</strong></p>
-  <p>100% Offline Processing • Zero File Uploads • Serverless AI Integration</p>
+  <p><strong>Privacy-first, client-side PDF tools for the browser</strong></p>
+  <p><a href="https://pdfminty.com/">Try PdfMinty online</a> · Standard tools process locally in your browser</p>
 </div>
+
+> **Privacy scope:** PdfMinty’s standard PDF operations are designed to run locally in the browser. AI-powered workflows such as OCR, PDF analysis, and PDF-to-Markdown use a separate network path and should be used only after reviewing the product’s consent and provider disclosures. Do not treat this README as a promise that every feature has the same data path.
 
 ---
 
 ## 🌟 Overview
 
-**PDFMinty** is a modern, privacy-focused Web Application for operating on PDF documents. Unlike traditional online PDF tools that upload sensitive files to remote servers, PDFMinty processes documents **directly inside your browser** using WebAssembly and client-side JavaScript. 
+**PDFMinty** is a browser-based PDF toolkit for common document tasks such as merging, splitting, rotating, protecting, signing, sanitizing, converting, and organizing PDF files. Core operations are designed to process documents **inside the browser** using WebAssembly and client-side JavaScript, avoiding an upload-first workflow for those operations.
 
-For intelligent features (such as PDF Analysis, OCR, and PDF-to-Markdown conversion), PDFMinty leverages a serverless proxy supporting **Groq, Gemini, and xAI Grok** models without compromising document privacy for basic operations.
+Intelligent features such as PDF Analysis, OCR, and PDF-to-Markdown use a separate serverless proxy/provider path. The live product explains the applicable consent and data-handling boundary; users should review that disclosure before sending extracted text or images to an AI provider. See the [live PdfMinty website](https://pdfminty.com/) for the current feature and privacy details.
 
 ---
 
@@ -117,6 +119,13 @@ npm run format:check
 ```
 
 ---
+
+## 🔗 Links
+
+* **Live website:** https://pdfminty.com/
+* **Privacy policy:** https://pdfminty.com/privacy-policy/
+* **Terms of service:** https://pdfminty.com/terms-of-service/
+* **Blog:** https://pdfminty.com/blog/
 
 ## 🛡️ Security & Privacy Notice
 
