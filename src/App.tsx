@@ -83,6 +83,39 @@ export const App: React.FC = () => {
                 </ErrorBoundary>
               }
             />
+            {/* Localized i18n routes */}
+            <Route
+              path="/bn/merge-pdf"
+              element={
+                <ErrorBoundary resetKey="bn-merge">
+                  <MergePage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path="/bn/merge-pdf/"
+              element={
+                <ErrorBoundary resetKey="bn-merge">
+                  <MergePage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path="/bn"
+              element={
+                <ErrorBoundary resetKey="bn-home">
+                  <HomePage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path="/bn/"
+              element={
+                <ErrorBoundary resetKey="bn-home">
+                  <HomePage />
+                </ErrorBoundary>
+              }
+            />
             <Route
               path={ROUTES.SPLIT}
               element={

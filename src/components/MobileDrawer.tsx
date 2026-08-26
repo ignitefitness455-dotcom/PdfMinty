@@ -5,6 +5,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '../config/routes';
 import { useModal } from '../hooks/useModal';
 
+import { LanguageSwitcher } from './LanguageSwitcher';
+
 interface MenuItem {
   name: string;
   path: string;
@@ -138,31 +140,42 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
           </div>
         </div>
 
-        {/* Mobile Display Settings */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
-          <p className="px-4 text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase mb-2">
-            Display Settings
-          </p>
-          <button
-            onClick={() => setThemeSetting(theme === 'dark' ? 'light' : 'dark')}
-            className="w-full flex items-center justify-between p-3.5 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/60 font-semibold text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-left"
-          >
-            <div className="flex items-center space-x-3">
-              <span className="p-1.5 rounded-lg bg-white dark:bg-slate-950 shadow-sm border border-slate-200 dark:border-slate-800 flex items-center justify-center">
-                {theme === 'dark' ? (
-                  <Sun className="w-4 h-4 text-amber-500 fill-amber-500/10" />
-                ) : (
-                  <Moon className="w-4 h-4 text-slate-600 fill-slate-750/10" />
-                )}
-              </span>
-              <span>
-                {theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-              </span>
+        {/* Mobile Display & Language Settings */}
+        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-4 space-y-4">
+          <div>
+            <p className="px-4 text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase mb-2">
+              Language
+            </p>
+            <div className="px-4">
+              <LanguageSwitcher variant="mobile" onSelect={() => setMobileMenuOpen(false)} />
             </div>
-            <span className="hidden text-xs text-slate-400 dark:text-slate-500 font-mono pr-2">
-              Toggle
-            </span>
-          </button>
+          </div>
+
+          <div>
+            <p className="px-4 text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase mb-2">
+              Display Theme
+            </p>
+            <button
+              onClick={() => setThemeSetting(theme === 'dark' ? 'light' : 'dark')}
+              className="w-full flex items-center justify-between p-3.5 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/60 font-semibold text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-left"
+            >
+              <div className="flex items-center space-x-3">
+                <span className="p-1.5 rounded-lg bg-white dark:bg-slate-950 shadow-sm border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                  {theme === 'dark' ? (
+                    <Sun className="w-4 h-4 text-amber-500 fill-amber-500/10" />
+                  ) : (
+                    <Moon className="w-4 h-4 text-slate-600 fill-slate-750/10" />
+                  )}
+                </span>
+                <span>
+                  {theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+                </span>
+              </div>
+              <span className="hidden text-xs text-slate-400 dark:text-slate-500 font-mono pr-2">
+                Toggle
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

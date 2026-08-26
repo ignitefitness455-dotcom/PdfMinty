@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { SITE_URL, TOOLS, ToolSEOInfo } from '../src/config/seo-data';
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE, I18N_TOOL_SLUGS } from '../src/i18n/config';
 import { logger } from '../src/utils/logger';
 
 const __filename: string = fileURLToPath(import.meta.url);
@@ -84,6 +85,29 @@ export function generateSitemapXml(): { sitemapXml: string } {
         title: item.metaTitle || item.name || item.h1 || 'PdfMinty Tool',
         caption: item.shortDescription || `${item.name} PDF tool`,
       });
+
+      // Add localized versions for tools configured in i18n
+      const cleanSlug = item.slug.replace(/^\//, '').replace(/\/$/, '');
+      if ((I18N_TOOL_SLUGS as readonly string[]).includes(cleanSlug)) {
+        for (const locLang of SUPPORTED_LOCALES) {
+          if (locLang !== DEFAULT_LOCALE) {
+            const localizedPath = `/${locLang}/${cleanSlug}`;
+            if (!addedPaths.has(localizedPath)) {
+              addedPaths.add(localizedPath);
+              const localizedLoc = `${SITE_URL}${localizedPath}/`;
+              urlEntries.push({
+                loc: localizedLoc,
+                lastmod,
+                changefreq,
+                priority,
+                imageLoc: ogImage,
+                title: item.metaTitle || item.name || item.h1 || 'PdfMinty Tool',
+                caption: item.shortDescription || `${item.name} PDF tool`,
+              });
+            }
+          }
+        }
+      }
     }
   }
 

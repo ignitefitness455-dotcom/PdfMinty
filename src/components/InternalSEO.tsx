@@ -3,13 +3,21 @@ import { Link, useLocation } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
 import { SITE_URL, SITE_NAME, TOOLS, FAQS } from '../config/seo-data';
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '../i18n/config';
 
 export const Breadcrumbs: React.FC = () => {
   const { pathname = '/' } = useLocation() || {};
   
   const cleanSlug = useMemo(() => {
     if (!pathname || pathname === '/') return '';
-    return pathname.toLowerCase().replace(/^\//, '').replace(/\/$/, '');
+    let slug = pathname.toLowerCase().replace(/^\//, '').replace(/\/$/, '');
+    for (const loc of SUPPORTED_LOCALES) {
+      if (loc !== DEFAULT_LOCALE && (slug === loc || slug.startsWith(`${loc}/`))) {
+        slug = slug.substring(loc.length + 1);
+        break;
+      }
+    }
+    return slug;
   }, [pathname]);
 
   if (!cleanSlug) {

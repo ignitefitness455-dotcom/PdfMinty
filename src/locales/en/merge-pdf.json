@@ -1,0 +1,46 @@
+{
+  "pageTitle": "Merge PDF Files",
+  "pageSubtitle": "Combine multiple PDF documents into a single organized file with drag-and-drop reordering.",
+  "privacyBadge": "100% Private — Client-Side Processing",
+  "alerts": {
+    "genericError": "An error occurred while merging your PDF files. Please try again.",
+    "processing": "Merging PDF files securely in your browser...",
+    "success": "PDFs merged successfully! Your download should start automatically."
+  },
+  "dropzone": {
+    "title": "Drag & drop PDF files here",
+    "subtitle": "or choose files from your computer to get started",
+    "browseButton": "Browse Files",
+    "ariaLabel": "Upload PDF files to merge",
+    "supportedFormat": "Supports PDF files up to 50MB each"
+  },
+  "fileList": {
+    "title": "Selected Files",
+    "count_one": "{{count}} file selected",
+    "count_other": "{{count}} files selected",
+    "hint": "Drag items or use arrow buttons to arrange page order before merging",
+    "addMore": "Add More Files",
+    "clearAll": "Clear All",
+    "actions": {
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove file"
+    },
+    "fileInfo": {
+      "pages_one": "{{count}} page",
+      "pages_other": "{{count}} pages",
+      "loadingPages": "Calculating pages..."
+    }
+  },
+  "mergeControls": {
+    "mergeButton": "Merge PDFs",
+    "mergingButton": "Merging Documents...",
+    "filenamePlaceholder": "merged-document.pdf",
+    "filenameLabel": "Output file name",
+    "outputSummary": "Combine {{count}} documents into a single PDF"
+  },
+  "securityNotice": {
+    "title": "Zero Server Uploads",
+    "description": "Your files are combined entirely within your local browser sandbox using WebAssembly. No documents or sensitive data are ever transmitted to external servers."
+  }
+}

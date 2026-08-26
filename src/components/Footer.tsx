@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
 
+import { LanguageSwitcher } from './LanguageSwitcher';
+
 export const Footer: React.FC = () => {
   return (
     <footer className="bg-surface-container-low border-t border-border-muted pt-12 pb-8 font-sans text-on-surface-variant transition-colors duration-200">
@@ -123,7 +125,9 @@ export const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border-muted flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           <p>© {new Date().getFullYear()} PdfMinty. All rights reserved. Built for 100% file privacy.</p>
-          <div className="flex items-center gap-4 text-on-surface-variant/80 font-medium">
+          <div className="flex flex-wrap items-center gap-4 text-on-surface-variant/80 font-medium">
+            <LanguageSwitcher variant="footer" />
+            <span>•</span>
             <span>Client-side PDF Suite</span>
             <span>•</span>
             <span>Zero Data Logs</span>

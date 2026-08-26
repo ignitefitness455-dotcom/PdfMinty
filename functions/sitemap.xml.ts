@@ -1,4 +1,5 @@
 import { TOOLS } from '../src/config/seo-data';
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE, I18N_TOOL_SLUGS } from '../src/i18n/config';
 
 function escapeXml(unsafe: string): string {
   return unsafe
@@ -57,6 +58,26 @@ export const onRequest: PagesFunction = async () => {
         lastmod,
         image: tool.ogImage ? `${siteUrl}${tool.ogImage}` : `${siteUrl}/og-image.png`,
       });
+
+      // Add localized versions for tools configured in i18n
+      const cleanSlug = tool.slug.replace(/^\//, '').replace(/\/$/, '');
+      if ((I18N_TOOL_SLUGS as readonly string[]).includes(cleanSlug)) {
+        for (const locLang of SUPPORTED_LOCALES) {
+          if (locLang !== DEFAULT_LOCALE) {
+            const localizedPath = `/${locLang}/${cleanSlug}`;
+            if (!addedPaths.has(localizedPath)) {
+              addedPaths.add(localizedPath);
+              entries.push({
+                loc: `${siteUrl}${localizedPath}/`,
+                priority,
+                changefreq,
+                lastmod,
+                image: tool.ogImage ? `${siteUrl}${tool.ogImage}` : `${siteUrl}/og-image.png`,
+              });
+            }
+          }
+        }
+      }
     }
   }
 

@@ -4,8 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 import sharp from 'sharp';
 
-import { SITE_URL, SITE_NAME, TOOLS, ToolSEOInfo } from '../src/config/seo-data';
 import { HOMEPAGE_H1 } from '../src/config/homeConfig';
+import { SITE_URL, SITE_NAME, TOOLS, ToolSEOInfo } from '../src/config/seo-data';
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE, I18N_TOOL_SLUGS, getHreflangs, getCanonicalUrl } from '../src/i18n/config';
 import { logger } from '../src/utils/logger';
 
 const __filename: string = fileURLToPath(import.meta.url);
@@ -373,12 +374,19 @@ async function run(): Promise<void> {
       .map((schema: Record<string, unknown>) => `<script type="application/ld+json">${JSON.stringify(schema)}</script>`)
       .join('\n  ');
 
+    const isI18n = (I18N_TOOL_SLUGS as readonly string[]).includes(item.slug);
+    const hreflangMarkup = isI18n
+      ? getHreflangs(item.slug, SITE_URL)
+          .map((entry) => `  <link rel="alternate" hreflang="${entry.hreflang}" href="${entry.href}">`)
+          .join('\n')
+      : '';
+
     // Set custom page head meta tags
     const headMeta: string = `
   <title>${item.metaTitle}</title>
   <meta name="description" content="${item.metaDescription}">
   <link rel="canonical" href="${pageUrl}">
-  <meta property="og:type" content="${item.type === 'article' ? 'article' : 'website'}">
+${hreflangMarkup ? `${hreflangMarkup}\n` : ''}  <meta property="og:type" content="${item.type === 'article' ? 'article' : 'website'}">
   <meta property="og:title" content="${item.metaTitle}">
   <meta property="og:description" content="${item.metaDescription}">
   <meta property="og:url" content="${pageUrl}">
@@ -427,6 +435,40 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a> â€
     
     fs.writeFileSync(path.join(targetFolder, "index.html"), preRenderedHtml, "utf8");
     logger.info(`Pre-rendered static HTML created for ${item.name} at: ${targetFolder}/index.html`);
+
+    // If tool is localized, generate pre-rendered static HTML for configured non-default locales
+    if (isI18n) {
+      for (const locLang of SUPPORTED_LOCALES) {
+        if (locLang !== DEFAULT_LOCALE) {
+          const locTargetFolder = path.join(distDir, locLang, item.slug);
+          if (!fs.existsSync(locTargetFolder)) {
+            fs.mkdirSync(locTargetFolder, { recursive: true });
+          }
+          const locPageUrl = getCanonicalUrl(item.slug, locLang, SITE_URL);
+          const locHeadMeta: string = `
+  <title>${item.metaTitle}</title>
+  <meta name="description" content="${item.metaDescription}">
+  <link rel="canonical" href="${locPageUrl}">
+${hreflangMarkup ? `${hreflangMarkup}\n` : ''}  <meta property="og:type" content="${item.type === 'article' ? 'article' : 'website'}">
+  <meta property="og:title" content="${item.metaTitle}">
+  <meta property="og:description" content="${item.metaDescription}">
+  <meta property="og:url" content="${locPageUrl}">
+  <meta property="og:image" content="${SITE_URL}/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="${locPageUrl}">
+  <meta name="twitter:title" content="${item.metaTitle}">
+  <meta name="twitter:description" content="${item.metaDescription}">
+  <meta name="twitter:image" content="${SITE_URL}/og-image.png">
+  ${jsonLdMarkup}
+  `;
+          let locHtml: string = optimizedBase.replace("</head>", `${locHeadMeta}\n</head>`);
+          locHtml = locHtml.replace(/<div\s+id="root"\s*><\/div>/i, preRenderedContent);
+          locHtml = locHtml.replace(/<div\s+id="root"\s*>\s*<\/div>/i, preRenderedContent);
+          fs.writeFileSync(path.join(locTargetFolder, "index.html"), locHtml, "utf8");
+          logger.info(`Pre-rendered static HTML created for ${item.name} [${locLang}] at: ${locTargetFolder}/index.html`);
+        }
+      }
+    }
   });
 
   // ----------------------------------------------------

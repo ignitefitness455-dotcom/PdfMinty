@@ -1,38 +1,33 @@
-# PDFMinty robots.txt — Privacy-First PDF Toolkit
+# ==========================================
+# PdfMinty - Optimized robots.txt
+# ==========================================
 
+# Default rules for all standard search engines
 User-agent: *
 Allow: /
 Allow: /assets/
 Allow: /fonts/
 Allow: /icons/
+Allow: /js/
+Allow: /css/
+
+# Disallow internal backend/Cloudflare system paths
 Disallow: /api/
 Disallow: /functions/
 Disallow: /cdn-cgi/
 
-User-agent: AhrefsBot
+# Explicit permission for AI Search Crawlers
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: PerplexityBot
 Allow: /
-Disallow: /api/
-Disallow: /functions/
-Disallow: /cdn-cgi/
-Crawl-delay: 2
 
-User-agent: SemrushBot
-Allow: /
-Disallow: /api/
-Disallow: /functions/
-Disallow: /cdn-cgi/
-Crawl-delay: 2
-
-User-agent: Dotbot
-Allow: /
-Disallow: /api/
-Disallow: /functions/
-Disallow: /cdn-cgi/
-Crawl-delay: 2
-
+# Block unwanted spam & aggressive scrapers
 User-agent: SemrushBot-BA
+User-agent: PetalBot
+User-agent: MJ12bot
 Disallow: /
 
+# Sitemap Index
 Sitemap: https://pdfminty.com/sitemap.xml
-
-Host: https://pdfminty.com

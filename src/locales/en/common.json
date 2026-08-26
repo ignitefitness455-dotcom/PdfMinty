@@ -1,0 +1,63 @@
+{
+  "header": {
+    "siteName": "PdfMinty",
+    "badgeOffline": "100% PRIVATE & OFFLINE",
+    "themeToggle": {
+      "ariaLabel": "Toggle dark and light mode",
+      "switchToLight": "Switch to light theme",
+      "switchToDark": "Switch to dark theme"
+    },
+    "mobileMenu": {
+      "ariaLabel": "Open mobile navigation menu"
+    }
+  },
+  "footer": {
+    "brandDescription": "Ultra-fast, secure, client-side PDF utility toolkit. Manipulate, convert, and protect your PDF documents completely inside your web browser.",
+    "sections": {
+      "coreTools": "Core Tools",
+      "converters": "Converters",
+      "legalTrust": "Legal & Trust"
+    },
+    "links": {
+      "mergePdf": "Merge PDF",
+      "splitPdf": "Split PDF",
+      "compressPdf": "Compress PDF",
+      "protectPdf": "Protect PDF",
+      "unlockPdf": "Unlock PDF",
+      "organizePdf": "Organize PDF",
+      "rotatePdf": "Rotate PDF",
+      "pdfToWord": "PDF to Word (DOCX)",
+      "pdfToText": "PDF to Text",
+      "pdfToZip": "PDF to ZIP",
+      "pdfToJpg": "PDF to JPG",
+      "jpgToPdf": "JPG to PDF",
+      "pngToPdf": "PNG to PDF",
+      "webpToPdf": "WEBP to PDF",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "howItWorks": "How It Works"
+    },
+    "copyright": "© {{year}} PdfMinty. All rights reserved. Built for 100% file privacy.",
+    "badges": {
+      "clientSide": "Client-side PDF Suite",
+      "zeroLogs": "Zero Data Logs",
+      "webAssembly": "WebAssembly Powered"
+    }
+  },
+  "mobileDrawer": {
+    "siteName": "PdfMinty",
+    "brandTagline": "Privacy-First PDF Toolkit",
+    "closeAriaLabel": "Close navigation drawer",
+    "sectionTools": "PDF Tools",
+    "sectionSettings": "Display & Language Settings",
+    "languageLabel": "Language",
+    "displayThemeLabel": "Display Theme",
+    "switchToLight": "Switch to Light Theme",
+    "switchToDark": "Switch to Dark Theme",
+    "toggleLabel": "Toggle"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Select Language",
+    "changeLanguageAria": "Change language"
+  }
+}

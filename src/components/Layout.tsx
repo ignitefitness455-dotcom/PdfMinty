@@ -169,7 +169,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <InternalSEO />
             {children}
             {(() => {
-              const activeSlug = location.pathname.replace(/^\//, '').replace(/\/$/, '');
+              let activeSlug = location.pathname.replace(/^\//, '').replace(/\/$/, '');
+              if (activeSlug.startsWith('bn/')) {
+                activeSlug = activeSlug.substring(3);
+              }
               const activeItem = TOOLS.find((t) => t.slug === activeSlug);
               if (activeItem?.type === 'tool') {
                 return <ToolContentSection tool={activeItem} />;

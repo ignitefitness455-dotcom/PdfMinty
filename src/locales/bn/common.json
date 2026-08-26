@@ -1,0 +1,63 @@
+{
+  "header": {
+    "siteName": "PdfMinty",
+    "badgeOffline": "১০০% প্রাইভেট ও অফলাইন",
+    "themeToggle": {
+      "ariaLabel": "ডার্ক এবং লাইট মোড পরিবর্তন করুন",
+      "switchToLight": "লাইট থিমে পরিবর্তন করুন",
+      "switchToDark": "ডার্ক থিমে পরিবর্তন করুন"
+    },
+    "mobileMenu": {
+      "ariaLabel": "মোবাইল মেনু খুলুন"
+    }
+  },
+  "footer": {
+    "brandDescription": "সরাসরি ব্রাউজারে দ্রুত ও নিরাপদভাবে PDF ফাইল এডিট, কনভার্ট এবং সুরক্ষিত করার সম্পূর্ণ অফলাইন টুলকিট।",
+    "sections": {
+      "coreTools": "মূল টুলস",
+      "converters": "কনভার্টার",
+      "legalTrust": "আইনি ও পলিসি"
+    },
+    "links": {
+      "mergePdf": "PDF মার্জ করুন",
+      "splitPdf": "PDF স্প্লিট করুন",
+      "compressPdf": "PDF কম্প্রেস করুন",
+      "protectPdf": "PDF পাসওয়ার্ড লক",
+      "unlockPdf": "PDF আনলক",
+      "organizePdf": "PDF পেজ সাজান",
+      "rotatePdf": "PDF রোটেট করুন",
+      "pdfToWord": "PDF থেকে Word (DOCX)",
+      "pdfToText": "PDF থেকে Text",
+      "pdfToZip": "PDF থেকে ZIP",
+      "pdfToJpg": "PDF থেকে JPG",
+      "jpgToPdf": "JPG থেকে PDF",
+      "pngToPdf": "PNG থেকে PDF",
+      "webpToPdf": "WEBP থেকে PDF",
+      "privacyPolicy": "প্রাইভেসি পলিসি",
+      "termsOfService": "শর্তাবলী",
+      "howItWorks": "কীভাবে কাজ করে"
+    },
+    "copyright": "© {{year}} PdfMinty. সর্বস্বত্ব সংরক্ষিত। ১০০% ফাইল প্রাইভেসি সহ তৈরি।",
+    "badges": {
+      "clientSide": "ক্লায়েন্ট-সাইড PDF স্যুট",
+      "zeroLogs": "জিরো ডাটা লগস",
+      "webAssembly": "WebAssembly চালিত"
+    }
+  },
+  "mobileDrawer": {
+    "siteName": "PdfMinty",
+    "brandTagline": "প্রাইভেসি-ফার্স্ট PDF টুলকিট",
+    "closeAriaLabel": "মেনু বন্ধ করুন",
+    "sectionTools": "PDF টুলস",
+    "sectionSettings": "ডিসপ্লে ও ভাষা সেটিংস",
+    "languageLabel": "ভাষা",
+    "displayThemeLabel": "ডিসপ্লে থিম",
+    "switchToLight": "লাইট থিমে পরিবর্তন করুন",
+    "switchToDark": "ডার্ক থিমে পরিবর্তন করুন",
+    "toggleLabel": "টগল"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "ভাষা নির্বাচন করুন",
+    "changeLanguageAria": "ভাষা পরিবর্তন করুন"
+  }
+}
