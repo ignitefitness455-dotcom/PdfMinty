@@ -1,28 +1,43 @@
 {
   "header": {
     "siteName": "PdfMinty",
+    "tagline": "প্রাইভেসি-ফার্স্ট PDF টুলস",
     "badgeOffline": "১০০% প্রাইভেট ও অফলাইন",
+    "nav": {
+      "home": "হোম",
+      "tools": "টুলস",
+      "blog": "ব্লগ",
+      "about": "আমাদের সম্পর্কে",
+      "contact": "যোগাযোগ"
+    },
     "themeToggle": {
-      "ariaLabel": "ডার্ক এবং লাইট মোড পরিবর্তন করুন",
-      "switchToLight": "লাইট থিমে পরিবর্তন করুন",
-      "switchToDark": "ডার্ক থিমে পরিবর্তন করুন"
+      "ariaLabel": "ডার্ক মোড টগল করুন",
+      "switchToLight": "লাইট মোডে যান",
+      "switchToDark": "ডার্ক মোডে যান"
     },
     "mobileMenu": {
-      "ariaLabel": "মোবাইল মেনু খুলুন"
+      "ariaLabel": "মোবাইল মেনু খুলুন",
+      "open": "মেনু খুলুন",
+      "close": "মেনু বন্ধ করুন"
     }
   },
   "footer": {
-    "brandDescription": "সরাসরি ব্রাউজারে দ্রুত ও নিরাপদভাবে PDF ফাইল এডিট, কনভার্ট এবং সুরক্ষিত করার সম্পূর্ণ অফলাইন টুলকিট।",
+    "brandDescription": "সরাসরি ব্রাউজারে দ্রুত ও নিরাপদভাবে PDF ফাইল এডিট, কনভার্ট এবং সুরক্ষিত করার সম্পূর্ণ অফলাইন টুলকিট। এআই ও ওসিআর ফিচারগুলো নিরাপদ ও এনক্রিপ্টেড উপায়ে প্রসেস হয়।",
     "sections": {
       "coreTools": "মূল টুলস",
+      "popularTools": "জনপ্রিয় টুলস",
+      "resources": "রিসোর্স ও গাইড",
+      "companyLegal": "কোম্পানি ও আইনি",
       "converters": "কনভার্টার",
       "legalTrust": "আইনি ও পলিসি"
     },
     "links": {
       "mergePdf": "PDF মার্জ করুন",
       "splitPdf": "PDF স্প্লিট করুন",
+      "grayscalePdf": "গ্রেস্কেল PDF",
+      "protectPdf": "PDF পাসওয়ার্ড লক ও সুরক্ষা",
+      "pdfToImg": "PDF থেকে ছবিতে রূপান্তর",
       "compressPdf": "PDF কম্প্রেস করুন",
-      "protectPdf": "PDF পাসওয়ার্ড লক",
       "unlockPdf": "PDF আনলক",
       "organizePdf": "PDF পেজ সাজান",
       "rotatePdf": "PDF রোটেট করুন",
@@ -33,14 +48,23 @@
       "jpgToPdf": "JPG থেকে PDF",
       "pngToPdf": "PNG থেকে PDF",
       "webpToPdf": "WEBP থেকে PDF",
+      "knowledgeHub": "নলেজ হাব",
+      "compareSmallpdf": "PdfMinty বনাম SmallPDF",
+      "compareIlovepdf": "PdfMinty বনাম iLovePDF",
+      "adobeSecurity": "Adobe বনাম ব্রাউজার সিকিউরিটি",
+      "trustArticle": "অনলাইন PDF কি নিরাপদ?",
+      "aboutUs": "আমাদের সম্পর্কে",
+      "contactUs": "যোগাযোগ করুন",
       "privacyPolicy": "প্রাইভেসি পলিসি",
-      "termsOfService": "শর্তাবলী",
+      "termsOfService": "ব্যবহারের শর্তাবলী",
       "howItWorks": "কীভাবে কাজ করে"
     },
     "copyright": "© {{year}} PdfMinty. সর্বস্বত্ব সংরক্ষিত। ১০০% ফাইল প্রাইভেসি সহ তৈরি।",
     "badges": {
+      "privacyFirst": "ব্রাউজার-ভিত্তিক প্রাইভেসি-ফার্স্ট",
       "clientSide": "ক্লায়েন্ট-সাইড PDF স্যুট",
       "zeroLogs": "জিরো ডাটা লগস",
+      "openFree": "উন্মুক্ত ও ফ্রি",
       "webAssembly": "WebAssembly চালিত"
     }
   },

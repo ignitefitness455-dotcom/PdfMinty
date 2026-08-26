@@ -1,5 +1,6 @@
 import { ArrowLeft, Files, Trash2, ArrowUp, ArrowDown, Download, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { EmptyState } from '../components/EmptyState';
@@ -13,6 +14,7 @@ import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const MergePage: React.FC = () => {
+  const { t } = useTranslation('merge-pdf');
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,9 +43,17 @@ export const MergePage: React.FC = () => {
 
     if (totalBytes > maxTotalBytes) {
       setError(
-        `Uploading failed! The combined size of all your files (${(totalBytes / 1024 / 1024).toFixed(
-          2
-        )} MB) exceeds the absolute combined limit of ${TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB} MB. please remove some files.`
+        t('errors.totalSizeExceeded', {
+          size: (totalBytes / 1024 / 1024).toFixed(2),
+          limit: TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB,
+          defaultValue: `Uploading failed! The combined size of all your files (${(
+            totalBytes /
+            1024 /
+            1024
+          ).toFixed(2)} MB) exceeds the absolute combined limit of ${
+            TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB
+          } MB. please remove some files.`,
+        })
       );
       return;
     }
@@ -79,7 +89,11 @@ export const MergePage: React.FC = () => {
 
   const handleMerge = async () => {
     if (files.length < 2) {
-      setError('Please add at least 2 PDF files to perform the merge operation.');
+      setError(
+        t('errors.minFilesRequired', {
+          defaultValue: 'Please add at least 2 PDF files to perform the merge operation.',
+        })
+      );
       return;
     }
 
@@ -112,7 +126,10 @@ export const MergePage: React.FC = () => {
       const message = err instanceof Error ? err.message : String(err);
       setError(
         message ||
-          'An unexpected failure occurred while merging documents. Make sure they are not encrypted.'
+          t('errors.unexpectedFailure', {
+            defaultValue:
+              'An unexpected failure occurred while merging documents. Make sure they are not encrypted.',
+          })
       );
     } finally {
       setLoading(false);
@@ -128,20 +145,29 @@ export const MergePage: React.FC = () => {
         className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
+        <span>{t('returnDashboard', { defaultValue: 'Return to Dashboard' })}</span>
       </Link>
 
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Merge PDF Files Free — Combine PDF Documents Online
+            {t('pageTitle', {
+              defaultValue: 'Merge PDF Files Free — Combine PDF Documents Online',
+            })}
           </h1>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB}MB per file
+            {t('limitBadge', {
+              limit: TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB,
+              defaultValue: `Limit: ${TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB}MB per file`,
+            })}
           </span>
         </div>
         <p className="text-slate-500 text-sm">
-          Combine several PDFs into a single, structured file. Individual files must be under {TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB} MB (Max total: {TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB} MB).
+          {t('pageSubtitle', {
+            maxSingle: TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB,
+            maxTotal: TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB,
+            defaultValue: `Combine several PDFs into a single, structured file. Individual files must be under ${TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB} MB (Max total: ${TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB} MB).`,
+          })}
         </p>
       </div>
 
@@ -153,16 +179,22 @@ export const MergePage: React.FC = () => {
             <FileUploader
               onFilesSelected={handleFilesSelected}
               multiple
-              title="Add more files to merge"
-              subtitle={`Drag PDF files here or click to browse (Max limit: ${TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB}MB per file)`}
+              title={t('dropzone.title', { defaultValue: 'Add more files to merge' })}
+              subtitle={t('dropzone.subtitleWithLimit', {
+                maxSingle: TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB,
+                defaultValue: `Drag PDF files here or click to browse (Max limit: ${TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB}MB per file)`,
+              })}
               maxSizeMB={TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB}
             />
           </div>
 
           {files.length === 0 ? (
             <EmptyState
-              title="Upload PDFs to merge"
-              description="Add two or more PDF files above to arrange them and combine into a single document."
+              title={t('emptyState.title', { defaultValue: 'Upload PDFs to merge' })}
+              description={t('emptyState.description', {
+                defaultValue:
+                  'Add two or more PDF files above to arrange them and combine into a single document.',
+              })}
             />
           ) : (
             <div
@@ -171,13 +203,16 @@ export const MergePage: React.FC = () => {
             >
               <div className="bg-slate-50 border-b border-slate-100 px-4 py-3 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Arrange File Order ({files.length} selected)
+                  {t('fileList.titleWithCount', {
+                    count: files.length,
+                    defaultValue: `Arrange File Order (${files.length} selected)`,
+                  })}
                 </span>
                 <button
                   onClick={() => setFiles([])}
-                  className="text-xs font-semibold text-rose-600 hover:text-rose-700"
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 cursor-pointer"
                 >
-                  Clear All
+                  {t('fileList.clearAll', { defaultValue: 'Clear All' })}
                 </button>
               </div>
 
@@ -205,23 +240,25 @@ export const MergePage: React.FC = () => {
                       <button
                         onClick={() => moveItem(i, 'up')}
                         disabled={i === 0}
-                        aria-label="Move item up"
-                        className="p-1.5 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-30 disabled:pointer-events-none"
+                        aria-label={t('fileList.actions.moveUp', { defaultValue: 'Move item up' })}
+                        className="p-1.5 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
                       >
                         <ArrowUp className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => moveItem(i, 'down')}
                         disabled={i === files.length - 1}
-                        aria-label="Move item down"
-                        className="p-1.5 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-30 disabled:pointer-events-none"
+                        aria-label={t('fileList.actions.moveDown', {
+                          defaultValue: 'Move item down',
+                        })}
+                        className="p-1.5 rounded hover:bg-slate-100 text-slate-500 disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
                       >
                         <ArrowDown className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleRemove(i)}
-                        aria-label="Delete item"
-                        className="p-1.5 rounded hover:bg-rose-50 text-rose-600 hover:scale-105 transition-transform"
+                        aria-label={t('fileList.actions.remove', { defaultValue: 'Delete item' })}
+                        className="p-1.5 rounded hover:bg-rose-50 text-rose-600 hover:scale-105 transition-transform cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -233,13 +270,23 @@ export const MergePage: React.FC = () => {
           )}
 
           {isSuccess && (
-            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="merge_success_banner">
+            <div
+              className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold"
+              id="merge_success_banner"
+            >
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                <span>Merge Operation Completed Successfully!</span>
+                <span>
+                  {t('alerts.successTitle', {
+                    defaultValue: 'Merge Operation Completed Successfully!',
+                  })}
+                </span>
               </div>
               <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                Your compiled and structured PDF has been built completely in your browser.
+                {t('alerts.successDescription', {
+                  defaultValue:
+                    'Your compiled and structured PDF has been built completely in your browser.',
+                })}
               </p>
               {downloadUrl && (
                 <div className="pt-2">
@@ -250,7 +297,9 @@ export const MergePage: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
                     <Download className="w-4 h-4 animate-bounce" />
-                    <span>Download Merged PDF</span>
+                    <span>
+                      {t('alerts.downloadButton', { defaultValue: 'Download Merged PDF' })}
+                    </span>
                   </a>
                 </div>
               )}
@@ -262,14 +311,19 @@ export const MergePage: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
             <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Merge Settings
+              {t('sidebar.title', { defaultValue: 'Merge Settings' })}
             </h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Use the ordering switches in the list deck to set page hierarchy. Merge compiles them
-              consecutively from top to bottom.
+              {t('sidebar.description', {
+                defaultValue:
+                  'Use the ordering switches in the list deck to set page hierarchy. Merge compiles them consecutively from top to bottom.',
+              })}
             </p>
             <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-100 text-[11px] text-emerald-800 font-medium">
-              Files are merged 100% locally on your computer. Your secrets never leave your side.
+              {t('sidebar.securityNote', {
+                defaultValue:
+                  'Files are merged 100% locally on your computer. Your secrets never leave your side.',
+              })}
             </div>
           </div>
 
@@ -296,12 +350,17 @@ export const MergePage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Compiling PDF...</span>
+                  <span>{t('mergeControls.mergingButton', { defaultValue: 'Compiling PDF...' })}</span>
                 </span>
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  <span>Merge PDFs ({files.length})</span>
+                  <span>
+                    {t('mergeControls.mergeButtonWithCount', {
+                      count: files.length,
+                      defaultValue: `Merge PDFs (${files.length})`,
+                    })}
+                  </span>
                 </>
               )}
             </button>

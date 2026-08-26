@@ -1,28 +1,43 @@
 {
   "header": {
     "siteName": "PdfMinty",
+    "tagline": "Privacy-First PDF Tools",
     "badgeOffline": "100% PRIVATE & OFFLINE",
+    "nav": {
+      "home": "Home",
+      "tools": "Tools",
+      "blog": "Blog",
+      "about": "About",
+      "contact": "Contact"
+    },
     "themeToggle": {
-      "ariaLabel": "Toggle dark and light mode",
-      "switchToLight": "Switch to light theme",
-      "switchToDark": "Switch to dark theme"
+      "ariaLabel": "Toggle dark mode",
+      "switchToLight": "Switch to Light Mode",
+      "switchToDark": "Switch to Dark Mode"
     },
     "mobileMenu": {
-      "ariaLabel": "Open mobile navigation menu"
+      "ariaLabel": "Open mobile navigation menu",
+      "open": "Open menu",
+      "close": "Close menu"
     }
   },
   "footer": {
-    "brandDescription": "Ultra-fast, secure, client-side PDF utility toolkit. Manipulate, convert, and protect your PDF documents completely inside your web browser.",
+    "brandDescription": "Free, privacy-first PDF utility suite. Core document tools run 100% locally in your browser without uploads. AI and OCR features utilize secure, encrypted API processing.",
     "sections": {
       "coreTools": "Core Tools",
+      "popularTools": "Popular Tools",
+      "resources": "Resources",
+      "companyLegal": "Company & Legal",
       "converters": "Converters",
       "legalTrust": "Legal & Trust"
     },
     "links": {
-      "mergePdf": "Merge PDF",
-      "splitPdf": "Split PDF",
+      "mergePdf": "Merge PDF Files",
+      "splitPdf": "Split PDF Pages",
+      "grayscalePdf": "Grayscale PDF",
+      "protectPdf": "Protect & Encrypt PDF",
+      "pdfToImg": "Convert PDF to Image",
       "compressPdf": "Compress PDF",
-      "protectPdf": "Protect PDF",
       "unlockPdf": "Unlock PDF",
       "organizePdf": "Organize PDF",
       "rotatePdf": "Rotate PDF",
@@ -33,14 +48,23 @@
       "jpgToPdf": "JPG to PDF",
       "pngToPdf": "PNG to PDF",
       "webpToPdf": "WEBP to PDF",
+      "knowledgeHub": "Knowledge Hub",
+      "compareSmallpdf": "PdfMinty vs SmallPDF",
+      "compareIlovepdf": "PdfMinty vs iLovePDF",
+      "adobeSecurity": "Adobe vs Browser Security",
+      "trustArticle": "Is Online PDF Safe?",
+      "aboutUs": "About Us",
+      "contactUs": "Contact Us",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
       "howItWorks": "How It Works"
     },
     "copyright": "© {{year}} PdfMinty. All rights reserved. Built for 100% file privacy.",
     "badges": {
+      "privacyFirst": "In-Browser Privacy First",
       "clientSide": "Client-side PDF Suite",
       "zeroLogs": "Zero Data Logs",
+      "openFree": "Open & Free",
       "webAssembly": "WebAssembly Powered"
     }
   },
