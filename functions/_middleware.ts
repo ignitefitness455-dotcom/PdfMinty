@@ -6,6 +6,13 @@ export const onRequest: PagesFunction = async (context) => {
   const url = new URL(context.request.url);
   const pathname = url.pathname.toLowerCase();
 
+  // 301 redirect: /switch-from-adobe-acrobat is a duplicate route of
+  // /adobe-acrobat-alternative (same component). It was listed in the
+  // sitemap but served the SPA shell with a homepage canonical.
+  if (pathname === '/switch-from-adobe-acrobat' || pathname === '/switch-from-adobe-acrobat/') {
+    return Response.redirect(url.origin + '/adobe-acrobat-alternative/', 301);
+  }
+
   // Define valid API endpoints
   const validApiEndpoints = [
     '/api/contact',
@@ -85,32 +92,26 @@ export const onRequest: PagesFunction = async (context) => {
     newResponse.headers.set('Cache-Control', 'no-cache, must-revalidate');
     newResponse.headers.set('Content-Language', 'en');
 
-    // Check for nonexistent article slugs under /blog/ or /compare/
+    // General 404 check for ALL HTML routes (not just blog/compare)
     const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
-    const isSubArticleRoute = cleanPath.startsWith('blog/') || cleanPath.startsWith('compare/');
-    
-    if (isSubArticleRoute && cleanPath !== 'blog') {
-      const isValidArticle = TOOLS.some((item) => {
-        if (item.slug === cleanPath) return true;
-        if (cleanPath.startsWith('blog/')) {
-          const sub = cleanPath.slice(5);
-          if (item.slug === sub || item.slug === `blog/${sub}`) return true;
-        }
-        if (cleanPath.startsWith('compare/')) {
-          const sub = cleanPath.slice(8);
-          if (item.slug === sub || item.slug === `compare/${sub}`) return true;
-        }
-        return false;
-      });
 
-      if (!isValidArticle) {
-        // Return 404 status code so crawlers don't index empty shell
-        return new Response(hasNoBody ? null : response.body, {
-          status: 404,
-          statusText: 'Not Found',
-          headers: newResponse.headers,
-        });
-      }
+    // Static pages that are always valid
+    const staticValidRoutes = new Set([
+      'blog', 'about-us', 'contact', 'privacy-policy', 'terms-of-service',
+      'adobe-acrobat-alternative', 'switch-from-adobe-acrobat',
+    ]);
+
+    const isValidRoute = TOOLS.some((item) => item.slug === cleanPath)
+      || staticValidRoutes.has(cleanPath)
+      || cleanPath === ''; // homepage
+
+    if (!isValidRoute) {
+      // Return 404 status so crawlers don't index unknown paths
+      return new Response(hasNoBody ? null : response.body, {
+        status: 404,
+        statusText: 'Not Found',
+        headers: newResponse.headers,
+      });
     }
 
     newResponse.headers.set('X-Robots-Tag', 'index, follow');
@@ -128,34 +129,20 @@ export const onRequest: PagesFunction = async (context) => {
   );
   newResponse.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
-  const userAgent = context.request.headers.get('User-Agent') || '';
-  const isAuditToolUserAgent = /Lighthouse|Chrome-Lighthouse|Google-Lighthouse|Google Page Speed|PageSpeed|Google-PageSpeed|Googlebot|gtmetrix|pingdom|speedcurve|headless|ptst/i.test(userAgent);
-
-  // Cloudflare-specific edge properties to reliably detect Google PageSpeed Insights/Lighthouse on Mobile.
-  // Google's ASNs: AS15169 (Google LLC), AS36040, AS19527.
-  const cfProperties = context.request.cf as Record<string, unknown> | undefined;
-  const asn = cfProperties?.asn;
-  const asOrg = cfProperties?.asOrganization || '';
-  const isGoogleNetwork = asn === 15169 || asn === 36040 || asn === 19527 || /Google/i.test(asOrg);
-
-  const isBypassed = isAuditToolUserAgent || isGoogleNetwork;
-
-  // Standard robust Content-Security-Policy for static & PWA client-side applications
-  if (!isBypassed) {
-    const cspDirectives = [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' data: https://fonts.gstatic.com",
-      "img-src 'self' blob: data: https://www.googletagmanager.com",
-      "connect-src 'self' blob: https://www.google-analytics.com https://stats.g.doubleclick.net https://static.cloudflareinsights.com https://generativelanguage.googleapis.com",
-      "worker-src 'self' blob:",
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ];
-    newResponse.headers.set('Content-Security-Policy', cspDirectives.join('; '));
-  }
+  // Content-Security-Policy — সব ক্লায়েন্টের জন্য অভিন্ন (UA-ভিত্তিক বাইপাস নেই)
+  const cspDirectives = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "img-src 'self' blob: data: https://www.googletagmanager.com",
+    "connect-src 'self' blob: https://www.google-analytics.com https://stats.g.doubleclick.net https://static.cloudflareinsights.com https://generativelanguage.googleapis.com",
+    "worker-src 'self' blob:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ];
+  newResponse.headers.set('Content-Security-Policy', cspDirectives.join('; '));
 
   return newResponse;
 };

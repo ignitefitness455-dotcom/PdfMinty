@@ -113,3 +113,8 @@ export const badgeLabels: Record<string, string> = {
 export const HOMEPAGE_H1_PART1 = "Free Offline PDF Tools - 100% Private, ";
 export const HOMEPAGE_H1_PART2 = "Zero Uploads";
 export const HOMEPAGE_H1 = `${HOMEPAGE_H1_PART1}${HOMEPAGE_H1_PART2}`;
+
+export const HOMEPAGE_META = {
+  title: 'PDFMinty — Free Privacy-First PDF Toolkit',
+  description: 'Free privacy-first PDF toolkit. Merge, split, compress, protect, and edit PDFs 100% in your browser. No uploads, no sign-up, complete confidentiality.',
+};

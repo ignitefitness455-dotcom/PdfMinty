@@ -2,21 +2,28 @@
 /api/* /api/404.json 404
 
 # Direct 404 for missing assets so they don't fall back to index.html SPA redirect.
-/assets/* /404 404
-/fonts/* /404 404
-/icons/* /404 404
-/*.js /404 404
-/*.css /404 404
-/*.ico /404 404
-/*.png /404 404
-/*.svg /404 404
-/*.json /404 404
+/assets/* /404.html 404
+/fonts/* /404.html 404
+/icons/* /404.html 404
+/*.js /404.html 404
+/*.css /404.html 404
+/*.ico /404.html 404
+/*.png /404.html 404
+/*.svg /404.html 404
+/*.json /404.html 404
 
 # 301 Redirects for renamed tool slugs
 /about /about-us 301
 /contact-us /contact 301
 /edit-metadata /edit-pdf-metadata 301
+/edit-metadata/ /edit-pdf-metadata/ 301
+/protect /protect-pdf 301
+/protect/ /protect-pdf/ 301
 /intelligence /ai-analyze-pdf 301
+/switch-from-adobe-acrobat /adobe-acrobat-alternative/ 301
+/switch-from-adobe-acrobat/ /adobe-acrobat-alternative/ 301
+/is-it-safe-to-upload-pdf-to-online-tools /blog/is-it-safe-to-upload-pdf-to-online-tools/ 301
+/is-it-safe-to-upload-pdf-to-online-tools/ /blog/is-it-safe-to-upload-pdf-to-online-tools/ 301
 
 # SPA fallback for blog routes.
 /blog/* /index.html 200

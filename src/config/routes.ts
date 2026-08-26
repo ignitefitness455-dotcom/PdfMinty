@@ -1,6 +1,6 @@
-import { TOOLS } from './seo-data';
+import { TOOLS, SITE_URL } from './seo-data';
 
-export const SITE_URL = 'https://pdfminty.com';
+export { SITE_URL };
 
 export const ROUTES = {
   HOME: '/',
@@ -34,7 +34,6 @@ export const ROUTES = {
   ABOUT_US: '/about-us/',
   CONTACT: '/contact/',
   ADOBE_ALTERNATIVE: '/adobe-acrobat-alternative/',
-  SWITCH_ADOBE: '/switch-from-adobe-acrobat/',
   ADOBE_SECURITY_ARTICLE: '/blog/adobe-security-vulnerabilities-offline-pdf-tools/',
   COMPARE_SMALLPDF: '/compare/pdfminty-vs-smallpdf/',
   COMPARE_ILOVEPDF: '/compare/pdfminty-vs-ilovepdf/',

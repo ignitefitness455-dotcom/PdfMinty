@@ -17,7 +17,7 @@ export const ContactPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText('pdfminty@gmail.com');
+    navigator.clipboard.writeText('support@pdfminty.com');
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
@@ -37,7 +37,7 @@ export const ContactPage: React.FC = () => {
     <div className="min-h-screen bg-surface py-12 px-4 sm:px-6 lg:px-8 font-sans text-on-surface transition-colors duration-200">
       <SEO
         titleOverride="Contact Us | PdfMinty"
-        descriptionOverride="Have questions, feature requests, or feedback about PdfMinty? Get in touch with us at pdfminty@gmail.com. We usually respond within 24-48 hours."
+        descriptionOverride="Have questions, feature requests, or feedback about PdfMinty? Get in touch with us at support@pdfminty.com. We usually respond within 24-48 hours."
       />
 
       <div className="max-w-4xl mx-auto space-y-12" id="contact-us-container">
@@ -66,7 +66,7 @@ export const ContactPage: React.FC = () => {
             <p className="text-xs text-on-surface-variant">Send us your thoughts anytime</p>
             <div className="pt-2 w-full">
               <div className="flex items-center justify-between gap-2 p-2.5 bg-surface-container-high border border-border-muted rounded-xl text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                <span className="truncate">pdfminty@gmail.com</span>
+                <span className="truncate">support@pdfminty.com</span>
                 <button
                   type="button"
                   onClick={handleCopyEmail}
@@ -118,7 +118,7 @@ export const ContactPage: React.FC = () => {
                 Send Us a Message
               </h2>
               <p className="text-xs text-on-surface-variant">
-                Fill out the form below or email us directly at <a href="mailto:pdfminty@gmail.com" className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">pdfminty@gmail.com</a>.
+                Fill out the form below or email us directly at <a href="mailto:support@pdfminty.com" className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">support@pdfminty.com</a>.
               </p>
             </div>
 

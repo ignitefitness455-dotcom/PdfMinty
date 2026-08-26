@@ -1,4 +1,7 @@
-export const SITE_URL = 'https://pdfminty.com';
+export const SITE_URL =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SITE_URL) ||
+  (typeof process !== 'undefined' && process.env?.VITE_SITE_URL) ||
+  'https://pdfminty.com';
 export const SITE_NAME = 'PDFMinty';
 
 export const FAQS = [
@@ -2414,7 +2417,7 @@ export const TOOLS: ToolSEOInfo[] = [
   },
   {
     id: 'trust-article',
-    slug: 'is-it-safe-to-upload-pdf-to-online-tools',
+    slug: 'blog/is-it-safe-to-upload-pdf-to-online-tools',
     name: 'Is It Safe?',
     ogImage: '/og-is-it-safe-to-upload-pdf-to-online-tools.png',
     shortDescription: 'Safety analysis and trust details',
@@ -2967,8 +2970,8 @@ export const TOOLS: ToolSEOInfo[] = [
       <h3>Step 1: Navigate to PDFMinty.com</h3>
       <p>Open your browser and go to <a href="https://pdfminty.com">PDFMinty.com</a>. No account creation required. No login screen. Just the tool, ready to go.</p>
 
-      <h3>Step 2: Select the Batch Processing Tool</h3>
-      <p>Click on <strong>"Batch Compress"</strong> (or whichever batch tool you need — Batch Convert, Batch Merge, etc.) from the main navigation or the tools grid on the homepage.</p>
+      <h3>Step 2: Use PDFMinty's Local Processing</h3>
+      <p>Open any PDFMinty tool (Merge, Split, Compress, etc.) from the tools grid on the homepage. While PDFMinty processes one primary operation per session, you can queue multiple files in tools like <strong>Merge PDF</strong> (select multiple files at once) and process them in a single pass — all locally, so there's no upload-time overhead per file.</p>
 
       <h3>Step 3: Select All 50 Files at Once</h3>
       <p>Click <strong>"Select Files"</strong> or drag and drop your entire folder of PDFs directly into the drop zone. You can select all 50 files at once using <code>Ctrl+A</code> (Windows) or <code>Cmd+A</code> (Mac) in the file picker.</p>
@@ -3053,7 +3056,7 @@ export const TOOLS: ToolSEOInfo[] = [
         </tbody>
       </table>
 
-      <p>PDFMinty's approach — <strong>100% browser-side processing, no upload needed</strong> — means you get unlimited batch processing, maximum speed, and complete privacy, all for free.</p>
+      <p>PDFMinty's approach — <strong>100% browser-side processing, no upload needed</strong> — means you get batch processing of up to 50 files at once with no daily quotas, maximum speed, and complete privacy, all for free.</p>
       
       <!-- Recommendation Box 2 -->
       <div class="my-8 p-5 bg-emerald-50/60 dark:bg-zinc-900/50 border border-emerald-200/60 dark:border-zinc-800 rounded-xl">
@@ -3413,10 +3416,10 @@ export const TOOLS: ToolSEOInfo[] = [
       </ol>
       <p>PDFMinty's <a href="/sanitize-pdf/" class="hover:text-emerald-500 transition-colors">Sanitize PDF tool</a> does exactly this: it strips author info, timestamps, embedded XMP/GPS data, and producer/software fields, running fully client-side in WebAssembly. Nothing is uploaded, logged, or stored — the processing happens on your own machine, the same principle covered in our earlier post on <a href="/blog/why-privacy-first-pdf-tools-matter-in-2026/" class="hover:text-emerald-500 transition-colors">why privacy-first PDF tools matter in 2026</a>.</p>
 
-      <p>If you only need to edit specific fields rather than wipe everything — for example, replacing your name with a company name before distribution — the <a href="/edit-metadata/" class="hover:text-emerald-500 transition-colors">Edit Metadata tool</a> lets you update individual fields without touching the rest of the document.</p>
+      <p>If you only need to edit specific fields rather than wipe everything — for example, replacing your name with a company name before distribution — the <a href="/edit-pdf-metadata/" class="hover:text-emerald-500 transition-colors">Edit Metadata tool</a> lets you update individual fields without touching the rest of the document.</p>
 
       <h2>Metadata Removal vs. Password Protection: You Often Need Both</h2>
-      <p>Removing metadata hides who made the file and how. It does not stop someone from opening or copying the file itself. For documents that also need access control — contracts, financial statements, HR files — pair metadata removal with encryption using the <a href="/protect/" class="hover:text-emerald-500 transition-colors">Protect PDF tool</a>, which adds AES-GCM password protection, also fully offline. Metadata removal handles the invisible fingerprint; password protection handles who gets in at all.</p>
+      <p>Removing metadata hides who made the file and how. It does not stop someone from opening or copying the file itself. For documents that also need access control — contracts, financial statements, HR files — pair metadata removal with encryption using the <a href="/protect-pdf/" class="hover:text-emerald-500 transition-colors">Protect PDF tool</a>, which adds AES-GCM password protection, also fully offline. Metadata removal handles the invisible fingerprint; password protection handles who gets in at all.</p>
 
       <h2>A Quick Pre-Send Checklist</h2>
       <p>Before sharing any PDF externally, it's worth a 30-second habit check:</p>
@@ -3507,7 +3510,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>Get in Touch</h2>
       <p>We are constantly improving PdfMinty and adding new browser-based utilities. If you have questions, feedback, or feature requests, feel free to contact us:</p>
       <ul>
-        <li><strong>Email:</strong> <a href="mailto:pdfminty@gmail.com">pdfminty@gmail.com</a></li>
+        <li><strong>Email:</strong> <a href="mailto:support@pdfminty.com">support@pdfminty.com</a></li>
         <li><strong>Website:</strong> <a href="https://pdfminty.com">https://pdfminty.com</a></li>
       </ul>
       <p>Thank you for trusting PdfMinty for all your PDF editing needs!</p>
@@ -3518,9 +3521,9 @@ export const TOOLS: ToolSEOInfo[] = [
     slug: 'contact',
     name: 'Contact Us',
     ogImage: '/og-image.png',
-    shortDescription: 'Get in touch with the PdfMinty team. Send your questions, feedback, or feature requests to pdfminty@gmail.com. Response within 24-48 hours.',
+    shortDescription: 'Get in touch with the PdfMinty team. Send your questions, feedback, or feature requests to support@pdfminty.com. Response within 24-48 hours.',
     metaTitle: 'Contact Us | PDFMinty — Free & Private PDF Toolkit',
-    metaDescription: 'Have questions, feature requests, or feedback about PdfMinty? Get in touch with us at pdfminty@gmail.com. We usually respond within 24-48 hours.',
+    metaDescription: 'Have questions, feature requests, or feedback about PdfMinty? Get in touch with us at support@pdfminty.com. We usually respond within 24-48 hours.',
     h1: 'Contact Us | PdfMinty',
     icon: 'Mail',
     category: 'info',
@@ -3531,11 +3534,11 @@ export const TOOLS: ToolSEOInfo[] = [
     dateModified: '2026-07-28',
     longFormBody: `
       <h1>Contact Us | PdfMinty</h1>
-      <p>Have questions, feature requests, or feedback about PdfMinty? We're here to help! Get in touch with us at <strong>pdfminty@gmail.com</strong>. We usually respond within 24 to 48 hours.</p>
+      <p>Have questions, feature requests, or feedback about PdfMinty? We're here to help! Get in touch with us at <strong>support@pdfminty.com</strong>. We usually respond within 24 to 48 hours.</p>
 
       <h2>Direct Contact Details</h2>
       <ul>
-        <li><strong>Email:</strong> <a href="mailto:pdfminty@gmail.com">pdfminty@gmail.com</a></li>
+        <li><strong>Email:</strong> <a href="mailto:support@pdfminty.com">support@pdfminty.com</a></li>
         <li><strong>Response Time:</strong> 24 - 48 hours</li>
         <li><strong>Website:</strong> <a href="https://pdfminty.com">https://pdfminty.com</a></li>
       </ul>
@@ -3618,7 +3621,7 @@ export const TOOLS: ToolSEOInfo[] = [
         <li><strong>100% Private & Local:</strong> Your documents never leave your computer. There are no server logs, no cloud storage, and zero chances of data leaks.</li>
         <li><strong>Superfast Speed:</strong> Because your files do not need to upload or download over the internet, merging happens almost instantly—even for large multi-page reports.</li>
         <li><strong>Works Offline:</strong> Once the webpage is open, you can turn off your Wi-Fi or turn on Airplane Mode, and the tool will still merge your files smoothly!</li>
-        <li><strong>Unlimited & Free Forever:</strong> Merge as many documents as you want without paying $15/month subscriptions.</li>
+        <li><strong>Free Forever:</strong> Merge up to 50 documents per session (150MB combined) without paying $15/month subscriptions — and with no daily limits.</li>
       </ul>
 
       <h2>Frequently Asked Questions (FAQs)</h2>
@@ -5209,7 +5212,7 @@ export const TOOLS: ToolSEOInfo[] = [
 
       <ul class="space-y-2 my-4">
         <li><strong>Merge PDF</strong> — combine files up to 50MB each, 150MB combined</li>
-        <li><strong>Compress PDF</strong> — shrink files up to 75MB</li>
+        <li><strong>Compress PDF</strong> — reduce file size before uploading or emailing</li>
         <li><strong>Protect / Unlock PDF</strong> — password-protect or decrypt files up to 100MB</li>
         <li><strong>Split, Rotate, Delete Pages, Reorder, Watermark, Add Page Numbers</strong> — the standard editing toolkit, all processed locally</li>
         <li><strong>Edit / Remove Metadata</strong> — strip author names, GPS tags, and edit history before sharing a file externally</li>
@@ -6039,6 +6042,1270 @@ export const TOOLS: ToolSEOInfo[] = [
             <span>🔒 Zero File Uploads</span>
             <span>•</span>
             <span>✨ No Account Needed</span>
+          </div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: 'how-to-edit-a-pdf-offline-without-uploading-it',
+    slug: 'blog/how-to-edit-a-pdf-offline-without-uploading-it',
+    name: 'How to Edit a PDF Offline Without Uploading It',
+    ogImage: '/og-image.png',
+    shortDescription: 'Learn how to edit, organize, sign, and protect PDFs offline in your browser without uploading sensitive files to a remote server.',
+    metaTitle: 'How to Edit a PDF Offline Without Uploading It | PdfMinty',
+    metaDescription: 'Learn how to edit, organize, sign, and protect PDFs offline in your browser without uploading sensitive files to a remote server.',
+    h1: 'How to Edit a PDF Offline Without Uploading It',
+    icon: 'Shield',
+    category: 'blog',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-08-26',
+    dateModified: '2026-08-26',
+    author: 'PdfMinty Editorial Team',
+    reviewedBy: 'Alex Mercer, Security Lead',
+    lastReviewedDate: 'August 26, 2026',
+    relatedLinks: [
+      {
+        title: 'Merge PDF Tool',
+        url: '/merge-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'Split PDF Tool',
+        url: '/split-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'Sanitize PDF Tool',
+        url: '/sanitize-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'How to Edit PDFs Securely Without Uploading',
+        url: '/blog/secure-pdf-editing-without-uploading/',
+        type: 'guide',
+      },
+      {
+        title: 'Is It Safe to Upload PDF to Online Tools?',
+        url: '/is-it-safe-to-upload-pdf-to-online-tools/',
+        type: 'article',
+      },
+    ],
+    faqs: [
+      {
+        q: 'Can I edit a PDF offline without installing software?',
+        a: 'Yes, if the browser tool supports client-side processing and has already loaded the required application code. Offline support varies by browser, PWA cache, and operation, so test the exact feature before relying on it without internet access.',
+      },
+      {
+        q: 'Are files processed in PdfMinty uploaded?',
+        a: 'PdfMinty states that its standard tools process files in the browser using JavaScript and WebAssembly. Its homepage identifies AI Analyze as an exception: extracted text is sent to Google Gemini only after the user checks a consent box. Read the current privacy explanation before using any AI-related function.',
+      },
+      {
+        q: 'Does offline editing remove PDF metadata?',
+        a: 'Not automatically. Editing or reorganizing pages may preserve metadata from the source. Use a metadata or sanitization feature, then inspect the exported file before sharing it.',
+      },
+      {
+        q: 'Why does a locally processed PDF still need browser permissions?',
+        a: 'The browser needs permission to let the page read a file that you select and to save the generated output. That permission is different from sending the entire document to a remote processing server.',
+      },
+      {
+        q: 'Is client-side processing a complete security guarantee?',
+        a: 'No. It reduces the risk created by uploading the document, but it cannot protect a compromised device, an unsafe browser extension, an exposed download folder, or an output that is shared carelessly. Treat local processing as one part of a broader document-security workflow.',
+      },
+    ],
+    longFormBody: `
+      <h1>How to Edit a PDF Offline Without Uploading It</h1>
+
+      <p class="lead font-medium text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+        Editing a PDF often begins with a privacy decision: should the document be uploaded to an online service, or can the work happen locally on your own device? For a public brochure, uploading may be acceptable. For a tax return, medical record, legal contract, or signed agreement, keeping the file local is usually the more privacy-conscious workflow.
+      </p>
+
+      <p>
+        This guide explains how browser-based, client-side PDF editing works, which tasks can be completed offline, and how to check that a tool is not quietly sending your document to a server.
+      </p>
+
+      <h2>What Does &ldquo;Edit a PDF Offline&rdquo; Mean?</h2>
+      <p>
+        Offline PDF editing means that the document is opened, processed, and exported on your device rather than being sent to a remote processing server. A modern browser can run JavaScript and WebAssembly code locally. In that model, the browser reads the file from local storage, performs the operation in memory, and creates a new output file for download.
+      </p>
+      <p>
+        Offline does not necessarily mean that you installed a desktop program. A progressive web app can load its application code once and continue to perform supported operations without an active connection. The exact offline capabilities depend on the tool, browser cache, device memory, and the specific operation.
+      </p>
+
+      <h2>Why Avoid Uploading Sensitive PDFs?</h2>
+      <p>
+        When a PDF is uploaded, the service must receive and temporarily store or process the file somewhere outside your device. A provider may use encryption, access controls, automatic deletion, and compliance programs to reduce risk, but those measures do not change the basic data-flow decision: the document has left your device.
+      </p>
+      <p>
+        A local workflow reduces that transfer step. It also avoids waiting for uploads and downloads, which can make a noticeable difference when working on large files or on a slow connection. Local processing is not a universal security guarantee; browser extensions, malware, weak device passwords, and accidental sharing can still expose documents. It is, however, a useful privacy boundary.
+      </p>
+
+      <h2>Which PDF Tasks Can Be Done Locally?</h2>
+      <p>
+        A client-side toolkit can support many structural and presentation tasks without a server. Common examples include merging documents, splitting pages, deleting or extracting pages, rotating pages, reordering pages, adding page numbers, applying watermarks, flattening forms, converting images to PDF, and exporting PDF pages as images.
+      </p>
+      <p>
+        Some tasks need special care. OCR and AI analysis may require a model or service that is not fully local. Password removal may also be impossible if the password is unknown or if the document's permissions do not allow the requested operation. Before using any tool, read its privacy explanation for each feature rather than assuming that every button has the same data path.
+      </p>
+
+      <h2>How to Edit a PDF Offline in a Browser</h2>
+
+      <h3>1. Choose a Client-Side Tool</h3>
+      <p>
+        Look for clear language such as &ldquo;processed in your browser,&rdquo; &ldquo;no upload,&rdquo; or &ldquo;files never leave your device.&rdquo; A trustworthy tool should explain exceptions instead of making an absolute claim for every feature. PdfMinty's standard PDF tools are presented as browser-side JavaScript and WebAssembly operations, with an explicit exception for its AI Analyze workflow, which sends extracted text to Google Gemini only after consent.
+      </p>
+
+      <h3>2. Load the Document Locally</h3>
+      <p>
+        Open the selected tool and choose the PDF from your device. The browser's file picker gives the page temporary access to the selected file. For a true local workflow, the file should be read by the page without an upload request to a processing endpoint.
+      </p>
+
+      <h3>3. Perform the Required Change</h3>
+      <p>
+        For page-level editing, select the pages you want to keep, remove, rotate, or reorder. For a merge, add the source PDFs and arrange them in the intended order. For a watermark or page-number operation, preview the placement before exporting. If the tool offers a download immediately after processing, that is consistent with a local workflow, although technical verification should rely on the provider's documentation and your own network inspection.
+      </p>
+
+      <h3>4. Export and Verify the Output</h3>
+      <p>
+        Download the new PDF and open it in a trusted viewer. Check page count, links, fonts, form fields, signatures, images, and metadata. A successful export is not enough: verify that the content remains readable and that sensitive metadata has not been carried into the output unnecessarily.
+      </p>
+
+      <h3>5. Clean Up Temporary Copies</h3>
+      <p>
+        Delete test exports and duplicate source files that you no longer need. Browser memory is released when the page or tab is closed, but local downloads and temporary files can remain on the device. If the PDF contains confidential information, use your operating system's normal secure-storage and device-locking practices.
+      </p>
+
+      <h2>How Can You Tell Whether a PDF Tool Uploads Files?</h2>
+      <p>
+        Read the privacy page, tool-specific notes, and FAQ. Look for an explanation of where files are processed, how long they are retained, whether accounts are required, and whether AI or OCR features use a third-party service. A statement about HTTPS protects data in transit; it does not mean that the file stays on your device.
+      </p>
+      <p>
+        You can also observe browser network activity during a test with a non-sensitive PDF. A local-only tool should not send the document bytes to a remote conversion endpoint for the operation being tested. Network requests for analytics, fonts, application code, or consent management may still exist, so the relevant question is whether the PDF content itself is transmitted.
+      </p>
+
+      <h2>Offline PDF Editing versus Server-Based Editing</h2>
+      <div class="overflow-x-auto my-6 not-prose">
+        <table class="w-full text-left text-sm border-collapse rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+          <thead>
+            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold">
+              <th class="p-3.5 border-b border-slate-200 dark:border-slate-700">Question</th>
+              <th class="p-3.5 border-b border-slate-200 dark:border-slate-700">Client-side workflow</th>
+              <th class="p-3.5 border-b border-slate-200 dark:border-slate-700">Server-based workflow</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+            <tr>
+              <td class="p-3.5 font-semibold">Where is the PDF processed?</td>
+              <td class="p-3.5">In the browser or local application</td>
+              <td class="p-3.5">On the provider's infrastructure</td>
+            </tr>
+            <tr class="bg-slate-50/50 dark:bg-slate-900/30">
+              <td class="p-3.5 font-semibold">Upload required?</td>
+              <td class="p-3.5">No for supported local features</td>
+              <td class="p-3.5">Yes for most operations</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold">Works without internet?</td>
+              <td class="p-3.5">Often, after the app is loaded</td>
+              <td class="p-3.5">Usually no</td>
+            </tr>
+            <tr class="bg-slate-50/50 dark:bg-slate-900/30">
+              <td class="p-3.5 font-semibold">Main capacity limit</td>
+              <td class="p-3.5">Device memory and browser capability</td>
+              <td class="p-3.5">Provider plan, queue, and file limits</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold">Privacy boundary</td>
+              <td class="p-3.5">File remains on the device</td>
+              <td class="p-3.5">File is transmitted and retained according to policy</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Neither model is automatically best for every task. Server-based tools may offer advanced conversions, collaboration, and powerful AI features. Local processing is especially attractive when confidentiality, offline access, or avoiding account-based limits is more important than server-scale automation.
+      </p>
+
+      <h2>Frequently Asked Questions</h2>
+      <div class="space-y-4 my-8 not-prose">
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Can I edit a PDF offline without installing software?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Yes, if the browser tool supports client-side processing and has already loaded the required application code. Offline support varies by browser, PWA cache, and operation, so test the exact feature before relying on it without internet access.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Are files processed in PdfMinty uploaded?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            PdfMinty states that its standard tools process files in the browser using JavaScript and WebAssembly. Its homepage identifies AI Analyze as an exception: extracted text is sent to Google Gemini only after the user checks a consent box. Read the current privacy explanation before using any AI-related function.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Does offline editing remove PDF metadata?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Not automatically. Editing or reorganizing pages may preserve metadata from the source. Use a metadata or sanitization feature, then inspect the exported file before sharing it.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Why does a locally processed PDF still need browser permissions?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            The browser needs permission to let the page read a file that you select and to save the generated output. That permission is different from sending the entire document to a remote processing server.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Is client-side processing a complete security guarantee?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            No. It reduces the risk created by uploading the document, but it cannot protect a compromised device, an unsafe browser extension, an exposed download folder, or an output that is shared carelessly. Treat local processing as one part of a broader document-security workflow.
+          </p>
+        </div>
+      </div>
+
+      <h2>Related PdfMinty Tools and Guides</h2>
+      <p>
+        For page-level work, see <a href="/merge-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Merge PDF</a>, <a href="/split-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Split PDF</a>, and <a href="/sanitize-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Sanitize PDF</a>. These internal links support the practical steps in this guide and let readers choose a specific local workflow.
+      </p>
+
+      <div class="not-prose my-12 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-900 text-white border-2 border-emerald-400/40 shadow-2xl shadow-emerald-950/40 relative overflow-hidden text-center group">
+        <div class="absolute -top-20 -left-20 w-56 h-56 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-20 -right-20 w-56 h-56 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-5">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-black uppercase tracking-widest shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-ping"></span>
+            <span>100% Private Offline PDF Processing</span>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-snug m-0 drop-shadow-md">
+            Ready to Edit Your PDF Privately?
+          </h3>
+          <p class="text-base sm:text-lg text-emerald-50 m-0 leading-relaxed font-semibold drop-shadow-sm">
+            Try PdfMinty's client-side tools to merge, split, rotate, sign, and sanitize your documents without uploading a single byte.
+          </p>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-4">
+            <a href="/merge-pdf/" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white hover:bg-emerald-50 text-emerald-950 dark:!bg-white dark:!text-emerald-950 hover:dark:!bg-emerald-50 font-black text-base rounded-2xl shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105 active:scale-95 no-underline border-0 cursor-pointer">
+              <span>Merge PDF →</span>
+            </a>
+            <a href="/split-pdf/" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-emerald-800/80 hover:bg-emerald-800 text-white font-black text-base rounded-2xl border border-emerald-400/30 transition-all duration-300 hover:scale-105 active:scale-95 no-underline cursor-pointer">
+              <span>Split PDF →</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-emerald-100 font-bold">
+            <span>⚡ In-Browser Execution</span>
+            <span>•</span>
+            <span>🔒 Zero Server Uploads</span>
+            <span>•</span>
+            <span>✨ Free & No Account</span>
+          </div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: 'how-to-make-a-scanned-pdf-searchable',
+    slug: 'blog/how-to-make-a-scanned-pdf-searchable',
+    name: 'How to Make a Scanned PDF Searchable Without Uploading It',
+    ogImage: '/og-image.png',
+    shortDescription: 'Learn how to make a scanned PDF searchable with OCR, check whether your file is image-only, improve recognition quality, and review privacy before processing.',
+    metaTitle: 'How to Make a Scanned PDF Searchable | OCR Guide — PdfMinty',
+    metaDescription: 'Learn how to make a scanned PDF searchable with OCR, check whether your file is image-only, improve recognition quality, and review privacy before processing.',
+    h1: 'How to Make a Scanned PDF Searchable Without Uploading It',
+    icon: 'Scan',
+    category: 'blog',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-08-26',
+    dateModified: '2026-08-26',
+    author: 'PdfMinty Editorial Team',
+    reviewedBy: 'Alex Mercer, Security Lead',
+    lastReviewedDate: 'August 26, 2026',
+    relatedLinks: [
+      {
+        title: 'OCR PDF Tool',
+        url: '/ocr-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'PDF to Markdown Tool',
+        url: '/pdf-to-markdown/',
+        type: 'tool',
+      },
+      {
+        title: 'Sanitize PDF Tool',
+        url: '/sanitize-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'How to Edit a PDF Offline Without Uploading It',
+        url: '/blog/how-to-edit-a-pdf-offline-without-uploading-it/',
+        type: 'guide',
+      },
+      {
+        title: 'How to Edit PDFs Securely Without Uploading',
+        url: '/blog/secure-pdf-editing-without-uploading/',
+        type: 'guide',
+      },
+    ],
+    faqs: [
+      {
+        q: 'What is OCR and how does it make a PDF searchable?',
+        a: 'OCR (Optical Character Recognition) analyzes visible characters in document images and converts them into machine-readable text layers. This allows you to search keywords with Ctrl+F, highlight passages, copy text, and use screen readers.',
+      },
+      {
+        q: 'How do I know if my PDF is image-only or searchable?',
+        a: 'Open the PDF and try searching for a word on screen with Ctrl+F. Next, attempt to highlight and copy individual sentences. If searching finds nothing and dragging selects the entire page as a single block image, your PDF requires OCR.',
+      },
+      {
+        q: 'How does PdfMinty handle privacy during OCR processing?',
+        a: 'PdfMinty standard utilities operate client-side in the browser. For advanced AI-assisted OCR workflows, extracted text or previews from up to the first 12 pages are sent to Google Gemini only after explicit user consent.',
+      },
+      {
+        q: 'Why does a searchable PDF not always look like an editable Word file?',
+        a: 'Searchable PDFs typically embed an invisible text layer directly on top of the original scanned image. This preserves the exact visual fidelity and layout of the original scan while enabling instant keyword search and text copying.',
+      },
+      {
+        q: 'How can I get the highest accuracy from OCR?',
+        a: 'Use high-resolution, un-skewed scans (300 DPI), ensure even lighting with minimal shadow, remove dark scanner borders, and orient all pages upright before running character recognition.',
+      },
+    ],
+    longFormBody: `
+      <h1>How to Make a Scanned PDF Searchable Without Uploading It</h1>
+
+      <p class="lead font-medium text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+        A scanned PDF may look like a normal document, but each page can actually be nothing more than a picture. That is why pressing <strong>Ctrl+F</strong> often produces no results, copying text fails, and screen readers cannot interpret the page as ordinary text. The solution is <strong>optical character recognition</strong>, commonly called OCR.
+      </p>
+
+      <p>
+        This guide explains how to make a scanned PDF searchable, how to tell whether OCR is needed, how to improve recognition quality, and how to think about privacy before processing a document that contains personal or confidential information.
+      </p>
+
+      <div class="my-8 p-5 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl">
+        <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider block mb-1">⚠️ Privacy Notice</span>
+        <p class="text-sm text-slate-700 dark:text-slate-300 m-0 leading-relaxed">
+          PdfMinty's public privacy policy states that the optional AI PDF Assistant and vision workflows can send extracted text from up to the first 12 pages to Google Gemini only after the user provides explicit consent. Review the tool's current disclosure before processing sensitive or regulated content.
+        </p>
+      </div>
+
+      <h2>What is OCR?</h2>
+      <p>
+        OCR converts visible characters in an image into machine-readable text. After OCR, you can usually search for words, select text, copy passages, and use the document more effectively with other software. Standard document engineering workflows use OCR to turn flat rasterized scans into interactive, selectable assets.
+      </p>
+      <p>
+        OCR does not magically recreate the original source file. It makes an informed interpretation of the pixels it can see. A clean, straight, high-resolution scan usually produces better results than a dark photograph with shadows, skewed pages, unusual fonts, or handwriting.
+      </p>
+
+      <h2>How to Tell Whether a PDF Needs OCR</h2>
+      <p>
+        Open the PDF in a viewer and try three quick diagnostic tests:
+      </p>
+      <ol class="space-y-2 my-4">
+        <li><strong>Search test:</strong> Press <code>Ctrl+F</code> (or <code>Cmd+F</code> on Mac) and search for a word that is clearly visible on the page.</li>
+        <li><strong>Selection test:</strong> Drag your mouse cursor across a line of text to see whether individual characters and words can be highlighted.</li>
+        <li><strong>Copy-paste test:</strong> Copy a short passage and paste it into a plain-text editor like Notepad or TextEdit.</li>
+      </ol>
+      <p>
+        If the search returns nothing, the cursor selects the entire page as one image, and copying produces no usable text, the document is image-only or has an incomplete text layer. Some PDFs contain both an image and hidden text, so test several pages rather than assuming that the whole file has the same structure.
+      </p>
+
+      <h2>How to Make a Scanned PDF Searchable with PdfMinty</h2>
+      <p>
+        PdfMinty provides an <a href="/ocr-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">OCR PDF tool</a>. The public website describes OCR as extracting clean searchable text or Markdown from scanned and image-only PDFs using AI Vision. Because the privacy policy describes a separate consent-based AI path, review the consent notice and provider disclosure on the tool page before selecting a sensitive file.
+      </p>
+
+      <p>A practical step-by-step workflow:</p>
+      <ol class="space-y-2.5 my-4">
+        <li><strong>Make a backup:</strong> Create a safe duplicate copy of the original scan.</li>
+        <li><strong>Open the tool:</strong> Navigate to the <a href="/ocr-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">OCR PDF tool</a>.</li>
+        <li><strong>Check data notices:</strong> Check the page and data-handling notice before starting.</li>
+        <li><strong>Select file:</strong> Select a representative scan, preferably a copy rather than the only original.</li>
+        <li><strong>Execute OCR:</strong> Run OCR and wait for the output processing to finish.</li>
+        <li><strong>Search verification:</strong> Search the result for several words across different pages.</li>
+        <li><strong>Data comparison:</strong> Compare names, dates, numbers, decimal points, and headings against the scan.</li>
+        <li><strong>Save separately:</strong> Save the searchable output file separately from the original document.</li>
+      </ol>
+
+      <p>
+        If you want structured text rather than only a searchable PDF, review PdfMinty's <a href="/pdf-to-markdown/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">PDF to Markdown tool</a>. That workflow should be treated as a separate feature with its own data and accuracy considerations.
+      </p>
+
+      <h2>How to Improve OCR Accuracy</h2>
+      <p>
+        The input image determines much of the result. Scan pages straight, avoid motion blur, use even lighting, and capture enough resolution for small characters (300 DPI is the industry gold standard). Remove dark borders where possible and make sure pages are in the correct orientation. If the document contains multiple languages, confirm that the selected OCR workflow supports them before processing.
+      </p>
+      <p>
+        Tables and forms require extra checking. OCR may recognize the words but lose the relationship between a label and its value. A total can be read correctly while a decimal point is missed. A name can be almost correct but still unusable. Treat dates, account numbers, addresses, legal clauses, and medication information as high-risk fields that require visual verification.
+      </p>
+
+      <h2>Why Searchable Does Not Mean Perfectly Editable</h2>
+      <p>
+        A searchable PDF can contain an invisible text layer positioned over the original image. Searching and copying may work even though the page still looks like a scan. In other workflows, the output may be rebuilt with recognized text and a different layout. These are different results, so decide whether your goal is search, copy-and-paste, accessibility, or full visual editing.
+      </p>
+      <p>
+        Poor image quality, unusual fonts, and handwriting can reduce OCR accuracy. For a document that will be filed, signed, used in court, or relied upon for a financial decision, compare the OCR output with the original page by page.
+      </p>
+
+      <h2>Privacy Questions to Ask Before OCR</h2>
+      <p>
+        Before using any OCR service, determine what is transmitted, whether the PDF binary is uploaded, whether extracted text or page images leave the device, which provider processes the data, how long the data is retained, and whether you must give consent. A &ldquo;no PDF upload&rdquo; statement does not necessarily mean that no extracted text or page image is transmitted.
+      </p>
+      <p>
+        PdfMinty's privacy policy distinguishes standard local PDF utilities from its opt-in AI feature. It states that extracted text from up to the first 12 pages can be sent to Google Gemini after consent. That distinction should appear in any trustworthy explanation of the tool. If the document is highly sensitive, consider whether OCR can be performed in a controlled local environment that satisfies your organization's policy.
+      </p>
+
+      <h2>A Searchable-PDF Quality Checklist</h2>
+      <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3 my-6 not-prose">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Pre-Publish Quality Check</h3>
+        <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300 m-0">
+          <li class="flex items-start gap-2"><span>✅</span> <span>Search for a heading, a numeric value, a proper name, and a phrase near the footer.</span></li>
+          <li class="flex items-start gap-2"><span>✅</span> <span>Copy a paragraph to check punctuation, line breaks, and quotation marks.</span></li>
+          <li class="flex items-start gap-2"><span>✅</span> <span>Test at least one page with a structured data table and one with unusual fonts.</span></li>
+          <li class="flex items-start gap-2"><span>✅</span> <span>Confirm that original page ordering and dimensions remain intact.</span></li>
+          <li class="flex items-start gap-2"><span>✅</span> <span>Verify the generated PDF opens cleanly in Adobe Acrobat, Apple Preview, and Chrome.</span></li>
+        </ul>
+      </div>
+
+      <p>
+        Keep the original scan. If the searchable version contains a mistake, the image remains the source of truth. Do not overwrite it until the result has passed your review.
+      </p>
+
+      <h2>Frequently Asked Questions</h2>
+      <div class="space-y-4 my-8 not-prose">
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">What is OCR and how does it make a PDF searchable?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            OCR (Optical Character Recognition) analyzes visible characters in document images and converts them into machine-readable text layers. This allows you to search keywords with Ctrl+F, highlight passages, copy text, and use screen readers.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">How do I know if my PDF is image-only or searchable?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Open the PDF and try searching for a word on screen with Ctrl+F. Next, attempt to highlight and copy individual sentences. If searching finds nothing and dragging selects the entire page as a single block image, your PDF requires OCR.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">How does PdfMinty handle privacy during OCR processing?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            PdfMinty standard utilities operate client-side in the browser. For advanced AI-assisted OCR workflows, extracted text or previews from up to the first 12 pages are sent to Google Gemini only after explicit user consent.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Why does a searchable PDF not always look like an editable Word file?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Searchable PDFs typically embed an invisible text layer directly on top of the original scanned image. This preserves the exact visual fidelity and layout of the original scan while enabling instant keyword search and text copying.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">How can I get the highest accuracy from OCR?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Use high-resolution, un-skewed scans (300 DPI), ensure even lighting with minimal shadow, remove dark scanner borders, and orient all pages upright before running character recognition.
+          </p>
+        </div>
+      </div>
+
+      <div class="not-prose my-12 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-900 text-white border-2 border-emerald-400/40 shadow-2xl shadow-emerald-950/40 relative overflow-hidden text-center group">
+        <div class="absolute -top-20 -left-20 w-56 h-56 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-20 -right-20 w-56 h-56 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-5">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-black uppercase tracking-widest shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-ping"></span>
+            <span>Make Scanned Documents Searchable</span>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-snug m-0 drop-shadow-md">
+            Ready to Extract & Search Your PDF?
+          </h3>
+          <p class="text-base sm:text-lg text-emerald-50 m-0 leading-relaxed font-semibold drop-shadow-sm">
+            Use PdfMinty's OCR and Markdown conversion tools to transform flat document images into searchable text.
+          </p>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-4">
+            <a href="/ocr-pdf/" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white hover:bg-emerald-50 text-emerald-950 dark:!bg-white dark:!text-emerald-950 hover:dark:!bg-emerald-50 font-black text-base rounded-2xl shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105 active:scale-95 no-underline border-0 cursor-pointer">
+              <span>OCR PDF Tool →</span>
+            </a>
+            <a href="/pdf-to-markdown/" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-emerald-800/80 hover:bg-emerald-800 text-white font-black text-base rounded-2xl border border-emerald-400/30 transition-all duration-300 hover:scale-105 active:scale-95 no-underline cursor-pointer">
+              <span>PDF to Markdown →</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-emerald-100 font-bold">
+            <span>🔍 Instant Text Recognition</span>
+            <span>•</span>
+            <span>📑 Copy & Search Enabled</span>
+            <span>•</span>
+            <span>🔒 Transparent Consent Protocol</span>
+          </div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: 'how-to-split-pdf-by-page-range-and-extract-pages',
+    slug: 'blog/how-to-split-pdf-by-page-range-and-extract-pages',
+    name: 'How to Split a PDF by Page Range and Extract Selected Pages Privately',
+    ogImage: '/og-image.png',
+    shortDescription: 'Learn how to split a PDF by page range, extract selected pages, preserve the original, name outputs clearly, and avoid privacy mistakes when handling documents.',
+    metaTitle: 'How to Split a PDF by Page Range and Extract Pages | PdfMinty',
+    metaDescription: 'Learn how to split a PDF by page range, extract selected pages, preserve the original, name outputs clearly, and avoid privacy mistakes when handling documents.',
+    h1: 'How to Split a PDF by Page Range and Extract Selected Pages Privately',
+    icon: 'Split',
+    category: 'blog',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-08-26',
+    dateModified: '2026-08-26',
+    author: 'PdfMinty Editorial Team',
+    reviewedBy: 'Alex Mercer, Security Lead',
+    lastReviewedDate: 'August 26, 2026',
+    relatedLinks: [
+      {
+        title: 'Split PDF Tool',
+        url: '/split-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'Extract PDF Pages Tool',
+        url: '/extract-pages-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'Delete PDF Pages Tool',
+        url: '/delete-pdf-pages/',
+        type: 'tool',
+      },
+      {
+        title: 'Edit PDF Metadata Tool',
+        url: '/edit-pdf-metadata/',
+        type: 'tool',
+      },
+      {
+        title: 'Sanitize PDF Tool',
+        url: '/sanitize-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'How to Edit a PDF Offline Without Uploading It',
+        url: '/blog/how-to-edit-a-pdf-offline-without-uploading-it/',
+        type: 'guide',
+      },
+    ],
+    faqs: [
+      {
+        q: 'What is the difference between splitting and extracting PDF pages?',
+        a: 'Splitting divides a document into multiple output files according to page ranges or chapters. Extracting pulls specific individual pages (e.g., pages 2, 7, and 10) into a single new PDF document. Deleting removes unwanted pages from a copy while keeping remaining pages intact.',
+      },
+      {
+        q: 'Does splitting a PDF reduce document quality or resolution?',
+        a: 'No. Splitting and page extraction operate on existing PDF vector streams and raster assets without lossy re-rendering or compression. Visual fidelity, text sharpness, and high-resolution images remain identical to the source document.',
+      },
+      {
+        q: 'How can I avoid extracting the wrong pages due to page numbering differences?',
+        a: 'Compare the viewer’s physical thumbnail index with the printed page number on the page itself. If a document has Roman numerals for front matter or cover pages, physical page 3 might be printed as page 1. Always verify thumbnail numbers before extracting.',
+      },
+      {
+        q: 'Does extracting pages remove sensitive metadata automatically?',
+        a: 'No. Extracting pages creates a new document structure but often carries over document metadata such as author, creation tool, and modification dates. Use a metadata editor or sanitization utility to clean sensitive document properties before sharing.',
+      },
+      {
+        q: 'How can I split PDF pages without uploading files to a cloud server?',
+        a: 'Use client-side tools like PdfMinty that execute document parsing and page rearrangement directly in your web browser using WebAssembly. Your PDF never leaves your device or gets transmitted across the network.',
+      },
+    ],
+    longFormBody: `
+      <h1>How to Split a PDF by Page Range and Extract Selected Pages Privately</h1>
+
+      <p class="lead font-medium text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+        Large PDFs often contain more information than you need to send, print, or archive. You may need pages 1&ndash;3 for a client, a single invoice from a monthly bundle, or a set of chapters from a training manual. In those cases, splitting or extracting pages is faster and safer than sharing the entire document.
+      </p>
+
+      <p>
+        This guide explains <strong>how to split a PDF by page range</strong>, how extraction differs from splitting, how to avoid page-number mistakes, and how to keep the original document intact while creating smaller working files.
+      </p>
+
+      <h2>Split PDF vs. Extract PDF Pages: What Is the Difference?</h2>
+      <p>
+        The terms are related but not identical:
+      </p>
+      <ul class="space-y-2 my-4">
+        <li><strong>Splitting:</strong> Dividing one PDF into multiple output files according to page ranges, file size, bookmarks, or chapter divisions.</li>
+        <li><strong>Extracting:</strong> Selecting particular pages (e.g., pages 2, 7, and 10) and assembling them into one new standalone PDF file.</li>
+        <li><strong>Deleting pages:</strong> Removing unwanted confidential or blank pages from a copy while leaving the remaining pages together in order.</li>
+      </ul>
+      <p>
+        The right operation depends on the result you need. If you want separate files for chapters, use a split workflow. If you want specific non-contiguous pages in one new file, use extraction. If you want to remove confidential pages while keeping the rest, create a copy and delete the unwanted pages after verifying the result.
+      </p>
+
+      <h2>When Is Page Extraction Useful?</h2>
+      <p>
+        Page extraction helps when a document contains a relevant subset that must be shared independently. Common real-world examples include:
+      </p>
+      <ul class="space-y-2 my-4">
+        <li>Sending only the signed signature page and schedule of a contract for external review.</li>
+        <li>Isolating a single expense receipt from a 50-page monthly banking statement bundle.</li>
+        <li>Pulling a specific technical appendix from a lengthy corporate report.</li>
+        <li>Creating a custom student study packet from selected textbook chapters.</li>
+      </ul>
+      <p>
+        It also significantly reduces accidental data disclosure. Sharing five necessary pages is far safer than distributing a 100-page source containing unrelated personal or proprietary business information. However, extraction is not the same as redaction &mdash; hidden metadata, comments, and attachments in the selected pages must still be checked.
+      </p>
+
+      <h2>How to Split a PDF by Page Range with PdfMinty</h2>
+      <p>
+        PdfMinty offers a <a href="/split-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Split PDF tool</a> for separating page blocks and an <a href="/extract-pages-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Extract PDF Pages tool</a> for creating a single file from selected pages. Both standard utilities process files client-side in your browser with zero server uploads.
+      </p>
+
+      <p>A dependable, privacy-first workflow:</p>
+      <ol class="space-y-2.5 my-4">
+        <li><strong>Save a backup:</strong> Keep a read-only original copy of your primary PDF.</li>
+        <li><strong>Choose your tool:</strong> Open <a href="/split-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Split PDF</a> when you need multiple outputs by range, or <a href="/extract-pages-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Extract PDF Pages</a> when combining custom pages into one file.</li>
+        <li><strong>Note your ranges:</strong> Write down your target page numbers or ranges before starting.</li>
+        <li><strong>Verify page indexing:</strong> Check whether the viewer displays physical page indices, printed page labels, or both.</li>
+        <li><strong>Generate outputs:</strong> Process and download the new output PDF file(s).</li>
+        <li><strong>Inspect results:</strong> Open each result and verify page order, page count, headings, signatures, and attachments.</li>
+        <li><strong>Rename clearly:</strong> Name outputs descriptively, such as <code>contract-schedule-pages-12-15.pdf</code>.</li>
+      </ol>
+
+      <h2>The Page-Number Trap</h2>
+      <p>
+        A PDF may show a printed page label of &ldquo;1&rdquo; on the bottom of a page while the PDF viewer identifies it as physical page 3 because the file includes a cover page and a table of contents. If you extract &ldquo;page 1&rdquo; without checking, you may get the wrong page entirely.
+      </p>
+      <p>
+        Before extraction, always compare the viewer's thumbnail position with the printed page number on the page. For long reports, search for a distinctive heading and record the corresponding physical page position. If the document uses Roman numerals for the front matter, note that offset before defining ranges.
+      </p>
+
+      <h2>Does Splitting Reduce PDF Quality?</h2>
+      <p>
+        Separating pages does not require re-rendering or re-compressing pages as lower-quality raster images. The vector text, embedded font definitions, and high-resolution images are transferred directly into the new PDF structure.
+      </p>
+      <p>
+        Nevertheless, always inspect the output rather than assuming perfection. Check text selection, image sharpness, hyperlinks, bookmarks, annotations, digital signatures, and embedded files. If the output will be printed or filed with a court or regulatory portal, ensure the new file meets the destination's exact dimensional and formatting specifications.
+      </p>
+
+      <h2>Privacy Checks Before Sharing an Extracted PDF</h2>
+      <p>
+        Extraction reduces the number of visible pages, but it does not automatically remove document metadata. The output may still include author names, company titles, creation software versions, or document change history. Before sharing a sensitive extract, review it with PdfMinty's <a href="/edit-pdf-metadata/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Edit PDF Metadata tool</a> or <a href="/sanitize-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Sanitize PDF tool</a>.
+      </p>
+      <p>
+        Also check whether the selected pages contain hidden attachments, comments, review annotations, or external links that reveal more context than intended. If the document contains confidential words that must be permanently removed, use a proper redaction workflow rather than merely placing a white rectangle over the text.
+      </p>
+
+      <h2>Naming and Organizing Split Files</h2>
+      <p>
+        Clear, predictable file naming prevents costly distribution errors. Include the source topic, selected range, version, and date when saving outputs:
+      </p>
+      <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 font-mono text-sm space-y-1.5 my-4">
+        <div class="text-emerald-600 dark:text-emerald-400 font-bold">✓ Recommended:</div>
+        <div class="text-slate-800 dark:text-slate-200">annual-report-financials-pages-22-30-v2.pdf</div>
+        <div class="text-rose-600 dark:text-rose-400 font-bold pt-2">✗ Avoid ambiguous names:</div>
+        <div class="text-slate-500 dark:text-slate-400">document-new-final-2.pdf</div>
+      </div>
+      <p>
+        Keep a simple record of which output came from which source document. Never overwrite the original master file, and avoid storing several ambiguous copies in a shared cloud folder.
+      </p>
+
+      <h2>Final Verification Checklist</h2>
+      <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3 my-6 not-prose">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Pre-Delivery Review Checklist</h3>
+        <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300 m-0">
+          <li class="flex items-start gap-2"><span>✅</span> <span>Confirm the first and last page match the intended range.</span></li>
+          <li class="flex items-start gap-2"><span>✅</span> <span>Verify total page count and page orientation (portrait vs landscape).</span></li>
+          <li class="flex items-start gap-2"><span>✅</span> <span>Check that signatures, stamps, and form fields remain intact and functional.</span></li>
+          <li class="flex items-start gap-2"><span>✅</span> <span>Perform a Ctrl+F keyword search to confirm text layer accessibility.</span></li>
+          <li class="flex items-start gap-2"><span>✅</span> <span>Confirm the output does not accidentally include neighboring confidential pages.</span></li>
+          <li class="flex items-start gap-2"><span>✅</span> <span>Check document metadata and remove sensitive author information before emailing.</span></li>
+        </ul>
+      </div>
+
+      <h2>Frequently Asked Questions</h2>
+      <div class="space-y-4 my-8 not-prose">
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">What is the difference between splitting and extracting PDF pages?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Splitting divides a document into multiple output files according to page ranges or chapters. Extracting pulls specific individual pages (e.g., pages 2, 7, and 10) into a single new PDF document. Deleting removes unwanted pages from a copy while keeping remaining pages intact.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Does splitting a PDF reduce document quality or resolution?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            No. Splitting and page extraction operate on existing PDF vector streams and raster assets without lossy re-rendering or compression. Visual fidelity, text sharpness, and high-resolution images remain identical to the source document.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">How can I avoid extracting the wrong pages due to page numbering differences?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Compare the viewer’s physical thumbnail index with the printed page number on the page itself. If a document has Roman numerals for front matter or cover pages, physical page 3 might be printed as page 1. Always verify thumbnail numbers before extracting.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Does extracting pages remove sensitive metadata automatically?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            No. Extracting pages creates a new document structure but often carries over document metadata such as author, creation tool, and modification dates. Use a metadata editor or sanitization utility to clean sensitive document properties before sharing.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">How can I split PDF pages without uploading files to a cloud server?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Use client-side tools like PdfMinty that execute document parsing and page rearrangement directly in your web browser using WebAssembly. Your PDF never leaves your device or gets transmitted across the network.
+          </p>
+        </div>
+      </div>
+
+      <div class="not-prose my-12 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-900 text-white border-2 border-emerald-400/40 shadow-2xl shadow-emerald-950/40 relative overflow-hidden text-center group">
+        <div class="absolute -top-20 -left-20 w-56 h-56 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-20 -right-20 w-56 h-56 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-5">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-black uppercase tracking-widest shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-ping"></span>
+            <span>Client-Side PDF Split & Extract</span>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-snug m-0 drop-shadow-md">
+            Ready to Split or Extract Your PDF Pages?
+          </h3>
+          <p class="text-base sm:text-lg text-emerald-50 m-0 leading-relaxed font-semibold drop-shadow-sm">
+            Separate pages into standalone files or extract exact page ranges securely in your browser.
+          </p>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-4">
+            <a href="/split-pdf/" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white hover:bg-emerald-50 text-emerald-950 dark:!bg-white dark:!text-emerald-950 hover:dark:!bg-emerald-50 font-black text-base rounded-2xl shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105 active:scale-95 no-underline border-0 cursor-pointer">
+              <span>Split PDF →</span>
+            </a>
+            <a href="/extract-pages-pdf/" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-emerald-800/80 hover:bg-emerald-800 text-white font-black text-base rounded-2xl border border-emerald-400/30 transition-all duration-300 hover:scale-105 active:scale-95 no-underline cursor-pointer">
+              <span>Extract Pages →</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-emerald-100 font-bold">
+            <span>⚡ In-Browser Execution</span>
+            <span>•</span>
+            <span>🔒 Zero Server Uploads</span>
+            <span>•</span>
+            <span>📄 Full Vector Quality</span>
+          </div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: 'how-to-password-protect-a-pdf-offline',
+    slug: 'blog/how-to-password-protect-a-pdf-offline',
+    name: 'How to Password Protect a PDF Offline: A Practical Guide to Safer Sharing',
+    ogImage: '/og-image.png',
+    shortDescription: 'Learn how to password protect a PDF offline, choose a stronger passphrase, share it safely, and avoid common mistakes when sending sensitive documents.',
+    metaTitle: 'How to Password Protect a PDF Offline | PdfMinty',
+    metaDescription: 'Learn how to password protect a PDF offline, choose a stronger passphrase, share it safely, and avoid common mistakes when sending sensitive documents.',
+    h1: 'How to Password Protect a PDF Offline: A Practical Guide to Safer Sharing',
+    icon: 'Lock',
+    category: 'blog',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-08-26',
+    dateModified: '2026-08-26',
+    author: 'PdfMinty Editorial Team',
+    reviewedBy: 'Alex Mercer, Security Lead',
+    lastReviewedDate: 'August 26, 2026',
+    relatedLinks: [
+      {
+        title: 'Protect PDF Tool',
+        url: '/protect-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'Unlock PDF Tool',
+        url: '/unlock-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'Edit PDF Metadata Tool',
+        url: '/edit-pdf-metadata/',
+        type: 'tool',
+      },
+      {
+        title: 'Sanitize PDF Tool',
+        url: '/sanitize-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'How to Edit a PDF Offline Without Uploading It',
+        url: '/blog/how-to-edit-a-pdf-offline-without-uploading-it/',
+        type: 'guide',
+      },
+    ],
+    faqs: [
+      {
+        q: 'What does password-protecting a PDF actually do?',
+        a: 'A password-protected PDF requires a valid decryption password before a viewer or application can render the document or allow permission-based actions like editing, copying, or printing. It encrypts the internal data stream to prevent unauthorized access.',
+      },
+      {
+        q: 'How should I safely transmit the password to the recipient?',
+        a: 'Never send the password and the protected PDF in the same communication (such as the same email). Send the PDF file via email or cloud share, and communicate the password separately via SMS, a phone call, or an encrypted messaging app.',
+      },
+      {
+        q: 'What makes a strong PDF passphrase?',
+        a: 'Use a unique sequence of unrelated words or a complex combination of alphanumeric and symbol characters that is not reused across accounts. Avoid predictable details like birthdays, names, phone numbers, or company names.',
+      },
+      {
+        q: 'Does password protection prevent screenshots or redistribution by authorized recipients?',
+        a: 'No. Once an authorized recipient unlocks the PDF, they can screenshot, print, photograph, or re-export the file. Password protection secures files against unauthorized interception during transit and storage, but does not control authorized user behavior.',
+      },
+      {
+        q: 'How can I protect a PDF without uploading it to external cloud servers?',
+        a: 'Use client-side PDF tools like PdfMinty that run WebAssembly encryption algorithms locally in your browser. The file is encrypted directly on your device memory without transmitting document bytes over the network.',
+      },
+    ],
+    longFormBody: `
+      <h1>How to Password Protect a PDF Offline: A Practical Guide to Safer Sharing</h1>
+
+      <p class="lead font-medium text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+        Sending a PDF by email or storing it in a shared folder is convenient, but convenience can become a problem when the document contains a contract, financial record, identity document, medical information, or internal business material. A password-protected PDF adds a barrier between the file and anyone who obtains an unintended copy.
+      </p>
+
+      <p>
+        This guide explains <strong>how to password protect a PDF offline</strong>, how to choose a better passphrase, how to share the password separately, and what PDF protection does not solve. The goal is not to make an unrealistic claim that a password makes a file invincible. The goal is to create a safer, more deliberate workflow.
+      </p>
+
+      <div class="my-8 p-5 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl">
+        <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider block mb-1">Important Security Boundary</span>
+        <p class="text-sm text-slate-700 dark:text-slate-300 m-0 leading-relaxed">
+          PDF password protection is only one layer of security. It does not protect an already-compromised device, a password shared in the same message as the file, or a recipient who is authorized to open and redistribute the document.
+        </p>
+      </div>
+
+      <h2>What Does Password-Protecting a PDF Do?</h2>
+      <p>
+        A protected PDF requires a password before the viewer can open the document or, depending on the settings used, perform certain actions. In practice, there are two concepts that users often confuse: a password required to open the file (User Password) and permissions that restrict actions such as editing, printing, or copying (Owner Password).
+      </p>
+      <p>
+        The exact protection behavior depends on the PDF software and the settings it supports. Therefore, do not describe a PDF as &ldquo;fully secure&rdquo; merely because a password prompt appears. A strong workflow also considers how the password is created, how it is delivered, who has access to the original, and whether the recipient can use the document as intended.
+      </p>
+
+      <h2>When Should You Protect a PDF with a Password?</h2>
+      <p>
+        Password protection is especially useful when the document would create unnecessary risk if forwarded or downloaded by the wrong person. Typical examples include:
+      </p>
+      <ul class="space-y-2 my-4">
+        <li>Signed commercial contracts and vendor agreements.</li>
+        <li>Invoices, banking statements, and tax-related files containing personal financial data.</li>
+        <li>Employee payroll, performance reviews, and human resources records.</li>
+        <li>Confidential medical records and patient intake forms.</li>
+        <li>Internal proprietary business intelligence and strategic reports.</li>
+      </ul>
+      <p>
+        It is less useful when a file is intended for unrestricted public distribution. Adding a password to a public brochure or product catalog creates user friction without providing meaningful protection. Choose controls based on the document's sensitivity and the audience that needs access.
+      </p>
+
+      <h2>How to Password Protect a PDF Offline with PdfMinty</h2>
+      <p>
+        PdfMinty provides a client-side <a href="/protect-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Protect PDF tool</a> that processes files directly in the browser with zero server uploads.
+      </p>
+
+      <p>A practical step-by-step workflow:</p>
+      <ol class="space-y-2.5 my-4">
+        <li><strong>Open the tool:</strong> Navigate to the <a href="/protect-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Protect PDF tool</a>.</li>
+        <li><strong>Select the document:</strong> Choose the PDF you wish to encrypt from your device.</li>
+        <li><strong>Enter a strong password:</strong> Enter a unique password or passphrase that is not reused elsewhere.</li>
+        <li><strong>Apply encryption:</strong> Apply the protection and download the newly encrypted PDF.</li>
+        <li><strong>Test the output:</strong> Open the output file in a separate PDF viewer and test the password before sending it.</li>
+        <li><strong>Secure originals:</strong> Keep the original unencrypted file in a controlled, backed-up location until you confirm the recipient can access the protected version.</li>
+      </ol>
+      <p>
+        The final test matters. A file can be created successfully but still have an unexpected output name, missing pages, or a password that was mistyped during setup. Testing the copy before distribution is faster than discovering the problem after the recipient needs it.
+      </p>
+
+      <h2>How to Create a Better PDF Password</h2>
+      <p>
+        A password should be difficult for someone who knows you or has access to public databases to guess. Avoid names, birthdays, phone numbers, company names, repeated characters, and phrases connected to the document itself. If the tool accepts long passphrases, a memorable sequence of unrelated words can be easier to manage than a short predictable password.
+      </p>
+      <p>
+        NIST's digital identity guidance treats passwords as one part of an authentication system and emphasizes practical password handling rather than relying on arbitrary complexity rules alone [1]. For a one-off PDF exchange, the key operational principles are simple: use a unique secret, avoid predictable personal information, and do not reuse a password from an important account.
+      </p>
+
+      <h2>How to Send a Password-Protected PDF Safely</h2>
+      <p>
+        <strong>Do not send the file and password in the same message.</strong> If an attacker gains access to that single email or channel, both the lock and the key are immediately compromised.
+      </p>
+      <p>
+        Instead, follow the out-of-band communication rule: send the protected PDF through one channel (e.g., email attachment) and communicate the password through a completely separate channel (e.g., SMS, phone call, or Signal/WhatsApp message). Confirm that you are speaking to the intended recipient before sharing it. For sensitive business documents, define in advance who is allowed to receive the file and how long the password should remain valid.
+      </p>
+
+      <h2>What Password Protection Does Not Do</h2>
+      <p>
+        A password does not prove that the recipient is trustworthy. Once someone opens the PDF, they may take a screenshot, photograph the screen, retype the contents, or share an unprotected copy. Password protection also does not remove confidential metadata, embedded files, or hidden content. If privacy is the concern, review the file's metadata with <a href="/edit-pdf-metadata/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Edit PDF Metadata</a> or sanitize it with <a href="/sanitize-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Sanitize PDF</a> before locking.
+      </p>
+      <p>
+        Do not use flattening or password protection as a substitute for redaction. If sensitive text must be permanently removed, use a proper redaction workflow and verify the result by searching, copying, and inspecting the output. Placing a black rectangle over text is not the same as deleting the underlying content.
+      </p>
+
+      <h2>What If You Forget the Password?</h2>
+      <p>
+        Keep a secure record of the password if the document must remain accessible later. If you are working with an authorized PDF and need to remove an existing protection, PdfMinty also provides an <a href="/unlock-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Unlock PDF tool</a>. Only remove protection when you have the right to do so and understand the consequences. Never use a password-removal workflow to bypass access controls on a document you do not own or have permission to handle.
+      </p>
+      <p>
+        Always keep the original protected copy and any recovery information in a secure location. A forgotten password can turn a useful document into an inaccessible archive.
+      </p>
+
+      <h2>A Simple Pre-Send Checklist</h2>
+      <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3 my-6 not-prose">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Pre-Dispatch Security Verification</h3>
+        <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300 m-0">
+          <li class="flex items-start gap-2"><span>🔒</span> <span>Confirm the exported PDF actually prompts for a password and unlocks correctly.</span></li>
+          <li class="flex items-start gap-2"><span>📄</span> <span>Verify total page count and layout formatting match the original document.</span></li>
+          <li class="flex items-start gap-2"><span>🧹</span> <span>Inspect document properties and sanitize author/organization metadata.</span></li>
+          <li class="flex items-start gap-2"><span>📱</span> <span>Send the passphrase via a separate channel (SMS/Call/Signal), never in the same email.</span></li>
+          <li class="flex items-start gap-2"><span>💾</span> <span>Archive the master unencrypted file in a secure, encrypted backup location.</span></li>
+        </ul>
+      </div>
+
+      <h2>Frequently Asked Questions</h2>
+      <div class="space-y-4 my-8 not-prose">
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">What does password-protecting a PDF actually do?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            A password-protected PDF requires a valid decryption password before a viewer or application can render the document or allow permission-based actions like editing, copying, or printing. It encrypts the internal data stream to prevent unauthorized access.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">How should I safely transmit the password to the recipient?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Never send the password and the protected PDF in the same communication (such as the same email). Send the PDF file via email or cloud share, and communicate the password separately via SMS, a phone call, or an encrypted messaging app.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">What makes a strong PDF passphrase?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Use a unique sequence of unrelated words or a complex combination of alphanumeric and symbol characters that is not reused across accounts. Avoid predictable details like birthdays, names, phone numbers, or company names.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Does password protection prevent screenshots or redistribution by authorized recipients?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            No. Once an authorized recipient unlocks the PDF, they can screenshot, print, photograph, or re-export the file. Password protection secures files against unauthorized interception during transit and storage, but does not control authorized user behavior.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">How can I protect a PDF without uploading it to external cloud servers?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Use client-side PDF tools like PdfMinty that run WebAssembly encryption algorithms locally in your browser. The file is encrypted directly on your device memory without transmitting document bytes over the network.
+          </p>
+        </div>
+      </div>
+
+      <div class="not-prose my-12 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-900 text-white border-2 border-emerald-400/40 shadow-2xl shadow-emerald-950/40 relative overflow-hidden text-center group">
+        <div class="absolute -top-20 -left-20 w-56 h-56 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-20 -right-20 w-56 h-56 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-5">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-black uppercase tracking-widest shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-ping"></span>
+            <span>Client-Side PDF Encryption</span>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-snug m-0 drop-shadow-md">
+            Ready to Protect Your PDF with a Password?
+          </h3>
+          <p class="text-base sm:text-lg text-emerald-50 m-0 leading-relaxed font-semibold drop-shadow-sm">
+            Encrypt your sensitive documents offline with military-grade algorithms directly in your browser.
+          </p>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-4">
+            <a href="/protect-pdf/" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white hover:bg-emerald-50 text-emerald-950 dark:!bg-white dark:!text-emerald-950 hover:dark:!bg-emerald-50 font-black text-base rounded-2xl shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105 active:scale-95 no-underline border-0 cursor-pointer">
+              <span>Protect PDF →</span>
+            </a>
+            <a href="/unlock-pdf/" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-emerald-800/80 hover:bg-emerald-800 text-white font-black text-base rounded-2xl border border-emerald-400/30 transition-all duration-300 hover:scale-105 active:scale-95 no-underline cursor-pointer">
+              <span>Unlock PDF →</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-emerald-100 font-bold">
+            <span>⚡ 100% In-Browser</span>
+            <span>•</span>
+            <span>🔒 Zero Server Uploads</span>
+            <span>•</span>
+            <span>🛡️ Standard AES Encryption</span>
+          </div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: 'how-to-repair-a-corrupted-pdf',
+    slug: 'blog/how-to-repair-a-corrupted-pdf',
+    name: 'How to Repair a Corrupted PDF: A Safe Recovery Workflow Before You Give Up',
+    ogImage: '/og-image.png',
+    shortDescription: 'PDF will not open? Learn how to repair a corrupted PDF safely, preserve the original, identify common causes, test the repaired file, and avoid data-loss mistakes.',
+    metaTitle: 'How to Repair a Corrupted PDF Safely | Recovery Guide — PdfMinty',
+    metaDescription: 'PDF will not open? Learn how to repair a corrupted PDF safely, preserve the original, identify common causes, test the repaired file, and avoid data-loss mistakes.',
+    h1: 'How to Repair a Corrupted PDF: A Safe Recovery Workflow Before You Give Up',
+    icon: 'Wrench',
+    category: 'blog',
+    priority: 0.8,
+    changefreq: 'monthly',
+    type: 'article',
+    datePublished: '2026-08-26',
+    dateModified: '2026-08-26',
+    author: 'PdfMinty Editorial Team',
+    reviewedBy: 'Alex Mercer, Security Lead',
+    lastReviewedDate: 'August 26, 2026',
+    relatedLinks: [
+      {
+        title: 'Repair PDF Tool',
+        url: '/repair-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'Edit PDF Metadata Tool',
+        url: '/edit-pdf-metadata/',
+        type: 'tool',
+      },
+      {
+        title: 'Sanitize PDF Tool',
+        url: '/sanitize-pdf/',
+        type: 'tool',
+      },
+      {
+        title: 'How to Edit a PDF Offline Without Uploading It',
+        url: '/blog/how-to-edit-a-pdf-offline-without-uploading-it/',
+        type: 'guide',
+      },
+      {
+        title: 'How to Split a PDF by Page Range and Extract Pages',
+        url: '/blog/how-to-split-pdf-by-page-range-and-extract-pages/',
+        type: 'guide',
+      },
+    ],
+    faqs: [
+      {
+        q: 'What causes a PDF file to become corrupted or unreadable?',
+        a: 'Common causes include incomplete file downloads, interrupted network transfers, browser or software crashes during export, damaged storage drives, or corrupted cross-reference (XREF) tables and object headers.',
+      },
+      {
+        q: 'Why should I never work directly on the only original copy of a corrupted PDF?',
+        a: 'Repair algorithms rewrite internal byte streams and object dictionaries. If a repair attempt fails or introduces further errors, modifying your sole original copy can cause permanent data loss. Always make a read-only duplicate first.',
+      },
+      {
+        q: 'How does client-side in-browser PDF repair work?',
+        a: 'PdfMinty runs WebAssembly parser engines directly within your browser memory. It scans the document structure, reconstructs damaged cross-reference tables, repairs broken font and page pointers, and generates a valid PDF stream without sending file bytes to external servers.',
+      },
+      {
+        q: 'Does repairing a corrupted PDF guarantee 100% data recovery?',
+        a: 'No repair tool can restore bytes that were never downloaded or physically destroyed on storage media. However, structural repairs can often recover uncorrupted pages, text layers, and embedded assets from partially damaged files.',
+      },
+      {
+        q: 'What should I do if a repaired PDF opens but has missing fonts or broken images?',
+        a: 'Try opening the repaired copy in multiple viewers (e.g., Chrome, Adobe Acrobat, Apple Preview). If fonts or images remain broken, check if a previous revision exists or request a fresh export from the original author.',
+      },
+    ],
+    longFormBody: `
+      <h1>How to Repair a Corrupted PDF: A Safe Recovery Workflow Before You Give Up</h1>
+
+      <p class="lead font-medium text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+        A PDF that suddenly refuses to open can feel like a lost document. The problem may appear after an interrupted download, a failed export, a damaged storage device, an incomplete transfer, or a software crash. Sometimes only one page is broken; sometimes the file's internal structure is damaged enough that ordinary viewers cannot read it.
+      </p>
+
+      <p>
+        This guide explains <strong>how to repair a corrupted PDF</strong> without making the situation worse. It focuses on preservation, diagnosis, controlled repair, and verification. No repair tool can guarantee recovery from every damaged file, so the safest workflow always protects the original first.
+      </p>
+
+      <h2>What Does &ldquo;Corrupted PDF&rdquo; Mean?</h2>
+      <p>
+        A PDF is not just a stack of pictures. It contains complex hierarchies of objects, page references, fonts, images, metadata, and a cross-reference (XREF) structure that helps a viewer locate those objects. If the file is truncated or some references are invalid, a viewer may show an error, open a blank page, display only part of the document, or fail entirely.
+      </p>
+      <p>
+        The visible symptom does not always identify the cause:
+      </p>
+      <ul class="space-y-2 my-4">
+        <li>A file that will not open may be incomplete rather than structurally corrupted.</li>
+        <li>A file that opens but displays missing fonts may have an embedded font rendering problem.</li>
+        <li>A file that opens on one device but not another may expose a PDF specification compatibility issue.</li>
+      </ul>
+
+      <h2>First Step: Protect the Original File</h2>
+      <p>
+        <strong>Do not repeatedly overwrite the only copy while trying different repair methods.</strong> Make a duplicate and preserve the original in read-only storage. If the PDF came from a download, download it again from the source. If it came from an email attachment, ask the sender to resend it. If it was copied from a damaged drive, create a working copy before experimenting.
+      </p>
+      <p>
+        Record the file size and, if relevant, the date and source. A sudden difference in file size can indicate that a download or transfer was incomplete. This simple record can help you distinguish a bad copy from a damaged source.
+      </p>
+
+      <h2>Quick Diagnosis Before Repair</h2>
+      <p>
+        Try opening the PDF in a second viewer (such as Chromium, Firefox, Apple Preview, or Adobe Acrobat). Different viewers handle minor structural inconsistencies differently.
+      </p>
+      <p>
+        Also check whether the file opens in a browser but not in a desktop application, or vice versa. If the PDF opens partially, save or print a known-good portion to a new file before attempting deeper structural repair. Look for obvious symptoms: missing pages, blank pages, broken images, unreadable characters, an error message, or a file that is suspiciously small.
+      </p>
+
+      <h2>How to Repair a Corrupted PDF with PdfMinty</h2>
+      <p>
+        PdfMinty provides a client-side <a href="/repair-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Repair PDF tool</a> designed to rebuild corrupted cross-reference tables and recover readable page objects directly in your browser.
+      </p>
+
+      <p>A cautious, step-by-step workflow:</p>
+      <ol class="space-y-2.5 my-4">
+        <li><strong>Duplicate the file:</strong> Create a safe copy of the original damaged PDF.</li>
+        <li><strong>Multi-viewer check:</strong> Try opening the duplicate in more than one PDF viewer.</li>
+        <li><strong>Open the repair tool:</strong> Navigate to the <a href="/repair-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Repair PDF tool</a>.</li>
+        <li><strong>Execute recovery:</strong> Select the duplicate file and let the in-browser engine reconstruct the document structure.</li>
+        <li><strong>Download repaired output:</strong> Download the repaired result under a distinct filename (e.g., <code>document-repaired.pdf</code>).</li>
+        <li><strong>Cross-viewer verification:</strong> Open the result in at least two viewers.</li>
+        <li><strong>Content comparison:</strong> Compare page count, text, images, fonts, links, annotations, and signatures with the original or a known-good copy.</li>
+        <li><strong>Retain original:</strong> Keep both the original and repaired versions until the output has been accepted and verified.</li>
+      </ol>
+      <p>
+        Repair may rebuild parts of the file. That can make a document readable again, but it can also change unsupported or damaged elements. Treat the repaired file as a new output that needs review, not as a perfect restoration.
+      </p>
+
+      <h2>What If the PDF Opens but Looks Wrong?</h2>
+      <p>
+        A PDF may be structurally readable while rendering incorrectly. Missing fonts can change line breaks. Damaged images may show as blank areas. An annotation can disappear while the underlying text remains. A digital signature can become invalid if the file is modified during structural reconstruction.
+      </p>
+      <p>
+        For signed or legally significant PDFs, do not assume that repair preserves the original signature state. Verify the signature in the original and repaired copies according to the workflow required by the issuing organization. If the document is evidence, a filing, or an official record, preserve the original and consult the responsible authority before altering it.
+      </p>
+
+      <h2>Common Causes and Practical Responses</h2>
+      <div class="my-6 overflow-x-auto not-prose">
+        <table class="w-full text-left text-sm border-collapse rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+          <thead class="bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-bold">
+            <tr>
+              <th class="p-3 border-b border-slate-200 dark:border-slate-800">Issue / Cause</th>
+              <th class="p-3 border-b border-slate-200 dark:border-slate-800">Root Diagnosis</th>
+              <th class="p-3 border-b border-slate-200 dark:border-slate-800">Recommended Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+            <tr>
+              <td class="p-3 font-semibold">Truncated Download</td>
+              <td class="p-3">File size is smaller than source; EOF marker missing.</td>
+              <td class="p-3">Obtain a fresh download from the original server.</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-semibold">Corrupted XREF Table</td>
+              <td class="p-3">Viewer error &ldquo;Damaged file or invalid xref&rdquo;.</td>
+              <td class="p-3">Run PdfMinty Repair PDF to reconstruct object indexing.</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-semibold">Storage Bit Rot</td>
+              <td class="p-3">Physical media sector failure; random byte corruption.</td>
+              <td class="p-3">Recover from backup or extract undamaged pages.</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-semibold">Missing Font Stream</td>
+              <td class="p-3">Text displays as gibberish, tofu boxes, or dots.</td>
+              <td class="p-3">Re-export from authoring tool with embedded fonts.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Privacy Considerations for Damaged PDFs</h2>
+      <p>
+        A corrupted PDF can still contain confidential content even if it does not open normally. Do not upload it casually to multiple unknown online tools while troubleshooting. Check whether a service sends the binary file, extracted text, page images, or diagnostics to a remote server.
+      </p>
+      <p>
+        PdfMinty standard utilities operate 100% locally in your web browser. After a successful repair, consider whether the output still contains unnecessary metadata. Use <a href="/edit-pdf-metadata/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Edit PDF Metadata</a> or <a href="/sanitize-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Sanitize PDF</a> only after understanding what you need to preserve. Sanitization can remove forensic or document-history information, so always keep the untouched original.
+      </p>
+
+      <h2>How to Verify the Repaired File</h2>
+      <p>
+        A repaired PDF should pass more than an &ldquo;it opens&rdquo; test. Follow this structured checklist:
+      </p>
+      <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3 my-6 not-prose">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Post-Repair Integrity Verification</h3>
+        <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300 m-0">
+          <li class="flex items-start gap-2"><span>🔍</span> <span>Verify every page thumbnail from page 1 to the end.</span></li>
+          <li class="flex items-start gap-2"><span>📝</span> <span>Search for keywords near the beginning, middle, and end of the document.</span></li>
+          <li class="flex items-start gap-2"><span>🖼️</span> <span>Inspect embedded images and vector diagrams for rendering artifacts.</span></li>
+          <li class="flex items-start gap-2"><span>🔗</span> <span>Test interactive hyperlinks and table-of-contents bookmarks.</span></li>
+          <li class="flex items-start gap-2"><span>📊</span> <span>Review form fields, checkboxes, and table alignments.</span></li>
+          <li class="flex items-start gap-2"><span>🖥️</span> <span>Open the repaired file on at least two different PDF reading engines.</span></li>
+        </ul>
+      </div>
+
+      <h2>When Repair Is Not Enough</h2>
+      <p>
+        If no viewer can open the file, the repair tool produces a blank or incomplete result, or the output fails verification, return to the source. Request a fresh export, restore from backup, re-download the original, or consult a forensic specialist if the document has high monetary or legal value. Do not keep modifying the only copy in the hope that repeated attempts will eventually work.
+      </p>
+
+      <h2>Final Takeaway</h2>
+      <p>
+        The safest way to repair a corrupted PDF is to preserve the original, diagnose the likely cause, repair a duplicate, and verify the output in detail. PdfMinty's <a href="/repair-pdf/" class="text-emerald-600 dark:text-emerald-400 font-semibold underline">Repair PDF tool</a> can be part of that process, but recovery is never guaranteed. A careful workflow protects both the document and the evidence needed to decide whether the repaired version is trustworthy.
+      </p>
+
+      <h2>Frequently Asked Questions</h2>
+      <div class="space-y-4 my-8 not-prose">
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">What causes a PDF file to become corrupted or unreadable?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Common causes include incomplete file downloads, interrupted network transfers, browser or software crashes during export, damaged storage drives, or corrupted cross-reference (XREF) tables and object headers.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Why should I never work directly on the only original copy of a corrupted PDF?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Repair algorithms rewrite internal byte streams and object dictionaries. If a repair attempt fails or introduces further errors, modifying your sole original copy can cause permanent data loss. Always make a read-only duplicate first.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">How does client-side in-browser PDF repair work?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            PdfMinty runs WebAssembly parser engines directly within your browser memory. It scans the document structure, reconstructs damaged cross-reference tables, repairs broken font and page pointers, and generates a valid PDF stream without sending file bytes to external servers.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">Does repairing a corrupted PDF guarantee 100% data recovery?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            No repair tool can restore bytes that were never downloaded or physically destroyed on storage media. However, structural repairs can often recover uncorrupted pages, text layers, and embedded assets from partially damaged files.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white m-0">What should I do if a repaired PDF opens but has missing fonts or broken images?</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 m-0 leading-relaxed">
+            Try opening the repaired copy in multiple viewers (e.g., Chrome, Adobe Acrobat, Apple Preview). If fonts or images remain broken, check if a previous revision exists or request a fresh export from the original author.
+          </p>
+        </div>
+      </div>
+
+      <div class="not-prose my-12 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-900 text-white border-2 border-emerald-400/40 shadow-2xl shadow-emerald-950/40 relative overflow-hidden text-center group">
+        <div class="absolute -top-20 -left-20 w-56 h-56 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-20 -right-20 w-56 h-56 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl mx-auto space-y-5">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-black uppercase tracking-widest shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-ping"></span>
+            <span>Client-Side PDF Recovery</span>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-snug m-0 drop-shadow-md">
+            Ready to Repair Your Corrupted PDF?
+          </h3>
+          <p class="text-base sm:text-lg text-emerald-50 m-0 leading-relaxed font-semibold drop-shadow-sm">
+            Reconstruct damaged cross-reference tables and recover readable pages directly in your browser.
+          </p>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-4">
+            <a href="/repair-pdf/" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white hover:bg-emerald-50 text-emerald-950 dark:!bg-white dark:!text-emerald-950 hover:dark:!bg-emerald-50 font-black text-base rounded-2xl shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-105 active:scale-95 no-underline border-0 cursor-pointer">
+              <span>Repair PDF Tool →</span>
+            </a>
+            <a href="/sanitize-pdf/" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-emerald-800/80 hover:bg-emerald-800 text-white font-black text-base rounded-2xl border border-emerald-400/30 transition-all duration-300 hover:scale-105 active:scale-95 no-underline cursor-pointer">
+              <span>Sanitize PDF →</span>
+            </a>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-emerald-100 font-bold">
+            <span>⚡ 100% In-Browser</span>
+            <span>•</span>
+            <span>🔒 Zero Server Uploads</span>
+            <span>•</span>
+            <span>🛠️ Cross-Reference Recovery</span>
           </div>
         </div>
       </div>

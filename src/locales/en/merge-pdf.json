@@ -64,5 +64,9 @@
   "securityNotice": {
     "title": "Zero Server Uploads",
     "description": "Your files are combined entirely within your local browser sandbox using WebAssembly. No documents or sensitive data are ever transmitted to external servers."
+  },
+  "seo": {
+    "metaTitle": "Merge PDF Files Free — Combine PDFs Online | PDFMinty",
+    "metaDescription": "Merge PDF files free online. Combine multiple PDFs into one secure document locally in your browser. No server uploads — your files stay private."
   }
 }

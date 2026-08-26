@@ -119,7 +119,7 @@ i18n
     supportedLngs: SUPPORTED_LOCALES as unknown as string[],
     fallbackLng: DEFAULT_LOCALE,
     defaultNS: DEFAULT_NAMESPACE,
-    ns: [DEFAULT_NAMESPACE, 'merge-pdf'],
+    ns: [DEFAULT_NAMESPACE, 'merge-pdf', 'faq'],
     interpolation: {
       escapeValue: false, // React already escapes values
     },

@@ -571,7 +571,7 @@ ${hreflangMarkup ? `${hreflangMarkup}\n` : ''}  <meta property="og:type" content
   const homepageContent = `
   <main class="prose max-w-6xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
     <h1>${HOMEPAGE_H1}</h1>
-    <p>PDFMinty is a free, privacy-first PDF toolkit with ${toolsCount} powerful tools that run entirely in your browser. Your files never leave your device — no server uploads, no sign-ups, no limits. Merge, split, protect, convert, and edit PDFs with complete confidentiality.</p>
+    <p>PDFMinty is a free, privacy-first PDF toolkit with ${toolsCount} powerful tools that run entirely in your browser. Your files never leave your device — no server uploads, no sign-ups, no daily quotas. Merge, split, protect, convert, and edit PDFs with complete confidentiality.</p>
  
     <h2>All PDF Tools</h2>
     <ul>
@@ -658,6 +658,55 @@ ${toolsListHtml}
   <meta name="twitter:title" content="PDFMinty — Free Privacy-First PDF Toolkit">
   <meta name="twitter:description" content="Free privacy-first PDF toolkit. Merge, split, compress, protect, and edit PDFs 100% in your browser. No uploads, no sign-up, complete confidentiality.">
   <meta name="twitter:image" content="${SITE_URL}/og-image.png">
+  <script type="application/ld+json">
+  { "@context": "https://schema.org", "@type": "WebApplication",
+    "name": "PDFMinty", "url": "${SITE_URL}/",
+    "description": "Free, privacy-first online PDF toolkit. Merge, split, compress, rotate, watermark, and analyze PDFs entirely in your browser.",
+    "applicationCategory": "UtilityApplication",
+    "applicationSubCategory": "PDF Software",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires JavaScript. Requires HTML5.",
+    "softwareVersion": "1.0.0",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
+    "author": { "@type": "Organization", "name": "PDFMinty", "url": "${SITE_URL}/" },
+    "publisher": { "@type": "Organization", "name": "PDFMinty", "logo": { "@type": "ImageObject", "url": "${SITE_URL}/logo-512.png", "width": 512, "height": 512 } },
+    "image": { "@type": "ImageObject", "url": "${SITE_URL}/og-image.png", "width": 1200, "height": 630 },
+    "featureList": [
+      "Merge multiple PDF files", "Split PDF into separate pages", "Compress PDF file size",
+      "Rotate PDF pages", "Delete pages from PDF", "Add watermarks to PDF", "Add page numbers",
+      "Insert blank pages", "Password protect PDF", "Unlock password-protected PDF",
+      "Convert images to PDF", "Convert PDF to images", "AI-powered PDF analysis"
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  { "@context": "https://schema.org", "@type": "Organization",
+    "@id": "${SITE_URL}/#organization",
+    "name": "PDFMinty", "url": "${SITE_URL}/",
+    "logo": { "@type": "ImageObject", "url": "${SITE_URL}/logo-512.png", "width": 512, "height": 512 },
+    "image": "${SITE_URL}/og-image.png",
+    "description": "Privacy-first, client-side PDF toolkit with 23 free tools.",
+    "foundingDate": "2025",
+    "contactPoint": {
+      "@type": "ContactPoint", "contactType": "customer support",
+      "email": "support@pdfminty.com",
+      "url": "${SITE_URL}/contact/",
+      "availableLanguage": ["English"]
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  { "@context": "https://schema.org", "@type": "WebSite",
+    "@id": "${SITE_URL}/#website",
+    "url": "${SITE_URL}/", "name": "PDFMinty",
+    "publisher": { "@id": "${SITE_URL}/#organization" },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": { "@type": "EntryPoint", "urlTemplate": "${SITE_URL}/?q={search_term_string}" },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
   ${homepageFaqSchema}
   `;
 

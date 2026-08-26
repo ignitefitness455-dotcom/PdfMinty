@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
-import { SITE_URL, SITE_NAME, TOOLS, FAQS } from '../config/seo-data';
+import { SITE_URL, SITE_NAME, TOOLS } from '../config/seo-data';
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '../i18n/config';
 
 export const Breadcrumbs: React.FC = () => {
@@ -110,39 +110,25 @@ export default function InternalSEO() {
       {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
+        '@id': `${SITE_URL}/#website`,
         name: SITE_NAME,
         url: `${SITE_URL}/`,
-        description: 'Free, privacy-first offline-capable PDF toolkit. Combine, split, protect, rotate and convert PDFs 100% inside your browser safely with zero server uploads.',
-        publisher: {
-          '@type': 'Organization',
-          name: SITE_NAME,
-          logo: `${SITE_URL}/logo-192.png`,
-        },
+        publisher: { '@id': `${SITE_URL}/#organization` },
       },
       {
         '@context': 'https://schema.org',
         '@type': 'Organization',
+        '@id': `${SITE_URL}/#organization`,
         name: SITE_NAME,
         url: `${SITE_URL}/`,
         logo: `${SITE_URL}/logo-192.png`,
         contactPoint: {
           '@type': 'ContactPoint',
-          email: 'pdfminty@gmail.com',
+          email: 'support@pdfminty.com',
           contactType: 'customer support',
         },
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: FAQS.map((faq) => ({
-          '@type': 'Question',
-          name: faq.q,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: faq.a,
-          },
-        })),
       }
+      // FAQPage সরানো হয়েছে — স্ট্যাটিক HTML-এ homepageFaqSchema দ্বারা প্রদত্ত (T-1 fix)
     );
   } else if (cleanSlug === 'blog') {
     // 2. Blog Index (`/blog/`)

@@ -45,6 +45,7 @@ const OcrPdfPage = lazyWithRetry(() => import('./pages/OcrPdfPage').then((m) => 
 const BlogPage = lazyWithRetry(() => import('./pages/BlogPage').then((m) => ({ default: m.BlogPage })));
 const BlogPostPage = lazyWithRetry(() => import('./pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
 const AdobeAlternativePage = lazyWithRetry(() => import('./pages/AdobeAlternativePage').then((m) => ({ default: m.AdobeAlternativePage })));
+const NotFoundPage = lazyWithRetry(() => import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -372,14 +373,6 @@ export const App: React.FC = () => {
                 </ErrorBoundary>
               }
             />
-            <Route
-              path={ROUTES.SWITCH_ADOBE}
-              element={
-                <ErrorBoundary resetKey="switch-adobe">
-                  <AdobeAlternativePage />
-                </ErrorBoundary>
-              }
-            />
             {/* Legacy path redirects */}
             <Route path="/about" element={<Navigate to={ROUTES.ABOUT_US} replace />} />
             <Route path="/contact-us" element={<Navigate to={ROUTES.CONTACT} replace />} />
@@ -393,8 +386,8 @@ export const App: React.FC = () => {
             <Route path="/pdfminty-vs-smallpdf" element={<Navigate to={ROUTES.COMPARE_SMALLPDF} replace />} />
             <Route path="/pdfminty-vs-ilovepdf" element={<Navigate to={ROUTES.COMPARE_ILOVEPDF} replace />} />
 
-            {/* Safe fallback */}
-            <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+            {/* 404 fallback — shows real 404 page with noindex */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </Layout>

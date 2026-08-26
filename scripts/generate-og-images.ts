@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import sharp from 'sharp';
 
+import { TOOLS } from '../src/config/seo-data';
 import { logger } from '../src/utils/logger';
 
 const __filename: string = fileURLToPath(import.meta.url);
@@ -78,7 +79,8 @@ async function generateOGImage(tool: Tool, filename: string): Promise<void> {
 
 async function generateAll(): Promise<void> {
   // Default homepage OG image
-  await generateOGImage({ slug: '', name: 'PDFMinty', tagline: '15 Free Privacy-First PDF Tools', color: '#059669', icon: 'P' }, 'og-image.png');
+  const toolCount = TOOLS.filter((t) => t.type === 'tool').length;
+  await generateOGImage({ slug: '', name: 'PDFMinty', tagline: `${toolCount} Free Privacy-First PDF Tools`, color: '#059669', icon: 'P' }, 'og-image.png');
   logger.info('✓ Generated og-image.png (homepage)');
 
   for (const tool of tools) {

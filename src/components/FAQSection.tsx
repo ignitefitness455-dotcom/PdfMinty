@@ -1,5 +1,6 @@
 import { ChevronDown, HelpCircle } from 'lucide-react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { FAQItem, getToolFaqs } from '../data/toolFaqs';
 
@@ -14,11 +15,13 @@ export interface FAQSectionProps {
 export const FAQSection: React.FC<FAQSectionProps> = ({
   faqs: customFaqs,
   toolId,
-  title = 'Frequently Asked Questions',
+  title: customTitle,
   description,
   className = '',
 }) => {
-  // Derive FAQs either from explicit prop or toolId lookup
+  const { t } = useTranslation('faq');
+
+  // Derive FAQs either from explicit prop, i18next translation, or toolFaqs.ts fallback
   const faqs: FAQItem[] = React.useMemo(() => {
     if (customFaqs && customFaqs.length > 0) {
       return customFaqs.map((f) => ({
@@ -27,10 +30,37 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
       }));
     }
     if (toolId) {
+      const translated = t(toolId, { returnObjects: true });
+      if (
+        Array.isArray(translated) &&
+        translated.length > 0 &&
+        typeof translated[0] === 'object' &&
+        'question' in translated[0]
+      ) {
+        return translated as FAQItem[];
+      }
+
+      // Check alias (e.g. merge-pdf -> merge) if primary key wasn't matched in translation
+      if (toolId === 'merge-pdf') {
+        const aliasTranslated = t('merge', { returnObjects: true });
+        if (
+          Array.isArray(aliasTranslated) &&
+          aliasTranslated.length > 0 &&
+          typeof aliasTranslated[0] === 'object' &&
+          'question' in aliasTranslated[0]
+        ) {
+          return aliasTranslated as FAQItem[];
+        }
+      }
+
       return getToolFaqs(toolId);
     }
     return [];
-  }, [customFaqs, toolId]);
+  }, [customFaqs, toolId, t]);
+
+  // Derive title from customTitle prop or i18n
+  const displayTitle =
+    customTitle || t('sectionTitle', { defaultValue: 'Frequently Asked Questions' });
 
   // Track open state for accordion items
   const [openIndexes, setOpenIndexes] = useState<number[]>([0]); // First item open by default
@@ -55,7 +85,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
           </div>
           <div>
             <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-              {title}
+              {displayTitle}
             </h2>
             {description && (
               <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5">

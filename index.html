@@ -39,7 +39,10 @@
     <!-- Deferred Third-Party Scripts (Analytics) -->
     <script>
       (function() {
+        var GA_ID = 'G-5WYDTKWS1J';
+        var CF_TOKEN = '484669cfa7c04bb18cec08f6d0cc6e63';
         var loaded = false;
+
         function loadThirdPartyScripts() {
           if (loaded || window._thirdPartyLoaded) return;
           loaded = true;
@@ -50,24 +53,24 @@
             window.removeEventListener(e, loadThirdPartyScripts, { passive: true });
           });
 
+          // Cloudflare Web Analytics (lightweight ~1KB, load first)
+          var cf = document.createElement('script');
+          cf.defer = true;
+          cf.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+          cf.setAttribute('data-cf-beacon', '{"token": "' + CF_TOKEN + '"}');
+          document.body.appendChild(cf);
+
           // Google Tag Manager / Analytics
           var g = document.createElement('script');
           g.async = true;
-          g.src = 'https://www.googletagmanager.com/gtag/js?id=G-5WYDTKWS1J';
+          g.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
           document.head.appendChild(g);
 
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           window.gtag = gtag;
           gtag('js', new Date());
-          gtag('config', 'G-5WYDTKWS1J');
-
-          // Cloudflare Web Analytics
-          var cf = document.createElement('script');
-          cf.defer = true;
-          cf.src = 'https://static.cloudflareinsights.com/beacon.min.js';
-          cf.setAttribute('data-cf-beacon', '{"token": "484669cfa7c04bb18cec08f6d0cc6e63"}');
-          document.body.appendChild(cf);
+          gtag('config', GA_ID);
         }
 
         var events = ['touchstart', 'scroll', 'pointermove', 'keydown', 'click'];
@@ -75,17 +78,41 @@
           window.addEventListener(e, loadThirdPartyScripts, { passive: true, once: true });
         });
 
+        // Reduced fallback timeout: 1000ms (was 2500ms) to capture fast bounces
         if ('requestIdleCallback' in window) {
           window.addEventListener('load', function() {
             requestIdleCallback(function() {
-              setTimeout(loadThirdPartyScripts, 2500);
+              setTimeout(loadThirdPartyScripts, 1000);
             });
           });
         } else {
           window.addEventListener('load', function() {
-            setTimeout(loadThirdPartyScripts, 4000);
+            setTimeout(loadThirdPartyScripts, 1200);
           });
         }
+
+        // Fallback beacon: if user leaves before gtag loads, fire a minimal
+        // page_view event via navigator.sendBeacon to GA4 collect endpoint.
+        // This captures fast-bounce pageviews that the delayed loader misses.
+        window.addEventListener('pagehide', function() {
+          if (loaded) return; // gtag already loaded — it handles this natively
+          if (!navigator.sendBeacon) return;
+          var cid = localStorage.getItem('_ga_cid');
+          if (!cid) {
+            cid = 'xxxxxxxxxxxx.xxxxxxxxxxxx'.replace(/x/g, function() {
+              return Math.floor(Math.random() * 16).toString(16);
+            });
+            try { localStorage.setItem('_ga_cid', cid); } catch (e) {}
+          }
+          var payload = 'v=1&t=pageview&tid=' + GA_ID +
+            '&cid=' + cid +
+            '&dl=' + encodeURIComponent(location.href) +
+            '&dt=' + encodeURIComponent(document.title) +
+            '&dr=' + encodeURIComponent(document.referrer) +
+            '&sr=' + (screen.width + 'x' + screen.height) +
+            '&vp=' + (window.innerWidth + 'x' + window.innerHeight);
+          navigator.sendBeacon('https://www.google-analytics.com/g/collect?' + payload);
+        }, { capture: true });
       })();
     </script>
 
@@ -129,18 +156,13 @@
             "height": 512
           },
           "image": "https://pdfminty.com/og-image.png",
-          "description": "Privacy-first, client-side PDF toolkit with 20 free tools.",
+          "description": "Privacy-first, client-side PDF toolkit with 23 free tools.",
           "foundingDate": "2025",
-          "sameAs": [
-            "https://twitter.com/pdfminty",
-            "https://github.com/pdfminty",
-            "https://www.linkedin.com/company/pdfminty",
-            "https://www.facebook.com/pdfminty"
-          ],
           "contactPoint": {
             "@type": "ContactPoint",
             "contactType": "customer support",
-            "url": "https://pdfminty.com/",
+            "email": "support@pdfminty.com",
+            "url": "https://pdfminty.com/contact/",
             "availableLanguage": ["English"]
           }
         },
@@ -162,7 +184,7 @@
           "mainEntity": [
             { "@type": "Question", "name": "Is PDFMinty really free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, PDFMinty is 100% free to use. All PDF processing happens locally in your browser — no subscription, no upload limits, no hidden fees." } },
             { "@type": "Question", "name": "Are my files uploaded to your server?", "acceptedAnswer": { "@type": "Answer", "text": "For our standard PDF tools, no. Files are processed entirely in your browser using client-side JavaScript and WebAssembly without leaving your device. The only exception is the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box." } },
-            { "@type": "Question", "name": "What is the maximum file size?", "acceptedAnswer": { "@type": "Answer", "text": "PDFMinty can handle individual PDF files up to 100MB and combined operations up to 150MB total. Performance depends on your device's memory and processing power." } }
+            { "@type": "Question", "name": "What is the maximum file size?", "acceptedAnswer": { "@type": "Answer", "text": "Most tools accept PDF files up to 50MB each, with a 150MB combined batch limit. Protect and Unlock support files up to 100MB, while AI Analyze accepts up to 15MB. Each tool's page shows its current limit. Performance also depends on your device's memory." } }
           ]
         }
       ]

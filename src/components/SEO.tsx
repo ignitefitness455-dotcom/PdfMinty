@@ -1,8 +1,11 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 
+import { HOMEPAGE_META } from '../config/homeConfig';
 import { TOOLS, SITE_URL, SITE_NAME } from '../config/seo-data';
 import { useHreflang } from '../hooks/useHreflang';
+import { DEFAULT_LOCALE } from '../i18n/config';
 
 interface SEOProps {
   slug?: string;
@@ -19,6 +22,7 @@ interface SEOProps {
  */
 export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverride }) => {
   const { currentLocale, baseSlug, canonicalUrl, hreflangs } = useHreflang(slug, SITE_URL);
+  const { t } = useTranslation(baseSlug || 'common');
 
   const item = TOOLS.find((t) => t.slug === baseSlug);
 
@@ -26,12 +30,32 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
   const prevTool = currentToolIndex > 0 ? TOOLS[currentToolIndex - 1] : null;
   const nextTool = currentToolIndex >= 0 && currentToolIndex < TOOLS.length - 1 ? TOOLS[currentToolIndex + 1] : null;
 
+  // Localized SEO strings for pages with translations available when not default locale
+  let localizedTitle: string | undefined;
+  let localizedDescription: string | undefined;
+
+  if (currentLocale !== DEFAULT_LOCALE && baseSlug === 'merge-pdf') {
+    const tTitle = t('seo.metaTitle', { ns: 'merge-pdf', defaultValue: '' });
+    if (tTitle && tTitle !== 'seo.metaTitle') {
+      localizedTitle = tTitle;
+    }
+    const tDesc = t('seo.metaDescription', { ns: 'merge-pdf', defaultValue: '' });
+    if (tDesc && tDesc !== 'seo.metaDescription') {
+      localizedDescription = tDesc;
+    }
+  }
+
   // Default values for homepage or custom non-tool pathways.
-  const title = titleOverride || item?.metaTitle || 'Free Offline PDF Tools & Editor — 100% Private | PDFMinty';
+  const title =
+    titleOverride ||
+    localizedTitle ||
+    item?.metaTitle ||
+    HOMEPAGE_META.title;
   const description =
     descriptionOverride ||
+    localizedDescription ||
     item?.metaDescription ||
-    'Free, privacy-first offline-capable PDF toolkit. Combine, split, protect, rotate and convert PDFs 100% inside your browser safely with zero server uploads.';
+    HOMEPAGE_META.description;
 
   const ogType = item?.type === 'article' ? 'article' : 'website';
 

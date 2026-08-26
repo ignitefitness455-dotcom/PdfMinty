@@ -14,7 +14,7 @@ export const TOOL_FAQS: ToolFaqMap = {
     },
     {
       question: 'Is there a limit on how many PDF files I can merge at once?',
-      answer: 'You can merge as many PDF files as your device memory can handle. Single files can be up to 100MB, with a maximum combined upload batch of 150MB per session.',
+      answer: 'You can merge up to 50 PDF files per session. Single files can be up to 50MB each, with a maximum combined batch of 150MB per session. There are no daily limits or sign-ups.',
     },
     {
       question: 'Will merging PDFs degrade the quality of my images or text?',
