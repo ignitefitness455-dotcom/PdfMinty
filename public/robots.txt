@@ -31,3 +31,6 @@ Disallow: /
 
 # Sitemap Index
 Sitemap: https://pdfminty.com/sitemap.xml
+Sitemap: https://pdfminty.com/sitemap-tools.xml
+Sitemap: https://pdfminty.com/sitemap-blog.xml
+Sitemap: https://pdfminty.com/sitemap-pages.xml

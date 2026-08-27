@@ -25,106 +25,19 @@ export function escapeXml(unsafe: string): string {
     .replace(/'/g, '&apos;');
 }
 
-export function generateSitemapXml(): { sitemapXml: string } {
-  const baseUrl = SITE_URL.replace(/\/$/, '');
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD at build time
-  const staticRoutes: Array<{ path: string; priority: string; changefreq: string; lastmod: string }> = [
-    { path: '', priority: '1.0', changefreq: 'daily', lastmod: today },
-    { path: '/blog', priority: '0.9', changefreq: 'daily', lastmod: today },
-    { path: '/adobe-acrobat-alternative', priority: '0.8', changefreq: 'weekly', lastmod: today },
-    { path: '/about-us', priority: '0.5', changefreq: 'monthly', lastmod: today },
-    { path: '/contact', priority: '0.5', changefreq: 'monthly', lastmod: today },
-    { path: '/privacy-policy', priority: '0.3', changefreq: 'monthly', lastmod: today },
-    { path: '/terms-of-service', priority: '0.3', changefreq: 'monthly', lastmod: today },
-  ];
+interface SitemapUrlEntry {
+  loc: string;
+  lastmod: string;
+  changefreq: string;
+  priority: string;
+  imageLoc?: string;
+  title?: string;
+  caption?: string;
+  hreflangs?: HreflangEntry[];
+}
 
-  const urlEntries: Array<{
-    loc: string;
-    lastmod: string;
-    changefreq: string;
-    priority: string;
-    imageLoc: string;
-    title: string;
-    caption: string;
-    hreflangs?: HreflangEntry[];
-  }> = [];
-
-  const addedPaths = new Set<string>();
-
-  // Add static routes
-  for (const route of staticRoutes) {
-    if (!addedPaths.has(route.path)) {
-      addedPaths.add(route.path);
-      const slashedPath = route.path.endsWith('/') ? route.path : `${route.path}/`;
-      const loc = `${baseUrl}${slashedPath.startsWith('/') ? slashedPath : `/${slashedPath}`}`;
-      urlEntries.push({
-        loc,
-        lastmod: route.lastmod,
-        changefreq: route.changefreq,
-        priority: route.priority,
-        imageLoc: `${baseUrl}/og-image.png`,
-        title: 'PdfMinty — Free Privacy-First PDF Toolkit',
-        caption: 'Free in-browser PDF utilities with zero server uploads',
-      });
-    }
-  }
-
-  // Add all tools and articles from canonical seo-data registry
-  for (const item of TOOLS as ToolSEOInfo[]) {
-    const rawSlug = item.slug.startsWith('/') ? item.slug : `/${item.slug}`;
-    if (!addedPaths.has(rawSlug)) {
-      addedPaths.add(rawSlug);
-      const slashedSlug = rawSlug.endsWith('/') ? rawSlug : `${rawSlug}/`;
-      const loc = `${baseUrl}${slashedSlug}`;
-      const isTool = item.type === 'tool';
-      const priority = isTool ? '0.9' : '0.8';
-      const changefreq = 'weekly';
-      const lastmod = item.dateModified || item.datePublished || '2026-02-01';
-      const ogImage = item.ogImage
-        ? (item.ogImage.startsWith('http') ? item.ogImage : `${baseUrl}${item.ogImage.startsWith('/') ? item.ogImage : `/${item.ogImage}`}`)
-        : `${baseUrl}/og-image.png`;
-
-      const cleanSlug = item.slug.replace(/^\//, '').replace(/\/$/, '');
-      const toolHreflangs = isI18nToolSlug(cleanSlug) ? getHreflangs(cleanSlug, baseUrl) : undefined;
-
-      urlEntries.push({
-        loc,
-        lastmod,
-        changefreq,
-        priority,
-        imageLoc: ogImage,
-        title: item.metaTitle || item.name || item.h1 || 'PdfMinty Tool',
-        caption: item.shortDescription || `${item.name} PDF tool`,
-        hreflangs: toolHreflangs,
-      });
-
-      // Add localized versions for tools configured in i18n
-      if ((I18N_TOOL_SLUGS as readonly string[]).includes(cleanSlug)) {
-        for (const locLang of SUPPORTED_LOCALES) {
-          if (locLang !== DEFAULT_LOCALE) {
-            const localizedPath = `/${locLang}/${cleanSlug}`;
-            if (!addedPaths.has(localizedPath)) {
-              addedPaths.add(localizedPath);
-              const localizedLoc = `${baseUrl}${localizedPath}/`;
-              urlEntries.push({
-                loc: localizedLoc,
-                lastmod,
-                changefreq,
-                priority,
-                imageLoc: ogImage,
-                title: item.metaTitle || item.name || item.h1 || 'PdfMinty Tool',
-                caption: item.shortDescription || `${item.name} PDF tool`,
-                hreflangs: toolHreflangs,
-              });
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Construct sitemap.xml with embedded image and xhtml hreflang tags
-  const xmlUrls = urlEntries
+function buildUrlsetXml(entries: SitemapUrlEntry[]): string {
+  const xmlUrls = entries
     .map((entry) => {
       const xhtmlLinks =
         entry.hreflangs && entry.hreflangs.length > 0
@@ -136,35 +49,185 @@ export function generateSitemapXml(): { sitemapXml: string } {
               .join('\n') + '\n'
           : '';
 
+      const imageXml = entry.imageLoc
+        ? `    <image:image>
+      <image:loc>${escapeXml(entry.imageLoc)}</image:loc>
+      <image:title>${escapeXml(entry.title || 'PdfMinty')}</image:title>
+      <image:caption>${escapeXml(entry.caption || '')}</image:caption>
+    </image:image>`
+        : '';
+
       return `  <url>
     <loc>${escapeXml(entry.loc)}</loc>
 ${xhtmlLinks}    <lastmod>${entry.lastmod}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
-    <priority>${entry.priority}</priority>
-    <image:image>
-      <image:loc>${escapeXml(entry.imageLoc)}</image:loc>
-      <image:title>${escapeXml(entry.title)}</image:title>
-      <image:caption>${escapeXml(entry.caption)}</image:caption>
-    </image:image>
+    <priority>${entry.priority}</priority>${imageXml ? '\n' + imageXml : ''}
   </url>`;
     })
     .join('\n');
 
-  const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${xmlUrls}
 </urlset>`;
+}
 
-  return { sitemapXml };
+function buildSitemapIndexXml(sitemaps: Array<{ loc: string; lastmod: string }>): string {
+  const sitemapElements = sitemaps
+    .map(
+      (s) => `  <sitemap>
+    <loc>${escapeXml(s.loc)}</loc>
+    <lastmod>${s.lastmod}</lastmod>
+  </sitemap>`
+    )
+    .join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemapElements}
+</sitemapindex>`;
+}
+
+export interface SitemapGenerationResult {
+  sitemapXml: string;
+  sitemaps: Record<string, string>;
+}
+
+export function generateSitemapXml(): SitemapGenerationResult {
+  const baseUrl = SITE_URL.replace(/\/$/, '');
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD at build time
+
+  // 1. Static Core Pages (sitemap-pages.xml)
+  const staticRoutes: Array<{ path: string; priority: string; changefreq: string; lastmod: string }> = [
+    { path: '', priority: '1.0', changefreq: 'daily', lastmod: today },
+    { path: '/blog', priority: '0.9', changefreq: 'daily', lastmod: today },
+    { path: '/adobe-acrobat-alternative', priority: '0.8', changefreq: 'weekly', lastmod: today },
+    { path: '/about-us', priority: '0.5', changefreq: 'monthly', lastmod: today },
+    { path: '/contact', priority: '0.5', changefreq: 'monthly', lastmod: today },
+    { path: '/privacy-policy', priority: '0.3', changefreq: 'monthly', lastmod: today },
+    { path: '/terms-of-service', priority: '0.3', changefreq: 'monthly', lastmod: today },
+  ];
+
+  const pageEntries: SitemapUrlEntry[] = staticRoutes.map((route) => {
+    const slashedPath = route.path === '' ? '/' : (route.path.endsWith('/') ? route.path : `${route.path}/`);
+    const loc = `${baseUrl}${slashedPath.startsWith('/') ? slashedPath : `/${slashedPath}`}`;
+    return {
+      loc,
+      lastmod: route.lastmod,
+      changefreq: route.changefreq,
+      priority: route.priority,
+      imageLoc: `${baseUrl}/og-image.png`,
+      title: 'PdfMinty — Free Privacy-First PDF Toolkit',
+      caption: 'Free in-browser PDF utilities with zero server uploads',
+    };
+  });
+
+  // 2. Tools and localized tools (sitemap-tools.xml)
+  // 3. Blog articles and comparison guides (sitemap-blog.xml)
+  const toolEntries: SitemapUrlEntry[] = [];
+  const blogEntries: SitemapUrlEntry[] = [];
+
+  const addedPaths = new Set<string>();
+  staticRoutes.forEach((r) => addedPaths.add(r.path.startsWith('/') ? r.path : `/${r.path}`));
+
+  for (const item of TOOLS as ToolSEOInfo[]) {
+    const rawSlug = item.slug.startsWith('/') ? item.slug : `/${item.slug}`;
+    const cleanSlug = item.slug.replace(/^\//, '').replace(/\/$/, '');
+
+    // Skip static pages handled in sitemap-pages
+    const isStaticPage = ['about-us', 'contact', 'privacy-policy', 'terms-of-service', 'blog', 'adobe-acrobat-alternative'].includes(cleanSlug);
+    if (isStaticPage) {
+      continue;
+    }
+
+    const slashedSlug = rawSlug.endsWith('/') ? rawSlug : `${rawSlug}/`;
+    const loc = `${baseUrl}${slashedSlug}`;
+    const isBlogOrCompare = cleanSlug.startsWith('blog/') || cleanSlug.startsWith('compare/') || item.category === 'blog' || item.category === 'compare';
+
+    const priority = isBlogOrCompare ? '0.8' : '0.9';
+    const changefreq = 'weekly';
+    const lastmod = item.dateModified || item.datePublished || today;
+    const ogImage = item.ogImage
+      ? (item.ogImage.startsWith('http') ? item.ogImage : `${baseUrl}${item.ogImage.startsWith('/') ? item.ogImage : `/${item.ogImage}`}`)
+      : `${baseUrl}/og-image.png`;
+
+    const toolHreflangs = isI18nToolSlug(cleanSlug) ? getHreflangs(cleanSlug, baseUrl) : undefined;
+
+    const entry: SitemapUrlEntry = {
+      loc,
+      lastmod,
+      changefreq,
+      priority,
+      imageLoc: ogImage,
+      title: item.metaTitle || item.name || item.h1 || 'PdfMinty Tool',
+      caption: item.shortDescription || `${item.name} PDF tool`,
+      hreflangs: toolHreflangs,
+    };
+
+    if (!addedPaths.has(rawSlug)) {
+      addedPaths.add(rawSlug);
+      if (isBlogOrCompare) {
+        blogEntries.push(entry);
+      } else {
+        toolEntries.push(entry);
+      }
+    }
+
+    // Add localized tool versions (e.g. /bn/merge-pdf/)
+    if ((I18N_TOOL_SLUGS as readonly string[]).includes(cleanSlug)) {
+      for (const locLang of SUPPORTED_LOCALES) {
+        if (locLang !== DEFAULT_LOCALE) {
+          const localizedPath = `/${locLang}/${cleanSlug}`;
+          if (!addedPaths.has(localizedPath)) {
+            addedPaths.add(localizedPath);
+            const localizedLoc = `${baseUrl}${localizedPath}/`;
+            toolEntries.push({
+              loc: localizedLoc,
+              lastmod,
+              changefreq,
+              priority,
+              imageLoc: ogImage,
+              title: item.metaTitle || item.name || item.h1 || 'PdfMinty Tool',
+              caption: item.shortDescription || `${item.name} PDF tool`,
+              hreflangs: toolHreflangs,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  const sitemapPagesXml = buildUrlsetXml(pageEntries);
+  const sitemapToolsXml = buildUrlsetXml(toolEntries);
+  const sitemapBlogXml = buildUrlsetXml(blogEntries);
+
+  // Master Sitemap Index
+  const sitemapIndexXml = buildSitemapIndexXml([
+    { loc: `${baseUrl}/sitemap-tools.xml`, lastmod: today },
+    { loc: `${baseUrl}/sitemap-blog.xml`, lastmod: today },
+    { loc: `${baseUrl}/sitemap-pages.xml`, lastmod: today },
+  ]);
+
+  const sitemaps: Record<string, string> = {
+    'sitemap.xml': sitemapIndexXml,
+    'sitemap-tools.xml': sitemapToolsXml,
+    'sitemap-blog.xml': sitemapBlogXml,
+    'sitemap-pages.xml': sitemapPagesXml,
+  };
+
+  return {
+    sitemapXml: sitemapIndexXml,
+    sitemaps,
+  };
 }
 
 async function run(): Promise<void> {
   const publicDir = path.join(__dirname, '../public');
   const distDir = path.join(__dirname, '../dist');
 
-  const { sitemapXml } = generateSitemapXml();
+  const { sitemaps } = generateSitemapXml();
 
   const targets = [publicDir, distDir];
 
@@ -173,8 +236,10 @@ async function run(): Promise<void> {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    fs.writeFileSync(path.join(dir, 'sitemap.xml'), sitemapXml, 'utf8');
-    logger.info(`Generated sitemap.xml in ${dir}`);
+    for (const [filename, content] of Object.entries(sitemaps)) {
+      fs.writeFileSync(path.join(dir, filename), content, 'utf8');
+      logger.info(`Generated ${filename} in ${dir}`);
+    }
   }
 }
 
@@ -184,4 +249,5 @@ if (process.argv[1] && process.argv[1].endsWith('generate-sitemap.ts')) {
     process.exit(1);
   });
 }
+
 
