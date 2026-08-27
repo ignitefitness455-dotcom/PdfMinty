@@ -103,9 +103,15 @@ export const EmailJoinForm: React.FC<EmailJoinFormProps> = ({
             <div className="flex flex-col sm:flex-row items-center gap-2.5">
               {/* Email Input Field */}
               <div className="relative flex-1 w-full">
-                <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 pointer-events-none transition-colors" />
+                <label htmlFor="newsletter-email-input" className="sr-only">
+                  Email address
+                </label>
+                <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 pointer-events-none transition-colors" aria-hidden="true" />
                 <input
+                  id="newsletter-email-input"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   required
                   placeholder="Enter your email address..."
                   value={email}

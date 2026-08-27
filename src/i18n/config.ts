@@ -80,7 +80,9 @@ export function getCanonicalUrl(
   locale: SupportedLocale,
   siteUrl = 'https://pdfminty.com'
 ): string {
-  return `${siteUrl}${getLocalizedPath(baseSlug, locale)}`;
+  const normalizedSiteUrl = siteUrl.replace(/\/+$/, '');
+  const localizedPath = getLocalizedPath(baseSlug, locale);
+  return `${normalizedSiteUrl}${localizedPath}`;
 }
 
 export interface HreflangEntry {

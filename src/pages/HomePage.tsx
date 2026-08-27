@@ -102,89 +102,95 @@ export const HomePage: React.FC = () => {
 
       <HeroSection />
 
-      <div className="mb-8 max-w-lg mx-auto" id="all-tools">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          isDebouncing={isDebouncing}
-          placeholder="Search PDF tools..."
+      <section aria-labelledby="all-tools-heading">
+        <h2 id="all-tools-heading" className="sr-only">
+          Free In-Browser PDF Tools
+        </h2>
+
+        <div className="mb-8 max-w-lg mx-auto" id="all-tools">
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            isDebouncing={isDebouncing}
+            placeholder="Search PDF tools..."
+          />
+        </div>
+
+        {/* Category Filter Tabs (2 Horizontal Rows) */}
+        <div className="mb-10 max-w-4xl mx-auto px-4 space-y-2.5" id="tool-categories">
+          {/* Row 1 */}
+          <div className="flex items-center gap-2 sm:grid sm:grid-cols-4 overflow-x-auto scrollbar-none py-0.5 select-none">
+            {CATEGORIES.slice(0, 4).map((category) => {
+              const isActive = selectedCategory === category.id;
+              const count = sortedTools.filter((t) => isToolInCategory(t.slug, category.id)).length;
+
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`whitespace-nowrap flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
+                    isActive
+                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                      : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <span>{category.name}</span>
+                  <span
+                    className={`text-[10px] md:text-[11px] px-2 py-0.5 rounded-full font-black ${
+                      isActive
+                        ? 'bg-white/25 text-white'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Row 2 */}
+          <div className="flex items-center gap-2 sm:grid sm:grid-cols-4 overflow-x-auto scrollbar-none py-0.5 select-none">
+            {CATEGORIES.slice(4, 8).map((category) => {
+              const isActive = selectedCategory === category.id;
+              const count = sortedTools.filter((t) => isToolInCategory(t.slug, category.id)).length;
+
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`whitespace-nowrap flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
+                    isActive
+                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                      : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <span>{category.name}</span>
+                  <span
+                    className={`text-[10px] md:text-[11px] px-2 py-0.5 rounded-full font-black ${
+                      isActive
+                        ? 'bg-white/25 text-white'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <ToolGrid
+          filteredTools={filteredTools}
+          onClearSearch={() => {
+            setSearchQuery('');
+            setSelectedCategory('all');
+          }}
         />
-      </div>
-
-      {/* Category Filter Tabs (2 Horizontal Rows) */}
-      <div className="mb-10 max-w-4xl mx-auto px-4 space-y-2.5" id="tool-categories">
-        {/* Row 1 */}
-        <div className="flex items-center gap-2 sm:grid sm:grid-cols-4 overflow-x-auto scrollbar-none py-0.5 select-none">
-          {CATEGORIES.slice(0, 4).map((category) => {
-            const isActive = selectedCategory === category.id;
-            const count = sortedTools.filter((t) => isToolInCategory(t.slug, category.id)).length;
-
-            return (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => setSelectedCategory(category.id)}
-                className={`whitespace-nowrap flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
-                  isActive
-                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                    : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
-                }`}
-              >
-                <span>{category.name}</span>
-                <span
-                  className={`text-[10px] md:text-[11px] px-2 py-0.5 rounded-full font-black ${
-                    isActive
-                      ? 'bg-white/25 text-white'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Row 2 */}
-        <div className="flex items-center gap-2 sm:grid sm:grid-cols-4 overflow-x-auto scrollbar-none py-0.5 select-none">
-          {CATEGORIES.slice(4, 8).map((category) => {
-            const isActive = selectedCategory === category.id;
-            const count = sortedTools.filter((t) => isToolInCategory(t.slug, category.id)).length;
-
-            return (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => setSelectedCategory(category.id)}
-                className={`whitespace-nowrap flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
-                  isActive
-                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                    : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
-                }`}
-              >
-                <span>{category.name}</span>
-                <span
-                  className={`text-[10px] md:text-[11px] px-2 py-0.5 rounded-full font-black ${
-                    isActive
-                      ? 'bg-white/25 text-white'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <ToolGrid
-        filteredTools={filteredTools}
-        onClearSearch={() => {
-          setSearchQuery('');
-          setSelectedCategory('all');
-        }}
-      />
+      </section>
 
       <HowItWorksSection />
 

@@ -416,6 +416,9 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a> �
     };
 
     let finalBody: string = item.longFormBody;
+    if (item.type === 'article' && !finalBody.includes('<h1')) {
+      finalBody = `<h1>${item.h1 || item.name}</h1>\n${finalBody}`;
+    }
     if (item.type !== 'article') {
       finalBody += getRelatedToolsHtml(item.slug);
     }
@@ -445,23 +448,34 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a> �
             fs.mkdirSync(locTargetFolder, { recursive: true });
           }
           const locPageUrl = getCanonicalUrl(item.slug, locLang, SITE_URL);
+          const locMetaTitle = locLang === 'bn' && item.slug === 'merge-pdf'
+            ? 'বিনামূল্যে PDF ফাইল মার্জ করুন — অনলাইনে PDF যুক্ত করুন | PdfMinty'
+            : item.metaTitle;
+          const locMetaDesc = locLang === 'bn' && item.slug === 'merge-pdf'
+            ? 'বিনামূল্যে অনলাইনে একাধিক PDF ফাইল একটি ডকুমেন্টে মার্জ করুন। সম্পূর্ণ ব্রাউজারে সুরক্ষিত ও প্রাইভেট।'
+            : item.metaDescription;
+
           const locHeadMeta: string = `
-  <title>${item.metaTitle}</title>
-  <meta name="description" content="${item.metaDescription}">
+  <title>${locMetaTitle}</title>
+  <meta name="description" content="${locMetaDesc}">
   <link rel="canonical" href="${locPageUrl}">
 ${hreflangMarkup ? `${hreflangMarkup}\n` : ''}  <meta property="og:type" content="${item.type === 'article' ? 'article' : 'website'}">
-  <meta property="og:title" content="${item.metaTitle}">
-  <meta property="og:description" content="${item.metaDescription}">
+  <meta property="og:title" content="${locMetaTitle}">
+  <meta property="og:description" content="${locMetaDesc}">
   <meta property="og:url" content="${locPageUrl}">
   <meta property="og:image" content="${SITE_URL}/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="${locPageUrl}">
-  <meta name="twitter:title" content="${item.metaTitle}">
-  <meta name="twitter:description" content="${item.metaDescription}">
+  <meta name="twitter:title" content="${locMetaTitle}">
+  <meta name="twitter:description" content="${locMetaDesc}">
   <meta name="twitter:image" content="${SITE_URL}/og-image.png">
   ${jsonLdMarkup}
   `;
-          let locHtml: string = optimizedBase.replace("</head>", `${locHeadMeta}\n</head>`);
+          let locHtml: string = optimizedBase.replace(/<html(\s+[^>]*)?lang="[a-zA-Z\-]+"/i, `<html lang="${locLang}"`);
+          if (!locHtml.includes(`lang="${locLang}"`)) {
+            locHtml = locHtml.replace('<html', `<html lang="${locLang}"`);
+          }
+          locHtml = locHtml.replace("</head>", `${locHeadMeta}\n</head>`);
           locHtml = locHtml.replace(/<div\s+id="root"\s*><\/div>/i, preRenderedContent);
           locHtml = locHtml.replace(/<div\s+id="root"\s*>\s*<\/div>/i, preRenderedContent);
           fs.writeFileSync(path.join(locTargetFolder, "index.html"), locHtml, "utf8");
@@ -723,6 +737,47 @@ ${toolsListHtml}
 
   fs.writeFileSync(distIndexHtmlPath, homepageHtml, "utf8");
   logger.info("Successfully pre-rendered static HTML for the Homepage at dist/index.html");
+
+  // ----------------------------------------------------
+  // Pre-render the Bengali Homepage (dist/bn/index.html)
+  // ----------------------------------------------------
+  const bnHomepageDir = path.join(distDir, 'bn');
+  if (!fs.existsSync(bnHomepageDir)) {
+    fs.mkdirSync(bnHomepageDir, { recursive: true });
+  }
+
+  const bnHomepageTitle = 'PdfMinty — ১০০% নিরাপদ ও ফ্রি অনলাইন PDF টুলস (সম্পূর্ণ ব্রাউজারে)';
+  const bnHomepageDesc = 'সম্পূর্ণ ব্রাউজারে ক্লায়েন্ট-সাইড প্রসেসিংয়ে PDF মার্জ, স্প্লিট, কম্প্রেস ও এডিট করুন। কোনো ফাইল সার্ভারে আপলোড হয় না — আপনার ডকুমেন্ট থাকে ১০০% নিরাপদ ও গোপনীয়।';
+  const cleanSiteUrl = SITE_URL.replace(/\/+$/, '');
+  const bnCanonical = `${cleanSiteUrl}/bn/`;
+
+  const bnHeadMeta = `
+  <title>${bnHomepageTitle}</title>
+  <meta name="description" content="${bnHomepageDesc}">
+  <link rel="canonical" href="${bnCanonical}">
+  <link rel="alternate" hreflang="en" href="${cleanSiteUrl}/">
+  <link rel="alternate" hreflang="bn" href="${bnCanonical}">
+  <link rel="alternate" hreflang="x-default" href="${cleanSiteUrl}/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${bnHomepageTitle}">
+  <meta property="og:description" content="${bnHomepageDesc}">
+  <meta property="og:url" content="${bnCanonical}">
+  <meta property="og:image" content="${SITE_URL}/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="${bnCanonical}">
+  <meta name="twitter:title" content="${bnHomepageTitle}">
+  <meta name="twitter:description" content="${bnHomepageDesc}">
+  <meta name="twitter:image" content="${SITE_URL}/og-image.png">
+  `;
+
+  let bnHomepageHtml = optimizedBase.replace(/<html(\s+[^>]*)?lang="[a-zA-Z\-]+"/i, '<html lang="bn"');
+  if (!bnHomepageHtml.includes('lang="bn"')) {
+    bnHomepageHtml = bnHomepageHtml.replace('<html', '<html lang="bn"');
+  }
+  bnHomepageHtml = bnHomepageHtml.replace("</head>", `${bnHeadMeta}\n</head>`);
+  bnHomepageHtml = bnHomepageHtml.replace(/<div\s+id="root"[\s\S]*?<\/div>/i, homepageRootContent.trim());
+  fs.writeFileSync(path.join(bnHomepageDir, 'index.html'), bnHomepageHtml, 'utf8');
+  logger.info("Successfully pre-rendered static HTML for Bengali Homepage at dist/bn/index.html");
 }
 
 run().catch((err: unknown) => {
