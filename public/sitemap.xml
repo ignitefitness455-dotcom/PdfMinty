@@ -4,7 +4,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://pdfminty.com/</loc>
-    <lastmod>2026-02-10</lastmod>
+    <lastmod>2026-08-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -15,7 +15,7 @@
   </url>
   <url>
     <loc>https://pdfminty.com/blog/</loc>
-    <lastmod>2026-02-10</lastmod>
+    <lastmod>2026-08-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -26,7 +26,18 @@
   </url>
   <url>
     <loc>https://pdfminty.com/adobe-acrobat-alternative/</loc>
-    <lastmod>2026-02-05</lastmod>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>PdfMinty — Free Privacy-First PDF Toolkit</image:title>
+      <image:caption>Free in-browser PDF utilities with zero server uploads</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/switch-from-adobe-acrobat/</loc>
+    <lastmod>2026-08-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -37,7 +48,7 @@
   </url>
   <url>
     <loc>https://pdfminty.com/about-us/</loc>
-    <lastmod>2026-01-20</lastmod>
+    <lastmod>2026-08-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <image:image>
@@ -48,7 +59,7 @@
   </url>
   <url>
     <loc>https://pdfminty.com/contact/</loc>
-    <lastmod>2026-01-20</lastmod>
+    <lastmod>2026-08-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <image:image>
@@ -59,7 +70,7 @@
   </url>
   <url>
     <loc>https://pdfminty.com/privacy-policy/</loc>
-    <lastmod>2026-02-01</lastmod>
+    <lastmod>2026-08-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
     <image:image>
@@ -70,7 +81,7 @@
   </url>
   <url>
     <loc>https://pdfminty.com/terms-of-service/</loc>
-    <lastmod>2026-02-01</lastmod>
+    <lastmod>2026-08-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
     <image:image>
@@ -339,7 +350,7 @@
     </image:image>
   </url>
   <url>
-    <loc>https://pdfminty.com/is-it-safe-to-upload-pdf-to-online-tools/</loc>
+    <loc>https://pdfminty.com/blog/is-it-safe-to-upload-pdf-to-online-tools/</loc>
     <lastmod>2026-07-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -567,6 +578,61 @@
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
       <image:title>How to Add Page Numbers to a PDF for Free in 2026 (No Upload, No Sign-Up) | PdfMinty</image:title>
       <image:caption>Add page numbers to a PDF for free — skip the cover page, start from any page, choose the format you need. 100% browser-based, zero uploads, zero sign-up.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/how-to-edit-a-pdf-offline-without-uploading-it/</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>How to Edit a PDF Offline Without Uploading It | PdfMinty</image:title>
+      <image:caption>Learn how to edit, organize, sign, and protect PDFs offline in your browser without uploading sensitive files to a remote server.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/how-to-make-a-scanned-pdf-searchable/</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>How to Make a Scanned PDF Searchable | OCR Guide — PdfMinty</image:title>
+      <image:caption>Learn how to make a scanned PDF searchable with OCR, check whether your file is image-only, improve recognition quality, and review privacy before processing.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/how-to-split-pdf-by-page-range-and-extract-pages/</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>How to Split a PDF by Page Range and Extract Pages | PdfMinty</image:title>
+      <image:caption>Learn how to split a PDF by page range, extract selected pages, preserve the original, name outputs clearly, and avoid privacy mistakes when handling documents.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/how-to-password-protect-a-pdf-offline/</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>How to Password Protect a PDF Offline | PdfMinty</image:title>
+      <image:caption>Learn how to password protect a PDF offline, choose a stronger passphrase, share it safely, and avoid common mistakes when sending sensitive documents.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/how-to-repair-a-corrupted-pdf/</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>How to Repair a Corrupted PDF Safely | Recovery Guide — PdfMinty</image:title>
+      <image:caption>PDF will not open? Learn how to repair a corrupted PDF safely, preserve the original, identify common causes, test the repaired file, and avoid data-loss mistakes.</image:caption>
     </image:image>
   </url>
 </urlset>
