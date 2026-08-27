@@ -449,11 +449,61 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a> �
           }
           const locPageUrl = getCanonicalUrl(item.slug, locLang, SITE_URL);
           const locMetaTitle = locLang === 'bn' && item.slug === 'merge-pdf'
-            ? 'বিনামূল্যে PDF ফাইল মার্জ করুন — অনলাইনে PDF যুক্ত করুন | PdfMinty'
+            ? 'বিনামূল্যে PDF ফাইল মার্জ করুন — একাধিক PDF ফাইল অনলাইনে যুক্ত করুন | PDFMinty'
             : item.metaTitle;
           const locMetaDesc = locLang === 'bn' && item.slug === 'merge-pdf'
-            ? 'বিনামূল্যে অনলাইনে একাধিক PDF ফাইল একটি ডকুমেন্টে মার্জ করুন। সম্পূর্ণ ব্রাউজারে সুরক্ষিত ও প্রাইভেট।'
+            ? 'সম্পূর্ণ বিনামূল্যে এবং নিরাপদে একাধিক PDF ফাইল একটি ফাইলে যুক্ত করুন। ১০০% ব্রাউজার প্রসেসিং, কোনো ফাইল সার্ভারে আপলোড হয় না।'
             : item.metaDescription;
+
+          let locPreRenderedContent = preRenderedContent;
+          if (locLang === 'bn' && item.slug === 'merge-pdf') {
+            locPreRenderedContent = `
+    <div id="root">
+      <article class="prose max-w-4xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
+        <h1>বিনামূল্যে PDF ফাইল মার্জ করুন — একাধিক PDF এক ডকুমেন্টে যুক্ত করুন (১০০% ব্রাউজার প্রসেসিং)</h1>
+        <p class="lead text-lg font-medium text-slate-700 dark:text-slate-300">
+          অনলাইনে সম্পূর্ণ বিনামূল্যে এবং নিরাপদে একাধিক PDF ফাইল একটি ডকুমেন্টে মার্জ বা একত্রিত করুন। কোনো সফটওয়্যার ইন্সটল করার প্রয়োজন নেই এবং আপনার ফাইল কখনোই কোনো রিমোট সার্ভারে আপলোড করা হয় না।
+        </p>
+
+        <h2>কীভাবে একাধিক PDF ফাইল মার্জ করবেন?</h2>
+        <ol>
+          <li><strong>ফাইল নির্বাচন করুন:</strong> 'ফাইল বাছুন' বোতামে ক্লিক করুন অথবা আপনার ডিভাইস থেকে PDF ফাইলগুলো ড্র্যাগ ও ড্রপ করুন।</li>
+          <li><strong>ক্রম সাজান:</strong> ড্র্যাগ কন্ট্রোল বা তীর বোতাম ব্যবহার করে ফাইলগুলো আপনার পছন্দমতো ক্রমানুসারে সাজান।</li>
+          <li><strong>মার্জ বোতামে চাপুন:</strong> 'PDF মার্জ করুন' বোতামে ক্লিক করলেই ব্রাউজারের ভেতর মেমোরিতে ফাইলগুলো একত্রিত হবে।</li>
+          <li><strong>ডাউনলোড করুন:</strong> মার্জ সম্পন্ন হলে স্বয়ংক্রিয়ভাবে আপনার নতুন একক PDF ফাইলটি ডাউনলোড হয়ে যাবে।</li>
+        </ol>
+
+        <h2>কেন PdfMinty-এর PDF মার্জার সেরা?</h2>
+        <ul>
+          <li><strong>১০০% ক্লায়েন্ট-সাইড প্রাইভেসি:</strong> ফাইলগুলো WebAssembly প্রযুক্তিতে সরাসরি আপনার ডিভাইসে প্রসেস হয়।</li>
+          <li><strong>কোনো সীমা বা ওয়াটারমার্ক নেই:</strong> সম্পূর্ণ ফ্রি এবং কোনো জলছাপ যুক্ত করা হয় না।</li>
+          <li><strong>লিপিবদ্ধ কোয়ালিটি অক্ষত:</strong> টেক্সট, হাই-রেজোলিউশন ছবি ও ভেক্টর ড্রয়িং মূল কোয়ালিটিতে বজায় থাকে।</li>
+          <li><strong>অফলাইন সাপোর্ট:</strong> একবার লোড হওয়ার পর ইন্টারনেট সংযোগ ছাড়াও টুলটি কাজ করতে সক্ষম।</li>
+        </ul>
+
+        <h2>সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)</h2>
+        <h3>আমার PDF ফাইলগুলো কি কোনো সার্ভারে সেভ হয়?</h3>
+        <p>না, একদমই না। PdfMinty একটি জিরো-আপলোড আর্কিটেকচার অনুসরণ করে। ফাইল প্রসেসিং সম্পূর্ণ আপনার ডিভাইসের র‍্যামে ঘটে।</p>
+
+        <h3>একসাথে কতগুলো PDF ফাইল মার্জ করা যায়?</h3>
+        <p>আপনার ডিভাইসের মেমোরি অনুযায়ী যতগুলো প্রয়োজন আপনি মার্জ করতে পারবেন। প্রতিটি ফাইল সর্বোচ্চ 100MB পর্যন্ত হতে পারে।</p>
+
+        <h3>PDF মার্জ করলে কি কোয়ালিটি হ্রাস পায়?</h3>
+        <p>না, মার্জিং প্রক্রিয়াটি সম্পূর্ণ লসলেস (lossless)। মূল ফন্ট, মেটাডাটা এবং ছবির রেজোলিউশন পুরোপুরি অক্ষত থাকে।</p>
+
+        <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+          <h3>অন্যান্য প্রয়োজনীয় PDF টুলস</h3>
+          <ul>
+            <li><a href="/split-pdf/">PDF স্প্লিট করুন</a> — বড় PDF থেকে পেজ আলাদা করুন</li>
+            <li><a href="/protect-pdf/">PDF পাসওয়ার্ড দিয়ে সুরক্ষিত করুন</a> — অফলাইনে শক্তিশালী এনক্রিপশন</li>
+            <li><a href="/compress-pdf/">PDF সাইজ অপ্টিমাইজ করুন</a> — গুণমান বজায় রেখে ফাইল সাইজ কমান</li>
+            <li><a href="/rotate-pdf/">PDF রোটেট করুন</a> — উল্টো বা বাঁকা পেজ সোজা করুন</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+            `;
+          }
 
           const locHeadMeta: string = `
   <title>${locMetaTitle}</title>
@@ -476,8 +526,8 @@ ${hreflangMarkup ? `${hreflangMarkup}\n` : ''}  <meta property="og:type" content
             locHtml = locHtml.replace('<html', `<html lang="${locLang}"`);
           }
           locHtml = locHtml.replace("</head>", `${locHeadMeta}\n</head>`);
-          locHtml = locHtml.replace(/<div\s+id="root"\s*><\/div>/i, preRenderedContent);
-          locHtml = locHtml.replace(/<div\s+id="root"\s*>\s*<\/div>/i, preRenderedContent);
+          locHtml = locHtml.replace(/<div\s+id="root"\s*><\/div>/i, locPreRenderedContent);
+          locHtml = locHtml.replace(/<div\s+id="root"\s*>\s*<\/div>/i, locPreRenderedContent);
           fs.writeFileSync(path.join(locTargetFolder, "index.html"), locHtml, "utf8");
           logger.info(`Pre-rendered static HTML created for ${item.name} [${locLang}] at: ${locTargetFolder}/index.html`);
         }

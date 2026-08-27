@@ -9,16 +9,14 @@ import { PWAController } from './components/PWAController';
 import { SkipToContent } from './components/SkipToContent';
 import ToolSkeleton from './components/ToolSkeleton';
 import { ROUTES } from './config/routes';
-import { AboutUsPage } from './pages/AboutUsPage';
-import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
-import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
-import { TermsOfServicePage } from './pages/TermsOfServicePage';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 
-// Lazy: every other route — splits each tool's code (and pdfjs/pdf-lib chunks)
-// out of the initial bundle. lazyWithRetry auto-recovers from stale-chunk
-// failures after a fresh deploy instead of crashing to the ErrorBoundary.
+// Lazy: all non-home routes — splits each page & tool's code out of the initial bundle.
+const AboutUsPage = lazyWithRetry(() => import('./pages/AboutUsPage').then((m) => ({ default: m.AboutUsPage })));
+const ContactPage = lazyWithRetry(() => import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })));
+const PrivacyPolicyPage = lazyWithRetry(() => import('./pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })));
+const TermsOfServicePage = lazyWithRetry(() => import('./pages/TermsOfServicePage').then((m) => ({ default: m.TermsOfServicePage })));
 const MergePage = lazyWithRetry(() => import('./pages/MergePage').then((m) => ({ default: m.MergePage })));
 const SplitPage = lazyWithRetry(() => import('./pages/SplitPage').then((m) => ({ default: m.SplitPage })));
 const RotatePage = lazyWithRetry(() => import('./pages/RotatePage').then((m) => ({ default: m.RotatePage })));

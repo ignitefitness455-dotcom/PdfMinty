@@ -32,7 +32,6 @@ export function generateSitemapXml(): { sitemapXml: string } {
     { path: '', priority: '1.0', changefreq: 'daily', lastmod: today },
     { path: '/blog', priority: '0.9', changefreq: 'daily', lastmod: today },
     { path: '/adobe-acrobat-alternative', priority: '0.8', changefreq: 'weekly', lastmod: today },
-    { path: '/switch-from-adobe-acrobat', priority: '0.8', changefreq: 'weekly', lastmod: today },
     { path: '/about-us', priority: '0.5', changefreq: 'monthly', lastmod: today },
     { path: '/contact', priority: '0.5', changefreq: 'monthly', lastmod: today },
     { path: '/privacy-policy', priority: '0.3', changefreq: 'monthly', lastmod: today },

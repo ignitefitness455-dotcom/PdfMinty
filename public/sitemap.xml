@@ -36,17 +36,6 @@
     </image:image>
   </url>
   <url>
-    <loc>https://pdfminty.com/switch-from-adobe-acrobat/</loc>
-    <lastmod>2026-08-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>PdfMinty — Free Privacy-First PDF Toolkit</image:title>
-      <image:caption>Free in-browser PDF utilities with zero server uploads</image:caption>
-    </image:image>
-  </url>
-  <url>
     <loc>https://pdfminty.com/about-us/</loc>
     <lastmod>2026-08-27</lastmod>
     <changefreq>monthly</changefreq>
@@ -522,7 +511,7 @@
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
       <image:title>PDFMinty vs SmallPDF — Which One Actually Keeps Files Private?</image:title>
-      <image:caption>SmallPDF processes all files on cloud servers. PDFMinty processes our standard PDF tools 100% locally with zero uploads (and the AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box). Compare side by side.</image:caption>
+      <image:caption>Compare Smallpdf vs PdfMinty: privacy, file upload models, speed, and limits. See why local client-side processing keeps your PDF documents private.</image:caption>
     </image:image>
   </url>
   <url>
@@ -533,7 +522,7 @@
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
       <image:title>PDFMinty vs iLovePDF — No Ads, No Uploads, No Monthly Fee</image:title>
-      <image:caption>iLovePDF&apos;s free plan runs ads and uploads your files. PDFMinty offers zero-upload standard PDF tools with no ads. Compare tools, pricing, and privacy side by side.</image:caption>
+      <image:caption>Compare iLovePDF vs PdfMinty: privacy, server uploads, ads, and tools. Discover why 100% in-browser PDF processing offers superior security and speed.</image:caption>
     </image:image>
   </url>
   <url>
@@ -566,7 +555,7 @@
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
       <image:title>How to Edit PDFs Securely Without Uploading Them Online | PdfMinty</image:title>
-      <image:caption>Learn how to merge, split, compress, protect, and manage sensitive PDFs without uploading them to a remote server. A practical privacy-first guide for secure PDF workflows.</image:caption>
+      <image:caption>Learn how to merge, split, compress, and edit sensitive PDFs without uploading them to remote servers. A practical guide to secure local PDF workflows.</image:caption>
     </image:image>
   </url>
   <url>
@@ -632,7 +621,7 @@
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
       <image:title>How to Repair a Corrupted PDF Safely | Recovery Guide — PdfMinty</image:title>
-      <image:caption>PDF will not open? Learn how to repair a corrupted PDF safely, preserve the original, identify common causes, test the repaired file, and avoid data-loss mistakes.</image:caption>
+      <image:caption>PDF won&apos;t open? Learn how to repair corrupted PDF files safely, preserve original data, fix damaged structure, and avoid common recovery mistakes.</image:caption>
     </image:image>
   </url>
 </urlset>

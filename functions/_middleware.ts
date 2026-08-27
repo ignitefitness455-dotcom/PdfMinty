@@ -90,20 +90,31 @@ export const onRequest: PagesFunction = async (context) => {
     newResponse.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
   } else if (contentType.includes('text/html')) {
     newResponse.headers.set('Cache-Control', 'no-cache, must-revalidate');
-    newResponse.headers.set('Content-Language', 'en');
 
-    // General 404 check for ALL HTML routes (not just blog/compare)
+    // General 404 check for ALL HTML routes (including localized and blog/compare routes)
     const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
+
+    // Check language prefix (e.g. /bn/ or /bn/merge-pdf)
+    const isBn = pathname === '/bn' || pathname === '/bn/' || pathname.startsWith('/bn/');
+    newResponse.headers.set('Content-Language', isBn ? 'bn' : 'en');
 
     // Static pages that are always valid
     const staticValidRoutes = new Set([
       'blog', 'about-us', 'contact', 'privacy-policy', 'terms-of-service',
       'adobe-acrobat-alternative', 'switch-from-adobe-acrobat',
+      'bn', 'bn/merge-pdf',
     ]);
 
-    const isValidRoute = TOOLS.some((item) => item.slug === cleanPath)
-      || staticValidRoutes.has(cleanPath)
-      || cleanPath === ''; // homepage
+    // Check if cleanPath or stripped locale path is a valid route
+    let isValidRoute = false;
+    if (cleanPath === '' || staticValidRoutes.has(cleanPath)) {
+      isValidRoute = true;
+    } else if (isBn) {
+      const bnSubPath = cleanPath.replace(/^bn\/?/, '');
+      isValidRoute = bnSubPath === '' || bnSubPath === 'merge-pdf' || TOOLS.some((item) => item.slug === bnSubPath);
+    } else {
+      isValidRoute = TOOLS.some((item) => item.slug === cleanPath);
+    }
 
     if (!isValidRoute) {
       // Return 404 status so crawlers don't index unknown paths

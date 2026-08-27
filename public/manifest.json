@@ -64,13 +64,6 @@
       "icons": [{ "src": "/icons/shortcut-merge-96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
-      "name": "Compress PDF",
-      "short_name": "Compress",
-      "description": "Reduce PDF file size",
-      "url": "/compress-pdf/?source=pwa_shortcut",
-      "icons": [{ "src": "/icons/shortcut-compress-96.png", "sizes": "96x96", "type": "image/png" }]
-    },
-    {
       "name": "Split PDF",
       "short_name": "Split",
       "description": "Extract pages or split a PDF",
@@ -83,6 +76,13 @@
       "description": "Encrypt PDF with password offline",
       "url": "/protect-pdf/?source=pwa_shortcut",
       "icons": [{ "src": "/icons/shortcut-merge-96.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Sign PDF",
+      "short_name": "Sign",
+      "description": "Add signature to PDF documents offline",
+      "url": "/sign-pdf/?source=pwa_shortcut",
+      "icons": [{ "src": "/icons/shortcut-split-96.png", "sizes": "96x96", "type": "image/png" }]
     }
   ]
 }

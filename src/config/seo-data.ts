@@ -230,7 +230,7 @@ export const TOOLS: ToolSEOInfo[] = [
   },
   {
     "title": "Is Uploading PDF Safe?",
-    "url": "/is-it-safe-to-upload-pdf-to-online-tools",
+    "url": "/blog/is-it-safe-to-upload-pdf-to-online-tools/",
     "type": "guide"
   },
   {
@@ -4120,7 +4120,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>Smallpdf is a Swiss-based PDF platform known for its clean interface and broad feature set. It's popular in enterprise environments and offers integrations with Google Drive and Dropbox. Like ILovePDF, it uploads your files to the cloud for processing.</p>
       
       <h3>PdfMinty</h3>
-      <p>PdfMinty is the privacy-first challenger in this space. Built on modern browser technology, PdfMinty delivers <a href="/is-it-safe-to-upload-pdf-to-online-tools/">100% browser-side processing</a> — no upload needed. Your files never leave your computer, making it the most secure option for sensitive documents.</p>
+      <p>PdfMinty is the privacy-first challenger in this space. Built on modern browser technology, PdfMinty delivers <a href="/blog/is-it-safe-to-upload-pdf-to-online-tools/">100% browser-side processing</a> — no upload needed. Your files never leave your computer, making it the most secure option for sensitive documents.</p>
 
       <h2>Feature-by-Feature Comparison</h2>
       
@@ -4200,7 +4200,7 @@ export const TOOLS: ToolSEOInfo[] = [
       </div>
 
       <h2>Privacy: The Most Important Factor Nobody Talks About</h2>
-      <p>Here's the uncomfortable truth about most online PDF tools: when you upload a file, you lose control of it. Check out our detailed guide on <a href="/is-it-safe-to-upload-pdf-to-online-tools/">is it safe to upload PDFs to online tools</a> to learn more about server risks.</p>
+      <p>Here's the uncomfortable truth about most online PDF tools: when you upload a file, you lose control of it. Check out our detailed guide on <a href="/blog/is-it-safe-to-upload-pdf-to-online-tools/">is it safe to upload PDFs to online tools</a> to learn more about server risks.</p>
       
       <p>ILovePDF and Smallpdf both process files on remote servers. That means your documents — contracts, medical records, financial statements, legal agreements — travel across the internet and sit on someone else's server, even if only temporarily.</p>
       
@@ -4382,7 +4382,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <p>If you compress a PDF that was already compressed, you're applying lossy compression twice — which degrades quality significantly with minimal size reduction.</p>
 
       <h3>Mistake #3: Using Untrusted Online Tools</h3>
-      <p>Many free online PDF compressors upload your file to a remote server. This is a privacy risk, especially for sensitive documents. Check out our <a href="/is-it-safe-to-upload-pdf-to-online-tools/">online PDF security guide</a> to learn why server uploads expose your files.</p>
+      <p>Many free online PDF compressors upload your file to a remote server. This is a privacy risk, especially for sensitive documents. Check out our <a href="/blog/is-it-safe-to-upload-pdf-to-online-tools/">online PDF security guide</a> to learn why server uploads expose your files.</p>
 
       <h3>Mistake #4: Not Previewing Before Downloading</h3>
       <p>Always preview the compressed PDF before downloading. Check that text is sharp, images look acceptable, and no pages are missing.</p>
@@ -4578,7 +4578,7 @@ export const TOOLS: ToolSEOInfo[] = [
       <h2>The Best Free PDF to Word Converters in 2026</h2>
 
       <h3>1. PdfMinty — Best for Privacy + Speed</h3>
-      <p>PdfMinty stands out from every other converter on this list for one critical reason: <a href="/is-it-safe-to-upload-pdf-to-online-tools/">100% browser-side processing</a> — no upload needed. You can also compare PdfMinty against other leading converters in our <a href="/blog/ilovepdf-vs-smallpdf-vs-pdfminty-2026/">ILovePDF vs Smallpdf vs PdfMinty comparison</a>.</p>
+      <p>PdfMinty stands out from every other converter on this list for one critical reason: <a href="/blog/is-it-safe-to-upload-pdf-to-online-tools/">100% browser-side processing</a> — no upload needed. You can also compare PdfMinty against other leading converters in our <a href="/blog/ilovepdf-vs-smallpdf-vs-pdfminty-2026/">ILovePDF vs Smallpdf vs PdfMinty comparison</a>.</p>
       <p>When you convert a PDF to Word using PdfMinty, the entire process happens inside your browser. Your document never travels to a remote server. This is essential for anyone converting contracts, medical records, financial documents, or any sensitive material.</p>
       <p><strong>Pros:</strong></p>
       <ul>
@@ -4715,9 +4715,9 @@ export const TOOLS: ToolSEOInfo[] = [
     slug: 'compare/pdfminty-vs-smallpdf',
     name: 'PDFMinty vs SmallPDF — Which One Actually Keeps Files Private?',
     ogImage: '/og-image.png',
-    shortDescription: 'SmallPDF processes all files on cloud servers. PDFMinty processes our standard PDF tools 100% locally with zero uploads (and the AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box). Compare side by side.',
+    shortDescription: 'Compare Smallpdf vs PdfMinty: privacy, file upload models, speed, and limits. See why local client-side processing keeps your PDF documents private.',
     metaTitle: 'PDFMinty vs SmallPDF — Which One Actually Keeps Files Private?',
-    metaDescription: 'SmallPDF processes all files on cloud servers. PDFMinty processes our standard PDF tools 100% locally with zero uploads (and the AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box). Compare side by side.',
+    metaDescription: 'Compare Smallpdf vs PdfMinty: privacy, file upload models, speed, and limits. See why local client-side processing keeps your PDF documents private.',
     h1: 'PDFMinty vs SmallPDF: Which One Actually Keeps Your Files Private?',
     icon: 'Shield',
     category: 'blog',
@@ -4914,9 +4914,9 @@ export const TOOLS: ToolSEOInfo[] = [
     slug: 'compare/pdfminty-vs-ilovepdf',
     name: 'PDFMinty vs iLovePDF — No Ads, No Uploads, No Monthly Fee',
     ogImage: '/og-image.png',
-    shortDescription: "iLovePDF's free plan runs ads and uploads your files. PDFMinty offers zero-upload standard PDF tools with no ads. Compare tools, pricing, and privacy side by side.",
+    shortDescription: 'Compare iLovePDF vs PdfMinty: privacy, server uploads, ads, and tools. Discover why 100% in-browser PDF processing offers superior security and speed.',
     metaTitle: 'PDFMinty vs iLovePDF — No Ads, No Uploads, No Monthly Fee',
-    metaDescription: "iLovePDF's free plan runs ads and uploads your files. PDFMinty offers zero-upload standard PDF tools with no ads. Compare tools, pricing, and privacy side by side.",
+    metaDescription: 'Compare iLovePDF vs PdfMinty: privacy, server uploads, ads, and tools. Discover why 100% in-browser PDF processing offers superior security and speed.',
     h1: 'PDFMinty vs iLovePDF: No Ads. No Uploads. No Monthly Fee.',
     icon: 'Shield',
     category: 'blog',
@@ -5567,9 +5567,9 @@ export const TOOLS: ToolSEOInfo[] = [
     slug: 'blog/secure-pdf-editing-without-uploading',
     name: 'How to Edit PDFs Securely Without Uploading Them Online',
     ogImage: '/og-image.png',
-    shortDescription: 'Learn how to merge, split, compress, protect, and manage sensitive PDFs without uploading them to a remote server. A practical privacy-first guide for secure PDF workflows.',
+    shortDescription: 'Learn how to merge, split, compress, and edit sensitive PDFs without uploading them to remote servers. A practical guide to secure local PDF workflows.',
     metaTitle: 'How to Edit PDFs Securely Without Uploading Them Online | PdfMinty',
-    metaDescription: 'Learn how to merge, split, compress, protect, and manage sensitive PDFs without uploading them to a remote server. A practical privacy-first guide for secure PDF workflows.',
+    metaDescription: 'Learn how to merge, split, compress, and edit sensitive PDFs without uploading them to remote servers. A practical guide to secure local PDF workflows.',
     h1: 'How to Edit PDFs Securely Without Uploading Them Online',
     icon: 'Shield',
     category: 'blog',
@@ -5599,7 +5599,7 @@ export const TOOLS: ToolSEOInfo[] = [
       },
       {
         title: 'Online PDF Upload Safety Guide',
-        url: '/is-it-safe-to-upload-pdf-to-online-tools',
+        url: '/blog/is-it-safe-to-upload-pdf-to-online-tools/',
         type: 'article'
       },
       {
@@ -5726,7 +5726,7 @@ export const TOOLS: ToolSEOInfo[] = [
         <li><strong>Scrub Hidden Metadata:</strong> Review PDF metadata because author names, organization names, software information, and hidden document properties can disclose more than you intended.</li>
       </ol>
 
-      <p>For more information, read PdfMinty’s <a href="/blog/how-to-remove-pdf-metadata-for-privacy/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF metadata removal guide</a> and <a href="/is-it-safe-to-upload-pdf-to-online-tools/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">online PDF upload safety guide</a>. Metadata removal is only one privacy step. It does not automatically remove visible content, embedded images, signatures, filenames, or information revealed by the document itself.</p>
+      <p>For more information, read PdfMinty’s <a href="/blog/how-to-remove-pdf-metadata-for-privacy/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">PDF metadata removal guide</a> and <a href="/blog/is-it-safe-to-upload-pdf-to-online-tools/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">online PDF upload safety guide</a>. Metadata removal is only one privacy step. It does not automatically remove visible content, embedded images, signatures, filenames, or information revealed by the document itself.</p>
 
       <h2>Are Cloud PDF Tools Always Bad?</h2>
       <p>No. Cloud processing can be useful for very large files, team workflows, server-scale OCR, and batch automation. The important issue is transparency. Users should be able to understand the processing architecture, retention period, access controls, encryption practices, account requirements, and deletion behavior.</p>
@@ -5853,7 +5853,7 @@ export const TOOLS: ToolSEOInfo[] = [
       },
       {
         title: 'Is It Safe to Upload PDF to Online Tools?',
-        url: '/is-it-safe-to-upload-pdf-to-online-tools/',
+        url: '/blog/is-it-safe-to-upload-pdf-to-online-tools/',
         type: 'article',
       },
       {
@@ -5918,7 +5918,7 @@ export const TOOLS: ToolSEOInfo[] = [
       </p>
 
       <p>
-        For a public flyer, that's a non-issue. But plenty of the documents people number are anything but public — signed agreements, financial statements, unpublished manuscripts, HR files. Every upload is one more copy of your file sitting somewhere outside your control, even briefly. We've written more about what actually happens when you upload a PDF to a random online tool, if you want the fuller picture on <a href="/is-it-safe-to-upload-pdf-to-online-tools/" class="text-emerald-600 dark:text-emerald-400 underline font-medium">why uploading sensitive PDFs is riskier than it looks</a>.
+        For a public flyer, that's a non-issue. But plenty of the documents people number are anything but public — signed agreements, financial statements, unpublished manuscripts, HR files. Every upload is one more copy of your file sitting somewhere outside your control, even briefly. We've written more about what actually happens when you upload a PDF to a random online tool, if you want the fuller picture on <a href="/blog/is-it-safe-to-upload-pdf-to-online-tools/" class="text-emerald-600 dark:text-emerald-400 underline font-medium">why uploading sensitive PDFs is riskier than it looks</a>.
       </p>
 
       <p>
@@ -6092,7 +6092,7 @@ export const TOOLS: ToolSEOInfo[] = [
       },
       {
         title: 'Is It Safe to Upload PDF to Online Tools?',
-        url: '/is-it-safe-to-upload-pdf-to-online-tools/',
+        url: '/blog/is-it-safe-to-upload-pdf-to-online-tools/',
         type: 'article',
       },
     ],
@@ -7043,9 +7043,9 @@ export const TOOLS: ToolSEOInfo[] = [
     slug: 'blog/how-to-repair-a-corrupted-pdf',
     name: 'How to Repair a Corrupted PDF: A Safe Recovery Workflow Before You Give Up',
     ogImage: '/og-image.png',
-    shortDescription: 'PDF will not open? Learn how to repair a corrupted PDF safely, preserve the original, identify common causes, test the repaired file, and avoid data-loss mistakes.',
+    shortDescription: "PDF won't open? Learn how to repair corrupted PDF files safely, preserve original data, fix damaged structure, and avoid common recovery mistakes.",
     metaTitle: 'How to Repair a Corrupted PDF Safely | Recovery Guide — PdfMinty',
-    metaDescription: 'PDF will not open? Learn how to repair a corrupted PDF safely, preserve the original, identify common causes, test the repaired file, and avoid data-loss mistakes.',
+    metaDescription: "PDF won't open? Learn how to repair corrupted PDF files safely, preserve original data, fix damaged structure, and avoid common recovery mistakes.",
     h1: 'How to Repair a Corrupted PDF: A Safe Recovery Workflow Before You Give Up',
     icon: 'Wrench',
     category: 'blog',
