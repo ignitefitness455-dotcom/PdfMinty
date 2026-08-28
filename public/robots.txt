@@ -1,36 +1,7 @@
-# ==========================================
-# PdfMinty - Optimized robots.txt
-# ==========================================
-
-# Default rules for all standard search engines
 User-agent: *
 Allow: /
-Allow: /assets/
-Allow: /fonts/
-Allow: /icons/
-Allow: /js/
-Allow: /css/
-
-# Disallow internal backend/Cloudflare system paths
 Disallow: /api/
-Disallow: /functions/
 Disallow: /cdn-cgi/
 
-# Explicit permission for AI Search Crawlers
-User-agent: GPTBot
-User-agent: ChatGPT-User
-User-agent: ClaudeBot
-User-agent: PerplexityBot
-Allow: /
-
-# Block unwanted spam & aggressive scrapers
-User-agent: SemrushBot-BA
-User-agent: PetalBot
-User-agent: MJ12bot
-Disallow: /
-
-# Sitemap Index
+# Sitemap location
 Sitemap: https://pdfminty.com/sitemap.xml
-Sitemap: https://pdfminty.com/sitemap-tools.xml
-Sitemap: https://pdfminty.com/sitemap-blog.xml
-Sitemap: https://pdfminty.com/sitemap-pages.xml
