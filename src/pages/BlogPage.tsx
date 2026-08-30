@@ -42,6 +42,7 @@ export const BlogPage: React.FC = () => {
       case 'blog-batch-processing':
       case 'blog-best-free-pdf-compressor':
       case 'blog-how-to-compress-a-pdf-without-losing-quality-2026':
+      case 'blog-pdf-size-limit-email-upload':
         return 'Optimization';
       case 'blog-metadata':
       case 'blog-merge-pdf':

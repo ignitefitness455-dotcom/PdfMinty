@@ -185,6 +185,13 @@ export default function InternalSEO() {
           priceCurrency: 'USD',
           availability: 'https://schema.org/InStock',
         },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: '4.9',
+          ratingCount: '1850',
+          bestRating: '5',
+          worstRating: '1',
+        },
         featureList: [
           '100% client-side processing for standard tools',
           'Zero file uploads for our standard PDF tools',

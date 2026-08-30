@@ -1,7 +1,42 @@
+# Robots.txt for PDFMinty (https://pdfminty.com)
 User-agent: *
 Allow: /
+Allow: /fonts/
+Allow: /icons/
+Allow: /*.png
+Allow: /*.webp
+Allow: /*.svg
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.ico
+Allow: /*.json$
 Disallow: /api/
 Disallow: /cdn-cgi/
 
-# Sitemap location
+# Specific major search engine bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+# XML Sitemaps
 Sitemap: https://pdfminty.com/sitemap.xml
+Sitemap: https://pdfminty.com/sitemap-tools.xml
+Sitemap: https://pdfminty.com/sitemap-blog.xml
+Sitemap: https://pdfminty.com/sitemap-pages.xml

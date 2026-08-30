@@ -24,6 +24,8 @@ const RELATED_MAPPING: Record<string, string[]> = {
   'grayscale-pdf': ['flatten-pdf', 'watermark-pdf', 'sanitize-pdf', 'repair-pdf'],
   'flatten-pdf': ['grayscale-pdf', 'protect-pdf', 'sanitize-pdf', 'watermark-pdf'],
   'repair-pdf': ['unlock-pdf', 'sanitize-pdf', 'edit-pdf-metadata', 'flatten-pdf'],
+  'sign-pdf': ['watermark-pdf', 'protect-pdf', 'edit-pdf-metadata', 'flatten-pdf'],
+  'ocr-pdf': ['pdf-to-markdown', 'ai-analyze-pdf', 'pdf-to-image', 'image-to-pdf'],
 };
 
 export const RelatedTools: React.FC = () => {
