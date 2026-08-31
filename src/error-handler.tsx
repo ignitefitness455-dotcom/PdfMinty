@@ -434,9 +434,10 @@ export class FileProcessingErrorBoundary extends Component<ErrorBoundaryProps, E
       console.error('[Captured File Context]', formatFileContextForLog(currentContext));
     }
 
+    const err = error as { message?: string; stack?: string } | null;
     reportErrorToTelemetry(
-      error?.message || String(error),
-      errorInfo?.componentStack || error?.stack || '',
+      err?.message || String(error),
+      errorInfo?.componentStack || err?.stack || '',
       currentContext
     );
   }

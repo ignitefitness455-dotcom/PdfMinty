@@ -48,7 +48,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
     this.setState({ errorInfo, capturedContext: currentContext });
     console.error('[ErrorBoundary caught error]', error, errorInfo, currentContext ? { fileContext: currentContext } : '');
     if (import.meta.env.PROD) {
-      reportErrorToTelemetry(error?.message || String(error), errorInfo?.componentStack || error?.stack || '', currentContext);
+      const err = error as { message?: string; stack?: string } | null;
+      reportErrorToTelemetry(err?.message || String(error), errorInfo?.componentStack || err?.stack || '', currentContext);
     }
   }
 
