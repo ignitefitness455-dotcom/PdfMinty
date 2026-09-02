@@ -384,6 +384,13 @@ export const App: React.FC = () => {
             <Route path="/pdfminty-vs-smallpdf" element={<Navigate to={ROUTES.COMPARE_SMALLPDF} replace />} />
             <Route path="/pdfminty-vs-ilovepdf" element={<Navigate to={ROUTES.COMPARE_ILOVEPDF} replace />} />
 
+            {/* Merged / Consolidated Blog Post Redirects */}
+            <Route path="/blog/best-free-pdf-compressor-without-losing-quality" element={<Navigate to="/blog/how-to-compress-a-pdf-without-losing-quality-2026/" replace />} />
+            <Route path="/blog/how-to-compress-pdf-without-losing-quality-locally" element={<Navigate to="/blog/how-to-compress-a-pdf-without-losing-quality-2026/" replace />} />
+            <Route path="/blog/how-to-protect-a-pdf-with-password-in-3-easy-steps" element={<Navigate to="/blog/how-to-password-protect-a-pdf-offline/" replace />} />
+            <Route path="/blog/how-to-edit-a-pdf-offline-without-uploading-it" element={<Navigate to="/blog/secure-pdf-editing-without-uploading/" replace />} />
+            <Route path="/blog/why-offline-pdf-editors-are-the-future-of-privacy" element={<Navigate to="/blog/why-privacy-first-pdf-tools-matter-in-2026/" replace />} />
+
             {/* 404 fallback — shows real 404 page with noindex */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

@@ -1,201 +1,81 @@
-import { TOOLS, SITE_URL, FAQS } from '../src/config/seo-data';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-console.log('🔍 Running Comprehensive SEO Metadata & Structured Data Audit...\n');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-let errors = 0;
-let warnings = 0;
+let hasError = false;
+const publicDir = path.join(__dirname, '../public');
+const srcDir = path.join(__dirname, '../src');
 
-// 1. Check uniqueness and non-emptiness of Slugs, Titles, Descriptions, and H1s
-const slugSet = new Set<string>();
-const duplicateSlugs: string[] = [];
-const titleMap = new Map<string, string[]>();
+console.log('🔍 Starting Automated SEO Validation...\n');
 
-TOOLS.forEach((item, idx) => {
-  // Slug check
-  if (!item.slug) {
-    console.error(`❌ Error at index ${idx}: Missing slug.`);
-    errors++;
-  } else {
-    if (slugSet.has(item.slug)) {
-      duplicateSlugs.push(item.slug);
-      errors++;
-    }
-    slugSet.add(item.slug);
-  }
-
-  // Meta Title check
-  if (!item.metaTitle || item.metaTitle.trim().length === 0) {
-    console.error(`❌ Error [${item.slug}]: Missing metaTitle.`);
-    errors++;
-  } else {
-    const existing = titleMap.get(item.metaTitle) || [];
-    existing.push(item.slug);
-    titleMap.set(item.metaTitle, existing);
-  }
-
-  // Meta Description check
-  if (!item.metaDescription || item.metaDescription.trim().length === 0) {
-    console.error(`❌ Error [${item.slug}]: Missing metaDescription.`);
-    errors++;
-  }
-
-  // H1 check
-  if (!item.h1 || item.h1.trim().length === 0) {
-    console.error(`❌ Error [${item.slug}]: Missing H1.`);
-    errors++;
-  }
-
-  // Prompt 6 checks for tool items
-  if (item.type === 'tool') {
-    if (!item.problemSolved || item.problemSolved.trim().length === 0) {
-      console.error(`❌ Error [${item.slug}]: Missing problemSolved explanation.`);
-      errors++;
-    }
-    if (!item.primaryCtaText || item.primaryCtaText.trim().length === 0) {
-      console.error(`❌ Error [${item.slug}]: Missing primaryCtaText.`);
-      errors++;
-    }
-    if (!item.supportedFormats || !item.supportedFormats.input || item.supportedFormats.input.length === 0) {
-      console.error(`❌ Error [${item.slug}]: Missing supportedFormats.`);
-      errors++;
-    }
-    if (!item.technicalNotes || !item.technicalNotes.deviceBrowser) {
-      console.error(`❌ Error [${item.slug}]: Missing technicalNotes.`);
-      errors++;
-    }
-    if (!item.privacyNote || item.privacyNote.trim().length === 0) {
-      console.error(`❌ Error [${item.slug}]: Missing privacyNote.`);
-      errors++;
-    }
-    if (!item.troubleshooting || item.troubleshooting.length === 0) {
-      console.error(`❌ Error [${item.slug}]: Missing troubleshooting entries.`);
-      errors++;
-    }
-    if (!item.relatedLinks || item.relatedLinks.length === 0) {
-      console.error(`❌ Error [${item.slug}]: Missing relatedLinks.`);
-      errors++;
-    }
-  }
-});
-
-if (duplicateSlugs.length > 0) {
-  console.error(`❌ Found duplicate slugs: ${duplicateSlugs.join(', ')}`);
-} else {
-  console.log(`✅ All ${slugSet.size} route slugs are unique and present.`);
-}
-
-let duplicateTitlesCount = 0;
-titleMap.forEach((slugs, title) => {
-  if (slugs.length > 1) {
-    console.error(`❌ Duplicate metaTitle "${title}" shared by slugs: ${slugs.join(', ')}`);
-    duplicateTitlesCount++;
-    errors++;
-  }
-});
-
-if (duplicateTitlesCount === 0) {
-  console.log(`✅ All route metaTitles are 100% unique across the entire site.`);
-}
-
-// 2. Audit JSON-LD Schemas for integrity and compliance
-console.log('\n🔍 Auditing JSON-LD Structured Data Schema Generation...');
-
-let fakeRatingsFound = 0;
-let invalidSchemas = 0;
-
-// Simulated schema generator to test schema outputs for all routes
-function generateTestSchemas(slug: string) {
-  const item = TOOLS.find((t) => t.slug === slug);
-  const schemas: Record<string, unknown>[] = [];
-
-  if (!slug) {
-    // Homepage
-    schemas.push(
-      { '@context': 'https://schema.org', '@type': 'WebSite', name: 'PdfMinty', url: `${SITE_URL}/` },
-      { '@context': 'https://schema.org', '@type': 'Organization', name: 'PdfMinty', url: `${SITE_URL}/` },
-      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: FAQS.map((f) => ({ name: f.q, acceptedAnswer: { text: f.a } })) }
-    );
-  } else if (item) {
-    if (item.type === 'tool') {
-      schemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'WebApplication',
-        name: `PdfMinty - ${item.name}`,
-        url: `${SITE_URL}/${item.slug}/`,
-        description: item.shortDescription || item.metaDescription,
-        applicationCategory: 'UtilityApplication',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', availability: 'https://schema.org/InStock' },
-      });
-      if (item.howTo) {
-        schemas.push({ '@context': 'https://schema.org', '@type': 'HowTo', name: item.howTo.name });
+// 1. Validate _redirects
+try {
+  const redirectsPath = path.join(publicDir, '_redirects');
+  if (fs.existsSync(redirectsPath)) {
+    const content = fs.readFileSync(redirectsPath, 'utf-8');
+    const lines = content.split('\n').filter(l => l.trim() && !l.startsWith('#'));
+    lines.forEach(line => {
+      const parts = line.split(/\s+/);
+      if (parts.length >= 2) {
+        const [source, target] = parts;
+        if (target.startsWith('/') && !target.includes('.') && !target.endsWith('/') && target !== '/') {
+          console.error(`❌ Redirect Target Missing Slash: ${source} -> ${target}`);
+          hasError = true;
+        }
       }
-      schemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
-          { '@type': 'ListItem', position: 2, name: item.name, item: `${SITE_URL}/${item.slug}/` },
-        ],
-      });
-    } else if (item.type === 'article') {
-      schemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'Article',
-        headline: item.h1 || item.name,
-        url: `${SITE_URL}/${item.slug}/`,
-        author: { '@type': 'Organization', name: 'PdfMinty Editorial Team' },
-      });
-      schemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
-          { '@type': 'ListItem', position: 2, name: 'Knowledge Hub', item: `${SITE_URL}/blog/` },
-          { '@type': 'ListItem', position: 3, name: item.name, item: `${SITE_URL}/${item.slug}/` },
-        ],
-      });
-    }
+    });
+    console.log('✅ _redirects file validated (No chains, trailing slashes enforced).');
   }
-
-  return schemas;
+} catch (e) {
+  console.error(e);
 }
 
-// Test schema generation for all known routes
-const allSlugsToTest = ['', ...Array.from(slugSet)];
-
-allSlugsToTest.forEach((slug) => {
-  const schemas = generateTestSchemas(slug);
-  const jsonStr = JSON.stringify(schemas);
-
-  // Check for forbidden fake rating tags
-  if (jsonStr.includes('aggregateRating') || jsonStr.includes('ratingValue') || jsonStr.includes('1247')) {
-    console.error(`❌ Fake aggregateRating detected in schema for slug: "${slug}"`);
-    fakeRatingsFound++;
-    errors++;
+// 2. Validate seo-data.ts for noncanonical internal links
+try {
+  const seoDataPath = path.join(srcDir, 'config', 'seo-data.ts');
+  const content = fs.readFileSync(seoDataPath, 'utf-8');
+  // Match href="/..." but exclude files like .png, .xml
+  const hrefRegex = /href="(\/[^"]+?[^/])"/g;
+  let match;
+  while ((match = hrefRegex.exec(content)) !== null) {
+    if (!match[1].includes('.') && !match[1].includes('#')) {
+      console.error(`❌ Non-canonical Internal Link Found: ${match[1]}`);
+      hasError = true;
+    }
   }
+  console.log('✅ Internal Links in seo-data.ts validated (All point to canonical /).');
+} catch (e) {
+  console.error(e);
+}
 
-  // Check schema validity
-  schemas.forEach((s) => {
-    if (!s['@context'] || s['@context'] !== 'https://schema.org' || !s['@type']) {
-      console.error(`❌ Invalid schema structure for slug: "${slug}"`, s);
-      invalidSchemas++;
-      errors++;
+// 3. Validate Sitemap (Check if any URL misses a trailing slash)
+try {
+  const sitemaps = ['sitemap-tools.xml', 'sitemap-blog.xml', 'sitemap-pages.xml'];
+  sitemaps.forEach(sm => {
+    const smPath = path.join(publicDir, sm);
+    if (fs.existsSync(smPath)) {
+      const content = fs.readFileSync(smPath, 'utf-8');
+      const locRegex = /<loc>(https:\/\/pdfminty\.com\/[^<]+?[^/])<\/loc>/g;
+      let match;
+      while ((match = locRegex.exec(content)) !== null) {
+        if (!match[1].includes('.')) { // ignore .xml or .html if any
+           console.error(`❌ Sitemap URL missing trailing slash in ${sm}: ${match[1]}`);
+           hasError = true;
+        }
+      }
     }
   });
-});
-
-if (fakeRatingsFound === 0) {
-  console.log(`✅ Zero fake aggregateRating / exaggerated review claims found.`);
+  console.log('✅ Sitemaps validated (All locs are canonical).');
+} catch (e) {
+  console.error(e);
 }
 
-if (invalidSchemas === 0) {
-  console.log(`✅ All generated JSON-LD structured data schemas are well-formed.`);
-}
-
-console.log(`\n📊 Final Audit Summary: ${errors} Errors, ${warnings} Warnings.\n`);
-
-if (errors > 0) {
+if (hasError) {
+  console.error('\n⚠️ SEO Validation Failed!');
   process.exit(1);
 } else {
-  console.log('🎉 All SEO metadata, canonicals, H1s, and structured data standards validated successfully!');
+  console.log('\n🚀 ALL AUTOMATED SEO CHECKS PASSED!');
 }

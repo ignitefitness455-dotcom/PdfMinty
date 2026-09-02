@@ -1,32 +1,43 @@
-# /api/* paths should 404 if no matching Function exists, not fall through to SPA.
-/api/* /api/404.json 404
-
-# Direct 404 for missing assets so they don't fall back to index.html SPA redirect.
+# Direct 404 for missing APIs or assets
+/api/* /404.html 404
 /assets/* /404.html 404
 /fonts/* /404.html 404
 /icons/* /404.html 404
-/*.js /404.html 404
-/*.css /404.html 404
-/*.ico /404.html 404
-/*.png /404.html 404
-/*.svg /404.html 404
-/*.json /404.html 404
 
 # 301 Redirects for renamed tool slugs
-/about /about-us 301
-/contact-us /contact 301
-/edit-metadata /edit-pdf-metadata 301
+/about /about-us/ 301
+/contact-us /contact/ 301
+/edit-metadata /edit-pdf-metadata/ 301
 /edit-metadata/ /edit-pdf-metadata/ 301
-/protect /protect-pdf 301
+/protect /protect-pdf/ 301
 /protect/ /protect-pdf/ 301
-/intelligence /ai-analyze-pdf 301
+/intelligence /ai-analyze-pdf/ 301
+/intelligence/ /ai-analyze-pdf/ 301
 /switch-from-adobe-acrobat /adobe-acrobat-alternative/ 301
 /switch-from-adobe-acrobat/ /adobe-acrobat-alternative/ 301
 /is-it-safe-to-upload-pdf-to-online-tools /blog/is-it-safe-to-upload-pdf-to-online-tools/ 301
 /is-it-safe-to-upload-pdf-to-online-tools/ /blog/is-it-safe-to-upload-pdf-to-online-tools/ 301
 
-# SPA fallback for blog routes.
-/blog/* /index.html 200
+# Legacy tool paths
+/merge /merge-pdf/ 301
+/merge/ /merge-pdf/ 301
+/split /split-pdf/ 301
+/split/ /split-pdf/ 301
+/rotate /rotate-pdf/ 301
+/rotate/ /rotate-pdf/ 301
+/pdfminty-vs-smallpdf /compare/pdfminty-vs-smallpdf/ 301
+/pdfminty-vs-smallpdf/ /compare/pdfminty-vs-smallpdf/ 301
+/pdfminty-vs-ilovepdf /compare/pdfminty-vs-ilovepdf/ 301
+/pdfminty-vs-ilovepdf/ /compare/pdfminty-vs-ilovepdf/ 301
 
-# SPA fallback for everything else.
-/* /index.html 200
+# Redirects for old blog posts
+/blog/best-free-pdf-compressor-without-losing-quality /blog/how-to-compress-a-pdf-without-losing-quality-2026/ 301
+/blog/best-free-pdf-compressor-without-losing-quality/ /blog/how-to-compress-a-pdf-without-losing-quality-2026/ 301
+/blog/how-to-compress-pdf-without-losing-quality-locally /blog/how-to-compress-a-pdf-without-losing-quality-2026/ 301
+/blog/how-to-compress-pdf-without-losing-quality-locally/ /blog/how-to-compress-a-pdf-without-losing-quality-2026/ 301
+/blog/how-to-protect-a-pdf-with-password-in-3-easy-steps /blog/how-to-password-protect-a-pdf-offline/ 301
+/blog/how-to-protect-a-pdf-with-password-in-3-easy-steps/ /blog/how-to-password-protect-a-pdf-offline/ 301
+/blog/how-to-edit-a-pdf-offline-without-uploading-it /blog/secure-pdf-editing-without-uploading/ 301
+/blog/how-to-edit-a-pdf-offline-without-uploading-it/ /blog/secure-pdf-editing-without-uploading/ 301
+/blog/why-offline-pdf-editors-are-the-future-of-privacy /blog/why-privacy-first-pdf-tools-matter-in-2026/ 301
+/blog/why-offline-pdf-editors-are-the-future-of-privacy/ /blog/why-privacy-first-pdf-tools-matter-in-2026/ 301

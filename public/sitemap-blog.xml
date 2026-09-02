@@ -14,35 +14,13 @@
     </image:image>
   </url>
   <url>
-    <loc>https://pdfminty.com/blog/why-offline-pdf-editors-are-the-future-of-privacy/</loc>
-    <lastmod>2026-07-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>Why Offline PDF Editors are the Future of Privacy | PDFMinty Blog</image:title>
-      <image:caption>Learn why offline-capable local browsers are the ultimate secure environments for document management.</image:caption>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/blog/how-to-compress-pdf-without-losing-quality-locally/</loc>
-    <lastmod>2026-07-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Compress PDF Without Quality Loss Locally | PDFMinty Blog</image:title>
-      <image:caption>Master the art of browser-side PDF compression without uploading your sensitive files.</image:caption>
-    </image:image>
-  </url>
-  <url>
     <loc>https://pdfminty.com/blog/the-complete-guide-to-pdf-metadata-and-how-to-remove-it/</loc>
     <lastmod>2026-07-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>Complete Guide to PDF Metadata &amp; Sanitization | PDFMinty Blog</image:title>
+      <image:title>The Forensic Guide to PDF Metadata &amp; Privacy Risks | PDFMinty</image:title>
       <image:caption>Discover the hidden metadata stored inside your PDFs and learn how to scrub personal information before sharing.</image:caption>
     </image:image>
   </url>
@@ -97,30 +75,8 @@
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Merge PDF Files Online for Free (2026 Guide) | PdfMinty</image:title>
+      <image:title>How to Merge PDF Files for Free (2026 Guide) | PdfMinty</image:title>
       <image:caption>Learn how to combine multiple PDF files into one clean document for free without uploading files to remote servers.</image:caption>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/blog/best-free-pdf-compressor-without-losing-quality/</loc>
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>Best Free PDF Compressor Without Losing Quality (2026) | PdfMinty</image:title>
-      <image:caption>Discover how to shrink large PDF files for free without making images blurry or sacrificing document readability.</image:caption>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/blog/how-to-protect-a-pdf-with-password-in-3-easy-steps/</loc>
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Protect a PDF with Password in 3 Easy Steps | PdfMinty</image:title>
-      <image:caption>Learn how to secure your private PDF files with strong password encryption in 3 easy steps without uploading files online.</image:caption>
     </image:image>
   </url>
   <url>
@@ -141,7 +97,7 @@
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>ILovePDF vs Smallpdf vs PdfMinty (2026 Comparison) | PdfMinty</image:title>
+      <image:title>ILovePDF vs Smallpdf vs PdfMinty (2026) | PdfMinty</image:title>
       <image:caption>Comparing ILovePDF vs Smallpdf vs PdfMinty? See which PDF tool is fastest, safest, and most affordable in 2026.</image:caption>
     </image:image>
   </url>
@@ -174,7 +130,7 @@
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>PDFMinty vs SmallPDF — Which One Actually Keeps Files Private?</image:title>
+      <image:title>PDFMinty vs SmallPDF: Which Keeps Files Private? | PdfMinty</image:title>
       <image:caption>Compare Smallpdf vs PdfMinty: privacy, file upload models, speed, and limits. See why local client-side processing keeps your PDF documents private.</image:caption>
     </image:image>
   </url>
@@ -218,7 +174,7 @@
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Edit PDFs Securely Without Uploading Them Online | PdfMinty</image:title>
+      <image:title>How to Edit PDFs Securely Without Uploading | PdfMinty</image:title>
       <image:caption>Learn how to merge, split, compress, and edit sensitive PDFs without uploading them to remote servers. A practical guide to secure local PDF workflows.</image:caption>
     </image:image>
   </url>
@@ -229,19 +185,8 @@
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Add Page Numbers to a PDF for Free in 2026 (No Upload, No Sign-Up) | PdfMinty</image:title>
+      <image:title>How to Add Page Numbers to PDF Free (2026) | PdfMinty</image:title>
       <image:caption>Add page numbers to a PDF for free — skip the cover page, start from any page, choose the format you need. 100% browser-based, zero uploads, zero sign-up.</image:caption>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://pdfminty.com/blog/how-to-edit-a-pdf-offline-without-uploading-it/</loc>
-    <lastmod>2026-08-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Edit a PDF Offline Without Uploading It | PdfMinty</image:title>
-      <image:caption>Learn how to edit, organize, sign, and protect PDFs offline in your browser without uploading sensitive files to a remote server.</image:caption>
     </image:image>
   </url>
   <url>
@@ -262,7 +207,7 @@
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Split a PDF by Page Range and Extract Pages | PdfMinty</image:title>
+      <image:title>How to Split PDF by Page Range Free | PdfMinty</image:title>
       <image:caption>Learn how to split a PDF by page range, extract selected pages, preserve the original, name outputs clearly, and avoid privacy mistakes when handling documents.</image:caption>
     </image:image>
   </url>
@@ -284,7 +229,7 @@
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Repair a Corrupted PDF Safely | Recovery Guide — PdfMinty</image:title>
+      <image:title>How to Repair Corrupted PDF Safely | PdfMinty</image:title>
       <image:caption>PDF won&apos;t open? Learn how to repair corrupted PDF files safely, preserve original data, fix damaged structure, and avoid common recovery mistakes.</image:caption>
     </image:image>
   </url>
@@ -295,7 +240,7 @@
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Fix &quot;PDF File Size Too Large&quot; for Email or Portals (2026 Guide) | PdfMinty</image:title>
+      <image:title>Fix &quot;PDF File Size Too Large&quot; Error | PdfMinty</image:title>
       <image:caption>Solve PDF file size limit errors for Gmail, Outlook, job portals, and visa applications without losing quality.</image:caption>
     </image:image>
   </url>
