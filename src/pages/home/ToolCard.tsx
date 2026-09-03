@@ -34,7 +34,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
 
   const handleLaunch = () => {
     window.scrollTo(0, 0);
-    navigate(`/${tool.slug}`);
+    navigate(`/${tool.slug}/`);
   };
 
   const isHighlighted = ['sign-pdf', 'ocr-pdf', 'ai-analyze-pdf', 'merge-pdf', 'split-pdf'].includes(tool.slug);

@@ -27,7 +27,7 @@ export function escapeXml(unsafe: string): string {
 
 interface SitemapUrlEntry {
   loc: string;
-  lastmod: string;
+  lastmod?: string;
   changefreq: string;
   priority: string;
   imageLoc?: string;
@@ -59,8 +59,7 @@ function buildUrlsetXml(entries: SitemapUrlEntry[]): string {
 
       return `  <url>
     <loc>${escapeXml(entry.loc)}</loc>
-${xhtmlLinks}    <lastmod>${entry.lastmod}</lastmod>
-    <changefreq>${entry.changefreq}</changefreq>
+${xhtmlLinks}${entry.lastmod ? `    <lastmod>${entry.lastmod}</lastmod>\n` : ''}    <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>${imageXml ? '\n' + imageXml : ''}
   </url>`;
     })
@@ -74,12 +73,11 @@ ${xmlUrls}
 </urlset>`;
 }
 
-function buildSitemapIndexXml(sitemaps: Array<{ loc: string; lastmod: string }>): string {
+function buildSitemapIndexXml(sitemaps: Array<{ loc: string; lastmod?: string }>): string {
   const sitemapElements = sitemaps
     .map(
       (s) => `  <sitemap>
-    <loc>${escapeXml(s.loc)}</loc>
-    <lastmod>${s.lastmod}</lastmod>
+    <loc>${escapeXml(s.loc)}</loc>${s.lastmod ? `\n    <lastmod>${s.lastmod}</lastmod>` : ''}
   </sitemap>`
     )
     .join('\n');
@@ -100,14 +98,14 @@ export function generateSitemapXml(): SitemapGenerationResult {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD at build time
 
   // 1. Static Core Pages (sitemap-pages.xml)
-  const staticRoutes: Array<{ path: string; priority: string; changefreq: string; lastmod: string }> = [
-    { path: '', priority: '1.0', changefreq: 'daily', lastmod: today },
-    { path: '/blog', priority: '0.9', changefreq: 'daily', lastmod: today },
-    { path: '/adobe-acrobat-alternative', priority: '0.8', changefreq: 'weekly', lastmod: today },
-    { path: '/about-us', priority: '0.5', changefreq: 'monthly', lastmod: today },
-    { path: '/contact', priority: '0.5', changefreq: 'monthly', lastmod: today },
-    { path: '/privacy-policy', priority: '0.3', changefreq: 'monthly', lastmod: today },
-    { path: '/terms-of-service', priority: '0.3', changefreq: 'monthly', lastmod: today },
+  const staticRoutes: Array<{ path: string; priority: string; changefreq: string; lastmod?: string }> = [
+    { path: '', priority: '1.0', changefreq: 'daily' },
+    { path: '/blog', priority: '0.9', changefreq: 'daily' },
+    { path: '/adobe-acrobat-alternative', priority: '0.8', changefreq: 'weekly' },
+    { path: '/about-us', priority: '0.5', changefreq: 'monthly' },
+    { path: '/contact', priority: '0.5', changefreq: 'monthly' },
+    { path: '/privacy-policy', priority: '0.3', changefreq: 'monthly' },
+    { path: '/terms-of-service', priority: '0.3', changefreq: 'monthly' },
   ];
 
   const pageEntries: SitemapUrlEntry[] = staticRoutes.map((route) => {
@@ -148,7 +146,7 @@ export function generateSitemapXml(): SitemapGenerationResult {
 
     const priority = isBlogOrCompare ? '0.8' : '0.9';
     const changefreq = 'weekly';
-    const lastmod = item.dateModified || item.datePublished || today;
+    const lastmod = item.dateModified || item.datePublished;
     const ogImage = item.ogImage
       ? (item.ogImage.startsWith('http') ? item.ogImage : `${baseUrl}${item.ogImage.startsWith('/') ? item.ogImage : `/${item.ogImage}`}`)
       : `${baseUrl}/og-image.png`;
@@ -205,9 +203,9 @@ export function generateSitemapXml(): SitemapGenerationResult {
 
   // Master Sitemap Index
   const sitemapIndexXml = buildSitemapIndexXml([
-    { loc: `${baseUrl}/sitemap-tools.xml`, lastmod: today },
-    { loc: `${baseUrl}/sitemap-blog.xml`, lastmod: today },
-    { loc: `${baseUrl}/sitemap-pages.xml`, lastmod: today },
+    { loc: `${baseUrl}/sitemap-tools.xml` },
+    { loc: `${baseUrl}/sitemap-blog.xml` },
+    { loc: `${baseUrl}/sitemap-pages.xml` },
   ]);
 
   const sitemaps: Record<string, string> = {

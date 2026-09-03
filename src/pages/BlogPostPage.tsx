@@ -33,7 +33,12 @@ export const BlogPostPage: React.FC = () => {
 
   if (!article) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center font-sans">
+      <>
+        <Helmet>
+          <title>Article Not Found | PDFMinty</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
+        <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center font-sans">
         <div className="w-16 h-16 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center font-black text-2xl mb-4">
           404
         </div>
@@ -48,6 +53,7 @@ export const BlogPostPage: React.FC = () => {
           Return to Knowledge Hub
         </Link>
       </div>
+      </>
     );
   }
 

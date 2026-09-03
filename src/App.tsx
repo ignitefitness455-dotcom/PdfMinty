@@ -378,9 +378,27 @@ export const App: React.FC = () => {
             <Route path="/intelligence" element={<Navigate to={ROUTES.AI_ANALYZE} replace />} />
             <Route path="/protect" element={<Navigate to={ROUTES.PROTECT} replace />} />
             <Route path="/unlock" element={<Navigate to={ROUTES.UNLOCK} replace />} />
+            <Route path="/compress" element={<Navigate to="/blog/how-to-compress-a-pdf-without-losing-quality-2026/" replace />} />
+            <Route path="/compress-pdf" element={<Navigate to="/blog/how-to-compress-a-pdf-without-losing-quality-2026/" replace />} />
+            <Route path="/delete-pages" element={<Navigate to={ROUTES.DELETE_PAGES} replace />} />
+            <Route path="/extract-pages" element={<Navigate to={ROUTES.EXTRACT_PAGES} replace />} />
+            <Route path="/reorder" element={<Navigate to={ROUTES.REORDER} replace />} />
+            <Route path="/watermark" element={<Navigate to={ROUTES.WATERMARK} replace />} />
+            <Route path="/page-numbers" element={<Navigate to={ROUTES.PAGE_NUMBERS} replace />} />
+            <Route path="/add-blank" element={<Navigate to={ROUTES.ADD_BLANK} replace />} />
+            <Route path="/img-to-pdf" element={<Navigate to={ROUTES.IMG_TO_PDF} replace />} />
+            <Route path="/pdf-to-img" element={<Navigate to={ROUTES.PDF_TO_IMG} replace />} />
+            <Route path="/grayscale" element={<Navigate to={ROUTES.GRAYSCALE} replace />} />
+            <Route path="/flatten" element={<Navigate to={ROUTES.FLATTEN} replace />} />
+            <Route path="/repair" element={<Navigate to={ROUTES.REPAIR} replace />} />
+            <Route path="/sign" element={<Navigate to={ROUTES.SIGN_PDF} replace />} />
+            <Route path="/ocr" element={<Navigate to={ROUTES.OCR_PDF} replace />} />
+            <Route path="/sanitize" element={<Navigate to={ROUTES.SANITIZE_PDF} replace />} />
             <Route path="/merge" element={<Navigate to={ROUTES.MERGE} replace />} />
             <Route path="/split" element={<Navigate to={ROUTES.SPLIT} replace />} />
             <Route path="/rotate" element={<Navigate to={ROUTES.ROTATE} replace />} />
+            <Route path="/switch-from-adobe-acrobat" element={<Navigate to={ROUTES.ADOBE_ALTERNATIVE} replace />} />
+            <Route path="/is-it-safe-to-upload-pdf-to-online-tools" element={<Navigate to={ROUTES.TRUST_ARTICLE} replace />} />
             <Route path="/pdfminty-vs-smallpdf" element={<Navigate to={ROUTES.COMPARE_SMALLPDF} replace />} />
             <Route path="/pdfminty-vs-ilovepdf" element={<Navigate to={ROUTES.COMPARE_ILOVEPDF} replace />} />
 

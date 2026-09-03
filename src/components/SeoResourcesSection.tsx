@@ -21,7 +21,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'TOP FEATURED',
       badgeColor: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
       description: 'Replace expensive ~$240/year Adobe subscriptions with a 100% private, free client-side PDF utility suite.',
-      link: `${ROUTES.ADOBE_ALTERNATIVE}/`,
+      link: ROUTES.ADOBE_ALTERNATIVE,
       icon: Sparkles,
     },
     {
@@ -39,7 +39,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'PRIVACY FIRST',
       badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
       description: 'Compare zero-upload browser processing against SmallPDF’s cloud server storage model.',
-      link: `${ROUTES.COMPARE_SMALLPDF}/`,
+      link: ROUTES.COMPARE_SMALLPDF,
       icon: Scale,
     },
     {
@@ -48,7 +48,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'NO ADS',
       badgeColor: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
       description: 'In-depth speed, security, and feature breakdown vs iLovePDF. No file limits or ad trackers.',
-      link: `${ROUTES.COMPARE_ILOVEPDF}/`,
+      link: ROUTES.COMPARE_ILOVEPDF,
       icon: Scale,
     },
     {
@@ -57,7 +57,7 @@ export const SeoResourcesSection: React.FC = () => {
       badge: 'MUST READ',
       badgeColor: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
       description: 'Crucial security analysis explaining the privacy hazards of sending sensitive PDFs to remote servers.',
-      link: `${ROUTES.TRUST_ARTICLE}/`,
+      link: ROUTES.TRUST_ARTICLE,
       icon: Shield,
     },
     {

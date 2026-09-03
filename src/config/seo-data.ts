@@ -128,12 +128,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Sanitize PDF",
-    "url": "/sanitize-pdf",
+    "url": "/sanitize-pdf/",
     "type": "tool"
   },
   {
     "title": "Protect PDF",
-    "url": "/protect-pdf",
+    "url": "/protect-pdf/",
     "type": "tool"
   },
   {
@@ -143,7 +143,7 @@ export const TOOLS: ToolSEOInfo[] = [
   },
   {
     "title": "PDFMinty vs SmallPDF",
-    "url": "/compare/pdfminty-vs-smallpdf",
+    "url": "/compare/pdfminty-vs-smallpdf/",
     "type": "comparison"
   },
   {
@@ -225,7 +225,7 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Edit Metadata",
-    "url": "/edit-pdf-metadata",
+    "url": "/edit-pdf-metadata/",
     "type": "tool"
   },
   {
@@ -235,7 +235,7 @@ export const TOOLS: ToolSEOInfo[] = [
   },
   {
     "title": "PDFMinty vs iLovePDF",
-    "url": "/compare/pdfminty-vs-ilovepdf",
+    "url": "/compare/pdfminty-vs-ilovepdf/",
     "type": "comparison"
   },
   {
@@ -324,12 +324,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Split PDF",
-    "url": "/split-pdf",
+    "url": "/split-pdf/",
     "type": "tool"
   },
   {
     "title": "Reorder PDF",
-    "url": "/reorder-pdf",
+    "url": "/reorder-pdf/",
     "type": "tool"
   },
   {
@@ -339,7 +339,7 @@ export const TOOLS: ToolSEOInfo[] = [
   },
   {
     "title": "PDFMinty vs SmallPDF",
-    "url": "/compare/pdfminty-vs-smallpdf",
+    "url": "/compare/pdfminty-vs-smallpdf/",
     "type": "comparison"
   },
   {
@@ -440,17 +440,17 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Merge PDF",
-    "url": "/merge-pdf",
+    "url": "/merge-pdf/",
     "type": "tool"
   },
   {
     "title": "Extract Pages",
-    "url": "/extract-pages-pdf",
+    "url": "/extract-pages-pdf/",
     "type": "tool"
   },
   {
     "title": "Delete Pages",
-    "url": "/delete-pages-pdf",
+    "url": "/delete-pages-pdf/",
     "type": "tool"
   },
   {
@@ -550,12 +550,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Reorder PDF",
-    "url": "/reorder-pdf",
+    "url": "/reorder-pdf/",
     "type": "tool"
   },
   {
     "title": "Delete Pages",
-    "url": "/delete-pages-pdf",
+    "url": "/delete-pages-pdf/",
     "type": "tool"
   },
   {
@@ -656,12 +656,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Extract Pages",
-    "url": "/extract-pages-pdf",
+    "url": "/extract-pages-pdf/",
     "type": "tool"
   },
   {
     "title": "Split PDF",
-    "url": "/split-pdf",
+    "url": "/split-pdf/",
     "type": "tool"
   },
   {
@@ -762,12 +762,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Delete Pages",
-    "url": "/delete-pages-pdf",
+    "url": "/delete-pages-pdf/",
     "type": "tool"
   },
   {
     "title": "Split PDF",
-    "url": "/split-pdf",
+    "url": "/split-pdf/",
     "type": "tool"
   },
   {
@@ -868,12 +868,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Rotate PDF",
-    "url": "/rotate-pdf",
+    "url": "/rotate-pdf/",
     "type": "tool"
   },
   {
     "title": "Merge PDF",
-    "url": "/merge-pdf",
+    "url": "/merge-pdf/",
     "type": "tool"
   },
   {
@@ -973,12 +973,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Add Page Numbers",
-    "url": "/add-page-numbers",
+    "url": "/add-page-numbers/",
     "type": "tool"
   },
   {
     "title": "Protect PDF",
-    "url": "/protect-pdf",
+    "url": "/protect-pdf/",
     "type": "tool"
   },
   {
@@ -1078,12 +1078,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Watermark PDF",
-    "url": "/watermark-pdf",
+    "url": "/watermark-pdf/",
     "type": "tool"
   },
   {
     "title": "Add Blank Page",
-    "url": "/add-blank-page",
+    "url": "/add-blank-page/",
     "type": "tool"
   },
   {
@@ -1183,12 +1183,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Merge PDF",
-    "url": "/merge-pdf",
+    "url": "/merge-pdf/",
     "type": "tool"
   },
   {
     "title": "Reorder PDF",
-    "url": "/reorder-pdf",
+    "url": "/reorder-pdf/",
     "type": "tool"
   },
   {
@@ -1289,7 +1289,7 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Unlock PDF",
-    "url": "/unlock-pdf",
+    "url": "/unlock-pdf/",
     "type": "tool"
   },
   {
@@ -1394,12 +1394,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Protect PDF",
-    "url": "/protect-pdf",
+    "url": "/protect-pdf/",
     "type": "tool"
   },
   {
     "title": "Sanitize PDF",
-    "url": "/sanitize-pdf",
+    "url": "/sanitize-pdf/",
     "type": "tool"
   },
   {
@@ -1503,12 +1503,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "PDF to Image",
-    "url": "/pdf-to-image",
+    "url": "/pdf-to-image/",
     "type": "tool"
   },
   {
     "title": "Merge PDF",
-    "url": "/merge-pdf",
+    "url": "/merge-pdf/",
     "type": "tool"
   },
   {
@@ -1610,12 +1610,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Image to PDF",
-    "url": "/image-to-pdf",
+    "url": "/image-to-pdf/",
     "type": "tool"
   },
   {
     "title": "Extract Pages",
-    "url": "/extract-pages-pdf",
+    "url": "/extract-pages-pdf/",
     "type": "tool"
   },
   {
@@ -1716,12 +1716,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "AI Analyze PDF",
-    "url": "/ai-analyze-pdf",
+    "url": "/ai-analyze-pdf/",
     "type": "tool"
   },
   {
     "title": "OCR PDF",
-    "url": "/ocr-pdf",
+    "url": "/ocr-pdf/",
     "type": "tool"
   },
   {
@@ -1827,17 +1827,17 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "PDF to Markdown",
-    "url": "/pdf-to-markdown",
+    "url": "/pdf-to-markdown/",
     "type": "tool"
   },
   {
     "title": "Sanitize PDF",
-    "url": "/sanitize-pdf",
+    "url": "/sanitize-pdf/",
     "type": "tool"
   },
   {
     "title": "Privacy Policy",
-    "url": "/privacy-policy",
+    "url": "/privacy-policy/",
     "type": "guide"
   },
   {
@@ -1938,12 +1938,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Flatten PDF",
-    "url": "/flatten-pdf",
+    "url": "/flatten-pdf/",
     "type": "tool"
   },
   {
     "title": "Watermark PDF",
-    "url": "/watermark-pdf",
+    "url": "/watermark-pdf/",
     "type": "tool"
   },
   {
@@ -2040,12 +2040,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Sign PDF",
-    "url": "/sign-pdf",
+    "url": "/sign-pdf/",
     "type": "tool"
   },
   {
     "title": "Protect PDF",
-    "url": "/protect-pdf",
+    "url": "/protect-pdf/",
     "type": "tool"
   },
   {
@@ -2142,12 +2142,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "Unlock PDF",
-    "url": "/unlock-pdf",
+    "url": "/unlock-pdf/",
     "type": "tool"
   },
   {
     "title": "Sanitize PDF",
-    "url": "/sanitize-pdf",
+    "url": "/sanitize-pdf/",
     "type": "tool"
   },
   {
@@ -2249,12 +2249,12 @@ export const TOOLS: ToolSEOInfo[] = [
   },
   {
     "title": "Flatten PDF",
-    "url": "/flatten-pdf",
+    "url": "/flatten-pdf/",
     "type": "tool"
   },
   {
     "title": "Protect PDF",
-    "url": "/protect-pdf",
+    "url": "/protect-pdf/",
     "type": "tool"
   },
   {
@@ -2356,12 +2356,12 @@ export const TOOLS: ToolSEOInfo[] = [
     relatedLinks: [
   {
     "title": "PDF to Markdown",
-    "url": "/pdf-to-markdown",
+    "url": "/pdf-to-markdown/",
     "type": "tool"
   },
   {
     "title": "AI Analyze PDF",
-    "url": "/ai-analyze-pdf",
+    "url": "/ai-analyze-pdf/",
     "type": "tool"
   },
   {
@@ -5222,7 +5222,7 @@ export const TOOLS: ToolSEOInfo[] = [
       },
   {
         title: 'Merge PDF',
-        url: '/merge-pdf',
+        url: '/merge-pdf/',
         type: 'tool'
       },
   {

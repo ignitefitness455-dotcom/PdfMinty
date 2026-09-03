@@ -2,16 +2,145 @@ import { TOOLS } from '../src/config/seo-data';
 
 import { getCorsOrigin, getCorsHeaders } from './utils/cors';
 
+// Canonical legacy redirects map (always 301 directly to canonical destination)
+const LEGACY_REDIRECTS: Record<string, string> = {
+  '/about': '/about-us/',
+  '/contact-us': '/contact/',
+  '/edit-metadata': '/edit-pdf-metadata/',
+  '/protect': '/protect-pdf/',
+  '/unlock': '/unlock-pdf/',
+  '/compress': '/blog/how-to-compress-a-pdf-without-losing-quality-2026/',
+  '/compress-pdf': '/blog/how-to-compress-a-pdf-without-losing-quality-2026/',
+  '/delete-pages': '/delete-pages-pdf/',
+  '/extract-pages': '/extract-pages-pdf/',
+  '/reorder': '/reorder-pdf/',
+  '/watermark': '/watermark-pdf/',
+  '/page-numbers': '/add-page-numbers/',
+  '/add-blank': '/add-blank-page/',
+  '/img-to-pdf': '/image-to-pdf/',
+  '/pdf-to-img': '/pdf-to-image/',
+  '/grayscale': '/grayscale-pdf/',
+  '/flatten': '/flatten-pdf/',
+  '/repair': '/repair-pdf/',
+  '/sign': '/sign-pdf/',
+  '/ocr': '/ocr-pdf/',
+  '/sanitize': '/sanitize-pdf/',
+  '/intelligence': '/ai-analyze-pdf/',
+  '/switch-from-adobe-acrobat': '/adobe-acrobat-alternative/',
+  '/is-it-safe-to-upload-pdf-to-online-tools': '/blog/is-it-safe-to-upload-pdf-to-online-tools/',
+  '/merge': '/merge-pdf/',
+  '/split': '/split-pdf/',
+  '/rotate': '/rotate-pdf/',
+  '/pdfminty-vs-smallpdf': '/compare/pdfminty-vs-smallpdf/',
+  '/pdfminty-vs-ilovepdf': '/compare/pdfminty-vs-ilovepdf/',
+  '/blog/best-free-pdf-compressor-without-losing-quality': '/blog/how-to-compress-a-pdf-without-losing-quality-2026/',
+  '/blog/how-to-compress-pdf-without-losing-quality-locally': '/blog/how-to-compress-a-pdf-without-losing-quality-2026/',
+  '/blog/how-to-protect-a-pdf-with-password-in-3-easy-steps': '/blog/how-to-password-protect-a-pdf-offline/',
+  '/blog/how-to-edit-a-pdf-offline-without-uploading-it': '/blog/secure-pdf-editing-without-uploading/',
+  '/blog/why-offline-pdf-editors-are-the-future-of-privacy': '/blog/why-privacy-first-pdf-tools-matter-in-2026/',
+};
+
+// Static pages that are always valid
+const STATIC_VALID_ROUTES = new Set([
+  'blog', 'about-us', 'contact', 'privacy-policy', 'terms-of-service',
+  'adobe-acrobat-alternative',
+  'bn', 'bn/merge-pdf',
+]);
+
+function checkValidRoute(cleanPath: string): boolean {
+  if (cleanPath === '' || STATIC_VALID_ROUTES.has(cleanPath)) {
+    return true;
+  }
+  if (cleanPath === 'bn' || cleanPath.startsWith('bn/')) {
+    const bnSubPath = cleanPath.replace(/^bn\/?/, '');
+    return bnSubPath === '' || bnSubPath === 'merge-pdf' || TOOLS.some((item) => item.slug === bnSubPath);
+  }
+  return TOOLS.some((item) => item.slug === cleanPath);
+}
+
 export const onRequest: PagesFunction = async (context) => {
   const url = new URL(context.request.url);
-  const pathname = url.pathname.toLowerCase();
+  const rawPath = url.pathname;
+  const lowerPath = rawPath.toLowerCase();
 
-  // 301 redirect: /switch-from-adobe-acrobat is a duplicate route of
-  // /adobe-acrobat-alternative (same component). It was listed in the
-  // sitemap but served the SPA shell with a homepage canonical.
-  if (pathname === '/switch-from-adobe-acrobat' || pathname === '/switch-from-adobe-acrobat/') {
-    return Response.redirect(url.origin + '/adobe-acrobat-alternative/', 301);
+  // Normalize slashes and dot-segments early for non-API routes to avoid multi-hop redirect chains
+  const normalizedLower = lowerPath.startsWith('/api')
+    ? lowerPath
+    : lowerPath.replace(/\/{2,}/g, '/').replace(/\/\.\//g, '/').replace(/\/\.$/, '/');
+
+  // 1. Check legacy redirects first (with or without trailing slash)
+  const strippedPath = normalizedLower.replace(/\/+$/, '') || '/';
+  if (LEGACY_REDIRECTS[strippedPath]) {
+    const targetHost = url.hostname === 'www.pdfminty.com' ? 'pdfminty.com' : url.hostname;
+    const targetProtocol = (url.hostname === 'pdfminty.com' || url.hostname === 'www.pdfminty.com') ? 'https:' : url.protocol;
+    const targetUrl = `${targetProtocol}//${targetHost}${LEGACY_REDIRECTS[strippedPath]}${url.search}`;
+    return Response.redirect(targetUrl, 301);
   }
+
+  // 2. Canonical URL Normalization: Hostname (www -> non-www) & Protocol (http -> https)
+  let shouldRedirect = false;
+  let targetHost = url.hostname;
+  let targetProtocol = url.protocol;
+  let targetPathname = rawPath;
+
+  if (url.hostname === 'www.pdfminty.com') {
+    targetHost = 'pdfminty.com';
+    targetProtocol = 'https:';
+    shouldRedirect = true;
+  } else if (url.hostname === 'pdfminty.com' && url.protocol === 'http:') {
+    targetProtocol = 'https:';
+    shouldRedirect = true;
+  }
+
+  // 3. Dot-segment and consecutive slash collapsing for non-API paths
+  if (!targetPathname.startsWith('/api')) {
+    const cleanedDots = targetPathname.replace(/\/\.\//g, '/').replace(/\/\.$/, '/');
+    if (cleanedDots !== targetPathname) {
+      targetPathname = cleanedDots;
+      shouldRedirect = true;
+    }
+    if (/\/{2,}/.test(targetPathname)) {
+      targetPathname = targetPathname.replace(/\/{2,}/g, '/');
+      shouldRedirect = true;
+    }
+  }
+
+  // 4. Strip index.html / index.htm to directory trailing slash
+  if (targetPathname === '/index.html' || targetPathname === '/index.htm') {
+    targetPathname = '/';
+    shouldRedirect = true;
+  } else if (targetPathname.endsWith('/index.html') || targetPathname.endsWith('/index.htm')) {
+    targetPathname = targetPathname.replace(/\/index\.html?$/, '/');
+    shouldRedirect = true;
+  }
+
+  // 5. Lowercase path enforcement for non-API routes
+  const lowerCandidate = targetPathname.toLowerCase();
+  if (!targetPathname.startsWith('/api') && targetPathname !== lowerCandidate) {
+    targetPathname = lowerCandidate;
+    shouldRedirect = true;
+  }
+
+  // 6. Trailing slash enforcement for valid directory/HTML routes (not files, not /api)
+  if (
+    !targetPathname.startsWith('/api') &&
+    !targetPathname.includes('.') &&
+    !targetPathname.endsWith('/')
+  ) {
+    const cleanCandidate = targetPathname.toLowerCase().replace(/^\//, '').replace(/\/$/, '');
+    // Only redirect valid routes to slash, so non-existent URLs 404 directly without chain
+    if (checkValidRoute(cleanCandidate)) {
+      targetPathname = `${targetPathname}/`;
+      shouldRedirect = true;
+    }
+  }
+
+  if (shouldRedirect) {
+    const targetUrl = `${targetProtocol}//${targetHost}${targetPathname}${url.search}`;
+    return Response.redirect(targetUrl, 301);
+  }
+
+  const pathname = lowerPath;
 
   // Define valid API endpoints
   const validApiEndpoints = [
@@ -99,26 +228,11 @@ export const onRequest: PagesFunction = async (context) => {
     const isBn = pathname === '/bn' || pathname === '/bn/' || pathname.startsWith('/bn/');
     newResponse.headers.set('Content-Language', isBn ? 'bn' : 'en');
 
-    // Static pages that are always valid
-    const staticValidRoutes = new Set([
-      'blog', 'about-us', 'contact', 'privacy-policy', 'terms-of-service',
-      'adobe-acrobat-alternative', 'switch-from-adobe-acrobat',
-      'bn', 'bn/merge-pdf',
-    ]);
-
-    // Check if cleanPath or stripped locale path is a valid route
-    let isValidRoute = false;
-    if (cleanPath === '' || staticValidRoutes.has(cleanPath)) {
-      isValidRoute = true;
-    } else if (isBn) {
-      const bnSubPath = cleanPath.replace(/^bn\/?/, '');
-      isValidRoute = bnSubPath === '' || bnSubPath === 'merge-pdf' || TOOLS.some((item) => item.slug === bnSubPath);
-    } else {
-      isValidRoute = TOOLS.some((item) => item.slug === cleanPath);
-    }
+    const isValidRoute = checkValidRoute(cleanPath);
 
     if (!isValidRoute) {
       // Return 404 status so crawlers don't index unknown paths
+      newResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
       return new Response(hasNoBody ? null : response.body, {
         status: 404,
         statusText: 'Not Found',

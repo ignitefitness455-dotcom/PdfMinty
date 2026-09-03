@@ -14,8 +14,7 @@ export const NotFoundPage: React.FC = () => {
       <Helmet>
         <title>Page Not Found | PDFMinty</title>
         <meta name="description" content="The page you are looking for could not be found. Browse our free PDF tools instead." />
-        <meta name="robots" content="noindex, follow" />
-        <link rel="canonical" href="https://pdfminty.com/404" />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center font-sans">

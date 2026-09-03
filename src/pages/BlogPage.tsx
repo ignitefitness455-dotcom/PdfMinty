@@ -12,7 +12,8 @@ export const BlogPage: React.FC = () => {
 
   // Filter to find all individual articles except the blog index page itself (sorted newest first)
   const blogPosts = useMemo(() => {
-    const posts = TOOLS.filter((t) => t.type === 'article' && t.id !== 'blog' && t.id !== 'about-us');
+    const staticPageIds = ['blog', 'about-us', 'contact', 'privacy-policy', 'terms-of-service', 'adobe-acrobat-alternative'];
+    const posts = TOOLS.filter((t) => t.type === 'article' && !staticPageIds.includes(t.id));
     return [...posts].sort((a, b) => {
       const todayStr = new Date().toISOString().split('T')[0];
       const dateA = new Date(a.datePublished || todayStr).getTime();

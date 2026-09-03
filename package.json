@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build && tsx scripts/generate-og-images.ts && tsx scripts/generate-sitemap.ts && tsx scripts/generate-static-pages.ts",
     "generate:sitemap": "tsx scripts/generate-sitemap.ts",
+    "validate:seo": "tsx scripts/validate-seo.ts",
     "pages:dev": "wrangler pages dev dist --compatibility-date=2026-01-01",
     "generate:icons": "tsx scripts/gen-favicons.ts",
     "generate:screenshots": "tsx scripts/generate-screenshots.ts",
