@@ -2,7 +2,6 @@ import { ArrowLeft, Shield, AlertCircle, KeyRound, Download } from 'lucide-react
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -236,8 +235,6 @@ export const ProtectPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <FAQSection toolId="protect" />
     </div>
   );
 };

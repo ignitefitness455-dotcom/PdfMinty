@@ -496,7 +496,7 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a> �
           <ul>
             <li><a href="/split-pdf/">PDF স্প্লিট করুন</a> — বড় PDF থেকে পেজ আলাদা করুন</li>
             <li><a href="/protect-pdf/">PDF পাসওয়ার্ড দিয়ে সুরক্ষিত করুন</a> — অফলাইনে শক্তিশালী এনক্রিপশন</li>
-            <li><a href="/compress-pdf/">PDF সাইজ অপ্টিমাইজ করুন</a> — গুণমান বজায় রেখে ফাইল সাইজ কমান</li>
+            <li><a href="/blog/how-to-compress-a-pdf-without-losing-quality-2026/">PDF সাইজ অপ্টিমাইজ করুন</a> — গুণমান বজায় রেখে ফাইল সাইজ কমান</li>
             <li><a href="/rotate-pdf/">PDF রোটেট করুন</a> — উল্টো বা বাঁকা পেজ সোজা করুন</li>
           </ul>
         </div>

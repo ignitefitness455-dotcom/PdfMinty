@@ -2,7 +2,6 @@ import { ArrowLeft, RefreshCw, AlertCircle, Printer, Download } from 'lucide-rea
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -288,8 +287,6 @@ export const GrayscalePdfPage: React.FC = () => {
           </p>
         </div>
       </section>
-
-      <FAQSection toolId="grayscale-pdf" />
     </div>
   );
 };

@@ -314,24 +314,59 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
         </section>
       )}
 
-      {/* 8. Contextual Links */}
+      {/* 8. Related Tools & Related Guides */}
       {relatedLinks && relatedLinks.length > 0 && (
-        <section className="space-y-4 pt-6 border-t border-border-muted" id="tool-contextual-links">
-          <h3 className="text-xs font-black uppercase tracking-wider text-on-surface-variant">
-            Explore Related Tools, Guides & Comparisons
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {relatedLinks.map((link, idx) => (
-              <Link
-                key={idx}
-                to={link.url}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-xs font-bold text-on-surface hover:text-emerald-600 transition-colors"
-              >
-                <span>{link.title}</span>
-                <ArrowRight className="w-3 h-3 text-emerald-500" />
-              </Link>
-            ))}
-          </div>
+        <section className="space-y-6 pt-6 border-t border-border-muted" id="tool-contextual-links">
+          {(() => {
+            const relatedToolsList = relatedLinks.filter(l => l.type === 'tool');
+            const relatedGuidesList = relatedLinks.filter(l => l.type !== 'tool' && l.type !== 'home');
+
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {relatedToolsList.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Related Tools</span>
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {relatedToolsList.map((link, idx) => (
+                        <Link
+                          key={idx}
+                          to={link.url}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-xs font-bold text-on-surface hover:text-emerald-600 transition-colors"
+                        >
+                          <span>{link.title}</span>
+                          <ArrowRight className="w-3 h-3 text-emerald-500" />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {relatedGuidesList.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+                      <FileCode className="w-3.5 h-3.5" />
+                      <span>Related Guides & Articles</span>
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {relatedGuidesList.map((link, idx) => (
+                        <Link
+                          key={idx}
+                          to={link.url}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-xs font-bold text-on-surface hover:text-emerald-600 transition-colors"
+                        >
+                          <span>{link.title}</span>
+                          <ArrowRight className="w-3 h-3 text-emerald-500" />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </section>
       )}
 
@@ -351,6 +386,28 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
           }}
         />
       )}
+
+      {/* 10. Clear Bottom Conversion CTA */}
+      <section className="bg-surface-container-low p-6 sm:p-8 rounded-2xl border border-emerald-500/20 shadow-sm text-center space-y-4">
+        <h3 className="text-xl sm:text-2xl font-black text-on-surface tracking-tight">
+          Ready to Use {name}?
+        </h3>
+        <p className="text-on-surface-variant text-sm max-w-xl mx-auto font-medium">
+          Zero software installation, no account registration, and 100% private in-browser document processing.
+        </p>
+        <div className="pt-2">
+          <a
+            href="#file-uploader-deck"
+            onClick={handleCtaClick}
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all hover:scale-[1.02] cursor-pointer text-sm sm:text-base"
+            aria-label={`Bottom CTA: ${primaryCtaText || `Start ${name} Now`}`}
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>{primaryCtaText || `Start ${name} Now`}</span>
+            <ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
+      </section>
     </div>
   );
 };

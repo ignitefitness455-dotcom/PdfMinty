@@ -54,7 +54,7 @@
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
       <image:title>Free PDF E-Signature: Sign Documents Online | PDFMinty</image:title>
-      <image:caption>Discover how to sign PDF documents for free without uploading them. Learn why local browser-side e-signing is completely secure, private, and legally valid.</image:caption>
+      <image:caption>Discover how to sign PDF documents for free without uploading them. Learn how local browser-side e-signing protects confidentiality while meeting legal requirements.</image:caption>
     </image:image>
   </url>
   <url>
@@ -114,13 +114,13 @@
   </url>
   <url>
     <loc>https://pdfminty.com/blog/how-to-convert-pdf-to-word-for-free-2026/</loc>
-    <lastmod>2026-08-03</lastmod>
+    <lastmod>2026-09-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>Convert PDF to Word Free (Keep Formatting) | PdfMinty</image:title>
-      <image:caption>Need to convert PDF to Word for free without ruining the layout? This 2026 guide covers the best tools, common formatting mistakes, and how to get perfect results every time.</image:caption>
+      <image:title>How to Convert PDF to Word for Free (Text Method) | PdfMinty</image:title>
+      <image:caption>Tired of broken formatting when converting PDF to Word? Learn how to extract clean Markdown text and paste it safely into Word without using risky cloud converters.</image:caption>
     </image:image>
   </url>
   <url>
@@ -191,13 +191,13 @@
   </url>
   <url>
     <loc>https://pdfminty.com/blog/how-to-make-a-scanned-pdf-searchable/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-09-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Make a Scanned PDF Searchable | OCR Guide — PdfMinty</image:title>
-      <image:caption>Learn how to make a scanned PDF searchable with OCR, check whether your file is image-only, improve recognition quality, and review privacy before processing.</image:caption>
+      <image:title>How to Extract Text from a Scanned PDF Image (OCR Guide) | PdfMinty</image:title>
+      <image:caption>Learn how to use offline OCR to extract readable, copyable text or Markdown from scanned and image-only PDFs without uploading them.</image:caption>
     </image:image>
   </url>
   <url>
@@ -242,6 +242,138 @@
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
       <image:title>Fix &quot;PDF File Size Too Large&quot; Error | PdfMinty</image:title>
       <image:caption>Solve PDF file size limit errors for Gmail, Outlook, job portals, and visa applications without losing quality.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/electronic-signature-vs-digital-signature/</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>Electronic Signature vs Digital Signature: Legal Differences (2026) | PDFMinty</image:title>
+      <image:caption>Understand the legal, technical, and cryptographic differences between electronic signatures (SES) and digital signatures (PKI/QES). Learn which to use under ESIGN and eIDAS.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/how-to-sign-pdf-without-adobe-or-docusign/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>How to Sign a PDF Without Adobe or DocuSign (Free &amp; Private) | PDFMinty</image:title>
+      <image:caption>Learn how to sign PDF documents for free without Adobe Acrobat subscriptions or DocuSign accounts. Compare workflows, privacy implications, and zero-upload alternatives.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/why-is-my-pdf-so-large/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>Why Is My PDF So Large? 5 Hidden Causes of File Bloat | PdfMinty</image:title>
+      <image:caption>Discover why your 3-page PDF is surprisingly 40MB. Learn the hidden structural reasons behind PDF file bloat and how to diagnose and shrink it instantly.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/how-to-combine-scanned-documents-into-one-pdf/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>How to Combine Scanned Documents into One PDF | PdfMinty</image:title>
+      <image:caption>Learn how to merge heavy scanned PDFs, reduce their file size using Grayscale conversion, and create a single clean document offline.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/how-to-rearrange-pdf-pages-offline/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>How to Rearrange Pages in a PDF Offline | PdfMinty</image:title>
+      <image:caption>Learn how to visually rearrange, swap, and reorder PDF pages securely offline without using Adobe Acrobat.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/how-to-convert-pdf-to-jpg-high-resolution/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>How to Convert PDF to JPG High Resolution | PdfMinty</image:title>
+      <image:caption>Stop getting blurry images when converting PDFs. Learn how to extract high-resolution, 300 DPI quality JPGs and PNGs from your PDF documents.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/pdf-privacy-benchmark-2026/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>PDF Privacy Benchmark 2026: Cloud vs Local Analysis | PdfMinty</image:title>
+      <image:caption>Technical analysis of network payloads, data transit, and retention policies of top PDF tools using Chrome DevTools.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/client-side-pdf-processing-explained/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>Client-Side PDF Processing Explained: WASM &amp; Security | PdfMinty</image:title>
+      <image:caption>A deep technical dive into how modern browsers parse, edit, and render PDF binaries locally without server interaction.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/hipaa-compliant-pdf-tools-healthcare/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>HIPAA Compliant PDF Tools for US Healthcare | PdfMinty</image:title>
+      <image:caption>Why uploading patient records to free online PDF editors violates HIPAA, and how client-side WebAssembly tools mitigate ePHI data transit risks.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/us-tax-w9-nda-secure-pdf-signing/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>Securely Sign W-9 &amp; Tax Forms Offline | PdfMinty</image:title>
+      <image:caption>Freelancers and contractors: Learn how to fill out and sign sensitive US tax forms (W-9, 1099) and NDAs without uploading your Social Security Number to the cloud.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/gdpr-compliant-pdf-processing-europe/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>GDPR Compliant PDF Tools for EU Businesses | PdfMinty</image:title>
+      <image:caption>Uploading European employee or customer data to cloud PDF tools can trigger severe GDPR fines. Learn how client-side WebAssembly solves this compliance nightmare.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/eidas-compliant-pdf-signatures-uk-eu/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>eIDAS &amp; UK Law: Are PDF Signatures Legally Binding? | PdfMinty</image:title>
+      <image:caption>Understand the legal weight of electronic signatures under the EU eIDAS Regulation and UK law. Learn how to securely sign PDFs offline.</image:caption>
     </image:image>
   </url>
 </urlset>

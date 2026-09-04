@@ -2,7 +2,6 @@ import { ArrowLeft, RefreshCw, AlertCircle, Wrench, Download, CheckCircle2 } fro
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -228,8 +227,6 @@ export const RepairPdfPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <FAQSection toolId="repair-pdf" />
     </div>
   );
 };

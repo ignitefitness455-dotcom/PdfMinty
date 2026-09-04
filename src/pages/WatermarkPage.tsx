@@ -2,7 +2,6 @@ import { ArrowLeft, Bookmark, AlertCircle, Download } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -474,8 +473,6 @@ export const WatermarkPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <FAQSection toolId="watermark" />
     </div>
   );
 };

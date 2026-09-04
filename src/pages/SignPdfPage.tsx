@@ -3,7 +3,6 @@ import { PDFDocument } from 'pdf-lib';
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -743,8 +742,6 @@ export const SignPdfPage: React.FC = () => {
           </p>
         </div>
       </section>
-
-      <FAQSection toolId="sign-pdf" />
 
       {/* Signature Creation Modal */}
       {showSignModal && (

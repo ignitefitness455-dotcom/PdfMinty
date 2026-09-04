@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { EmptyState } from '../components/EmptyState';
-import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -450,8 +449,6 @@ export const PdfToImgPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <FAQSection toolId="pdf-to-image" />
     </div>
   );
 };

@@ -14,7 +14,6 @@ import {
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
-import { FAQSection } from '../components/FAQSection';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
@@ -661,8 +660,6 @@ export const PdfToMarkdownPage: React.FC = () => {
           </div>
         </div>
       )}
-
-      <FAQSection toolId="pdf-to-markdown" />
     </div>
   );
 };

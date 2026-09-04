@@ -1,5 +1,6 @@
 import { ShieldCheck, Calendar, Clock, Share2, Check, UserCheck, ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useParams, useLocation, Link } from 'react-router-dom';
 
 import RelatedBlogs from '../components/RelatedBlogs';
