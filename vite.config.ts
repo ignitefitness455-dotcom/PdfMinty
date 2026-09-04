@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -176,7 +175,6 @@ function generateSitemapPlugin() {
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(),
     injectSwVersion(),
     devApiPlugin(),
     generateSitemapPlugin(),
