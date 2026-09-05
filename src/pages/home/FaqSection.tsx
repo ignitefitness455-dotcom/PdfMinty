@@ -20,7 +20,7 @@ export const FaqSection: React.FC = () => {
         <h2 className="text-2xl md:text-4xl font-black text-primary tracking-tight font-sans">
           Got Questions? We Have Answers.
         </h2>
-        <p className="text-on-surface-variant text-xs md:text-sm mt-2 font-medium">
+        <p className="text-on-surface-variant text-sm md:text-base mt-2 font-normal">
           Everything you need to know about PDFMinty's private, in-browser PDF tools.
         </p>
       </div>
@@ -35,7 +35,7 @@ export const FaqSection: React.FC = () => {
             >
               <button
                 onClick={() => toggleFaq(index)}
-                className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm md:text-base text-primary hover:text-emerald-500 transition-colors cursor-pointer"
+                className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-base md:text-lg text-primary hover:text-emerald-500 transition-colors cursor-pointer"
               >
                 <span>{faq.q}</span>
                 <ChevronDown
@@ -45,7 +45,7 @@ export const FaqSection: React.FC = () => {
                 />
               </button>
               {isOpen && (
-                <div className="px-5 pb-5 pt-1 text-xs md:text-sm text-on-surface-variant leading-relaxed border-t border-border-muted/50 font-medium">
+                <div className="px-5 pb-5 pt-2 text-sm md:text-base text-on-surface-variant leading-relaxed border-t border-border-muted/50 font-normal">
                   {faq.a}
                 </div>
               )}

@@ -13,7 +13,7 @@ export const HowItWorksSection: React.FC = () => {
           <h2 className="text-2xl md:text-3xl font-black text-primary tracking-tight leading-tight">
             Fast, Private Document Processing
           </h2>
-          <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-on-surface-variant leading-relaxed font-normal">
             PDFMinty processes your documents directly on your computer or phone. Because your files stay on
             your device, processing happens instantly with no upload delays, file size limits, or cloud storage
             risks. Manage confidential contracts, forms, and financial records with complete peace of mind.
@@ -27,31 +27,31 @@ export const HowItWorksSection: React.FC = () => {
                 <div className="w-2 h-2 rounded-full bg-critical-red"></div>
                 <div className="w-2 h-2 rounded-full bg-warning-amber"></div>
                 <div className="w-2 h-2 rounded-full bg-security-green"></div>
-                <span className="text-[9px] text-on-surface-variant font-mono ml-2">
+                <span className="text-[10px] text-on-surface-variant font-mono ml-2">
                   document.pdf
                 </span>
               </div>
-              <div className="px-1.5 py-0.5 rounded bg-security-green/10 text-security-green text-[8px] font-black uppercase">
+              <div className="px-2 py-0.5 rounded bg-security-green/10 text-security-green text-[9px] font-black uppercase">
                 100% Offline
               </div>
             </div>
             {/* Workspace body / dropzone representation */}
             <div className="flex-1 border border-dashed border-border-muted rounded-lg flex flex-col items-center justify-center p-2 text-center bg-surface-container-low/10">
               <Merge className="w-5 h-5 text-security-green mb-1 animate-bounce" aria-hidden="true" />
-              <span className="text-[10px] font-bold text-primary">Drag & Drop PDF here</span>
-              <span className="text-[8px] text-on-surface-variant/70 mt-0.5">
+              <span className="text-xs font-bold text-primary">Drag & Drop PDF here</span>
+              <span className="text-[10px] text-on-surface-variant/70 mt-0.5">
                 or click to browse locally
               </span>
             </div>
             {/* Mini active items list */}
             <div className="flex items-center gap-1.5 whitespace-nowrap">
               <div className="flex-1 bg-surface-container-lowest p-2 rounded-md border border-border-muted flex items-center justify-between shadow-sm">
-                <span className="text-[8px] text-on-surface-variant font-bold max-w-[120px] truncate">
+                <span className="text-[10px] text-on-surface-variant font-bold max-w-[120px] truncate">
                   contract_draft.pdf
                 </span>
-                <span className="text-[7px] text-on-surface-variant/60 font-mono">1.2 MB</span>
+                <span className="text-[9px] text-on-surface-variant/60 font-mono">1.2 MB</span>
               </div>
-              <div className="w-6 h-6 rounded-md bg-security-green flex items-center justify-center text-background font-bold text-[10px] shadow-sm shrink-0 hover:bg-primary-fixed-dim transition-colors cursor-pointer">
+              <div className="w-6 h-6 rounded-md bg-security-green flex items-center justify-center text-background font-bold text-xs shadow-sm shrink-0 hover:bg-primary-fixed-dim transition-colors cursor-pointer">
                 →
               </div>
             </div>
@@ -64,7 +64,7 @@ export const HowItWorksSection: React.FC = () => {
         <h2 className="text-2xl md:text-4xl font-black text-primary text-center tracking-tight mb-2 font-sans">
           How It Works
         </h2>
-        <p className="text-on-surface-variant text-xs md:text-sm text-center mb-16 max-w-md mx-auto font-medium">
+        <p className="text-on-surface-variant text-sm sm:text-base text-center mb-16 max-w-md mx-auto font-normal">
           Three simple steps to process your files entirely inside your browser.
         </p>
 
@@ -74,37 +74,37 @@ export const HowItWorksSection: React.FC = () => {
 
           <div
             id="step-1-card"
-            className="flex flex-col items-center p-8 rounded-3xl bg-surface-container-low border border-border-muted shadow-lg hover:border-security-green transition-all duration-300"
+            className="flex flex-col items-center p-6 sm:p-8 rounded-3xl bg-surface-container-low border border-border-muted shadow-lg hover:border-security-green transition-all duration-300"
           >
             <div className="w-12 h-12 rounded-full bg-surface-container-lowest text-security-green border border-border-muted flex items-center justify-center font-bold text-lg mb-4 shadow-md z-10 font-mono">
               1
             </div>
-            <h3 className="text-base font-bold text-primary mb-2">Select Tool</h3>
-            <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">
+            <h3 className="text-base sm:text-lg font-bold text-primary mb-2">Select Tool</h3>
+            <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs font-normal">
               Choose any tool to merge, split, rotate, or edit your PDFs.
             </p>
           </div>
           <div
             id="step-2-card"
-            className="flex flex-col items-center p-8 rounded-3xl bg-surface-container-low border border-border-muted shadow-lg hover:border-security-green transition-all duration-300"
+            className="flex flex-col items-center p-6 sm:p-8 rounded-3xl bg-surface-container-low border border-border-muted shadow-lg hover:border-security-green transition-all duration-300"
           >
             <div className="w-12 h-12 rounded-full bg-surface-container-lowest text-security-green border border-border-muted flex items-center justify-center font-bold text-lg mb-4 shadow-md z-10 font-mono">
               2
             </div>
-            <h3 className="text-base font-bold text-primary mb-2">Add Files</h3>
-            <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">
+            <h3 className="text-base sm:text-lg font-bold text-primary mb-2">Add Files</h3>
+            <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs font-normal">
               Select your documents directly. Our standard PDF tools process files locally in browser memory (the AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box).
             </p>
           </div>
           <div
             id="step-3-card"
-            className="flex flex-col items-center p-8 rounded-3xl bg-surface-container-low border border-border-muted shadow-lg hover:border-security-green transition-all duration-300"
+            className="flex flex-col items-center p-6 sm:p-8 rounded-3xl bg-surface-container-low border border-border-muted shadow-lg hover:border-security-green transition-all duration-300"
           >
             <div className="w-12 h-12 rounded-full bg-surface-container-lowest text-security-green border border-border-muted flex items-center justify-center font-bold text-lg mb-4 shadow-md z-10 font-mono">
               3
             </div>
-            <h3 className="text-base font-bold text-primary mb-2">Download</h3>
-            <p className="text-on-surface-variant text-xs leading-relaxed max-w-xs font-semibold">
+            <h3 className="text-base sm:text-lg font-bold text-primary mb-2">Download</h3>
+            <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs font-normal">
               Save your processed document instantly with privacy-first client-side handling.
             </p>
           </div>

@@ -14,14 +14,14 @@ export const CtaSection: React.FC = () => {
         <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-tight font-sans">
           Ready to manage your PDFs with total privacy?
         </h2>
-        <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed font-semibold">
+        <p className="text-sm md:text-base text-on-surface-variant leading-relaxed font-normal">
           Select any tool above to process your documents privately on your device. Fast performance,
           no subscriptions, and privacy-first client-side processing.
         </p>
         <div className="pt-4">
           <button
             onClick={handleScrollToTools}
-            className="px-6 py-3.5 rounded-xl bg-security-green hover:bg-primary-fixed-dim text-[#131313] font-black text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-security-green/10 active:scale-95 cursor-pointer max-w-xs inline-flex items-center justify-center gap-2"
+            className="px-8 py-3.5 rounded-xl bg-security-green hover:bg-primary-fixed-dim text-[#131313] font-black text-sm uppercase tracking-wider transition-all shadow-lg hover:shadow-security-green/10 active:scale-95 cursor-pointer max-w-xs inline-flex items-center justify-center gap-2"
           >
             <Zap className="w-4 h-4 fill-[#131111] text-[#131111]" aria-hidden="true" />
             <span>Explore All Tools</span>

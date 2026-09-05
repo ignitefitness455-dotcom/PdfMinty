@@ -19,7 +19,7 @@ export const HeroSection: React.FC = () => {
       <h1 className="text-4xl md:text-6xl font-black text-primary tracking-tight leading-none mb-6 font-sans" id="homepage-main-h1">
         {HOMEPAGE_H1_PART1}<span className="text-primary-fixed font-black">{HOMEPAGE_H1_PART2}</span>
       </h1>
-      <p className="text-on-surface-variant text-sm md:text-base font-medium max-w-2xl mx-auto leading-relaxed">
+      <p className="text-on-surface-variant text-base sm:text-lg font-normal max-w-2xl mx-auto leading-relaxed">
         Merge, split, and edit your documents directly in your web browser. PDFMinty processes standard PDF tasks
         locally on your device without server uploads. No accounts required—fast, privacy-first PDF tools that run in your browser.
       </p>
