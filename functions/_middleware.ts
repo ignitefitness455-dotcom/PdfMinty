@@ -61,6 +61,19 @@ function checkValidRoute(cleanPath: string): boolean {
 export const onRequest: PagesFunction = async (context) => {
   const url = new URL(context.request.url);
   const rawPath = url.pathname;
+
+  // Fast bypass for static assets: Vite chunks, CSS, fonts, images, wasm, etc.
+  // Static assets must be served directly with their exact case-sensitive filenames and without page-level redirects.
+  const isStaticAsset =
+    rawPath.startsWith('/assets/') ||
+    rawPath.startsWith('/fonts/') ||
+    rawPath.startsWith('/icons/') ||
+    /\.(js|css|png|jpe?g|svg|gif|ico|webp|woff2?|ttf|wasm|webmanifest|xml|txt|map|json)$/i.test(rawPath);
+
+  if (isStaticAsset) {
+    return context.next();
+  }
+
   const lowerPath = rawPath.toLowerCase();
 
   // Normalize slashes and dot-segments early for non-API routes to avoid multi-hop redirect chains

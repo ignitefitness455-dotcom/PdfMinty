@@ -1,9 +1,3 @@
-# Direct 404 for missing APIs or assets
-/api/* /404.html 404
-/assets/* /404.html 404
-/fonts/* /404.html 404
-/icons/* /404.html 404
-
 # 301 Redirects for renamed tool slugs
 /about /about-us/ 301
 /about/ /about-us/ 301
