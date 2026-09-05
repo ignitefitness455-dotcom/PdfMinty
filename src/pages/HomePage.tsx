@@ -14,6 +14,7 @@ import { HowItWorksSection } from './home/HowItWorksSection';
 import { RecommendedToolsSection } from './home/RecommendedToolsSection';
 import { SearchBar } from './home/SearchBar';
 import { ToolGrid } from './home/ToolGrid';
+import { TrustBadgeSection } from './home/TrustBadgeSection';
 import { WhyChooseSection } from './home/WhyChooseSection';
 
 const CATEGORIES = [
@@ -207,6 +208,8 @@ export const HomePage: React.FC = () => {
       </div>
 
       <CtaSection />
+
+      <TrustBadgeSection />
     </div>
   );
 };

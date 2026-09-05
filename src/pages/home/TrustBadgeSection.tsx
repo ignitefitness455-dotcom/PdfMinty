@@ -1,0 +1,76 @@
+import { Award, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import React from 'react';
+
+export const TrustBadgeSection: React.FC = () => {
+  return (
+    <section
+      id="featured-community-section"
+      aria-labelledby="featured-badge-title"
+      className="mt-16 mb-6 max-w-3xl mx-auto px-4"
+    >
+      <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900/90 dark:to-slate-950/90 p-8 sm:p-10 text-center shadow-sm hover:shadow-md transition-shadow duration-300">
+        {/* Subtle decorative background glow */}
+        <div
+          className="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-80 pointer-events-none opacity-20 dark:opacity-10 blur-3xl -z-10 rounded-full"
+          style={{ background: 'radial-gradient(circle, var(--custom-security-green, #10b981) 0%, transparent 70%)' }}
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 space-y-4">
+          {/* Eyebrow badge */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide uppercase">
+            <Award className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Community Verified</span>
+          </div>
+
+          {/* Title */}
+          <h3 id="featured-badge-title" className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            Recognized & Featured on LaunchBuff
+          </h3>
+
+          {/* Trust Subtext */}
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
+            PdfMinty is featured on LaunchBuff as a verified privacy-first, client-side PDF utility. Your documents never touch a remote server.
+          </p>
+
+          {/* LaunchBuff Featured Badge (User Requested Code) */}
+          <div className="pt-3 pb-1 flex justify-center items-center">
+            <a
+              id="launchbuff-featured-link"
+              href="https://launchbuff.com/products/pdfminty-8g15b8"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Featured on LaunchBuff"
+              className="group inline-block transition-transform duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-2xl"
+            >
+              <img
+                src="https://launchbuff.com/badge-featured-dark.svg"
+                alt="Featured on LaunchBuff"
+                width="256"
+                height="80"
+                className="h-16 sm:h-20 w-auto object-contain rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300"
+                loading="lazy"
+              />
+            </a>
+          </div>
+
+          {/* Trust Reassurance Badges */}
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" aria-hidden="true" />
+              <span>100% In-Browser Privacy</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" aria-hidden="true" />
+              <span>Verified Directory Listing</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" aria-hidden="true" />
+              <span>Zero Data Logging</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
