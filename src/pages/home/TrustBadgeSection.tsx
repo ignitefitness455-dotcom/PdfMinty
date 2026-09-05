@@ -6,7 +6,7 @@ export const TrustBadgeSection: React.FC = () => {
     <section
       id="featured-community-section"
       aria-labelledby="featured-badge-title"
-      className="mt-16 mb-6 max-w-3xl mx-auto px-4"
+      className="mt-16 mb-6 max-w-4xl mx-auto px-4"
     >
       <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900/90 dark:to-slate-950/90 p-8 sm:p-10 text-center shadow-sm hover:shadow-md transition-shadow duration-300">
         {/* Subtle decorative background glow */}
@@ -25,16 +25,17 @@ export const TrustBadgeSection: React.FC = () => {
 
           {/* Title */}
           <h3 id="featured-badge-title" className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-            Recognized & Featured on LaunchBuff
+            Recognized &amp; Featured Across Leading Platforms
           </h3>
 
           {/* Trust Subtext */}
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
-            PdfMinty is featured on LaunchBuff as a verified privacy-first, client-side PDF utility. Your documents never touch a remote server.
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
+            PdfMinty is recognized on top product directories as a trusted privacy-first, client-side PDF utility. Your documents are processed entirely in your browser and never touch a remote server.
           </p>
 
-          {/* LaunchBuff Featured Badge (User Requested Code) */}
-          <div className="pt-3 pb-1 flex justify-center items-center">
+          {/* Featured Badges Grid/Flex */}
+          <div className="pt-4 pb-2 flex flex-wrap justify-center items-center gap-5 sm:gap-8">
+            {/* LaunchBuff Featured Badge */}
             <a
               id="launchbuff-featured-link"
               href="https://launchbuff.com/products/pdfminty-8g15b8"
@@ -48,7 +49,34 @@ export const TrustBadgeSection: React.FC = () => {
                 alt="Featured on LaunchBuff"
                 width="256"
                 height="80"
-                className="h-16 sm:h-20 w-auto object-contain rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300"
+                className="h-14 sm:h-16 w-auto object-contain rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300"
+                loading="lazy"
+              />
+            </a>
+
+            {/* Launchstag Featured Badge (User Requested Code) */}
+            <a
+              id="launchstag-featured-link"
+              href="https://launchstag.com/p/pdfminty"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Featured on Launchstag"
+              className="group inline-block transition-transform duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-2xl"
+            >
+              <img
+                src="https://launchstag.com/badge-light.svg"
+                alt="Featured on Launchstag"
+                width="198"
+                height="62"
+                className="h-14 sm:h-16 w-auto object-contain rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300 dark:hidden"
+                loading="lazy"
+              />
+              <img
+                src="https://launchstag.com/badge-dark.svg"
+                alt="Featured on Launchstag"
+                width="198"
+                height="62"
+                className="h-14 sm:h-16 w-auto object-contain rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300 hidden dark:inline-block"
                 loading="lazy"
               />
             </a>
@@ -62,7 +90,7 @@ export const TrustBadgeSection: React.FC = () => {
             </span>
             <span className="inline-flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" aria-hidden="true" />
-              <span>Verified Directory Listing</span>
+              <span>Verified Directory Listings</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" aria-hidden="true" />

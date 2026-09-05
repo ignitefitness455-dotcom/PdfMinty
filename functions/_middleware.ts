@@ -274,7 +274,7 @@ export const onRequest: PagesFunction = async (context) => {
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
-    "img-src 'self' blob: data: https://www.googletagmanager.com https://launchbuff.com",
+    "img-src 'self' blob: data: https://www.googletagmanager.com https://launchbuff.com https://launchstag.com",
     "connect-src 'self' blob: https://www.google-analytics.com https://stats.g.doubleclick.net https://static.cloudflareinsights.com https://generativelanguage.googleapis.com",
     "worker-src 'self' blob:",
     "object-src 'none'",
