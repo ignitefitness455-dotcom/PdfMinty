@@ -24,16 +24,22 @@ function injectSwVersion() {
   return {
     name: 'pdfminty-inject-sw-version',
     apply: 'build' as const,
-    writeBundle(options: { dir?: string }) {
+    async writeBundle(options: { dir?: string }) {
       const outDir = options.dir;
       if (!outDir) return;
       const swPath = resolve(outDir, 'sw.js');
       try {
         const content = readFileSync(swPath, 'utf-8');
         const updated = content.replaceAll('__SW_CACHE_VERSION__', BUILD_VERSION);
-        if (updated !== content) {
+        
+        try {
+          const esbuild = await import('esbuild');
+          const minified = await esbuild.transform(updated, { minify: true, loader: 'js' });
+          writeFileSync(swPath, minified.code, 'utf-8');
+          console.log(`[pdfminty] SW cache version injected and minified: ${BUILD_VERSION}`);
+        } catch (e) {
+          console.error('[pdfminty] Failed to minify sw.js:', e);
           writeFileSync(swPath, updated, 'utf-8');
-          console.log(`[pdfminty] SW cache version injected: ${BUILD_VERSION}`);
         }
       } catch {
         // sw.js may not exist if public/ is empty; safe to ignore.

@@ -176,7 +176,7 @@ export default function InternalSEO() {
         name: `PdfMinty - ${seoInfo.name}`,
         description: seoInfo.shortDescription || seoInfo.metaDescription,
         url: `${SITE_URL}/${seoInfo.slug}/`,
-        applicationCategory: 'UtilityApplication',
+        applicationCategory: 'UtilitiesApplication',
         operatingSystem: 'All',
         browserRequirements: 'Requires HTML5, WebAssembly',
         offers: {
@@ -184,13 +184,6 @@ export default function InternalSEO() {
           price: '0',
           priceCurrency: 'USD',
           availability: 'https://schema.org/InStock',
-        },
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: '4.9',
-          ratingCount: '1850',
-          bestRating: '5',
-          worstRating: '1',
         },
         featureList: [
           '100% client-side processing for standard tools',

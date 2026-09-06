@@ -82,9 +82,9 @@ function renderMarkdownToJsx(markdown: string): React.ReactNode {
 
         if (trimmed.startsWith('# ')) {
           return (
-            <h1 key={idx} className="text-xl md:text-2xl font-black text-slate-900 border-b border-slate-200 pb-2">
+            <div key={idx} role="heading" aria-level={2} className="text-xl md:text-2xl font-black text-slate-900 border-b border-slate-200 pb-2">
               {renderInlineFormatting(trimmed.substring(2))}
-            </h1>
+            </div>
           );
         }
         if (trimmed.startsWith('## ')) {
@@ -404,7 +404,7 @@ export const PdfToMarkdownPage: React.FC = () => {
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            PDF to Markdown
+            PDF to Markdown Free — Convert PDF to Editable MD
           </h1>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             Limit: {limitMB}MB

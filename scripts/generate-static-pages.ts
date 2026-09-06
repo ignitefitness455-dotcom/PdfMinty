@@ -165,7 +165,7 @@ async function run(): Promise<void> {
         "name": `PdfMinty - ${item.name}`,
         "url": `https://pdfminty.com/${item.slug}/`,
         "description": item.metaDescription || item.shortDescription,
-        "applicationCategory": "UtilityApplication",
+        "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "All",
         "browserRequirements": "Requires HTML5, WebAssembly",
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock"},
@@ -449,7 +449,7 @@ ${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a> �
           }
           const locPageUrl = getCanonicalUrl(item.slug, locLang, SITE_URL);
           const locMetaTitle = locLang === 'bn' && item.slug === 'merge-pdf'
-            ? 'বিনামূল্যে PDF ফাইল মার্জ করুন — একাধিক PDF ফাইল অনলাইনে যুক্ত করুন | PDFMinty'
+            ? 'বিনামূল্যে PDF মার্জ করুন — একাধিক ফাইল যুক্ত করুন | PDFMinty'
             : item.metaTitle;
           const locMetaDesc = locLang === 'bn' && item.slug === 'merge-pdf'
             ? 'সম্পূর্ণ বিনামূল্যে এবং নিরাপদে একাধিক PDF ফাইল একটি ফাইলে যুক্ত করুন। ১০০% ব্রাউজার প্রসেসিং, কোনো ফাইল সার্ভারে আপলোড হয় না।'
@@ -738,7 +738,7 @@ ${toolsListHtml}
   { "@context": "https://schema.org", "@type": "WebApplication",
     "name": "PDFMinty", "url": "${SITE_URL}/",
     "description": "Free, privacy-first online PDF toolkit. Merge, split, compress, rotate, watermark, and analyze PDFs entirely in your browser.",
-    "applicationCategory": "UtilityApplication",
+    "applicationCategory": "UtilitiesApplication",
     "applicationSubCategory": "PDF Software",
     "operatingSystem": "Any",
     "browserRequirements": "Requires JavaScript. Requires HTML5.",

@@ -251,7 +251,7 @@
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>Electronic Signature vs Digital Signature: Legal Differences (2026) | PDFMinty</image:title>
+      <image:title>Electronic vs Digital Signatures: Legal Differences | PDFMinty</image:title>
       <image:caption>Understand the legal, technical, and cryptographic differences between electronic signatures (SES) and digital signatures (PKI/QES). Learn which to use under ESIGN and eIDAS.</image:caption>
     </image:image>
   </url>
@@ -262,7 +262,7 @@
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
-      <image:title>How to Sign a PDF Without Adobe or DocuSign (Free &amp; Private) | PDFMinty</image:title>
+      <image:title>How to Sign a PDF Without Adobe or DocuSign | PDFMinty</image:title>
       <image:caption>Learn how to sign PDF documents for free without Adobe Acrobat subscriptions or DocuSign accounts. Compare workflows, privacy implications, and zero-upload alternatives.</image:caption>
     </image:image>
   </url>
