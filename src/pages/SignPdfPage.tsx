@@ -1,6 +1,7 @@
-import { ArrowLeft, Edit2, Trash2, Download, AlertCircle, FilePenLine, RefreshCw, Type, Image as ImageIcon, Check } from 'lucide-react';
+import { fabric } from 'fabric';
+import { ArrowLeft, Trash2, Download, AlertCircle, RefreshCw, PenTool, Type, Image as ImageIcon, Square, Circle, MousePointer2 } from 'lucide-react';
 import { PDFDocument } from 'pdf-lib';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
 import { FileUploader } from '../components/FileUploader';
@@ -11,73 +12,121 @@ import { getPdfJs } from '../core/index';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
-interface SignatureOverlay {
-  id: string;
-  pageIndex: number;
-  x: number; // percentage (0 to 100)
-  y: number; // percentage (0 to 100)
-  width: number; // percentage of page width
-  height: number; // percentage of page height
+interface PageData {
+  index: number;
   dataUrl: string;
+  width: number;
+  height: number;
 }
 
-const generateId = () => Math.random().toString(36).substring(2, 9);
+const COLORS = ['#000000', '#2563eb', '#dc2626', '#16a34a'];
+
+const PageCanvas = React.memo(({
+  page,
+  isActive,
+  onActive,
+  registerCanvas,
+  unregisterCanvas,
+}: {
+  page: PageData;
+  isActive: boolean;
+  onActive: (idx: number) => void;
+  registerCanvas: (idx: number, canvas: fabric.Canvas) => void;
+  unregisterCanvas: (idx: number) => void;
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    
+    // Initialize Fabric Canvas
+    const canvas = new fabric.Canvas(canvasRef.current, {
+      width: page.width,
+      height: page.height,
+      selection: true,
+      preserveObjectStacking: true,
+    });
+    
+    // Premium object styling
+    fabric.Object.prototype.set({
+      transparentCorners: false,
+      cornerColor: '#10b981',
+      cornerStrokeColor: '#047857',
+      borderColor: '#10b981',
+      cornerSize: 10,
+      padding: 5,
+    });
+
+    // Set background image
+    fabric.Image.fromURL(page.dataUrl, (img) => {
+      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+    });
+
+    // Handle activation
+    canvas.on('mouse:down', () => onActive(page.index));
+
+    registerCanvas(page.index, canvas);
+
+    return () => {
+      unregisterCanvas(page.index);
+      canvas.dispose();
+    };
+  }, [page, registerCanvas, unregisterCanvas, onActive]);
+
+  return (
+    <div 
+      className={`relative shadow-xl transition-all duration-200 bg-white ${isActive ? 'ring-4 ring-emerald-500' : 'ring-1 ring-slate-300'}`}
+      style={{ width: page.width, height: page.height }}
+    >
+      <canvas ref={canvasRef} />
+    </div>
+  );
+});
+PageCanvas.displayName = 'PageCanvas';
 
 export const SignPdfPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-
-  // PDF render states
-  const [numPages, setNumPages] = useState<number>(0);
-  const [pagePreviews, setPagePreviews] = useState<string[]>([]);
+  
+  // Editor States
+  const [pages, setPages] = useState<PageData[]>([]);
   const [renderingPreviews, setRenderingPreviews] = useState(false);
+  const [activePageIndex, setActivePageIndex] = useState<number>(0);
+  
+  // Toolbar States
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [activeColor, setActiveColor] = useState(COLORS[0]);
 
-  // Signature creation modal states
-  const [showSignModal, setShowSignModal] = useState(false);
-  const [signMethod, setSignMethod] = useState<'draw' | 'type' | 'upload'>('draw');
-  const [typedName, setTypedName] = useState('');
-  const [typedFont, setTypedFont] = useState<'font-serif' | 'font-mono' | 'font-cursive'>('font-cursive');
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const canvasMap = useRef<Record<number, fabric.Canvas>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Active signature overlays
-  const [overlays, setOverlays] = useState<SignatureOverlay[]>([]);
-  const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(null);
-  const [savedSignatures, setSavedSignatures] = useState<string[]>([]);
+  const registerCanvas = useCallback((idx: number, canvas: fabric.Canvas) => {
+    canvasMap.current[idx] = canvas;
+    // Apply current tools state to new canvas
+    canvas.isDrawingMode = isDrawingMode;
+    if (isDrawingMode) {
+      canvas.freeDrawingBrush.color = activeColor;
+      canvas.freeDrawingBrush.width = 4;
+    }
+  }, [isDrawingMode, activeColor]);
 
-  // Canvas ref for drawing signature
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [strokeColor, setStrokeColor] = useState('#020617');
-  const [strokeWidth, setStrokeWidth] = useState(3);
+  const unregisterCanvas = useCallback((idx: number) => {
+    delete canvasMap.current[idx];
+  }, []);
 
-  // Target page container refs to calculate exact client coordinates
-  const pageContainerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const handleFilesSelected = (files: FileList | File[]) => {
+    if (files.length > 0) {
+      setSelectedFile(files[0]);
+      setIsSuccess(false);
+      setPages([]);
+    }
+  };
 
-  // Track active pointer drag cleanup function to ensure listeners are removed if unmounted mid-drag
-  const pointerCleanupRef = useRef<(() => void) | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-      pagePreviews.forEach((url) => URL.revokeObjectURL(url));
-      if (pointerCleanupRef.current) {
-        pointerCleanupRef.current();
-      }
-    };
-  }, [downloadUrl, pagePreviews]);
-
-  // Load PDF document and render previews for editing
   useEffect(() => {
     const loadPdfDoc = async () => {
-      if (!selectedFile) {
-        setNumPages(0);
-        setPagePreviews([]);
-        setOverlays([]);
-        return;
-      }
+      if (!selectedFile) return;
 
       setRenderingPreviews(true);
       setError(null);
@@ -86,32 +135,35 @@ export const SignPdfPage: React.FC = () => {
         const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
         const pdfjs = await getPdfJs();
         const doc = await pdfjs.getDocument({ data: fileBytes.slice() }).promise;
-        setNumPages(doc.numPages);
+        
+        const loadedPages: PageData[] = [];
+        // Scale 1.2 provides a good balance between crispness and fitting on desktop screens
+        const scale = 1.2;
 
-        const urls: string[] = [];
         for (let i = 1; i <= doc.numPages; i++) {
           const page = await doc.getPage(i);
-          const viewport = page.getViewport({ scale: 1.2 });
+          const viewport = page.getViewport({ scale });
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
+          
           if (context) {
             canvas.width = viewport.width;
             canvas.height = viewport.height;
             await page.render({ canvasContext: context, viewport }).promise;
-            canvas.toBlob((blob) => {
-              if (blob) {
-                const url = URL.createObjectURL(blob);
-                urls.push(url);
-                if (urls.length === doc.numPages) {
-                  setPagePreviews([...urls]);
-                }
-              }
-            }, 'image/png');
+            
+            const dataUrl = canvas.toDataURL('image/png');
+            loadedPages.push({
+              index: i - 1,
+              dataUrl,
+              width: viewport.width,
+              height: viewport.height,
+            });
           }
         }
+        setPages(loadedPages);
       } catch (err) {
-        logger.error('Failed to load PDF preview in Signature tool:', err);
-        setError('Failed to load the PDF preview. The file might be corrupted or password-protected.');
+        logger.error('Failed to load PDF preview in Premium Editor:', err);
+        setError('Failed to render PDF. It might be corrupted or password protected.');
       } finally {
         setRenderingPreviews(false);
       }
@@ -120,338 +172,191 @@ export const SignPdfPage: React.FC = () => {
     loadPdfDoc();
   }, [selectedFile]);
 
-  const handleFilesSelected = (files: File[]) => {
-    if (files.length > 0) {
-      setSelectedFile(files[0]);
-      setError(null);
-      setIsSuccess(false);
-      if (downloadUrl) {
-        URL.revokeObjectURL(downloadUrl);
-        setDownloadUrl(null);
+  // Toolbar Actions
+  const toggleDrawingMode = () => {
+    const newMode = !isDrawingMode;
+    setIsDrawingMode(newMode);
+    Object.values(canvasMap.current).forEach(canvas => {
+      if (canvas) {
+        canvas.isDrawingMode = newMode;
+        if (newMode) {
+          canvas.freeDrawingBrush.color = activeColor;
+          canvas.freeDrawingBrush.width = 4;
+        }
       }
-    }
+    });
   };
 
-  // Canvas drawing handlers
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
+  const handleColorChange = (color: string) => {
+    setActiveColor(color);
+    Object.values(canvasMap.current).forEach(canvas => {
+      if (canvas) {
+        if (canvas.isDrawingMode) {
+          canvas.freeDrawingBrush.color = color;
+        }
+        const activeObj = canvas.getActiveObject();
+        if (activeObj) {
+          if (activeObj.type === 'i-text') activeObj.set('fill', color);
+          else if (activeObj.type === 'path') activeObj.set('stroke', color);
+          else if (activeObj.type === 'rect' || activeObj.type === 'circle') activeObj.set('stroke', color);
+          canvas.renderAll();
+        }
+      }
+    });
+  };
+
+  const addText = () => {
+    const canvas = canvasMap.current[activePageIndex] || canvasMap.current[0];
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = strokeWidth;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    const rect = canvas.getBoundingClientRect();
-    let clientX, clientY;
-
-    if ('touches' in e) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(clientX - rect.left, clientY - rect.top);
-    setIsDrawing(true);
+    const text = new fabric.IText('Type here...', {
+      left: canvas.width! / 2 - 80,
+      top: canvas.height! / 2,
+      fontFamily: 'sans-serif',
+      fontSize: 24,
+      fill: activeColor,
+    });
+    canvas.add(text);
+    canvas.setActiveObject(text);
+    canvas.renderAll();
   };
 
-  const handleInsertDateStamp = () => {
-    const dateStr = new Date().toISOString().split('T')[0];
-    const stampText = `SIGNED: ${dateStr}`;
-
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = 300;
-    tempCanvas.height = 70;
-    const ctx = tempCanvas.getContext('2d');
-    if (ctx) {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0)';
-      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-      // Draw neat border and text
-      ctx.strokeStyle = '#0284c7';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(5, 5, tempCanvas.width - 10, tempCanvas.height - 10);
-
-      ctx.fillStyle = '#0369a1';
-      ctx.font = 'bold 20px monospace';
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
-      ctx.fillText(stampText, tempCanvas.width / 2, tempCanvas.height / 2);
-
-      const stampDataUrl = tempCanvas.toDataURL('image/png');
-      setSavedSignatures((prev) => [...prev, stampDataUrl]);
-      addSignatureToPage(stampDataUrl, 0);
-    }
-  };
-
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    const canvas = canvasRef.current;
+  const addRect = () => {
+    const canvas = canvasMap.current[activePageIndex] || canvasMap.current[0];
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const rect = canvas.getBoundingClientRect();
-    let clientX, clientY;
-
-    if ('touches' in e) {
-      // Prevent scrolling on mobile while drawing
-      if (e.cancelable) e.preventDefault();
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-
-    ctx.lineTo(clientX - rect.left, clientY - rect.top);
-    ctx.stroke();
+    const rect = new fabric.Rect({
+      left: canvas.width! / 2 - 50,
+      top: canvas.height! / 2 - 50,
+      width: 100,
+      height: 100,
+      fill: 'transparent',
+      stroke: activeColor,
+      strokeWidth: 4,
+    });
+    canvas.add(rect);
+    canvas.setActiveObject(rect);
+    canvas.renderAll();
   };
 
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
-
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
+  const addCircle = () => {
+    const canvas = canvasMap.current[activePageIndex] || canvasMap.current[0];
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const circle = new fabric.Circle({
+      left: canvas.width! / 2 - 50,
+      top: canvas.height! / 2 - 50,
+      radius: 50,
+      fill: 'transparent',
+      stroke: activeColor,
+      strokeWidth: 4,
+    });
+    canvas.add(circle);
+    canvas.setActiveObject(circle);
+    canvas.renderAll();
   };
 
-  // Upload image handler for signatures
-  const handleSignImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setUploadedImage(event.target.result as string);
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (f) => {
+      const data = f.target?.result as string;
+      fabric.Image.fromURL(data, (img) => {
+        const canvas = canvasMap.current[activePageIndex] || canvasMap.current[0];
+        if (!canvas) return;
+        img.scaleToWidth(200);
+        canvas.add(img);
+        canvas.centerObject(img);
+        canvas.setActiveObject(img);
+        canvas.renderAll();
+      });
+    };
+    reader.readAsDataURL(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const deleteSelected = useCallback(() => {
+    Object.values(canvasMap.current).forEach(canvas => {
+      if (canvas) {
+        const activeObjects = canvas.getActiveObjects();
+        if (activeObjects.length) {
+          canvas.discardActiveObject();
+          activeObjects.forEach(obj => canvas.remove(obj));
         }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Save signature to library and add to page
-  const handleSaveSignature = () => {
-    let finalDataUrl = '';
-
-    if (signMethod === 'draw') {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      // Check if canvas is empty before saving
-      const blank = document.createElement('canvas');
-      blank.width = canvas.width;
-      blank.height = canvas.height;
-      if (canvas.toDataURL() === blank.toDataURL()) {
-        setError('Please draw a signature first.');
-        return;
       }
-      finalDataUrl = canvas.toDataURL('image/png');
-    } else if (signMethod === 'type') {
-      if (!typedName.trim()) {
-        setError('Please type your name.');
-        return;
-      }
+    });
+  }, []);
 
-      // Render typed name to a canvas to extract as PNG dataUrl
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = 400;
-      tempCanvas.height = 120;
-      const ctx = tempCanvas.getContext('2d');
-      if (ctx) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0)';
-        ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-        ctx.fillStyle = '#0f172a'; // slate-900
-
-        if (typedFont === 'font-cursive') {
-          ctx.font = 'italic 46px "Playball", "Dancing Script", cursive, sans-serif';
-        } else if (typedFont === 'font-serif') {
-          ctx.font = 'italic font-semibold 38px Georgia, serif';
-        } else {
-          ctx.font = 'bold 32px monospace';
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const activeCanvas = canvasMap.current[activePageIndex];
+        if (activeCanvas) {
+          const activeObj = activeCanvas.getActiveObject();
+          if (activeObj && activeObj.type === 'i-text' && (activeObj as fabric.IText).isEditing) {
+            return; // Don't delete if editing text
+          }
         }
-
-        ctx.textBaseline = 'middle';
-        ctx.textAlign = 'center';
-        ctx.fillText(typedName, tempCanvas.width / 2, tempCanvas.height / 2);
-        finalDataUrl = tempCanvas.toDataURL('image/png');
-      }
-    } else if (signMethod === 'upload') {
-      if (!uploadedImage) {
-        setError('Please upload a signature image.');
-        return;
-      }
-      finalDataUrl = uploadedImage;
-    }
-
-    if (finalDataUrl) {
-      setSavedSignatures((prev) => [...prev, finalDataUrl]);
-      // Instantly place on first page in center
-      addSignatureToPage(finalDataUrl, 0);
-      setShowSignModal(false);
-      // Reset inputs
-      setTypedName('');
-      setUploadedImage(null);
-    }
-  };
-
-  const addSignatureToPage = (dataUrl: string, pageIndex: number) => {
-    const newOverlay: SignatureOverlay = {
-      id: generateId(),
-      pageIndex,
-      x: 35, // center horizontally roughly
-      y: 40, // center vertically roughly
-      width: 30, // 30% of page width
-      height: 12, // 12% of page height
-      dataUrl,
-    };
-    setOverlays((prev) => [...prev, newOverlay]);
-    setSelectedOverlayId(newOverlay.id);
-  };
-
-  const removeOverlay = (id: string) => {
-    setOverlays((prev) => prev.filter((o) => o.id !== id));
-    if (selectedOverlayId === id) setSelectedOverlayId(null);
-  };
-
-  // Dragging and resizing helpers
-  const handleOverlayPointerDown = (
-    e: React.PointerEvent<HTMLDivElement>,
-    overlayId: string,
-    action: 'drag' | 'resize'
-  ) => {
-    e.preventDefault();
-    setSelectedOverlayId(overlayId);
-
-    const overlay = overlays.find((o) => o.id === overlayId);
-    if (!overlay) return;
-
-    const pageDiv = pageContainerRefs.current[overlay.pageIndex];
-    if (!pageDiv) return;
-
-    const rect = pageDiv.getBoundingClientRect();
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startLeft = (overlay.x / 100) * rect.width;
-    const startTop = (overlay.y / 100) * rect.height;
-    const startW = (overlay.width / 100) * rect.width;
-    const startH = (overlay.height / 100) * rect.height;
-
-    const handlePointerMove = (moveEvent: PointerEvent) => {
-      const deltaX = moveEvent.clientX - startX;
-      const deltaY = moveEvent.clientY - startY;
-
-      if (action === 'drag') {
-        const newLeft = Math.max(0, Math.min(rect.width - startW, startLeft + deltaX));
-        const newTop = Math.max(0, Math.min(rect.height - startH, startTop + deltaY));
-        setOverlays((prev) =>
-          prev.map((o) =>
-            o.id === overlayId
-              ? {
-                  ...o,
-                  x: (newLeft / rect.width) * 100,
-                  y: (newTop / rect.height) * 100,
-                }
-              : o
-          )
-        );
-      } else if (action === 'resize') {
-        const newW = Math.max(40, Math.min(rect.width - startLeft, startW + deltaX));
-        const newH = Math.max(20, Math.min(rect.height - startTop, startH + deltaY));
-        setOverlays((prev) =>
-          prev.map((o) =>
-            o.id === overlayId
-              ? {
-                  ...o,
-                  width: (newW / rect.width) * 100,
-                  height: (newH / rect.height) * 100,
-                }
-              : o
-          )
-        );
+        deleteSelected();
       }
     };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activePageIndex, deleteSelected]);
 
-    const handlePointerUp = () => {
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
-      pointerCleanupRef.current = null;
-    };
-
-    pointerCleanupRef.current = handlePointerUp;
-    window.addEventListener('pointermove', handlePointerMove);
-    window.addEventListener('pointerup', handlePointerUp);
-  };
-
-  const handleApplySignature = async () => {
+  const handleExport = async () => {
     if (!selectedFile) return;
-    if (overlays.length === 0) {
-      setError('Please add at least one signature to the document before applying.');
-      return;
-    }
-
     setLoading(true);
     setError(null);
-    setIsSuccess(false);
-
     try {
       const fileBytes = new Uint8Array(await selectedFile.arrayBuffer());
-      const pdfDocInstance = await PDFDocument.load(fileBytes);
-      const pages = pdfDocInstance.getPages();
+      const pdfDoc = await PDFDocument.load(fileBytes);
+      const pdfPages = pdfDoc.getPages();
 
-      for (const overlay of overlays) {
-        if (overlay.pageIndex >= pages.length) continue;
+      for (let i = 0; i < pdfPages.length; i++) {
+        const canvas = canvasMap.current[i];
+        if (!canvas) continue;
 
-        const targetPage = pages[overlay.pageIndex];
-        const { width: pageW, height: pageH } = targetPage.getSize();
+        // Skip pages with no edits to save processing time
+        if (canvas.getObjects().length === 0) continue;
 
-        // Convert signature image to embeddable png
-        const imageRes = await fetch(overlay.dataUrl);
-        const imageBytes = new Uint8Array(await imageRes.arrayBuffer());
-        const signatureImg = await pdfDocInstance.embedPng(imageBytes);
+        // Hide background temporarily to capture only the edits
+        const bg = canvas.backgroundImage;
+        canvas.backgroundImage = undefined; // Fabric expects undefined or fabric.Image, sometimes null works but undefined is safer
+        if (bg) canvas.backgroundColor = 'transparent';
+        
+        // Export to high-res PNG for crisp text and drawings
+        const dataUrl = canvas.toDataURL({ format: 'png', multiplier: 2 });
+        
+        // Restore background
+        if (bg) canvas.setBackgroundImage(bg, () => {});
 
-        // Convert percentage coordinates to PDF space (y-origin is at the bottom)
-        const realX = (overlay.x / 100) * pageW;
-        const realW = (overlay.width / 100) * pageW;
-        const realH = (overlay.height / 100) * pageH;
-        const realY = pageH - ((overlay.y / 100) * pageH) - realH;
-
-        targetPage.drawImage(signatureImg, {
-          x: realX,
-          y: realY,
-          width: realW,
-          height: realH,
+        const img = await pdfDoc.embedPng(dataUrl);
+        const page = pdfPages[i];
+        const { width, height } = page.getSize();
+        
+        // Overlay the PNG perfectly over the original PDF page
+        page.drawImage(img, {
+          x: 0,
+          y: 0,
+          width: width,
+          height: height,
         });
       }
 
-      const signedBytes = await pdfDocInstance.save();
-      const blob = new Blob([signedBytes], { type: 'application/pdf' });
-      const name = `pdfminty_signed_${selectedFile.name}`;
-      const url = URL.createObjectURL(blob);
-
-      setDownloadUrl(url);
-      await downloadBlob(blob, name);
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
+      downloadBlob(blob, `Signed_${selectedFile.name}`);
       setIsSuccess(true);
-    } catch (err: unknown) {
-      logger.error('Failed to burn signatures into PDF:', err);
-      const message = err instanceof Error ? err.message : String(err);
-      setError(message || 'An unexpected error occurred while placing signatures.');
+    } catch (err) {
+      logger.error('Failed to export PDF:', err);
+      setError('Failed to save the document. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto" id="sign_pdf_page_container">
+    <div className="max-w-[1400px] mx-auto py-4 px-4 sm:px-6 lg:px-8 space-y-6" id="sign_pdf_page_container">
       <SEO slug="sign-pdf" />
 
       <Link
@@ -465,14 +370,14 @@ export const SignPdfPage: React.FC = () => {
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Sign PDF Free — Add Electronic Signature to Documents
+            Premium PDF Editor & E-Signature
           </h1>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['sign-pdf'].maxSingleMB}MB
+            100% Client-Side
           </span>
         </div>
         <p className="text-slate-500 text-sm">
-          Place secure e-signatures on your documents 100% locally inside your browser. No server uploads.
+          Edit, sign, annotate, and flatten your documents locally in your browser. Zero server uploads.
         </p>
       </div>
 
@@ -481,495 +386,130 @@ export const SignPdfPage: React.FC = () => {
           <FileUploader
             onFilesSelected={handleFilesSelected}
             accept=".pdf,application/pdf"
-            title="Select a PDF to sign"
+            title="Select a PDF to edit and sign"
             subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['sign-pdf'].maxSingleMB}MB)`}
             maxSizeMB={TOOL_SIZE_LIMITS['sign-pdf'].maxSingleMB}
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-          {/* Document Preview and Interactive Sign Canvas */}
-          <div className="lg:col-span-3 space-y-4">
-            {renderingPreviews ? (
-              <div className="flex flex-col items-center justify-center p-20 bg-white border border-slate-200 rounded-2xl shadow-sm min-h-[400px]">
-                <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin mb-4" />
-                <p className="text-sm font-medium text-slate-600">Rendering document previews...</p>
-              </div>
-            ) : (
-              <div className="space-y-6 overflow-y-auto max-h-[75vh] p-4 bg-slate-100 rounded-2xl border border-slate-200/80 shadow-inner">
-                {pagePreviews.map((preview, idx) => (
-                  <div key={idx} className="flex flex-col items-center">
-                    <div className="bg-white p-2 rounded-xl shadow-md border border-slate-200/60 max-w-2xl w-full">
-                      <div className="flex justify-between items-center px-2 pb-2 border-b border-slate-100 mb-2">
-                        <span className="text-[10px] font-mono font-bold text-slate-500">Page {idx + 1} of {numPages}</span>
-                        <button
-                          onClick={() => {
-                            if (savedSignatures.length > 0) {
-                              addSignatureToPage(savedSignatures[savedSignatures.length - 1], idx);
-                            } else {
-                              setShowSignModal(true);
-                              setSignMethod('draw');
-                            }
-                          }}
-                          className="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2 py-1 rounded transition-colors"
-                        >
-                          + Place Signature Here
-                        </button>
-                      </div>
+        <div className="flex flex-col bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-lg h-[75vh]">
+          {/* Toolbar */}
+          <div className="bg-white border-b border-slate-200 p-3 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <button 
+                onClick={() => { 
+                  setIsDrawingMode(false); 
+                  Object.values(canvasMap.current).forEach(canvas => {
+                    if (canvas) canvas.isDrawingMode = false;
+                  });
+                }}
+                className={`p-2 rounded-lg transition-colors flex items-center gap-1 ${!isDrawingMode ? 'bg-slate-100 text-slate-900' : 'hover:bg-slate-50 text-slate-500'}`} 
+                title="Select Mode"
+              >
+                <MousePointer2 className="w-5 h-5" /> <span className="text-sm font-medium hidden md:inline">Select</span>
+              </button>
+              
+              <div className="w-px h-6 bg-slate-200 mx-1"></div>
 
-                      {/* Interactive Target Page Container */}
-                      <div
-                        ref={(el) => {
-                          pageContainerRefs.current[idx] = el;
-                        }}
-                        className="relative w-full overflow-hidden select-none"
-                        style={{ aspectRatio: 'auto' }}
-                      >
-                        <img src={preview} alt={`Page ${idx + 1}`} className="w-full h-auto pointer-events-none" />
+              <button 
+                onClick={toggleDrawingMode} 
+                className={`p-2 rounded-lg transition-colors flex items-center gap-1 ${isDrawingMode ? 'bg-emerald-100 text-emerald-700' : 'hover:bg-slate-50 text-slate-700'}`} 
+                title="Draw / Sign"
+              >
+                <PenTool className="w-5 h-5" /> <span className="text-sm font-medium hidden md:inline">Draw</span>
+              </button>
+              
+              <button onClick={addText} className="p-2 rounded-lg hover:bg-slate-100 text-slate-700 transition-colors flex items-center gap-1" title="Add Text">
+                <Type className="w-5 h-5" /> <span className="text-sm font-medium hidden md:inline">Text</span>
+              </button>
 
-                        {/* Placed signature overlays for this page */}
-                        {overlays
-                          .filter((o) => o.pageIndex === idx)
-                          .map((overlay) => (
-                            <div
-                              key={overlay.id}
-                              style={{
-                                left: `${overlay.x}%`,
-                                top: `${overlay.y}%`,
-                                width: `${overlay.width}%`,
-                                height: `${overlay.height}%`,
-                              }}
-                              className={`absolute border-2 ${
-                                selectedOverlayId === overlay.id ? 'border-dashed border-emerald-500' : 'border-transparent hover:border-slate-400'
-                              } bg-transparent flex items-center justify-center cursor-move group`}
-                              onPointerDown={(e) => {
-                                if ((e.target as HTMLElement).closest('.action-btn')) return;
-                                handleOverlayPointerDown(e, overlay.id, 'drag');
-                              }}
-                            >
-                              <img src={overlay.dataUrl} alt="Signature overlay" className="w-full h-full object-contain pointer-events-none" />
+              <div className="w-px h-6 bg-slate-200 mx-1"></div>
 
-                              {/* Controls (shown on hover or select) */}
-                              <div className="absolute -top-7 right-0 hidden group-hover:flex items-center gap-1 bg-slate-900 text-white p-1 rounded shadow-md z-10">
-                                <button
-                                  onClick={() => removeOverlay(overlay.id)}
-                                  className="action-btn p-0.5 hover:text-rose-400 transition-colors"
-                                  title="Delete signature"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
+              <button onClick={addRect} className="p-2 rounded-lg hover:bg-slate-100 text-slate-700 transition-colors" title="Add Rectangle">
+                <Square className="w-5 h-5" />
+              </button>
+              <button onClick={addCircle} className="p-2 rounded-lg hover:bg-slate-100 text-slate-700 transition-colors" title="Add Circle">
+                <Circle className="w-5 h-5" />
+              </button>
 
-                              {/* Resize handle */}
-                              <div
-                                onPointerDown={(e) => {
-                                  e.stopPropagation();
-                                  handleOverlayPointerDown(e, overlay.id, 'resize');
-                                }}
-                                className="action-btn absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-600 rounded-full cursor-se-resize shadow border border-white"
-                                title="Resize signature"
-                              />
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  </div>
+              <div className="w-px h-6 bg-slate-200 mx-1"></div>
+
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleImageUpload} 
+                accept="image/*" 
+                className="hidden" 
+              />
+              <button onClick={() => fileInputRef.current?.click()} className="p-2 rounded-lg hover:bg-slate-100 text-slate-700 transition-colors flex items-center gap-1" title="Add Image / Stamp">
+                <ImageIcon className="w-5 h-5" /> <span className="text-sm font-medium hidden xl:inline">Image Stamp</span>
+              </button>
+
+              <div className="w-px h-6 bg-slate-200 mx-1"></div>
+
+              {/* Color Picker */}
+              <div className="flex items-center gap-1">
+                {COLORS.map(color => (
+                  <button
+                    key={color}
+                    onClick={() => handleColorChange(color)}
+                    className={`w-6 h-6 rounded-full border-2 transition-transform ${activeColor === color ? 'scale-110 border-slate-400' : 'border-transparent hover:scale-110'}`}
+                    style={{ backgroundColor: color }}
+                    title={`Select color ${color}`}
+                  />
                 ))}
               </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button onClick={deleteSelected} className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors" title="Delete Selected Object (Del)">
+                <Trash2 className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={handleExport} 
+                disabled={loading || renderingPreviews}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                Save & Export
+              </button>
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 bg-red-50 border-b border-red-100 text-red-700 text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" /> {error}
+            </div>
+          )}
+          {isSuccess && (
+            <div className="p-3 bg-emerald-50 border-b border-emerald-100 text-emerald-700 text-sm flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" /> Export successful! Your flattened document is ready.
+            </div>
+          )}
+
+          {/* Canvas Workspace */}
+          <div className="flex-1 overflow-auto p-4 lg:p-8 flex flex-col items-center gap-8 bg-slate-200/50">
+            {renderingPreviews ? (
+              <div className="flex flex-col items-center justify-center h-full">
+                <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin mb-4" />
+                <p className="text-sm font-medium text-slate-600">Initializing Premium Editor...</p>
+              </div>
+            ) : (
+              pages.map((page) => (
+                <PageCanvas
+                  key={page.index}
+                  page={page}
+                  isActive={activePageIndex === page.index}
+                  onActive={setActivePageIndex}
+                  registerCanvas={registerCanvas}
+                  unregisterCanvas={unregisterCanvas}
+                />
+              ))
             )}
-          </div>
-
-          {/* Action sidebar */}
-          <div className="space-y-4">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                <FilePenLine className="w-4 h-4 text-emerald-600" />
-                <span>Signatures Tool</span>
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <button
-                  onClick={() => {
-                    setShowSignModal(true);
-                    setSignMethod('draw');
-                  }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition-colors cursor-pointer"
-                >
-                  <Edit2 className="w-4 h-4" />
-                  <span>Create Signature</span>
-                </button>
-
-                <button
-                  onClick={handleInsertDateStamp}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
-                  title="Insert automatic date stamp with today's date"
-                >
-                  <span>📅 Add Date Stamp</span>
-                </button>
-              </div>
-
-              {savedSignatures.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs font-bold text-slate-500">Signature Library</p>
-                  <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-1 bg-slate-50 rounded-xl border border-slate-200">
-                    {savedSignatures.map((sig, i) => (
-                      <button
-                        key={i}
-                        onClick={() => addSignatureToPage(sig, 0)}
-                        className="bg-white p-2 border border-slate-200 hover:border-emerald-500 rounded-lg flex items-center justify-center transition-colors shadow-xs h-16 group relative"
-                        title="Click to add signature to page 1"
-                      >
-                        <img src={sig} alt={`Saved Signature ${i}`} className="max-h-full max-w-full object-contain" />
-                        <span className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 bg-emerald-50 text-emerald-700 text-[8px] font-extrabold px-1 rounded">
-                          Add
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="pt-4 border-t border-slate-100 space-y-2">
-                <button
-                  onClick={handleApplySignature}
-                  disabled={loading || overlays.length === 0}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-xs font-bold rounded-xl shadow transition-colors cursor-pointer"
-                >
-                  {loading ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Saving PDF...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4" />
-                      <span>Apply & Download PDF</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  onClick={() => {
-                    setSelectedFile(null);
-                    setPagePreviews([]);
-                    setOverlays([]);
-                    setIsSuccess(false);
-                    setError(null);
-                  }}
-                  className="w-full py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition-colors"
-                >
-                  Clear File
-                </button>
-              </div>
-
-              {error && (
-                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-rose-800 text-xs font-medium">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {isSuccess && (
-                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-2 text-emerald-800 text-xs font-medium">
-                  <Check className="w-4 h-4 shrink-0" />
-                  <span>Your PDF has been successfully signed and downloaded!</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Comprehensive E-Signature Guide Section */}
-      <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8 text-slate-700 leading-relaxed" id="esignature_guide_section">
-        <div className="space-y-3">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-            How to Sign PDF Documents Online for Free (Zero Uploads)
-          </h2>
-          <p className="text-sm sm:text-base text-slate-600">
-            Adding your electronic signature to agreements, employment contracts, NDA forms, and invoices shouldn't require expensive monthly software licenses or sending confidential files to third-party cloud servers. PdfMinty provides a full-featured, legally recognized e-signature suite that runs directly inside your web browser.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
-              01
-            </div>
-            <h3 className="font-bold text-slate-900 text-sm">Draw Freehand</h3>
-            <p className="text-xs text-slate-600">
-              Draw your handwritten signature naturally using your mouse, trackpad, Apple Pencil, or mobile touchscreen with custom ink colors.
-            </p>
-          </div>
-
-          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
-              02
-            </div>
-            <h3 className="font-bold text-slate-900 text-sm">Type Signature</h3>
-            <p className="text-xs text-slate-600">
-              Type your full legal name and choose from elegant handwriting fonts to automatically generate a clean, professional signature stamp.
-            </p>
-          </div>
-
-          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
-              03
-            </div>
-            <h3 className="font-bold text-slate-900 text-sm">Upload Image</h3>
-            <p className="text-xs text-slate-600">
-              Upload a scanned photo or transparent PNG of your existing physical signature and position it anywhere on any page.
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-slate-900">Are Browser-Based Electronic Signatures Legally Binding?</h3>
-          <p className="text-sm text-slate-600">
-            Yes. Electronic signatures created with PdfMinty comply with major global digital signature frameworks:
-          </p>
-          <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600">
-            <li><strong>United States:</strong> Fully recognized under the <strong>ESIGN Act (2000)</strong> and the <strong>Uniform Electronic Transactions Act (UETA)</strong>.</li>
-            <li><strong>European Union:</strong> Compliant with the <strong>eIDAS Regulation (EU No 910/2014)</strong> for Standard Electronic Signatures (SES).</li>
-            <li><strong>United Kingdom:</strong> Recognized under the <strong>Electronic Communications Act 2000</strong>.</li>
-          </ul>
-        </div>
-
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-xs text-emerald-900">
-          <p className="font-bold">🔒 Client-Side Confidentiality</p>
-          <p className="leading-normal text-slate-600">
-            Your contracts, tax filings, and legal agreements are processed 100% inside your browser's local memory sandbox using WebAssembly. No files, signature vectors, or images are ever uploaded or retained on any remote server.
-          </p>
-        </div>
-      </section>
-
-      {/* Signature Creation Modal */}
-      {showSignModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white max-w-lg w-full rounded-2xl border border-slate-200 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-              <h3 className="font-bold text-slate-900 text-sm">Create Electronic Signature</h3>
-              <button
-                onClick={() => setShowSignModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-xs font-extrabold px-2 py-1"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Modal NavigationTabs */}
-            <div className="flex border-b border-slate-100 bg-slate-50/50">
-              <button
-                onClick={() => setSignMethod('draw')}
-                className={`flex-1 py-3 text-xs font-bold border-b-2 flex items-center justify-center gap-1.5 transition-all ${
-                  signMethod === 'draw' ? 'border-emerald-600 text-emerald-600 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <Edit2 className="w-3.5 h-3.5" />
-                <span>Draw Signature</span>
-              </button>
-              <button
-                onClick={() => setSignMethod('type')}
-                className={`flex-1 py-3 text-xs font-bold border-b-2 flex items-center justify-center gap-1.5 transition-all ${
-                  signMethod === 'type' ? 'border-emerald-600 text-emerald-600 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <Type className="w-3.5 h-3.5" />
-                <span>Type Name</span>
-              </button>
-              <button
-                onClick={() => setSignMethod('upload')}
-                className={`flex-1 py-3 text-xs font-bold border-b-2 flex items-center justify-center gap-1.5 transition-all ${
-                  signMethod === 'upload' ? 'border-emerald-600 text-emerald-600 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <ImageIcon className="w-3.5 h-3.5" />
-                <span>Upload Image</span>
-              </button>
-            </div>
-
-            {/* Modal Content body */}
-            <div className="p-6">
-              {signMethod === 'draw' && (
-                <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ink:</span>
-                      {[
-                        { hex: '#020617', name: 'Black' },
-                        { hex: '#1e3a8a', name: 'Navy' },
-                        { hex: '#14532d', name: 'Forest' },
-                        { hex: '#881337', name: 'Burgundy' },
-                      ].map((c) => (
-                        <button
-                          key={c.hex}
-                          type="button"
-                          onClick={() => setStrokeColor(c.hex)}
-                          className={`w-6 h-6 rounded-full border-2 transition-transform ${
-                            strokeColor === c.hex ? 'border-emerald-600 scale-110 shadow-sm' : 'border-slate-200 hover:scale-105'
-                          }`}
-                          style={{ backgroundColor: c.hex }}
-                          title={c.name}
-                        />
-                      ))}
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mr-1">Width:</span>
-                      {[
-                        { w: 2, label: 'Fine' },
-                        { w: 3, label: 'Medium' },
-                        { w: 5, label: 'Bold' },
-                      ].map((sw) => (
-                        <button
-                          key={sw.w}
-                          type="button"
-                          onClick={() => setStrokeWidth(sw.w)}
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition-colors ${
-                            strokeWidth === sw.w ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                          }`}
-                        >
-                          {sw.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="border border-slate-200 rounded-xl bg-slate-50 overflow-hidden relative">
-                    <canvas
-                      ref={canvasRef}
-                      width={450}
-                      height={180}
-                      className="w-full h-[180px] bg-white cursor-crosshair touch-none"
-                      onMouseDown={startDrawing}
-                      onMouseMove={draw}
-                      onMouseUp={stopDrawing}
-                      onMouseLeave={stopDrawing}
-                      onTouchStart={startDrawing}
-                      onTouchMove={draw}
-                      onTouchEnd={stopDrawing}
-                    />
-                    <button
-                      onClick={clearCanvas}
-                      className="absolute bottom-2 right-2 text-[10px] font-bold text-slate-500 hover:text-rose-600 bg-slate-100 px-2 py-1 rounded border border-slate-200 shadow-xs"
-                    >
-                      Clear Pad
-                    </button>
-                  </div>
-                  <p className="text-[10px] text-slate-400">Use your mouse, trackpad, or touchscreen to draw a signature.</p>
-                </div>
-              )}
-
-              {signMethod === 'type' && (
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="sign_typed_name" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Enter Your Name</label>
-                    <input
-                      id="sign_typed_name"
-                      type="text"
-                      value={typedName}
-                      onChange={(e) => setTypedName(e.target.value)}
-                      placeholder="Jane Doe"
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-600 font-medium"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Choose Handwriting Font Style</div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        onClick={() => setTypedFont('font-cursive')}
-                        className={`py-2 px-3 border rounded-xl text-xs font-medium transition-all ${
-                          typedFont === 'font-cursive' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white hover:bg-slate-50'
-                        }`}
-                      >
-                        <span className="italic font-serif">Playball Cursive</span>
-                      </button>
-                      <button
-                        onClick={() => setTypedFont('font-serif')}
-                        className={`py-2 px-3 border rounded-xl text-xs font-medium transition-all ${
-                          typedFont === 'font-serif' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white hover:bg-slate-50'
-                        }`}
-                      >
-                        <span className="italic font-serif">Georgia Italic</span>
-                      </button>
-                      <button
-                        onClick={() => setTypedFont('font-mono')}
-                        className={`py-2 px-3 border rounded-xl text-xs font-medium transition-all ${
-                          typedFont === 'font-mono' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white hover:bg-slate-50'
-                        }`}
-                      >
-                        <span className="font-mono">Monospace bold</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {typedName.trim() && (
-                    <div className="p-4 border border-slate-100 rounded-xl bg-slate-50 text-center font-bold text-2xl h-16 flex items-center justify-center">
-                      <span className={
-                        typedFont === 'font-cursive' ? 'font-serif italic font-semibold tracking-wider text-slate-800' :
-                        typedFont === 'font-serif' ? 'italic font-serif font-bold text-slate-800' : 'font-mono text-slate-800'
-                      }>
-                        {typedName}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {signMethod === 'upload' && (
-                <div className="space-y-4 text-center">
-                  {!uploadedImage ? (
-                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 hover:border-emerald-500/40 transition-colors flex flex-col items-center justify-center relative">
-                      <ImageIcon className="w-8 h-8 text-slate-400 mb-2" />
-                      <p className="text-xs font-bold text-slate-600">Select signature image</p>
-                      <p className="text-[10px] text-slate-400 mt-1">PNG, JPG, or WebP with a transparent or white background</p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleSignImageUpload}
-                        aria-label="Upload signature image"
-                        className="absolute inset-0 opacity-0 cursor-pointer"
-                      />
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="border border-slate-200 rounded-xl bg-slate-50 p-4 h-[180px] flex items-center justify-center relative">
-                        <img src={uploadedImage} alt="Uploaded signature preview" className="max-h-full max-w-full object-contain" />
-                        <button
-                          onClick={() => setUploadedImage(null)}
-                          className="absolute top-2 right-2 text-[10px] font-bold text-rose-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg hover:bg-rose-50 transition-colors"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-2 justify-end">
-              <button
-                onClick={() => setShowSignModal(false)}
-                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveSignature}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
-              >
-                Create Signature
-              </button>
-            </div>
           </div>
         </div>
       )}
     </div>
   );
 };
-
-export default SignPdfPage;
