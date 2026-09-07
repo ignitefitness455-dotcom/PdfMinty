@@ -32,7 +32,6 @@ export const AddSignatureModal: React.FC<AddSignatureModalProps> = ({
 
   // Draw state
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
 
   // Type state
@@ -67,6 +66,20 @@ export const AddSignatureModal: React.FC<AddSignatureModalProps> = ({
     }
   }, []);
 
+  // Lock background body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      const originalTouchAction = document.body.style.touchAction;
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        document.body.style.touchAction = originalTouchAction;
+      };
+    }
+  }, [isOpen]);
+
   // Canvas drawing setup
   const initCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -77,6 +90,8 @@ export const AddSignatureModal: React.FC<AddSignatureModalProps> = ({
     // Support high DPI
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
@@ -89,7 +104,8 @@ export const AddSignatureModal: React.FC<AddSignatureModalProps> = ({
 
   useEffect(() => {
     if (isOpen && activeTab === 'draw') {
-      setTimeout(initCanvas, 50);
+      const timer = setTimeout(initCanvas, 60);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, activeTab, initCanvas]);
 
@@ -103,45 +119,71 @@ export const AddSignatureModal: React.FC<AddSignatureModalProps> = ({
     }
   }, [selectedColor]);
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  // Attach native non-passive touch and mouse handlers to prevent screen scrolling/shaking
+  useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!canvas || !isOpen || activeTab !== 'draw') return;
 
-    setIsDrawing(true);
-    setHasDrawn(true);
+    let drawing = false;
 
-    const rect = canvas.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
+    const getPos = (e: MouseEvent | TouchEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = 'touches' in e && e.touches.length > 0 ? e.touches[0].clientX : (e as MouseEvent).clientX;
+      const clientY = 'touches' in e && e.touches.length > 0 ? e.touches[0].clientY : (e as MouseEvent).clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top,
+      };
+    };
 
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
+    const handleStart = (e: MouseEvent | TouchEvent) => {
+      // Prevent browser touch scroll and pull-to-refresh
+      if (e.cancelable) e.preventDefault();
+      drawing = true;
+      setHasDrawn(true);
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const pos = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    };
 
-    const rect = canvas.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      if (!drawing) return;
+      if (e.cancelable) e.preventDefault();
 
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const pos = getPos(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    };
 
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
+    const handleEnd = () => {
+      if (drawing) {
+        drawing = false;
+      }
+    };
+
+    canvas.addEventListener('touchstart', handleStart, { passive: false });
+    canvas.addEventListener('touchmove', handleMove, { passive: false });
+    canvas.addEventListener('touchend', handleEnd, { passive: false });
+    canvas.addEventListener('touchcancel', handleEnd, { passive: false });
+    canvas.addEventListener('mousedown', handleStart);
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+
+    return () => {
+      canvas.removeEventListener('touchstart', handleStart);
+      canvas.removeEventListener('touchmove', handleMove);
+      canvas.removeEventListener('touchend', handleEnd);
+      canvas.removeEventListener('touchcancel', handleEnd);
+      canvas.removeEventListener('mousedown', handleStart);
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleEnd);
+    };
+  }, [isOpen, activeTab]);
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
@@ -354,14 +396,8 @@ export const AddSignatureModal: React.FC<AddSignatureModalProps> = ({
               <>
                 <canvas
                   ref={canvasRef}
-                  className="w-full h-full cursor-crosshair touch-none"
-                  onMouseDown={startDrawing}
-                  onMouseMove={draw}
-                  onMouseUp={stopDrawing}
-                  onMouseLeave={stopDrawing}
-                  onTouchStart={startDrawing}
-                  onTouchMove={draw}
-                  onTouchEnd={stopDrawing}
+                  className="w-full h-full cursor-crosshair touch-none select-none"
+                  style={{ touchAction: 'none' }}
                 />
                 {!hasDrawn && (
                   <div className="absolute pointer-events-none text-slate-400 text-sm font-medium tracking-wide">

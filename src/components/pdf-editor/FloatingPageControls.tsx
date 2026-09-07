@@ -28,7 +28,7 @@ export const FloatingPageControls: React.FC<FloatingPageControlsProps> = ({
 }) => {
   return (
     <div 
-      className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 bg-slate-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-full shadow-2xl border border-slate-700/60 flex items-center space-x-2 text-xs font-medium select-none"
+      className="absolute bottom-20 md:bottom-4 left-1/2 -translate-x-1/2 z-30 bg-slate-900/90 backdrop-blur-md text-white px-2.5 sm:px-3 py-1.5 rounded-full shadow-2xl border border-slate-700/60 flex items-center space-x-1.5 sm:space-x-2 text-xs font-medium select-none max-w-[95vw] overflow-x-auto"
       id="pdf_floating_page_controls"
     >
       {/* Page Navigation */}

@@ -567,4 +567,37 @@ html.dark .blog-prose a:hover {
   color: #6ee7b7 !important;
 }
 
+/* PDF Editor Mobile & Touch Optimizations */
+.canvas-container {
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+.canvas-container .upper-canvas,
+.canvas-container .lower-canvas {
+  touch-action: none !important;
+}
+
+/* Prevent mobile browser zoom on textarea / input focus in PDF editor */
+.canvas-container textarea,
+.canvas-container input,
+.pdf-editor-touch-none {
+  touch-action: none !important;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="search"],
+textarea {
+  font-size: 16px;
+}
+
+/* Prevent unwanted document pull-to-refresh / rubber banding during signature drawing */
+.no-overscroll {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
+}
+
 

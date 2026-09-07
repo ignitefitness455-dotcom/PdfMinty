@@ -19,6 +19,7 @@ import {
   X as CrossIcon,
   CheckCircle2,
   Square,
+  MoreHorizontal,
 } from 'lucide-react';
 import { PDFDocument } from 'pdf-lib';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
@@ -26,6 +27,7 @@ import { Link } from 'react-router-dom';
 
 import { FileUploader } from '../components/FileUploader';
 import { AddSignatureModal } from '../components/pdf-editor/AddSignatureModal';
+import { AddTextModal } from '../components/pdf-editor/AddTextModal';
 import { FloatingPageControls } from '../components/pdf-editor/FloatingPageControls';
 import { ThumbnailsSidebar } from '../components/pdf-editor/ThumbnailsSidebar';
 import { SEO } from '../components/SEO';
@@ -69,14 +71,16 @@ const PageCanvas = React.memo(({
       height: page.height,
       selection: true,
       preserveObjectStacking: true,
+      allowTouchScrolling: false,
+      stopContextMenu: true,
     });
 
     // Custom styling for active fabric objects
     fabric.Object.prototype.set({
       transparentCorners: false,
-      cornerColor: '#2563eb',
-      cornerStrokeColor: '#1d4ed8',
-      borderColor: '#3b82f6',
+      cornerColor: '#10b981',
+      cornerStrokeColor: '#059669',
+      borderColor: '#10b981',
       cornerSize: 9,
       padding: 4,
     });
@@ -86,6 +90,16 @@ const PageCanvas = React.memo(({
     });
 
     canvas.on('mouse:down', () => onActive(page.index));
+
+    // Ensure touch-action: none is set on fabric internal canvas elements
+    if (canvas.upperCanvasEl) {
+      canvas.upperCanvasEl.style.touchAction = 'none';
+      canvas.upperCanvasEl.classList.add('pdf-editor-touch-none');
+    }
+    if (canvas.lowerCanvasEl) {
+      canvas.lowerCanvasEl.style.touchAction = 'none';
+      canvas.lowerCanvasEl.classList.add('pdf-editor-touch-none');
+    }
 
     registerCanvas(page.index, canvas);
 
@@ -101,12 +115,13 @@ const PageCanvas = React.memo(({
   return (
     <div
       id={`page-wrapper-${page.index}`}
-      className={`relative transition-shadow duration-200 bg-white rounded-sm shadow-md ${
-        isActive ? 'ring-2 ring-indigo-600 shadow-xl' : 'ring-1 ring-slate-300'
+      className={`relative transition-shadow duration-200 bg-white rounded-xs shadow-md overflow-hidden ${
+        isActive ? 'ring-2 ring-emerald-600 shadow-xl' : 'ring-1 ring-slate-300'
       }`}
       style={{
         width: displayWidth,
         height: displayHeight,
+        touchAction: 'none',
       }}
     >
       <div
@@ -115,9 +130,10 @@ const PageCanvas = React.memo(({
           transformOrigin: 'top left',
           width: page.width,
           height: page.height,
+          touchAction: 'none',
         }}
       >
-        <canvas ref={canvasRef} />
+        <canvas ref={canvasRef} style={{ touchAction: 'none' }} />
       </div>
     </div>
   );
@@ -134,7 +150,9 @@ export const SignPdfPage: React.FC = () => {
   const [pages, setPages] = useState<PageData[]>([]);
   const [renderingPreviews, setRenderingPreviews] = useState(false);
   const [activePageIndex, setActivePageIndex] = useState<number>(0);
-  const [showThumbnails, setShowThumbnails] = useState<boolean>(true);
+  const [showThumbnails, setShowThumbnails] = useState<boolean>(() => 
+    typeof window !== 'undefined' && window.innerWidth >= 1024
+  );
   const [zoom, setZoom] = useState<number>(1.0);
   const [isPanMode, setIsPanMode] = useState<boolean>(false);
 
@@ -144,13 +162,25 @@ export const SignPdfPage: React.FC = () => {
   >('select');
   const [activeColor, setActiveColor] = useState(PALETTE_COLORS[0]);
 
-  // Signature modal state
+  // Modal states
   const [isSignModalOpen, setIsSignModalOpen] = useState(false);
+  const [isTextModalOpen, setIsTextModalOpen] = useState(false);
+  const [showMobileMore, setShowMobileMore] = useState(false);
 
   // Canvases map and refs
   const canvasMap = useRef<Record<number, fabric.Canvas>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-calculate zoom so the PDF fits neatly on the user's screen without clipping
+  const calculateFitZoom = useCallback((pageWidth?: number) => {
+    const w = pageWidth || pages[0]?.width || 800;
+    const containerWidth = scrollContainerRef.current?.clientWidth || window.innerWidth;
+    const padding = window.innerWidth < 640 ? 20 : 64;
+    const availableWidth = Math.max(260, containerWidth - padding);
+    const fit = availableWidth / w;
+    return Math.min(1.1, Math.max(0.35, Number(fit.toFixed(2))));
+  }, [pages]);
 
   // Undo/Redo history per page
   const historyRef = useRef<Record<number, string[]>>({});
@@ -248,6 +278,13 @@ export const SignPdfPage: React.FC = () => {
           }
         }
         setPages(loadedPages);
+        if (loadedPages.length > 0) {
+          const containerWidth = window.innerWidth;
+          const padding = containerWidth < 640 ? 24 : 64;
+          const availableWidth = Math.max(260, containerWidth - padding);
+          const initialFit = Math.min(1.1, Math.max(0.35, Number((availableWidth / loadedPages[0].width).toFixed(2))));
+          setZoom(initialFit);
+        }
       } catch (err) {
         logger.error('Failed to load PDF preview:', err);
         setError('Failed to render PDF. It might be password protected or corrupted.');
@@ -325,16 +362,20 @@ export const SignPdfPage: React.FC = () => {
 
   // Actions
   const handleAddText = () => {
+    setIsTextModalOpen(true);
+  };
+
+  const handleConfirmText = (content: string, color: string, fontSize: number) => {
     const canvas = getActiveCanvas();
     if (!canvas) return;
     selectTool('select');
 
-    const text = new fabric.IText('Type text here', {
-      left: (canvas.width || 600) / 2 - 80,
-      top: (canvas.height || 800) / 2 - 20,
+    const text = new fabric.IText(content, {
+      left: Math.max(30, (canvas.width || 600) / 2 - 100),
+      top: Math.max(30, (canvas.height || 800) / 2 - 20),
       fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: 22,
-      fill: activeColor,
+      fontSize: fontSize,
+      fill: color,
     });
     canvas.add(text);
     canvas.setActiveObject(text);
@@ -603,22 +644,22 @@ export const SignPdfPage: React.FC = () => {
       <SEO slug="sign-pdf" />
 
       {/* Top Header / Navigation */}
-      <div className="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between z-20 shrink-0">
-        <div className="flex items-center space-x-3">
+      <div className="bg-white border-b border-slate-200 px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between z-20 shrink-0">
+        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
           <Link
             to={ROUTES.HOME}
-            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors shrink-0"
             title="Return to Tools"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
 
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center space-x-2">
-              <h1 className="text-base sm:text-lg font-bold text-slate-800 tracking-tight leading-tight">
+              <h1 className="text-sm sm:text-base md:text-lg font-bold text-slate-800 tracking-tight leading-tight truncate max-w-[130px] xs:max-w-[200px] sm:max-w-xs">
                 {selectedFile ? selectedFile.name : 'Sign & Edit PDF'}
               </h1>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                 100% Client-Side
               </span>
             </div>
@@ -630,45 +671,45 @@ export const SignPdfPage: React.FC = () => {
 
         {/* Top Right Actions */}
         {selectedFile && (
-          <div className="flex items-center space-x-2">
-            {/* Undo / Redo for quick access */}
-            <div className="hidden sm:flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50 mr-2">
+          <div className="flex items-center space-x-1 sm:space-x-2 shrink-0">
+            {/* Undo / Redo for quick access (enabled on both mobile and desktop) */}
+            <div className="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50">
               <button
                 onClick={handleUndo}
-                className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-white rounded-md transition-colors"
+                className="p-1 sm:p-1.5 text-slate-600 hover:text-slate-900 hover:bg-white rounded-md transition-colors"
                 title="Undo (Ctrl+Z)"
               >
-                <Undo2 className="w-4 h-4" />
+                <Undo2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
               <button
                 onClick={handleRedo}
-                className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-white rounded-md transition-colors"
+                className="p-1 sm:p-1.5 text-slate-600 hover:text-slate-900 hover:bg-white rounded-md transition-colors"
                 title="Redo (Ctrl+Y)"
               >
-                <Redo2 className="w-4 h-4" />
+                <Redo2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
 
             {/* Trash button */}
             <button
               onClick={deleteSelected}
-              className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+              className="p-1.5 sm:p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
               title="Delete Selected Item (Del)"
             >
-              <Trash2 className="w-5 h-5" />
+              <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
-            {/* Done / Download Button (matching the user's PDFGuru Done style in brand emerald) */}
+            {/* Done / Download Button */}
             <button
               onClick={handleExport}
               disabled={loading || renderingPreviews}
-              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold shadow-xs flex items-center space-x-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 sm:px-5 py-1.5 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-xs flex items-center space-x-1.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               title="Export and Download Flattened PDF"
             >
               {loading ? (
-                <RefreshCw className="w-4 h-4 animate-spin" />
+                <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />
               ) : (
-                <Download className="w-4 h-4" />
+                <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               )}
               <span>Done</span>
             </button>
@@ -702,8 +743,8 @@ export const SignPdfPage: React.FC = () => {
       ) : (
         /* Main Workspace */
         <div className="flex-1 flex flex-col overflow-hidden relative">
-          {/* Main Top Toolbar (Exact layout from PDFGuru Screenshot 1!) */}
-          <div className="bg-white border-b border-slate-200/90 px-3 py-1.5 flex items-center justify-between overflow-x-auto shadow-xs z-20 shrink-0">
+          {/* Main Top Toolbar (Desktop only - matches PDFGuru Screenshot 1!) */}
+          <div className="hidden md:flex bg-white border-b border-slate-200/90 px-3 py-1.5 items-center justify-between overflow-x-auto shadow-xs z-20 shrink-0">
             <div className="flex items-center space-x-1 sm:space-x-1.5">
               {/* Thumbnails Toggle */}
               <button
@@ -916,12 +957,12 @@ export const SignPdfPage: React.FC = () => {
             {/* Main Center Canvas Viewport */}
             <div
               ref={scrollContainerRef}
-              className="flex-1 overflow-auto bg-[#f1f3f6] p-4 sm:p-8 flex flex-col items-center gap-6 relative"
+              className="flex-1 overflow-auto bg-[#f1f3f6] p-3 sm:p-8 pb-28 md:pb-8 flex flex-col items-center gap-6 relative no-overscroll"
               id="pdf_viewport_canvas_container"
             >
               {renderingPreviews ? (
                 <div className="my-auto flex flex-col items-center justify-center space-y-3">
-                  <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin" />
+                  <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
                   <p className="text-sm font-medium text-slate-600">
                     Rendering PDF pages in high resolution...
                   </p>
@@ -951,12 +992,206 @@ export const SignPdfPage: React.FC = () => {
                 onPrevPage={() => handleSelectPage(Math.max(0, activePageIndex - 1))}
                 onNextPage={() => handleSelectPage(Math.min(pages.length - 1, activePageIndex + 1))}
                 onZoomIn={() => setZoom((z) => Math.min(2.0, z + 0.15))}
-                onZoomOut={() => setZoom((z) => Math.max(0.5, z - 0.15))}
-                onResetZoom={() => setZoom(1.0)}
+                onZoomOut={() => setZoom((z) => Math.max(0.35, z - 0.15))}
+                onResetZoom={() => setZoom(calculateFitZoom())}
                 onTogglePanMode={() => selectTool(isPanMode ? 'select' : 'pan')}
               />
             )}
           </div>
+
+          {/* Mobile Bottom Toolbar (Matches PDFGuru Mobile Experience - Screenshot 3!) */}
+          <div className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-30 h-16 flex items-center justify-around px-1 shadow-lg select-none">
+            {/* Pages / Thumbnails */}
+            <button
+              onClick={() => setShowThumbnails(!showThumbnails)}
+              className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all relative ${
+                showThumbnails ? 'text-emerald-600 font-semibold' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <LayoutGrid className="w-5 h-5" />
+              <span className="text-[10px] mt-0.5">Pages</span>
+              {pages.length > 0 && (
+                <span className="absolute top-1 right-1 px-1 bg-slate-200 text-slate-700 text-[9px] font-bold rounded-full">
+                  {pages.length}
+                </span>
+              )}
+            </button>
+
+            {/* Add Text */}
+            <button
+              onClick={handleAddText}
+              className="flex flex-col items-center justify-center p-1.5 rounded-xl text-slate-600 hover:text-slate-900 transition-all"
+            >
+              <Type className="w-5 h-5" />
+              <span className="text-[10px] mt-0.5">Text</span>
+            </button>
+
+            {/* Signature Button (Prominent Center Pill) */}
+            <button
+              onClick={() => setIsSignModalOpen(true)}
+              className="flex flex-col items-center justify-center px-4 py-1.5 rounded-2xl bg-emerald-600 text-white shadow-md active:scale-95 transition-all"
+            >
+              <PenTool className="w-5 h-5 text-white" />
+              <span className="text-[10px] font-bold mt-0.5">Sign</span>
+            </button>
+
+            {/* Freehand Draw */}
+            <button
+              onClick={() => selectTool(activeTool === 'pencil' ? 'select' : 'pencil')}
+              className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all ${
+                activeTool === 'pencil'
+                  ? 'text-emerald-600 font-semibold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <PenTool className="w-5 h-5" />
+              <span className="text-[10px] mt-0.5">Draw</span>
+            </button>
+
+            {/* Eraser */}
+            <button
+              onClick={deleteSelected}
+              className="flex flex-col items-center justify-center p-1.5 rounded-xl text-slate-600 hover:text-rose-600 transition-all"
+            >
+              <Eraser className="w-5 h-5" />
+              <span className="text-[10px] mt-0.5">Erase</span>
+            </button>
+
+            {/* More Tools */}
+            <button
+              onClick={() => setShowMobileMore(!showMobileMore)}
+              className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all ${
+                showMobileMore ? 'text-emerald-600 font-semibold' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <MoreHorizontal className="w-5 h-5" />
+              <span className="text-[10px] mt-0.5">More</span>
+            </button>
+          </div>
+
+          {/* Mobile "More Tools" Bottom Sheet */}
+          {showMobileMore && (
+            <>
+              <div
+                className="fixed inset-0 bg-black/40 z-30 md:hidden backdrop-blur-2xs"
+                onClick={() => setShowMobileMore(false)}
+              />
+              <div className="fixed bottom-16 inset-x-0 z-40 bg-white border-t border-slate-200 rounded-t-2xl p-4 shadow-2xl space-y-3.5 md:hidden animate-in slide-in-from-bottom duration-200">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    More Tools & Annotations
+                  </span>
+                  <button
+                    onClick={() => setShowMobileMore(false)}
+                    className="text-xs text-slate-400 hover:text-slate-600 p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Secondary tools grid */}
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <button
+                    onClick={() => {
+                      handleAddHighlight();
+                      setShowMobileMore(false);
+                    }}
+                    className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                  >
+                    <Highlighter className="w-5 h-5 text-amber-500 mb-1" />
+                    Highlight
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleAddRectangle();
+                      setShowMobileMore(false);
+                    }}
+                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                  >
+                    <Square className="w-5 h-5 text-slate-700 mb-1" />
+                    Rectangle
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleAddEllipse();
+                      setShowMobileMore(false);
+                    }}
+                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                  >
+                    <Circle className="w-5 h-5 text-slate-700 mb-1" />
+                    Circle
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      fileInputRef.current?.click();
+                      setShowMobileMore(false);
+                    }}
+                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                  >
+                    <ImageIcon className="w-5 h-5 text-slate-700 mb-1" />
+                    Image
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleAddCheckmark();
+                      setShowMobileMore(false);
+                    }}
+                    className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                  >
+                    <CheckIcon className="w-5 h-5 text-emerald-600 font-bold mb-1" />
+                    Check (✓)
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleAddCrossmark();
+                      setShowMobileMore(false);
+                    }}
+                    className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                  >
+                    <CrossIcon className="w-5 h-5 text-red-600 font-bold mb-1" />
+                    Cross (✕)
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      selectTool(isPanMode ? 'select' : 'pan');
+                      setShowMobileMore(false);
+                    }}
+                    className={`p-2 rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-colors ${
+                      isPanMode ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-50 hover:bg-slate-100 text-slate-800'
+                    }`}
+                  >
+                    <Hand className="w-5 h-5 mb-1" />
+                    Pan Hand
+                  </button>
+                </div>
+
+                {/* Color Palette */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-500">Active Color:</span>
+                  <div className="flex items-center space-x-3">
+                    {PALETTE_COLORS.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => handleColorChange(color)}
+                        className={`w-7 h-7 rounded-full transition-all ${
+                          activeColor === color
+                            ? 'ring-2 ring-offset-2 ring-slate-800 scale-110 shadow-sm'
+                            : 'opacity-80'
+                        }`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -965,6 +1200,14 @@ export const SignPdfPage: React.FC = () => {
         isOpen={isSignModalOpen}
         onClose={() => setIsSignModalOpen(false)}
         onAddSignature={handleSignatureAdded}
+      />
+
+      {/* Add / Edit Text Modal (Eliminates mobile browser zoom and keyboard issues!) */}
+      <AddTextModal
+        isOpen={isTextModalOpen}
+        onClose={() => setIsTextModalOpen(false)}
+        onConfirm={handleConfirmText}
+        initialColor={activeColor}
       />
     </div>
   );
