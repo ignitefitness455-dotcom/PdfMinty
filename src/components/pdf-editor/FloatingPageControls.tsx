@@ -1,4 +1,4 @@
-import { ChevronUp, ChevronDown, ZoomIn, ZoomOut, Maximize2, Hand } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Hand } from 'lucide-react';
 import React from 'react';
 
 interface FloatingPageControlsProps {
@@ -28,21 +28,20 @@ export const FloatingPageControls: React.FC<FloatingPageControlsProps> = ({
 }) => {
   return (
     <div 
-      className="absolute bottom-20 md:bottom-4 left-1/2 -translate-x-1/2 z-30 bg-slate-900/90 backdrop-blur-md text-white px-2.5 sm:px-3 py-1.5 rounded-full shadow-2xl border border-slate-700/60 flex items-center space-x-1.5 sm:space-x-2 text-xs font-medium select-none max-w-[95vw] overflow-x-auto"
+      className="absolute bottom-20 md:bottom-4 left-1/2 -translate-x-1/2 z-20 bg-slate-900/90 backdrop-blur-md text-white px-2.5 sm:px-3 py-1.5 rounded-full shadow-2xl border border-slate-700/60 flex items-center space-x-1.5 sm:space-x-2 text-xs font-medium select-none max-w-[95vw] overflow-x-auto"
       id="pdf_floating_page_controls"
     >
       {/* Page Navigation */}
       <div className="flex items-center space-x-1 pr-2 border-r border-slate-700">
-        <span className="text-slate-400">Page:</span>
         <button
           onClick={onPrevPage}
           disabled={currentPage <= 1}
           className="p-1 hover:text-emerald-400 disabled:text-slate-600 disabled:cursor-not-allowed transition-colors"
           title="Previous Page"
         >
-          <ChevronUp className="w-3.5 h-3.5" />
+          <ChevronLeft className="w-3.5 h-3.5" />
         </button>
-        <span className="font-semibold text-white px-0.5">
+        <span className="font-semibold text-white px-0.5 whitespace-nowrap">
           {currentPage} / {totalPages}
         </span>
         <button
@@ -51,7 +50,7 @@ export const FloatingPageControls: React.FC<FloatingPageControlsProps> = ({
           className="p-1 hover:text-emerald-400 disabled:text-slate-600 disabled:cursor-not-allowed transition-colors"
           title="Next Page"
         >
-          <ChevronDown className="w-3.5 h-3.5" />
+          <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
 
@@ -59,7 +58,7 @@ export const FloatingPageControls: React.FC<FloatingPageControlsProps> = ({
       <div className="flex items-center space-x-1 pr-2 border-r border-slate-700">
         <button
           onClick={onZoomOut}
-          disabled={zoom <= 0.6}
+          disabled={zoom <= 0.35}
           className="p-1 hover:text-emerald-400 disabled:text-slate-600 transition-colors"
           title="Zoom Out"
         >

@@ -50,30 +50,42 @@ const PageCanvas = React.memo(({
   page,
   isActive,
   zoom,
+  activeTool,
   onActive,
+  onObjectDeleted,
   registerCanvas,
   unregisterCanvas,
 }: {
   page: PageData;
   isActive: boolean;
   zoom: number;
+  activeTool: 'select' | 'pan' | 'pencil' | 'highlight' | 'eraser';
   onActive: (idx: number) => void;
+  onObjectDeleted: (idx: number) => void;
   registerCanvas: (idx: number, canvas: fabric.Canvas) => void;
   unregisterCanvas: (idx: number) => void;
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasInstanceRef = useRef<fabric.Canvas | null>(null);
+  const activeToolRef = useRef(activeTool);
+
+  useEffect(() => {
+    activeToolRef.current = activeTool;
+  }, [activeTool]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
     const canvas = new fabric.Canvas(canvasRef.current, {
-      width: page.width,
-      height: page.height,
+      width: page.width * zoom,
+      height: page.height * zoom,
       selection: true,
       preserveObjectStacking: true,
       allowTouchScrolling: false,
       stopContextMenu: true,
     });
+    canvas.setZoom(zoom);
+    canvasInstanceRef.current = canvas;
 
     // Custom styling for active fabric objects
     fabric.Object.prototype.set({
@@ -86,10 +98,23 @@ const PageCanvas = React.memo(({
     });
 
     fabric.Image.fromURL(page.dataUrl, (img) => {
-      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+      canvas.setBackgroundImage(img, () => {
+        canvas.renderAll();
+      });
     });
 
-    canvas.on('mouse:down', () => onActive(page.index));
+    // Touch and mouse click listeners
+    canvas.on('mouse:down', (opt) => {
+      onActive(page.index);
+      if (activeToolRef.current === 'eraser') {
+        if (opt.target) {
+          canvas.remove(opt.target);
+          canvas.discardActiveObject();
+          canvas.renderAll();
+          onObjectDeleted(page.index);
+        }
+      }
+    });
 
     // Ensure touch-action: none is set on fabric internal canvas elements
     if (canvas.upperCanvasEl) {
@@ -106,35 +131,73 @@ const PageCanvas = React.memo(({
     return () => {
       unregisterCanvas(page.index);
       canvas.dispose();
+      canvasInstanceRef.current = null;
     };
-  }, [page, registerCanvas, unregisterCanvas, onActive]);
+  }, [page, zoom, registerCanvas, unregisterCanvas, onActive, onObjectDeleted]);
 
-  const displayWidth = page.width * zoom;
-  const displayHeight = page.height * zoom;
+  // Handle zoom changes natively in Fabric
+  useEffect(() => {
+    const canvas = canvasInstanceRef.current;
+    if (!canvas) return;
+    canvas.setZoom(zoom);
+    canvas.setDimensions({
+      width: page.width * zoom,
+      height: page.height * zoom,
+    });
+    canvas.calcOffset();
+    canvas.renderAll();
+  }, [zoom, page.width, page.height]);
+
+  // Handle active tool updates on canvas
+  useEffect(() => {
+    const canvas = canvasInstanceRef.current;
+    if (!canvas) return;
+
+    if (activeTool === 'pencil') {
+      canvas.isDrawingMode = true;
+      canvas.selection = false;
+      canvas.defaultCursor = 'crosshair';
+    } else if (activeTool === 'eraser') {
+      canvas.isDrawingMode = false;
+      canvas.selection = false;
+      canvas.defaultCursor = 'crosshair';
+      canvas.hoverCursor = 'pointer';
+      canvas.discardActiveObject();
+      canvas.renderAll();
+    } else if (activeTool === 'pan') {
+      canvas.isDrawingMode = false;
+      canvas.selection = false;
+      canvas.defaultCursor = 'grab';
+      canvas.hoverCursor = 'grab';
+      canvas.discardActiveObject();
+      canvas.renderAll();
+    } else {
+      // select
+      canvas.isDrawingMode = false;
+      canvas.selection = true;
+      canvas.defaultCursor = 'default';
+      canvas.hoverCursor = 'move';
+      canvas.forEachObject((obj) => {
+        obj.selectable = true;
+        obj.evented = true;
+      });
+      canvas.renderAll();
+    }
+  }, [activeTool]);
 
   return (
     <div
       id={`page-wrapper-${page.index}`}
-      className={`relative transition-shadow duration-200 bg-white rounded-xs shadow-md overflow-hidden ${
+      className={`relative transition-shadow duration-200 bg-white rounded-xs shadow-lg ${
         isActive ? 'ring-2 ring-emerald-600 shadow-xl' : 'ring-1 ring-slate-300'
       }`}
       style={{
-        width: displayWidth,
-        height: displayHeight,
+        width: page.width * zoom,
+        height: page.height * zoom,
         touchAction: 'none',
       }}
     >
-      <div
-        style={{
-          transform: `scale(${zoom})`,
-          transformOrigin: 'top left',
-          width: page.width,
-          height: page.height,
-          touchAction: 'none',
-        }}
-      >
-        <canvas ref={canvasRef} style={{ touchAction: 'none' }} />
-      </div>
+      <canvas ref={canvasRef} style={{ touchAction: 'none' }} />
     </div>
   );
 });
@@ -306,7 +369,7 @@ export const SignPdfPage: React.FC = () => {
   };
 
   // Tool Switching
-  const selectTool = (tool: 'select' | 'pan' | 'pencil' | 'highlight' | 'eraser') => {
+  const selectTool = useCallback((tool: 'select' | 'pan' | 'pencil' | 'highlight' | 'eraser') => {
     setActiveTool(tool);
     setIsPanMode(tool === 'pan');
 
@@ -335,7 +398,7 @@ export const SignPdfPage: React.FC = () => {
         canvas.renderAll();
       }
     });
-  };
+  }, [activeColor]);
 
   // Color change
   const handleColorChange = (color: string) => {
@@ -370,9 +433,13 @@ export const SignPdfPage: React.FC = () => {
     if (!canvas) return;
     selectTool('select');
 
+    const activePage = pages[activePageIndex] || pages[0];
+    const pw = activePage ? activePage.width : 800;
+    const ph = activePage ? activePage.height : 1100;
+
     const text = new fabric.IText(content, {
-      left: Math.max(30, (canvas.width || 600) / 2 - 100),
-      top: Math.max(30, (canvas.height || 800) / 2 - 20),
+      left: Math.max(30, pw / 2 - 120),
+      top: Math.max(30, ph / 2 - 20),
       fontFamily: 'Inter, system-ui, sans-serif',
       fontSize: fontSize,
       fill: color,
@@ -380,6 +447,7 @@ export const SignPdfPage: React.FC = () => {
     canvas.add(text);
     canvas.setActiveObject(text);
     canvas.renderAll();
+    saveCanvasHistory(activePageIndex);
   };
 
   const handleAddHighlight = () => {
@@ -387,20 +455,25 @@ export const SignPdfPage: React.FC = () => {
     if (!canvas) return;
     selectTool('select');
 
+    const activePage = pages[activePageIndex] || pages[0];
+    const pw = activePage ? activePage.width : 800;
+    const ph = activePage ? activePage.height : 1100;
+
     const rect = new fabric.Rect({
-      left: (canvas.width || 600) / 2 - 100,
-      top: (canvas.height || 800) / 2 - 15,
-      width: 200,
-      height: 30,
+      left: Math.max(30, pw / 2 - 120),
+      top: Math.max(30, ph / 2 - 18),
+      width: 240,
+      height: 36,
       fill: 'rgba(253, 224, 71, 0.45)', // Translucent yellow
       stroke: 'transparent',
       strokeWidth: 0,
-      rx: 2,
-      ry: 2,
+      rx: 3,
+      ry: 3,
     });
     canvas.add(rect);
     canvas.setActiveObject(rect);
     canvas.renderAll();
+    saveCanvasHistory(activePageIndex);
   };
 
   const handleAddCheckmark = () => {
@@ -408,16 +481,21 @@ export const SignPdfPage: React.FC = () => {
     if (!canvas) return;
     selectTool('select');
 
+    const activePage = pages[activePageIndex] || pages[0];
+    const pw = activePage ? activePage.width : 800;
+    const ph = activePage ? activePage.height : 1100;
+
     const check = new fabric.IText('✓', {
-      left: (canvas.width || 600) / 2 - 15,
-      top: (canvas.height || 800) / 2 - 25,
-      fontSize: 38,
+      left: Math.max(30, pw / 2 - 20),
+      top: Math.max(30, ph / 2 - 30),
+      fontSize: 48,
       fontWeight: 'bold',
       fill: '#16a34a',
     });
     canvas.add(check);
     canvas.setActiveObject(check);
     canvas.renderAll();
+    saveCanvasHistory(activePageIndex);
   };
 
   const handleAddCrossmark = () => {
@@ -425,16 +503,21 @@ export const SignPdfPage: React.FC = () => {
     if (!canvas) return;
     selectTool('select');
 
+    const activePage = pages[activePageIndex] || pages[0];
+    const pw = activePage ? activePage.width : 800;
+    const ph = activePage ? activePage.height : 1100;
+
     const cross = new fabric.IText('✕', {
-      left: (canvas.width || 600) / 2 - 15,
-      top: (canvas.height || 800) / 2 - 25,
-      fontSize: 36,
+      left: Math.max(30, pw / 2 - 20),
+      top: Math.max(30, ph / 2 - 30),
+      fontSize: 46,
       fontWeight: 'bold',
       fill: '#dc2626',
     });
     canvas.add(cross);
     canvas.setActiveObject(cross);
     canvas.renderAll();
+    saveCanvasHistory(activePageIndex);
   };
 
   const handleAddEllipse = () => {
@@ -442,10 +525,14 @@ export const SignPdfPage: React.FC = () => {
     if (!canvas) return;
     selectTool('select');
 
+    const activePage = pages[activePageIndex] || pages[0];
+    const pw = activePage ? activePage.width : 800;
+    const ph = activePage ? activePage.height : 1100;
+
     const circle = new fabric.Circle({
-      left: (canvas.width || 600) / 2 - 45,
-      top: (canvas.height || 800) / 2 - 45,
-      radius: 45,
+      left: Math.max(30, pw / 2 - 50),
+      top: Math.max(30, ph / 2 - 50),
+      radius: 50,
       fill: 'transparent',
       stroke: activeColor,
       strokeWidth: 3,
@@ -453,6 +540,7 @@ export const SignPdfPage: React.FC = () => {
     canvas.add(circle);
     canvas.setActiveObject(circle);
     canvas.renderAll();
+    saveCanvasHistory(activePageIndex);
   };
 
   const handleAddRectangle = () => {
@@ -460,11 +548,15 @@ export const SignPdfPage: React.FC = () => {
     if (!canvas) return;
     selectTool('select');
 
+    const activePage = pages[activePageIndex] || pages[0];
+    const pw = activePage ? activePage.width : 800;
+    const ph = activePage ? activePage.height : 1100;
+
     const rect = new fabric.Rect({
-      left: (canvas.width || 600) / 2 - 60,
-      top: (canvas.height || 800) / 2 - 40,
-      width: 120,
-      height: 80,
+      left: Math.max(30, pw / 2 - 80),
+      top: Math.max(30, ph / 2 - 50),
+      width: 160,
+      height: 100,
       fill: 'transparent',
       stroke: activeColor,
       strokeWidth: 3,
@@ -472,6 +564,7 @@ export const SignPdfPage: React.FC = () => {
     canvas.add(rect);
     canvas.setActiveObject(rect);
     canvas.renderAll();
+    saveCanvasHistory(activePageIndex);
   };
 
   const handleSignatureAdded = (signatureDataUrl: string) => {
@@ -479,15 +572,20 @@ export const SignPdfPage: React.FC = () => {
     if (!canvas) return;
     selectTool('select');
 
+    const activePage = pages[activePageIndex] || pages[0];
+    const pw = activePage ? activePage.width : 800;
+    const ph = activePage ? activePage.height : 1100;
+
     fabric.Image.fromURL(signatureDataUrl, (img) => {
-      img.scaleToWidth(180);
+      img.scaleToWidth(Math.min(220, pw * 0.4));
       img.set({
-        left: (canvas.width || 600) / 2 - 90,
-        top: (canvas.height || 800) / 2 - 40,
+        left: Math.max(20, pw / 2 - (img.getScaledWidth() / 2)),
+        top: Math.max(20, ph / 2 - (img.getScaledHeight() / 2)),
       });
       canvas.add(img);
       canvas.setActiveObject(img);
       canvas.renderAll();
+      saveCanvasHistory(activePageIndex);
     });
   };
 
@@ -502,20 +600,51 @@ export const SignPdfPage: React.FC = () => {
       if (!canvas) return;
       selectTool('select');
 
+      const activePage = pages[activePageIndex] || pages[0];
+      const pw = activePage ? activePage.width : 800;
+      const ph = activePage ? activePage.height : 1100;
+
       fabric.Image.fromURL(data, (img) => {
-        img.scaleToWidth(180);
+        img.scaleToWidth(Math.min(220, pw * 0.4));
         img.set({
-          left: (canvas.width || 600) / 2 - 90,
-          top: (canvas.height || 800) / 2 - 50,
+          left: Math.max(20, pw / 2 - (img.getScaledWidth() / 2)),
+          top: Math.max(20, ph / 2 - (img.getScaledHeight() / 2)),
         });
         canvas.add(img);
         canvas.setActiveObject(img);
         canvas.renderAll();
+        saveCanvasHistory(activePageIndex);
       });
     };
     reader.readAsDataURL(file);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  const handleEraserClick = useCallback(() => {
+    const canvas = getActiveCanvas();
+    if (!canvas) return;
+
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects.length > 0) {
+      canvas.discardActiveObject();
+      activeObjects.forEach((obj) => canvas.remove(obj));
+      canvas.renderAll();
+      saveCanvasHistory(activePageIndex);
+    } else {
+      selectTool(activeTool === 'eraser' ? 'select' : 'eraser');
+    }
+  }, [getActiveCanvas, activeTool, selectTool, saveCanvasHistory, activePageIndex]);
+
+  const handleClearPage = useCallback((pageIdx: number) => {
+    const canvas = canvasMap.current[pageIdx];
+    if (!canvas) return;
+    const objects = canvas.getObjects();
+    if (objects.length === 0) return;
+    canvas.discardActiveObject();
+    objects.forEach((obj) => canvas.remove(obj));
+    canvas.renderAll();
+    saveCanvasHistory(pageIdx);
+  }, [saveCanvasHistory]);
 
   const deleteSelected = useCallback(() => {
     const canvas = getActiveCanvas();
@@ -526,8 +655,9 @@ export const SignPdfPage: React.FC = () => {
       canvas.discardActiveObject();
       activeObjects.forEach((obj) => canvas.remove(obj));
       canvas.renderAll();
+      saveCanvasHistory(activePageIndex);
     }
-  }, [getActiveCanvas]);
+  }, [getActiveCanvas, saveCanvasHistory, activePageIndex]);
 
   // Undo & Redo
   const handleUndo = useCallback(() => {
@@ -610,7 +740,20 @@ export const SignPdfPage: React.FC = () => {
         canvas.backgroundImage = undefined;
         if (bg) canvas.backgroundColor = 'transparent';
 
+        const originalZoom = canvas.getZoom();
+        const pageData = pages[i];
+        if (pageData) {
+          canvas.setZoom(1);
+          canvas.setDimensions({ width: pageData.width, height: pageData.height });
+        }
+
         const dataUrl = canvas.toDataURL({ format: 'png', multiplier: 2 });
+
+        // Restore zoom and dimensions
+        if (pageData) {
+          canvas.setZoom(originalZoom);
+          canvas.setDimensions({ width: pageData.width * originalZoom, height: pageData.height * originalZoom });
+        }
 
         // Restore background
         if (bg) canvas.setBackgroundImage(bg, () => {});
@@ -841,13 +984,6 @@ export const SignPdfPage: React.FC = () => {
               </button>
 
               {/* Image / Stamp */}
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageFilePicked}
-                accept="image/*"
-                className="hidden"
-              />
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="flex flex-col items-center justify-center px-2.5 py-1 rounded-lg text-slate-700 hover:bg-slate-100 transition-all text-center min-w-[48px]"
@@ -895,6 +1031,32 @@ export const SignPdfPage: React.FC = () => {
               >
                 <CheckIcon className="w-4 h-4 text-emerald-600 font-bold" />
                 <span className="text-[10px] mt-0.5">Check</span>
+              </button>
+
+              <div className="w-px h-6 bg-slate-200 mx-1 shrink-0" />
+
+              {/* Eraser Tool */}
+              <button
+                onClick={handleEraserClick}
+                className={`flex flex-col items-center justify-center px-2.5 py-1 rounded-lg transition-all text-center min-w-[48px] ${
+                  activeTool === 'eraser'
+                    ? 'bg-rose-50 text-rose-700 font-semibold ring-1 ring-rose-300'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+                title="Eraser: Click any object to remove it"
+              >
+                <Eraser className="w-4 h-4" />
+                <span className="text-[10px] mt-0.5">Eraser</span>
+              </button>
+
+              {/* Delete Active */}
+              <button
+                onClick={deleteSelected}
+                className="flex flex-col items-center justify-center px-2 py-1 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-center min-w-[44px]"
+                title="Delete Selected Object"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="text-[10px] mt-0.5">Delete</span>
               </button>
 
               <div className="w-px h-6 bg-slate-200 mx-1 shrink-0" />
@@ -957,9 +1119,34 @@ export const SignPdfPage: React.FC = () => {
             {/* Main Center Canvas Viewport */}
             <div
               ref={scrollContainerRef}
-              className="flex-1 overflow-auto bg-[#f1f3f6] p-3 sm:p-8 pb-28 md:pb-8 flex flex-col items-center gap-6 relative no-overscroll"
+              className="flex-1 overflow-auto bg-[#f1f3f6] p-3 sm:p-8 pb-28 md:pb-8 flex flex-col items-center justify-center relative no-overscroll"
               id="pdf_viewport_canvas_container"
             >
+              {/* Eraser Floating Mode Banner */}
+              {activeTool === 'eraser' && (
+                <div className="absolute top-3 inset-x-4 max-w-sm mx-auto bg-rose-600/95 backdrop-blur-md text-white px-3.5 py-2 rounded-xl shadow-lg z-20 flex items-center justify-between text-xs font-medium animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center space-x-2">
+                    <Eraser className="w-4 h-4 shrink-0 animate-pulse" />
+                    <span>Tap any item to erase</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleClearPage(activePageIndex)}
+                      className="px-2 py-1 bg-white/20 hover:bg-white/30 rounded-md text-[11px] font-semibold transition-colors"
+                      title="Clear all annotations on this page"
+                    >
+                      Clear Page
+                    </button>
+                    <button
+                      onClick={() => selectTool('select')}
+                      className="px-2.5 py-1 bg-white text-rose-700 hover:bg-rose-50 rounded-md text-[11px] font-bold transition-colors shadow-xs"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {renderingPreviews ? (
                 <div className="my-auto flex flex-col items-center justify-center space-y-3">
                   <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
@@ -968,17 +1155,26 @@ export const SignPdfPage: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                pages.map((page) => (
-                  <PageCanvas
-                    key={page.index}
-                    page={page}
-                    isActive={activePageIndex === page.index}
-                    zoom={zoom}
-                    onActive={setActivePageIndex}
-                    registerCanvas={registerCanvas}
-                    unregisterCanvas={unregisterCanvas}
-                  />
-                ))
+                pages.map((page) => {
+                  const isCurrent = activePageIndex === page.index;
+                  return (
+                    <div
+                      key={page.index}
+                      className={isCurrent ? 'flex flex-col items-center justify-center' : 'hidden'}
+                    >
+                      <PageCanvas
+                        page={page}
+                        isActive={isCurrent}
+                        zoom={zoom}
+                        activeTool={activeTool}
+                        onActive={setActivePageIndex}
+                        onObjectDeleted={() => saveCanvasHistory(page.index)}
+                        registerCanvas={registerCanvas}
+                        unregisterCanvas={unregisterCanvas}
+                      />
+                    </div>
+                  );
+                })
               )}
             </div>
 
@@ -1048,10 +1244,15 @@ export const SignPdfPage: React.FC = () => {
               <span className="text-[10px] mt-0.5">Draw</span>
             </button>
 
-            {/* Eraser */}
+            {/* Eraser Tool */}
             <button
-              onClick={deleteSelected}
-              className="flex flex-col items-center justify-center p-1.5 rounded-xl text-slate-600 hover:text-rose-600 transition-all"
+              onClick={handleEraserClick}
+              className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all ${
+                activeTool === 'eraser'
+                  ? 'text-rose-600 bg-rose-50 ring-1 ring-rose-300 font-semibold'
+                  : 'text-slate-600 hover:text-rose-600'
+              }`}
+              title="Eraser Tool"
             >
               <Eraser className="w-5 h-5" />
               <span className="text-[10px] mt-0.5">Erase</span>
@@ -1061,7 +1262,7 @@ export const SignPdfPage: React.FC = () => {
             <button
               onClick={() => setShowMobileMore(!showMobileMore)}
               className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all ${
-                showMobileMore ? 'text-emerald-600 font-semibold' : 'text-slate-600 hover:text-slate-900'
+                showMobileMore ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <MoreHorizontal className="w-5 h-5" />
@@ -1096,7 +1297,7 @@ export const SignPdfPage: React.FC = () => {
                       handleAddHighlight();
                       setShowMobileMore(false);
                     }}
-                    className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                    className="p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
                   >
                     <Highlighter className="w-5 h-5 text-amber-500 mb-1" />
                     Highlight
@@ -1107,7 +1308,7 @@ export const SignPdfPage: React.FC = () => {
                       handleAddRectangle();
                       setShowMobileMore(false);
                     }}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                    className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
                   >
                     <Square className="w-5 h-5 text-slate-700 mb-1" />
                     Rectangle
@@ -1118,7 +1319,7 @@ export const SignPdfPage: React.FC = () => {
                       handleAddEllipse();
                       setShowMobileMore(false);
                     }}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                    className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
                   >
                     <Circle className="w-5 h-5 text-slate-700 mb-1" />
                     Circle
@@ -1126,10 +1327,10 @@ export const SignPdfPage: React.FC = () => {
 
                   <button
                     onClick={() => {
-                      fileInputRef.current?.click();
                       setShowMobileMore(false);
+                      setTimeout(() => fileInputRef.current?.click(), 100);
                     }}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                    className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
                   >
                     <ImageIcon className="w-5 h-5 text-slate-700 mb-1" />
                     Image
@@ -1140,7 +1341,7 @@ export const SignPdfPage: React.FC = () => {
                       handleAddCheckmark();
                       setShowMobileMore(false);
                     }}
-                    className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                    className="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
                   >
                     <CheckIcon className="w-5 h-5 text-emerald-600 font-bold mb-1" />
                     Check (✓)
@@ -1151,7 +1352,7 @@ export const SignPdfPage: React.FC = () => {
                       handleAddCrossmark();
                       setShowMobileMore(false);
                     }}
-                    className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                    className="p-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
                   >
                     <CrossIcon className="w-5 h-5 text-red-600 font-bold mb-1" />
                     Cross (✕)
@@ -1159,10 +1360,21 @@ export const SignPdfPage: React.FC = () => {
 
                   <button
                     onClick={() => {
+                      handleClearPage(activePageIndex);
+                      setShowMobileMore(false);
+                    }}
+                    className="p-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 flex flex-col items-center justify-center text-xs font-medium transition-colors"
+                  >
+                    <Trash2 className="w-5 h-5 text-rose-600 mb-1" />
+                    Clear Page
+                  </button>
+
+                  <button
+                    onClick={() => {
                       selectTool(isPanMode ? 'select' : 'pan');
                       setShowMobileMore(false);
                     }}
-                    className={`p-2 rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-colors ${
+                    className={`p-2.5 rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-colors ${
                       isPanMode ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-50 hover:bg-slate-100 text-slate-800'
                     }`}
                   >
@@ -1194,6 +1406,15 @@ export const SignPdfPage: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Global Image Picker Input (Always accessible for both desktop & mobile) */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImageFilePicked}
+        accept="image/*"
+        className="hidden"
+      />
 
       {/* Signature Modal (Draw, Type, Image - exactly like Screenshots 2 & 3!) */}
       <AddSignatureModal
