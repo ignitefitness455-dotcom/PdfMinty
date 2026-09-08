@@ -1,4 +1,4 @@
-import { Trash2 } from 'lucide-react'
+import { RotateCw, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 
 import { cn } from '../../lib/utils'
@@ -32,12 +32,17 @@ export function PlacedFieldView({
   onRemove,
 }: Props) {
   const [editing, setEditing] = useState(false)
+  const [isRotating, setIsRotating] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
   const gesture = useRef<{
-    type: 'move' | 'resize'
+    type: 'move' | 'resize' | 'rotate'
     startX: number
     startY: number
     orig: PlacedField
     pointerId: number
+    centerX: number
+    centerY: number
+    hasMoved: boolean
   } | null>(null)
 
   const px = {
@@ -49,27 +54,68 @@ export function PlacedFieldView({
 
   const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n))
 
-  const startGesture = (type: 'move' | 'resize') => (e: React.PointerEvent) => {
+  const startGesture = (type: 'move' | 'resize' | 'rotate', e: React.PointerEvent) => {
     if (editing) return
     e.stopPropagation()
     e.preventDefault()
     onSelect()
-    gesture.current = { type, startX: e.clientX, startY: e.clientY, orig: field, pointerId: e.pointerId }
-    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+
+    const rect = containerRef.current?.getBoundingClientRect()
+    const centerX = rect ? rect.left + rect.width / 2 : 0
+    const centerY = rect ? rect.top + rect.height / 2 : 0
+
+    if (type === 'rotate') {
+      setIsRotating(true)
+    }
+
+    gesture.current = {
+      type,
+      startX: e.clientX,
+      startY: e.clientY,
+      orig: { ...field },
+      pointerId: e.pointerId,
+      centerX,
+      centerY,
+      hasMoved: false,
+    }
+
+    try {
+      ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    } catch {
+      // ignore
+    }
   }
 
   const onPointerMove = (e: React.PointerEvent) => {
     const g = gesture.current
     if (!g || g.pointerId !== e.pointerId) return
-    const dx = (e.clientX - g.startX) / pageWidth
-    const dy = (e.clientY - g.startY) / pageHeight
+
+    const dist = Math.hypot(e.clientX - g.startX, e.clientY - g.startY)
+    if (dist > 3) {
+      g.hasMoved = true
+    }
 
     if (g.type === 'move') {
+      const dx = (e.clientX - g.startX) / pageWidth
+      const dy = (e.clientY - g.startY) / pageHeight
       onChange({
         x: clamp(g.orig.x + dx, 0, 1 - g.orig.w),
         y: clamp(g.orig.y + dy, 0, 1 - g.orig.h),
       })
+    } else if (g.type === 'rotate') {
+      const dx = e.clientX - g.centerX
+      const dy = e.clientY - g.centerY
+      let deg = (Math.atan2(dy, dx) * 180) / Math.PI + 90
+      deg = ((deg % 360) + 360) % 360
+      // Snap to 0, 90, 180, 270 if close
+      if (deg < 5 || deg > 355) deg = 0
+      else if (Math.abs(deg - 90) < 5) deg = 90
+      else if (Math.abs(deg - 180) < 5) deg = 180
+      else if (Math.abs(deg - 270) < 5) deg = 270
+      onChange({ rotation: Math.round(deg) })
     } else {
+      const dx = (e.clientX - g.startX) / pageWidth
+      const dy = (e.clientY - g.startY) / pageHeight
       const aspect = g.orig.w / g.orig.h
       const keepAspect = field.kind === 'signature' || field.kind === 'initials'
       let w = clamp(g.orig.w + dx, MIN_SIZE_PX / pageWidth, 1 - g.orig.x)
@@ -91,7 +137,25 @@ export function PlacedFieldView({
   }
 
   const endGesture = (e: React.PointerEvent) => {
-    if (gesture.current?.pointerId === e.pointerId) gesture.current = null
+    const g = gesture.current
+    if (g && g.pointerId === e.pointerId) {
+      if (g.type === 'rotate') {
+        setIsRotating(false)
+        // If simply tapped without dragging, rotate by +90 degrees
+        if (!g.hasMoved) {
+          const next = (((g.orig.rotation || 0) + 90) % 360)
+          onChange({ rotation: next })
+        }
+      }
+      try {
+        if ((e.currentTarget as HTMLElement).hasPointerCapture(e.pointerId)) {
+          ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
+        }
+      } catch {
+        // ignore
+      }
+      gesture.current = null
+    }
   }
 
   const isImage = field.kind === 'signature' || field.kind === 'initials'
@@ -126,6 +190,11 @@ export function PlacedFieldView({
         e.preventDefault()
         onChange({ y: clamp(field.y + dyn, 0, 1 - field.h) })
         break
+      case 'r':
+      case 'R':
+        e.preventDefault()
+        onChange({ rotation: (((field.rotation || 0) + 90) % 360) })
+        break
       case 'Enter':
         if (field.kind === 'text') {
           e.preventDefault()
@@ -135,18 +204,25 @@ export function PlacedFieldView({
     }
   }
 
+  const rotation = field.rotation || 0
+
   return (
     <div
+      ref={containerRef}
       role="button"
       tabIndex={0}
-      aria-label={`${FIELD_LABEL[field.kind]} field. Drag to move, use arrow keys to nudge, Delete to remove.`}
+      aria-label={`${FIELD_LABEL[field.kind]} field. Drag to move, rotate, use arrow keys to nudge, Delete to remove.`}
       data-field="true"
       className={cn(
         'absolute touch-none select-none outline-none',
         selected ? 'z-20' : 'z-10',
         editing ? 'cursor-text' : 'cursor-move',
       )}
-      style={px}
+      style={{
+        ...px,
+        transform: rotation ? `rotate(${rotation}deg)` : undefined,
+        transformOrigin: 'center center',
+      }}
       onPointerDown={(e) => startGesture('move', e)}
       onPointerMove={onPointerMove}
       onPointerUp={endGesture}
@@ -197,6 +273,32 @@ export function PlacedFieldView({
 
         {selected && !editing ? (
           <>
+            {/* Rotation stem and circular touch handle */}
+            <div
+              className="absolute -top-8 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-auto"
+            >
+              <button
+                type="button"
+                aria-label="Rotate signature. Drag to rotate or tap to turn 90 degrees."
+                onPointerDown={(e) => startGesture('rotate', e)}
+                onPointerMove={onPointerMove}
+                onPointerUp={endGesture}
+                onPointerCancel={endGesture}
+                className="flex size-7 items-center justify-center rounded-full border-2 border-emerald-600 bg-white text-emerald-700 shadow-md transition-transform hover:scale-110 active:scale-95 touch-none cursor-grab active:cursor-grabbing"
+              >
+                <RotateCw className="size-3.5" aria-hidden="true" />
+              </button>
+              <div className="w-[1.5px] h-2 bg-emerald-600" />
+            </div>
+
+            {/* Active rotation degree indicator */}
+            {(isRotating || rotation !== 0) ? (
+              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 rounded bg-slate-900/85 px-1.5 py-0.5 text-[10px] font-mono text-white pointer-events-none shadow">
+                {rotation}°
+              </span>
+            ) : null}
+
+            {/* Delete button */}
             <button
               type="button"
               aria-label="Remove field"
@@ -209,6 +311,8 @@ export function PlacedFieldView({
             >
               <Trash2 className="size-3.5" aria-hidden="true" />
             </button>
+
+            {/* Resize handle */}
             <div
               role="presentation"
               aria-label="Resize"

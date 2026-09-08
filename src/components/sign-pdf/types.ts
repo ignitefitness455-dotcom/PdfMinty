@@ -25,6 +25,8 @@ export type PlacedField = {
   /** normalised (0..1) size, relative to the page */
   w: number
   h: number
+  /** rotation in degrees (0..360) */
+  rotation?: number
   /** for text fields */
   text?: string
 }

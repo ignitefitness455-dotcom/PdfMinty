@@ -92,14 +92,25 @@ export async function exportSignedPdf(input: ExportInput): Promise<Uint8Array> {
     const vy0 = field.y * Hv
     const vw = field.w * Wv
     const vh = field.h * Hv
-    const vy1 = vy0 + vh
+
+    const fieldRot = field.rotation || 0
+    const totalDeg = ((rotate - fieldRot) % 360 + 360) % 360
+    const rad = (totalDeg * Math.PI) / 180
+
+    // Center in visual screen coordinates
+    const vcx = vx0 + vw / 2
+    const vcy = vy0 + vh / 2
+    const centerPdf = toPdf(vcx, vcy)
+
+    // Compute anchor (bottom-left of unrotated rectangle) rotated around center in PDF space
+    const anchorX = centerPdf.x - (vw / 2) * Math.cos(rad) + (vh / 2) * Math.sin(rad)
+    const anchorY = centerPdf.y - (vw / 2) * Math.sin(rad) - (vh / 2) * Math.cos(rad)
 
     if (field.kind === 'signature' || field.kind === 'initials') {
       const asset = field.kind === 'signature' ? input.signatures.signature : input.signatures.initials
       if (!asset) continue
       const img = await embed(asset.dataUrl)
-      const anchor = toPdf(vx0, vy1)
-      page.drawImage(img, { x: anchor.x, y: anchor.y, width: vw, height: vh, rotate: degrees(rotate) })
+      page.drawImage(img, { x: anchorX, y: anchorY, width: vw, height: vh, rotate: degrees(totalDeg) })
       continue
     }
 
@@ -112,33 +123,34 @@ export async function exportSignedPdf(input: ExportInput): Promise<Uint8Array> {
     if (!text.trim()) continue
 
     let drawn = false
-    try {
-      const size = fitTextSize(font, text, vw, vh)
-      const textW = font.widthOfTextAtSize(text, size)
-      const capH = font.heightAtSize(size, { descender: false })
-      const baselineVx = vx0 + vw * TEXT_FIELD_PAD_RATIO + Math.max(0, (vw * (1 - TEXT_FIELD_PAD_RATIO * 2) - textW) / 2)
-      const baselineVy = vy0 + vh / 2 + capH / 2 - size * 0.08
-      const anchor = toPdf(baselineVx, baselineVy)
-      page.drawText(text, {
-        x: anchor.x,
-        y: anchor.y,
-        size,
-        font,
-        color: hexToRgb('#111111'),
-        rotate: degrees(rotate),
-      })
-      drawn = true
-    } catch {
-      drawn = false
+    if (fieldRot === 0) {
+      try {
+        const size = fitTextSize(font, text, vw, vh)
+        const textW = font.widthOfTextAtSize(text, size)
+        const capH = font.heightAtSize(size, { descender: false })
+        const baselineVx = vx0 + vw * TEXT_FIELD_PAD_RATIO + Math.max(0, (vw * (1 - TEXT_FIELD_PAD_RATIO * 2) - textW) / 2)
+        const baselineVy = vy0 + vh / 2 + capH / 2 - size * 0.08
+        const anchor = toPdf(baselineVx, baselineVy)
+        page.drawText(text, {
+          x: anchor.x,
+          y: anchor.y,
+          size,
+          font,
+          color: hexToRgb('#111111'),
+          rotate: degrees(rotate),
+        })
+        drawn = true
+      } catch {
+        drawn = false
+      }
     }
 
     if (!drawn) {
-      // Characters outside WinAnsi (e.g. non-Latin scripts) can't be drawn with Helvetica; rasterize instead.
+      // Characters outside WinAnsi or rotated text: rasterize as crisp image
       const asset = rasterizeText(text, vw / vh)
       if (!asset) continue
       const img = await embed(asset)
-      const anchor = toPdf(vx0, vy1)
-      page.drawImage(img, { x: anchor.x, y: anchor.y, width: vw, height: vh, rotate: degrees(rotate) })
+      page.drawImage(img, { x: anchorX, y: anchorY, width: vw, height: vh, rotate: degrees(totalDeg) })
     }
   }
 
