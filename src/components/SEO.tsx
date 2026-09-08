@@ -74,7 +74,7 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       <meta name="author" content="PDFMinty" />
       <meta name="publisher" content="PDFMinty" />
-      <meta name="language" content={currentLocale === 'bn' ? 'Bengali' : 'English'} />
+      <meta name="language" content="English" />
       <meta name="revisit-after" content="7 days" />
       <link rel="canonical" href={canonicalUrl} />
 
@@ -101,7 +101,7 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content={title} />
       <meta property="og:site_name" content={SITE_NAME} />
-      <meta property="og:locale" content={currentLocale === 'bn' ? 'bn_BD' : 'en_US'} />
+      <meta property="og:locale" content="en_US" />
 
       {/* Twitter Cards */}
       <meta name="twitter:card" content="summary_large_image" />

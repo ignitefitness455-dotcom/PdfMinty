@@ -82,39 +82,11 @@ export const App: React.FC = () => {
                 </ErrorBoundary>
               }
             />
-            {/* Localized i18n routes */}
-            <Route
-              path="/bn/merge-pdf"
-              element={
-                <ErrorBoundary resetKey="bn-merge">
-                  <MergePage />
-                </ErrorBoundary>
-              }
-            />
-            <Route
-              path="/bn/merge-pdf/"
-              element={
-                <ErrorBoundary resetKey="bn-merge">
-                  <MergePage />
-                </ErrorBoundary>
-              }
-            />
-            <Route
-              path="/bn"
-              element={
-                <ErrorBoundary resetKey="bn-home">
-                  <HomePage />
-                </ErrorBoundary>
-              }
-            />
-            <Route
-              path="/bn/"
-              element={
-                <ErrorBoundary resetKey="bn-home">
-                  <HomePage />
-                </ErrorBoundary>
-              }
-            />
+            {/* Legacy localized redirects */}
+            <Route path="/bn/merge-pdf" element={<Navigate to={ROUTES.MERGE} replace />} />
+            <Route path="/bn/merge-pdf/" element={<Navigate to={ROUTES.MERGE} replace />} />
+            <Route path="/bn/*" element={<Navigate to="/" replace />} />
+            <Route path="/bn" element={<Navigate to="/" replace />} />
             <Route
               path={ROUTES.SPLIT}
               element={

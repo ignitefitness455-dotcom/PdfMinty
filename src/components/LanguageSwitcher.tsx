@@ -83,6 +83,11 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     };
   }, [isOpen]);
 
+  // If only one locale is supported, do not render language switch controls
+  if (SUPPORTED_LOCALES.length <= 1) {
+    return null;
+  }
+
   const handleLocaleChange = (targetLocale: SupportedLocale) => {
     setIsOpen(false);
     if (targetLocale === activeLocale) {

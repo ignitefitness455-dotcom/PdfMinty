@@ -5,8 +5,6 @@ import { Link } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
 
-import { LanguageSwitcher } from './LanguageSwitcher';
-
 export const Footer: React.FC = () => {
   const { t } = useTranslation('common');
 
@@ -144,8 +142,6 @@ export const Footer: React.FC = () => {
             })}
           </p>
           <div className="flex flex-wrap items-center gap-4 text-on-surface-variant/80 font-medium">
-            <LanguageSwitcher variant="footer" />
-            <span>•</span>
             <span>{t('footer.badges.clientSide', { defaultValue: 'Client-side PDF Suite' })}</span>
             <span>•</span>
             <span>{t('footer.badges.zeroLogs', { defaultValue: 'Zero Data Logs' })}</span>

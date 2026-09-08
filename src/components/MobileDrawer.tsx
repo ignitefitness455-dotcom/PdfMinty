@@ -5,8 +5,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '../config/routes';
 import { useModal } from '../hooks/useModal';
 
-import { LanguageSwitcher } from './LanguageSwitcher';
-
 interface MenuItem {
   name: string;
   path: string;
@@ -140,17 +138,8 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
           </div>
         </div>
 
-        {/* Mobile Display & Language Settings */}
+        {/* Mobile Display Settings */}
         <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-4 space-y-4">
-          <div>
-            <p className="px-4 text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase mb-2">
-              Language
-            </p>
-            <div className="px-4">
-              <LanguageSwitcher variant="mobile" onSelect={() => setMobileMenuOpen(false)} />
-            </div>
-          </div>
-
           <div>
             <p className="px-4 text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase mb-2">
               Display Theme
