@@ -1,567 +1,440 @@
-import {
-  X,
-  PenTool,
-  Type,
-  Upload,
-  Eraser,
-  Check,
-  RotateCcw,
-  Sparkles,
-} from 'lucide-react';
-import React, { useState, useRef, useEffect } from 'react';
+import { Eraser, ImageUp, Loader2 } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import SignaturePad from 'signature_pad'
 
-import {
-  trimCanvas,
-  removeBackgroundFromImage,
-  createTypedSignature,
-} from './signature-image';
+import { cn } from '../../lib/utils'
+import { Button } from '../ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { Switch } from '../ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 
-interface SignatureDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSaveSignature: (dataUrl: string) => void;
-  title?: string;
-  initialType?: 'signature' | 'initials';
+import { imageFileToAsset, initialsFromName, trimCanvasToAsset, typedTextToAsset } from './signature-image'
+import { INK_COLORS, SIGNATURE_FONTS, type SignatureAsset, type SignatureSet } from './types'
+
+type Props = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  initial: SignatureSet
+  onApply: (set: SignatureSet) => void
 }
 
-const SIGNATURE_FONTS = [
-  { name: 'Dancing Script', label: 'Casual Flow' },
-  { name: 'Caveat', label: 'Handwritten' },
-  { name: 'Great Vibes', label: 'Formal Script' },
-  { name: 'Pacifico', label: 'Brush Script' },
-  { name: 'Sacramento', label: 'Monoline Script' },
-];
+type Mode = 'type' | 'draw' | 'upload'
 
-const SIGNATURE_COLORS = [
-  { label: 'Black', hex: '#111827' },
-  { label: 'Navy Blue', hex: '#1e3a8a' },
-  { label: 'Classic Blue', hex: '#2563eb' },
-  { label: 'Crimson', hex: '#dc2626' },
-];
+export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props) {
+  const [mode, setMode] = useState<Mode>('type')
+  const [fullName, setFullName] = useState(initial.fullName)
+  const [initialsText, setInitialsText] = useState(initial.initialsText)
+  const [initialsTouched, setInitialsTouched] = useState(Boolean(initial.initialsText))
+  const [fontId, setFontId] = useState<(typeof SIGNATURE_FONTS)[number]['id']>('dancing')
+  const [color, setColor] = useState<string>(INK_COLORS[0].value)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-const STROKE_WIDTHS = [
-  { label: 'Fine', value: 2 },
-  { label: 'Medium', value: 3 },
-  { label: 'Bold', value: 4.5 },
-];
+  const [drawnSignature, setDrawnSignature] = useState<SignatureAsset | null>(null)
+  const [drawnInitials, setDrawnInitials] = useState<SignatureAsset | null>(null)
+  const [uploadedSignature, setUploadedSignature] = useState<SignatureAsset | null>(null)
+  const [uploadedInitials, setUploadedInitials] = useState<SignatureAsset | null>(null)
+  const [removeBg, setRemoveBg] = useState(true)
+  const [pendingFiles, setPendingFiles] = useState<{ signature?: File; initials?: File }>({})
 
-export const SignatureDialog: React.FC<SignatureDialogProps> = ({
-  isOpen,
-  onClose,
-  onSaveSignature,
-  title = 'Create Your Signature',
-  initialType = 'signature',
-}) => {
-  const [activeTab, setActiveTab] = useState<'draw' | 'type' | 'upload'>('draw');
-  const [selectedColor, setSelectedColor] = useState(SIGNATURE_COLORS[0].hex);
-  const [selectedStrokeWidth, setSelectedStrokeWidth] = useState(STROKE_WIDTHS[1].value);
-
-  // Type tab state
-  const [typedName, setTypedName] = useState(initialType === 'initials' ? 'JD' : 'John Doe');
-  const [selectedFont, setSelectedFont] = useState(SIGNATURE_FONTS[0].name);
-
-  // Upload tab state
-  const [uploadedPreview, setUploadedPreview] = useState<string | null>(null);
-  const [isProcessingUpload, setIsProcessingUpload] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Draw tab canvas ref
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [hasDrawn, setHasDrawn] = useState(false);
-  const lastPointRef = useRef<{ x: number; y: number } | null>(null);
-
-  // Clear Canvas
-  const handleClearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setHasDrawn(false);
-    lastPointRef.current = null;
-  };
-
-  // Set up canvas with high DPI for super sharp signature
   useEffect(() => {
-    if (!isOpen || activeTab !== 'draw') return;
-
-    const timer = setTimeout(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 2;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.scale(dpr, dpr);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-      }
-      setHasDrawn(false);
-    }, 50);
-
-    return () => clearTimeout(timer);
-  }, [isOpen, activeTab]);
-
-  // Drawing event handlers
-  const getCoordinates = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-    const rect = canvas.getBoundingClientRect();
-
-    if ('touches' in e) {
-      const touch = e.touches[0];
-      return {
-        x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top,
-      };
-    } else {
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
+    if (open) {
+      setFullName(initial.fullName)
+      setInitialsText(initial.initialsText)
+      setInitialsTouched(Boolean(initial.initialsText))
+      setError(null)
     }
-  };
+  }, [open, initial.fullName, initial.initialsText])
 
-  const startDrawing = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
-    e.preventDefault();
-    setIsDrawing(true);
-    setHasDrawn(true);
-    const coords = getCoordinates(e);
-    lastPointRef.current = coords;
+  const handleNameChange = (value: string) => {
+    setFullName(value)
+    if (!initialsTouched) setInitialsText(initialsFromName(value))
+  }
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.strokeStyle = selectedColor;
-    ctx.lineWidth = selectedStrokeWidth;
-    ctx.beginPath();
-    ctx.arc(coords.x, coords.y, selectedStrokeWidth / 2, 0, Math.PI * 2);
-    ctx.fillStyle = selectedColor;
-    ctx.fill();
-  };
-
-  const draw = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
-    if (!isDrawing || !lastPointRef.current) return;
-    e.preventDefault();
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const currentPoint = getCoordinates(e);
-
-    ctx.strokeStyle = selectedColor;
-    ctx.lineWidth = selectedStrokeWidth;
-    ctx.beginPath();
-    ctx.moveTo(lastPointRef.current.x, lastPointRef.current.y);
-    ctx.lineTo(currentPoint.x, currentPoint.y);
-    ctx.stroke();
-
-    lastPointRef.current = currentPoint;
-  };
-
-  const stopDrawing = () => {
-    setIsDrawing(false);
-    lastPointRef.current = null;
-  };
-
-  // Upload handler with automatic background removal
-  const handleFileUpload = async (file: File) => {
-    if (!file.type.startsWith('image/')) return;
-    setIsProcessingUpload(true);
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const dataUrl = e.target?.result as string;
+  const reprocessUpload = useCallback(
+    async (which: 'signature' | 'initials', file: File | undefined, remove: boolean) => {
+      if (!file) return
       try {
-        const transparentUrl = await removeBackgroundFromImage(dataUrl, 215);
-        setUploadedPreview(transparentUrl);
-      } catch {
-        setUploadedPreview(dataUrl);
-      } finally {
-        setIsProcessingUpload(false);
+        const asset = await imageFileToAsset(file, remove)
+        if (which === 'signature') setUploadedSignature(asset)
+        else setUploadedInitials(asset)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Could not read the image.')
       }
-    };
-    reader.readAsDataURL(file);
-  };
+    },
+    [],
+  )
 
-  // Confirm and Adopt Signature
-  const handleAdopt = () => {
-    let signatureUrl = '';
+  useEffect(() => {
+    void reprocessUpload('signature', pendingFiles.signature, removeBg)
+    void reprocessUpload('initials', pendingFiles.initials, removeBg)
+  }, [removeBg, pendingFiles, reprocessUpload])
 
-    if (activeTab === 'draw') {
-      const canvas = canvasRef.current;
-      if (!canvas || !hasDrawn) return;
-      signatureUrl = trimCanvas(canvas);
-    } else if (activeTab === 'type') {
-      if (!typedName.trim()) return;
-      signatureUrl = createTypedSignature(typedName, selectedFont, selectedColor);
-    } else if (activeTab === 'upload') {
-      if (!uploadedPreview) return;
-      signatureUrl = uploadedPreview;
+  const canApply =
+    fullName.trim().length > 0 &&
+    (mode === 'type' ? true : mode === 'draw' ? drawnSignature !== null : uploadedSignature !== null)
+
+  const apply = async () => {
+    setError(null)
+    if (!fullName.trim()) {
+      setError('Please enter your full name.')
+      return
     }
+    setBusy(true)
+    try {
+      const font = SIGNATURE_FONTS.find((f) => f.id === fontId) ?? SIGNATURE_FONTS[0]
+      let signature: SignatureAsset | null = null
+      let initials: SignatureAsset | null = null
 
-    if (signatureUrl) {
-      try {
-        localStorage.setItem(
-          initialType === 'initials' ? 'pdfminty_saved_initials' : 'pdfminty_saved_signature',
-          signatureUrl
-        );
-      } catch {
-        // Local storage might be blocked or full
+      if (mode === 'type') {
+        signature = await typedTextToAsset(fullName, font.css, color)
+        initials = initialsText.trim() ? await typedTextToAsset(initialsText, font.css, color) : null
+      } else if (mode === 'draw') {
+        signature = drawnSignature
+        initials = drawnInitials ?? (initialsText.trim() ? await typedTextToAsset(initialsText, font.css, color) : null)
+      } else {
+        signature = uploadedSignature
+        initials =
+          uploadedInitials ?? (initialsText.trim() ? await typedTextToAsset(initialsText, font.css, color) : null)
       }
 
-      onSaveSignature(signatureUrl);
-      onClose();
-    }
-  };
+      if (!signature) {
+        setError(mode === 'draw' ? 'Please draw your signature.' : 'Please upload a signature image.')
+        return
+      }
 
-  if (!isOpen) return null;
+      onApply({ fullName: fullName.trim(), initialsText: initialsText.trim(), signature, initials })
+      onOpenChange(false)
+    } finally {
+      setBusy(false)
+    }
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div
-        className="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-              <PenTool className="w-4 h-4" />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[calc(100svh-2rem)] overflow-y-auto p-0 sm:max-w-2xl">
+        <DialogHeader className="border-b border-slate-200 dark:border-slate-800 px-6 pb-4 pt-6">
+          <DialogTitle className="text-lg">Set your signature details</DialogTitle>
+          <DialogDescription>Create the signature and initials you&apos;ll place on the document.</DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-5 px-6 pb-6">
+          <div className="grid gap-4 sm:grid-cols-[1fr_140px]">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="sig-full-name">Full name</Label>
+              <Input
+                id="sig-full-name"
+                value={fullName}
+                autoComplete="name"
+                placeholder="e.g. Jane Doe"
+                onChange={(e) => handleNameChange(e.target.value)}
+              />
             </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-800 leading-tight">{title}</h2>
-              <p className="text-xs text-slate-500">
-                Choose how you would like to create your {initialType}
-              </p>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="sig-initials">Initials</Label>
+              <Input
+                id="sig-initials"
+                value={initialsText}
+                maxLength={4}
+                placeholder="JD"
+                onChange={(e) => {
+                  setInitialsTouched(true)
+                  setInitialsText(e.target.value.toUpperCase())
+                }}
+              />
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
 
-        {/* Tab Navigation */}
-        <div className="px-5 pt-3 border-b border-slate-100 flex items-center space-x-2">
-          <button
-            onClick={() => setActiveTab('draw')}
-            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-t-xl text-xs font-semibold border-b-2 transition-all ${
-              activeTab === 'draw'
-                ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <PenTool className="w-3.5 h-3.5" />
-            <span>Draw</span>
-          </button>
+          <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
+            <TabsList className="w-full">
+              <TabsTrigger value="type" className="flex-1">
+                Type
+              </TabsTrigger>
+              <TabsTrigger value="draw" className="flex-1">
+                Draw
+              </TabsTrigger>
+              <TabsTrigger value="upload" className="flex-1">
+                Upload
+              </TabsTrigger>
+            </TabsList>
 
-          <button
-            onClick={() => setActiveTab('type')}
-            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-t-xl text-xs font-semibold border-b-2 transition-all ${
-              activeTab === 'type'
-                ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Type className="w-3.5 h-3.5" />
-            <span>Type</span>
-          </button>
+            <TabsContent value="type" className="flex flex-col gap-4 pt-2">
+              <ColorPicker value={color} onChange={setColor} />
+              <div role="radiogroup" aria-label="Signature style" className="grid gap-2 sm:grid-cols-2">
+                {SIGNATURE_FONTS.map((font) => {
+                  const selected = font.id === fontId
+                  return (
+                    <button
+                      key={font.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      onClick={() => setFontId(font.id)}
+                      className={cn(
+                        'flex h-20 items-center justify-between gap-3 rounded-lg border bg-white dark:bg-slate-900 px-4 text-left transition-colors hover:border-emerald-600/60',
+                        selected ? 'border-emerald-600 ring-2 ring-emerald-600/30' : 'border-slate-200 dark:border-slate-700',
+                      )}
+                    >
+                      <span
+                        className="truncate text-3xl leading-none"
+                        style={{ fontFamily: font.css, color }}
+                        aria-hidden="true"
+                      >
+                        {fullName.trim() || 'Your name'}
+                      </span>
+                      <span className="shrink-0 text-[11px] text-slate-500">{font.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </TabsContent>
 
-          <button
-            onClick={() => setActiveTab('upload')}
-            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-t-xl text-xs font-semibold border-b-2 transition-all ${
-              activeTab === 'upload'
-                ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Upload className="w-3.5 h-3.5" />
-            <span>Upload</span>
-          </button>
-        </div>
+            <TabsContent value="draw" className="flex flex-col gap-4 pt-2">
+              <ColorPicker value={color} onChange={setColor} />
+              <div className="grid gap-4 sm:grid-cols-[1fr_180px]">
+                <DrawPad label="Signature" color={color} height={200} onChange={setDrawnSignature} />
+                <DrawPad label="Initials" color={color} height={200} onChange={setDrawnInitials} />
+              </div>
+            </TabsContent>
 
-        {/* Tab Content Body */}
-        <div className="p-5 overflow-y-auto flex-1 space-y-4">
-          {/* TAB: DRAW */}
-          {activeTab === 'draw' && (
-            <div className="space-y-3">
-              {/* Canvas Pad */}
-              <div className="relative border-2 border-dashed border-slate-300 rounded-xl bg-slate-50/50 hover:border-slate-400 transition-colors overflow-hidden">
-                <canvas
-                  ref={canvasRef}
-                  onMouseDown={startDrawing}
-                  onMouseMove={draw}
-                  onMouseUp={stopDrawing}
-                  onMouseLeave={stopDrawing}
-                  onTouchStart={startDrawing}
-                  onTouchMove={draw}
-                  onTouchEnd={stopDrawing}
-                  className="w-full h-48 sm:h-56 cursor-crosshair touch-none"
+            <TabsContent value="upload" className="flex flex-col gap-4 pt-2">
+              <div className="grid gap-4 sm:grid-cols-[1fr_180px]">
+                <UploadBox
+                  label="Signature"
+                  asset={uploadedSignature}
+                  onFile={(f) => setPendingFiles((p) => ({ ...p, signature: f }))}
                 />
-
-                {/* Signing baseline */}
-                <div className="absolute bottom-9 inset-x-8 border-b border-slate-300/80 pointer-events-none flex items-center justify-end">
-                  <span className="text-[10px] text-slate-400 uppercase tracking-widest font-mono select-none pr-1">
-                    Sign on line
-                  </span>
-                </div>
-
-                {/* Clear button inside pad */}
-                <button
-                  onClick={handleClearCanvas}
-                  className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-white/90 hover:bg-white text-slate-600 hover:text-rose-600 border border-slate-200 text-xs font-medium shadow-xs flex items-center space-x-1 transition-all"
-                  title="Clear drawing"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Clear</span>
-                </button>
-              </div>
-
-              {/* Controls bar (Color & Stroke Width) */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                {/* Color Palette */}
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs font-semibold text-slate-600">Ink Color:</span>
-                  <div className="flex items-center space-x-1.5">
-                    {SIGNATURE_COLORS.map((c) => (
-                      <button
-                        key={c.hex}
-                        onClick={() => setSelectedColor(c.hex)}
-                        className={`w-6 h-6 rounded-full transition-all flex items-center justify-center ${
-                          selectedColor === c.hex
-                            ? 'ring-2 ring-offset-2 ring-emerald-600 scale-110'
-                            : 'opacity-80 hover:opacity-100'
-                        }`}
-                        style={{ backgroundColor: c.hex }}
-                        title={c.label}
-                      >
-                        {selectedColor === c.hex && <Check className="w-3 h-3 text-white" />}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Stroke Width */}
-                <div className="flex items-center space-x-1.5">
-                  <span className="text-xs font-semibold text-slate-600">Thickness:</span>
-                  <div className="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50">
-                    {STROKE_WIDTHS.map((s) => (
-                      <button
-                        key={s.value}
-                        onClick={() => setSelectedStrokeWidth(s.value)}
-                        className={`px-2.5 py-0.5 rounded text-xs font-medium transition-all ${
-                          selectedStrokeWidth === s.value
-                            ? 'bg-white text-emerald-700 shadow-xs font-semibold'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB: TYPE */}
-          {activeTab === 'type' && (
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="signature-typed-name" className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Type your name or initials
-                </label>
-                <input
-                  id="signature-typed-name"
-                  type="text"
-                  value={typedName}
-                  onChange={(e) => setTypedName(e.target.value)}
-                  placeholder="Enter full name..."
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-hidden transition-all"
+                <UploadBox
+                  label="Initials"
+                  asset={uploadedInitials}
+                  onFile={(f) => setPendingFiles((p) => ({ ...p, initials: f }))}
                 />
               </div>
-
-              {/* Color Selection for Typed Signature */}
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-semibold text-slate-600">Color:</span>
-                <div className="flex items-center space-x-2">
-                  {SIGNATURE_COLORS.map((c) => (
-                    <button
-                      key={c.hex}
-                      onClick={() => setSelectedColor(c.hex)}
-                      className={`w-6 h-6 rounded-full transition-all flex items-center justify-center ${
-                        selectedColor === c.hex
-                          ? 'ring-2 ring-offset-2 ring-emerald-600 scale-110'
-                          : 'opacity-80 hover:opacity-100'
-                      }`}
-                      style={{ backgroundColor: c.hex }}
-                      title={c.label}
-                    >
-                      {selectedColor === c.hex && <Check className="w-3 h-3 text-white" />}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 px-3 py-2">
+                <Label htmlFor="remove-bg" className="text-sm">
+                  Remove white background
+                </Label>
+                <Switch id="remove-bg" checked={removeBg} onCheckedChange={setRemoveBg} />
               </div>
+            </TabsContent>
+          </Tabs>
 
-              {/* Font Style Selection Grid */}
-              <div className="space-y-2">
-                <span className="text-xs font-semibold text-slate-600">Select Signature Style:</span>
-                <div className="grid grid-cols-1 gap-2 max-h-52 overflow-y-auto pr-1">
-                  {SIGNATURE_FONTS.map((font) => (
-                    <div
-                      key={font.name}
-                      onClick={() => setSelectedFont(font.name)}
-                      className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
-                        selectedFont === font.name
-                          ? 'border-emerald-500 bg-emerald-50/50 ring-1 ring-emerald-500 shadow-xs'
-                          : 'border-slate-200 hover:border-slate-300 bg-white'
-                      }`}
-                    >
-                      <div className="min-w-0 pr-3">
-                        <div
-                          className="text-2xl truncate leading-normal"
-                          style={{
-                            fontFamily: `'${font.name}', cursive, sans-serif`,
-                            color: selectedColor,
-                          }}
-                        >
-                          {typedName || 'Your Name'}
-                        </div>
-                        <span className="text-[11px] text-slate-400">{font.label}</span>
-                      </div>
-                      <div
-                        className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                          selectedFont === font.name
-                            ? 'border-emerald-600 bg-emerald-600 text-white'
-                            : 'border-slate-300'
-                        }`}
-                      >
-                        {selectedFont === font.name && <Check className="w-3 h-3" />}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          {error ? (
+            <p role="alert" className="rounded-md bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-600 dark:text-rose-400">
+              {error}
+            </p>
+          ) : null}
 
-          {/* TAB: UPLOAD */}
-          {activeTab === 'upload' && (
-            <div className="space-y-3">
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleFileUpload(file);
-                }}
-                className="hidden"
-              />
-
-              {!uploadedPreview ? (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    const file = e.dataTransfer.files?.[0];
-                    if (file) handleFileUpload(file);
-                  }}
-                  className="border-2 border-dashed border-slate-300 hover:border-emerald-500 hover:bg-emerald-50/30 rounded-xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center space-y-2.5"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center">
-                    <Upload className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-800">
-                      Drop signature image here, or browse
-                    </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      PNG, JPG, or WEBP. White background will be automatically converted to transparent.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 flex flex-col items-center justify-center relative min-h-[160px]">
-                    {isProcessingUpload ? (
-                      <div className="flex flex-col items-center space-y-2">
-                        <Sparkles className="w-6 h-6 text-emerald-600 animate-spin" />
-                        <span className="text-xs text-slate-600 font-medium">
-                          Removing background...
-                        </span>
-                      </div>
-                    ) : (
-                      <img
-                        src={uploadedPreview}
-                        alt="Signature Preview"
-                        className="max-h-36 max-w-full object-contain"
-                      />
-                    )}
-
-                    <button
-                      onClick={() => setUploadedPreview(null)}
-                      className="absolute top-2.5 right-2.5 p-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-600 hover:text-rose-600 border border-slate-200 shadow-xs transition-colors"
-                      title="Remove image"
-                    >
-                      <Eraser className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full py-2 border border-slate-200 hover:bg-slate-50 rounded-xl text-xs font-semibold text-slate-700 transition-colors"
-                  >
-                    Choose Different Image
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          <div className="flex justify-end gap-2 border-t border-slate-200 dark:border-slate-800 pt-4">
+            <Button variant="ghost" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={apply} disabled={!canApply || busy} className="min-w-28">
+              {busy ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
+              Apply
+            </Button>
+          </div>
         </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
-        {/* Footer */}
-        <div className="px-5 py-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-slate-200 hover:bg-white rounded-xl text-xs font-semibold text-slate-700 transition-colors"
-          >
-            Cancel
-          </button>
+function ColorPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div role="radiogroup" aria-label="Ink color" className="flex items-center gap-2">
+      <span className="text-xs font-medium text-slate-500">Color</span>
+      {INK_COLORS.map((c) => (
+        <button
+          key={c.id}
+          type="button"
+          role="radio"
+          aria-checked={value === c.value}
+          aria-label={c.label}
+          onClick={() => onChange(c.value)}
+          className={cn(
+            'size-6 rounded-full border-2 transition-transform hover:scale-105',
+            value === c.value ? 'border-slate-900 dark:border-slate-100' : 'border-transparent',
+          )}
+          style={{ backgroundColor: c.value }}
+        />
+      ))}
+    </div>
+  )
+}
 
-          <button
-            onClick={handleAdopt}
-            disabled={
-              (activeTab === 'draw' && !hasDrawn) ||
-              (activeTab === 'type' && !typedName.trim()) ||
-              (activeTab === 'upload' && !uploadedPreview) ||
-              isProcessingUpload
-            }
-            className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center space-x-1.5"
-          >
-            <Check className="w-4 h-4" />
-            <span>Adopt & Use</span>
-          </button>
-        </div>
+function DrawPad({
+  label,
+  color,
+  height,
+  onChange,
+}: {
+  label: string
+  color: string
+  height: number
+  onChange: (asset: SignatureAsset | null) => void
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const padRef = useRef<SignaturePad | null>(null)
+  const [empty, setEmpty] = useState(true)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const wrap = wrapRef.current
+    if (!canvas || !wrap) return
+
+    const pad = new SignaturePad(canvas, {
+      penColor: color,
+      minWidth: 1.2,
+      maxWidth: 3.2,
+      throttle: 8,
+      velocityFilterWeight: 0.6,
+    })
+    padRef.current = pad
+
+    const resize = () => {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1)
+      const data = pad.toData()
+      canvas.width = wrap.clientWidth * ratio
+      canvas.height = height * ratio
+      canvas.style.width = `${wrap.clientWidth}px`
+      canvas.style.height = `${height}px`
+      canvas.getContext('2d')?.scale(ratio, ratio)
+      pad.clear()
+      if (data.length) pad.fromData(data)
+    }
+    resize()
+
+    const observer = new ResizeObserver(resize)
+    observer.observe(wrap)
+
+    const commit = () => {
+      const isEmpty = pad.isEmpty()
+      setEmpty(isEmpty)
+      onChange(isEmpty ? null : trimCanvasToAsset(canvas, 10))
+    }
+    pad.addEventListener('endStroke', commit)
+
+    return () => {
+      observer.disconnect()
+      pad.removeEventListener('endStroke', commit)
+      pad.off()
+      padRef.current = null
+    }
+    // color is applied separately so re-init doesn't wipe strokes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [height])
+
+  useEffect(() => {
+    const pad = padRef.current
+    const canvas = canvasRef.current
+    if (!pad || !canvas) return
+    pad.penColor = color
+    const data = pad.toData()
+    if (!data.length) return
+    for (const group of data) group.penColor = color
+    pad.fromData(data)
+    onChange(trimCanvasToAsset(canvas, 10))
+  }, [color, onChange])
+
+  const clear = () => {
+    padRef.current?.clear()
+    setEmpty(true)
+    onChange(null)
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-slate-500">{label}</span>
+        <Button variant="ghost" size="xs" onClick={clear} disabled={empty}>
+          <Eraser aria-hidden="true" />
+          Clear
+        </Button>
+      </div>
+      <div
+        ref={wrapRef}
+        className="relative overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+        style={{ height }}
+      >
+        <canvas
+          ref={canvasRef}
+          className="block touch-none"
+          aria-label={`Draw your ${label.toLowerCase()}`}
+          role="img"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-6 bottom-8 border-b border-dashed border-slate-200 dark:border-slate-700"
+        />
+        {empty ? (
+          <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-sm text-slate-500">
+            Draw here
+          </span>
+        ) : null}
       </div>
     </div>
-  );
-};
+  )
+}
+
+function UploadBox({
+  label,
+  asset,
+  onFile,
+}: {
+  label: string
+  asset: SignatureAsset | null
+  onFile: (file: File) => void
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-xs font-medium text-slate-500">{label}</span>
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        className="flex h-[200px] flex-col items-center justify-center gap-2 overflow-hidden rounded-lg border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-sm text-slate-500 transition-colors hover:border-emerald-600/60 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault()
+          const f = e.dataTransfer.files?.[0]
+          if (f) onFile(f)
+        }}
+      >
+        {asset ? (
+          <img
+            src={asset.dataUrl}
+            alt={`${label} preview`}
+            className="max-h-full max-w-full object-contain"
+            style={{
+              backgroundImage:
+                'linear-gradient(45deg, var(--color-muted) 25%, transparent 25%), linear-gradient(-45deg, var(--color-muted) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--color-muted) 75%), linear-gradient(-45deg, transparent 75%, var(--color-muted) 75%)',
+              backgroundSize: '16px 16px',
+              backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0',
+            }}
+          />
+        ) : (
+          <>
+            <ImageUp className="size-6" aria-hidden="true" />
+            <span>Click or drop an image</span>
+            <span className="text-xs">PNG, JPG</span>
+          </>
+        )}
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        className="sr-only"
+        onChange={(e) => {
+          const f = e.target.files?.[0]
+          if (f) onFile(f)
+          e.target.value = ''
+        }}
+      />
+    </div>
+  )
+}

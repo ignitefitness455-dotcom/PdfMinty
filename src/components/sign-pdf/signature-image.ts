@@ -1,122 +1,139 @@
+import type { SignatureAsset } from './types'
+
 /**
- * Trims excess transparent padding from a canvas context
+ * Crop a canvas to the bounding box of its non-transparent pixels and return a PNG asset.
  */
-export function trimCanvas(canvas: HTMLCanvasElement): string {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return canvas.toDataURL('image/png');
+export function trimCanvasToAsset(source: HTMLCanvasElement, padding = 8): SignatureAsset | null {
+  const ctx = source.getContext('2d')
+  if (!ctx) return null
+  const { width, height } = source
+  const { data } = ctx.getImageData(0, 0, width, height)
 
-  const width = canvas.width;
-  const height = canvas.height;
-  const imgData = ctx.getImageData(0, 0, width, height);
-  const data = imgData.data;
-
-  let minX = width;
-  let minY = height;
-  let maxX = 0;
-  let maxY = 0;
+  let top = height
+  let left = width
+  let right = -1
+  let bottom = -1
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const alpha = data[(y * width + x) * 4 + 3];
-      if (alpha > 10) {
-        if (x < minX) minX = x;
-        if (x > maxX) maxX = x;
-        if (y < minY) minY = y;
-        if (y > maxY) maxY = y;
+      const alpha = data[(y * width + x) * 4 + 3]
+      if (alpha > 8) {
+        if (x < left) left = x
+        if (x > right) right = x
+        if (y < top) top = y
+        if (y > bottom) bottom = y
       }
     }
   }
 
-  // If completely empty canvas
-  if (maxX < minX || maxY < minY) {
-    return canvas.toDataURL('image/png');
-  }
+  if (right < 0 || bottom < 0) return null
 
-  // Add slight padding around signature
-  const padding = 12;
-  const cropX = Math.max(0, minX - padding);
-  const cropY = Math.max(0, minY - padding);
-  const cropW = Math.min(width - cropX, maxX - minX + padding * 2);
-  const cropH = Math.min(height - cropY, maxY - minY + padding * 2);
+  const x0 = Math.max(0, left - padding)
+  const y0 = Math.max(0, top - padding)
+  const x1 = Math.min(width, right + padding + 1)
+  const y1 = Math.min(height, bottom + padding + 1)
+  const w = x1 - x0
+  const h = y1 - y0
 
-  const croppedCanvas = document.createElement('canvas');
-  croppedCanvas.width = cropW;
-  croppedCanvas.height = cropH;
-  const croppedCtx = croppedCanvas.getContext('2d');
-  if (!croppedCtx) return canvas.toDataURL('image/png');
+  const out = document.createElement('canvas')
+  out.width = w
+  out.height = h
+  const octx = out.getContext('2d')
+  if (!octx) return null
+  octx.drawImage(source, x0, y0, w, h, 0, 0, w, h)
 
-  croppedCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-  return croppedCanvas.toDataURL('image/png');
+  return { dataUrl: out.toDataURL('image/png'), width: w, height: h }
 }
 
 /**
- * Removes white / light paper background from an uploaded signature image
+ * Render typed text in a script font onto a transparent canvas, high resolution.
  */
-export function removeBackgroundFromImage(
-  dataUrl: string,
-  threshold = 220
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        resolve(dataUrl);
-        return;
-      }
-
-      ctx.drawImage(img, 0, 0);
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const d = imgData.data;
-
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i];
-        const g = d[i + 1];
-        const b = d[i + 2];
-        // Luminance formula
-        const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-
-        if (brightness > threshold) {
-          // Smooth transparency fade near threshold
-          const diff = brightness - threshold;
-          const maxDiff = 255 - threshold;
-          const alphaFactor = 1 - diff / maxDiff;
-          d[i + 3] = Math.floor(d[i + 3] * Math.max(0, Math.min(1, alphaFactor)));
-        }
-      }
-
-      ctx.putImageData(imgData, 0, 0);
-      resolve(trimCanvas(canvas));
-    };
-    img.onerror = reject;
-    img.src = dataUrl;
-  });
-}
-
-/**
- * Generates a transparent PNG data URL from typed text with a given cursive font
- */
-export function createTypedSignature(
+export async function typedTextToAsset(
   text: string,
   fontFamily: string,
-  color: string
-): string {
-  const canvas = document.createElement('canvas');
-  canvas.width = 700;
-  canvas.height = 200;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return '';
+  color: string,
+): Promise<SignatureAsset | null> {
+  const value = text.trim()
+  if (!value) return null
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.font = `64px ${fontFamily}, cursive, sans-serif`;
-  ctx.fillStyle = color;
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
+  const fontSize = 160
+  const fontSpec = `${fontSize}px ${fontFamily}`
+  try {
+    await document.fonts.load(fontSpec, value)
+  } catch {
+    // fall through and render with whatever is available
+  }
 
-  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-  return trimCanvas(canvas);
+  const measure = document.createElement('canvas').getContext('2d')
+  if (!measure) return null
+  measure.font = fontSpec
+  const metrics = measure.measureText(value)
+  const ascent = metrics.actualBoundingBoxAscent || fontSize * 0.8
+  const descent = metrics.actualBoundingBoxDescent || fontSize * 0.3
+  const pad = fontSize * 0.25
+
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.ceil(metrics.width + pad * 2)
+  canvas.height = Math.ceil(ascent + descent + pad * 2)
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+  ctx.font = fontSpec
+  ctx.fillStyle = color
+  ctx.textBaseline = 'alphabetic'
+  ctx.fillText(value, pad, pad + ascent)
+
+  return trimCanvasToAsset(canvas, 12)
+}
+
+/**
+ * Load an uploaded image, optionally knock out a light background, and return a PNG asset.
+ */
+export function imageFileToAsset(file: File, removeBackground: boolean): Promise<SignatureAsset | null> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const maxSide = 1600
+      const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight))
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(img.naturalWidth * scale)
+      canvas.height = Math.round(img.naturalHeight * scale)
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return resolve(null)
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+
+      if (removeBackground) {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const d = imageData.data
+        for (let i = 0; i < d.length; i += 4) {
+          const r = d[i]
+          const g = d[i + 1]
+          const b = d[i + 2]
+          const luminance = 0.299 * r + 0.587 * g + 0.114 * b
+          // fade near-white pixels out smoothly so anti-aliased strokes stay intact
+          if (luminance > 235) d[i + 3] = 0
+          else if (luminance > 180) d[i + 3] = Math.round(d[i + 3] * (1 - (luminance - 180) / 55))
+        }
+        ctx.putImageData(imageData, 0, 0)
+      }
+
+      resolve(trimCanvasToAsset(canvas, 6))
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('Could not read that image.'))
+    }
+    img.src = url
+  })
+}
+
+export function initialsFromName(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('')
 }

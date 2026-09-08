@@ -1,354 +1,264 @@
-import {
-  Trash2,
-  Copy,
-  PenTool,
-  Check,
-  Calendar,
-  Type,
-  GripVertical,
-} from 'lucide-react';
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Trash2 } from 'lucide-react'
+import { useRef, useState } from 'react'
 
-import { PlacedField } from './types';
+import { cn } from '../../lib/utils'
 
-interface PlacedFieldComponentProps {
-  field: PlacedField;
-  isSelected: boolean;
-  scale: number;
-  pageWidth: number; // unscaled page points
-  pageHeight: number; // unscaled page points
-  onSelect: () => void;
-  onUpdate: (updated: Partial<PlacedField>) => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onRequestSign: () => void;
+import { TEXT_FIELD_PAD_RATIO } from './export'
+import { FIELD_LABEL, type PlacedField, type SignatureSet } from './types'
+
+type Props = {
+  field: PlacedField
+  pageWidth: number
+  pageHeight: number
+  signatures: SignatureSet
+  dateText: string
+  selected: boolean
+  onSelect: () => void
+  onChange: (patch: Partial<PlacedField>) => void
+  onRemove: () => void
 }
 
-export const PlacedFieldComponent: React.FC<PlacedFieldComponentProps> = ({
+const MIN_SIZE_PX = 24
+
+export function PlacedFieldView({
   field,
-  isSelected,
-  scale,
   pageWidth,
   pageHeight,
+  signatures,
+  dateText,
+  selected,
   onSelect,
-  onUpdate,
-  onDelete,
-  onDuplicate,
-  onRequestSign,
-}) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const textInputRef = useRef<HTMLInputElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isEditingText, setIsEditingText] = useState(false);
-  const [tempText, setTempText] = useState(field.value);
+  onChange,
+  onRemove,
+}: Props) {
+  const [editing, setEditing] = useState(false)
+  const gesture = useRef<{
+    type: 'move' | 'resize'
+    startX: number
+    startY: number
+    orig: PlacedField
+    pointerId: number
+  } | null>(null)
 
-  // Sync temp text when field.value changes
-  useEffect(() => {
-    setTempText(field.value);
-  }, [field.value]);
+  const px = {
+    left: field.x * pageWidth,
+    top: field.y * pageHeight,
+    width: field.w * pageWidth,
+    height: field.h * pageHeight,
+  }
 
-  useEffect(() => {
-    if (isEditingText) {
-      textInputRef.current?.focus();
-    }
-  }, [isEditingText]);
+  const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n))
 
-  // Scaled dimensions in pixels on current screen viewport
-  const pixelWidth = field.width * scale;
-  const pixelHeight = field.height * scale;
+  const startGesture = (type: 'move' | 'resize') => (e: React.PointerEvent) => {
+    if (editing) return
+    e.stopPropagation()
+    e.preventDefault()
+    onSelect()
+    gesture.current = { type, startX: e.clientX, startY: e.clientY, orig: field, pointerId: e.pointerId }
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  }
 
-  // Pixel coordinates relative to page container
-  const pixelX = (field.x / 100) * pageWidth * scale;
-  const pixelY = (field.y / 100) * pageHeight * scale;
+  const onPointerMove = (e: React.PointerEvent) => {
+    const g = gesture.current
+    if (!g || g.pointerId !== e.pointerId) return
+    const dx = (e.clientX - g.startX) / pageWidth
+    const dy = (e.clientY - g.startY) / pageHeight
 
-  // Dragging logic
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    // Only drag if not interacting with resize handle or action buttons
-    if ((e.target as HTMLElement).closest('.field-action-button') || (e.target as HTMLElement).closest('.resize-handle')) {
-      return;
-    }
-
-    e.preventDefault();
-    e.stopPropagation();
-    onSelect();
-    setIsDragging(true);
-
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-
-    const startX = pixelX;
-    const startY = pixelY;
-
-    const handleMouseMove = (moveEvent: MouseEvent | TouchEvent) => {
-      moveEvent.preventDefault();
-      const currentX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX;
-      const currentY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : moveEvent.clientY;
-
-      const deltaX = currentX - clientX;
-      const deltaY = currentY - clientY;
-
-      const newPixelX = Math.max(0, Math.min(pageWidth * scale - pixelWidth, startX + deltaX));
-      const newPixelY = Math.max(0, Math.min(pageHeight * scale - pixelHeight, startY + deltaY));
-
-      const newPercentX = Number(((newPixelX / (pageWidth * scale)) * 100).toFixed(3));
-      const newPercentY = Number(((newPixelY / (pageHeight * scale)) * 100).toFixed(3));
-
-      onUpdate({ x: newPercentX, y: newPercentY });
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('touchmove', handleMouseMove);
-      window.removeEventListener('touchend', handleMouseUp);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('touchmove', handleMouseMove, { passive: false });
-    window.addEventListener('touchend', handleMouseUp);
-  };
-
-  // Resizing logic from bottom-right handle
-  const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onSelect();
-
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-
-    const startWidth = field.width;
-    const startHeight = field.height;
-    const aspectRatio = startWidth / startHeight;
-
-    const handleMouseMove = (moveEvent: MouseEvent | TouchEvent) => {
-      moveEvent.preventDefault();
-      const currentX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX;
-      const currentY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : moveEvent.clientY;
-
-      const deltaX = (currentX - clientX) / scale;
-      const deltaY = (currentY - clientY) / scale;
-
-      const newWidth = Math.max(30, startWidth + deltaX);
-      let newHeight = Math.max(20, startHeight + deltaY);
-
-      // Lock aspect ratio for signatures, initials, and checkmarks
-      if (field.type === 'signature' || field.type === 'initials' || field.type === 'checkmark') {
-        newHeight = newWidth / aspectRatio;
+    if (g.type === 'move') {
+      onChange({
+        x: clamp(g.orig.x + dx, 0, 1 - g.orig.w),
+        y: clamp(g.orig.y + dy, 0, 1 - g.orig.h),
+      })
+    } else {
+      const aspect = g.orig.w / g.orig.h
+      const keepAspect = field.kind === 'signature' || field.kind === 'initials'
+      let w = clamp(g.orig.w + dx, MIN_SIZE_PX / pageWidth, 1 - g.orig.x)
+      let h = clamp(g.orig.h + dy, MIN_SIZE_PX / pageHeight, 1 - g.orig.y)
+      if (keepAspect) {
+        // follow the dominant axis of the drag
+        const byW = w / aspect
+        const byH = h * aspect
+        if (Math.abs(dx) >= Math.abs(dy) * (pageWidth / pageHeight)) {
+          h = clamp(byW * (pageWidth / pageHeight), MIN_SIZE_PX / pageHeight, 1 - g.orig.y)
+          w = (h * pageHeight * aspect) / pageWidth
+        } else {
+          w = clamp((byH * pageHeight) / pageWidth, MIN_SIZE_PX / pageWidth, 1 - g.orig.x)
+          h = (w * pageWidth) / aspect / pageHeight
+        }
       }
-
-      onUpdate({
-        width: Math.round(newWidth),
-        height: Math.round(newHeight),
-      });
-    };
-
-    const handleMouseUp = () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('touchmove', handleMouseMove);
-      window.removeEventListener('touchend', handleMouseUp);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('touchmove', handleMouseMove, { passive: false });
-    window.addEventListener('touchend', handleMouseUp);
-  };
-
-  // Text edit commit
-  const handleTextCommit = useCallback(() => {
-    setIsEditingText(false);
-    if (tempText.trim() !== field.value) {
-      onUpdate({ value: tempText.trim() || 'Text' });
+      onChange({ w, h })
     }
-  }, [field.value, onUpdate, tempText]);
+  }
+
+  const endGesture = (e: React.PointerEvent) => {
+    if (gesture.current?.pointerId === e.pointerId) gesture.current = null
+  }
+
+  const isImage = field.kind === 'signature' || field.kind === 'initials'
+  const asset = field.kind === 'signature' ? signatures.signature : signatures.initials
+  const text =
+    field.kind === 'name' ? signatures.fullName : field.kind === 'date' ? dateText : (field.text ?? '')
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (editing) return
+    const step = e.shiftKey ? 10 : 1
+    const dxn = step / pageWidth
+    const dyn = step / pageHeight
+    switch (e.key) {
+      case 'Delete':
+      case 'Backspace':
+        e.preventDefault()
+        onRemove()
+        break
+      case 'ArrowLeft':
+        e.preventDefault()
+        onChange({ x: clamp(field.x - dxn, 0, 1 - field.w) })
+        break
+      case 'ArrowRight':
+        e.preventDefault()
+        onChange({ x: clamp(field.x + dxn, 0, 1 - field.w) })
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        onChange({ y: clamp(field.y - dyn, 0, 1 - field.h) })
+        break
+      case 'ArrowDown':
+        e.preventDefault()
+        onChange({ y: clamp(field.y + dyn, 0, 1 - field.h) })
+        break
+      case 'Enter':
+        if (field.kind === 'text') {
+          e.preventDefault()
+          setEditing(true)
+        }
+        break
+    }
+  }
 
   return (
     <div
-      ref={containerRef}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect();
-      }}
-      onMouseDown={handleDragStart}
-      onTouchStart={handleDragStart}
-      style={{
-        position: 'absolute',
-        left: `${pixelX}px`,
-        top: `${pixelY}px`,
-        width: `${pixelWidth}px`,
-        height: `${pixelHeight}px`,
-        cursor: isDragging ? 'grabbing' : 'grab',
-        zIndex: isSelected ? 30 : 20,
-      }}
-      className={`group select-none touch-none ${
-        isSelected
-          ? 'ring-2 ring-emerald-500 bg-emerald-500/5 shadow-md'
-          : 'hover:ring-1 hover:ring-slate-400'
-      }`}
+      role="button"
+      tabIndex={0}
+      aria-label={`${FIELD_LABEL[field.kind]} field. Drag to move, use arrow keys to nudge, Delete to remove.`}
+      data-field="true"
+      className={cn(
+        'absolute touch-none select-none outline-none',
+        selected ? 'z-20' : 'z-10',
+        editing ? 'cursor-text' : 'cursor-move',
+      )}
+      style={px}
+      onPointerDown={(e) => startGesture('move', e)}
+      onPointerMove={onPointerMove}
+      onPointerUp={endGesture}
+      onPointerCancel={endGesture}
+      onKeyDown={onKeyDown}
+      onDoubleClick={() => field.kind === 'text' && setEditing(true)}
+      onFocus={onSelect}
     >
-      {/* Floating Action Bar on top of field when selected */}
-      {isSelected && (
-        <div
-          className="field-action-button absolute -top-10 left-0 bg-white border border-slate-200 rounded-lg shadow-lg px-1.5 py-1 flex items-center space-x-1 z-40 animate-in fade-in zoom-in-95 duration-100"
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          {/* Sign / Edit Button */}
-          {(field.type === 'signature' || field.type === 'initials') && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onRequestSign();
-              }}
-              className="p-1 rounded text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
-              title="Change Signature"
-            >
-              <PenTool className="w-3.5 h-3.5" />
-            </button>
-          )}
-
-          {field.type === 'text' && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditingText(true);
-              }}
-              className="p-1 rounded text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
-              title="Edit Text"
-            >
-              <Type className="w-3.5 h-3.5" />
-            </button>
-          )}
-
-          {/* Duplicate Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDuplicate();
+      <div
+        className={cn(
+          'relative size-full rounded-[2px] transition-shadow',
+          selected
+            ? 'shadow-[0_0_0_1.5px_#059669] bg-emerald-600/5'
+            : 'shadow-[0_0_0_1px_rgba(5,150,105,0.45)] hover:shadow-[0_0_0_1.5px_#059669]',
+        )}
+      >
+        {isImage ? (
+          asset ? (
+            <img
+              src={asset.dataUrl}
+              alt=""
+              draggable={false}
+              className="pointer-events-none size-full object-fill"
+            />
+          ) : (
+            <span className="flex size-full items-center justify-center text-[10px] text-slate-500">
+              {FIELD_LABEL[field.kind]}
+            </span>
+          )
+        ) : editing ? (
+          <input
+            value={field.text ?? ''}
+            onChange={(e) => onChange({ text: e.target.value })}
+            onBlur={() => setEditing(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) setEditing(false)
+              if (e.key === 'Escape') setEditing(false)
+              e.stopPropagation()
             }}
-            className="p-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-            title="Duplicate"
-          >
-            <Copy className="w-3.5 h-3.5" />
-          </button>
+            onPointerDown={(e) => e.stopPropagation()}
+            className="size-full bg-transparent text-center text-slate-900 outline-none"
+            style={{ fontSize: px.height * 0.62, fontFamily: 'Helvetica, Arial, sans-serif', padding: `0 ${TEXT_FIELD_PAD_RATIO * 100}%` }}
+            aria-label="Text field content"
+          />
+        ) : (
+          <TextPreview text={text || (field.kind === 'text' ? 'Double-click to edit' : '')} height={px.height} muted={!text} />
+        )}
 
-          {/* Delete Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="p-1 rounded text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-            title="Delete"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
-
-      {/* Field Content Rendering */}
-      <div className="w-full h-full flex items-center justify-center relative overflow-hidden pointer-events-none">
-        {/* SIGNATURE OR INITIALS */}
-        {(field.type === 'signature' || field.type === 'initials') && (
+        {selected && !editing ? (
           <>
-            {field.value ? (
-              <img
-                src={field.value}
-                alt={field.type}
-                className="w-full h-full object-contain pointer-events-none"
-              />
-            ) : (
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRequestSign();
-                }}
-                className="pointer-events-auto w-full h-full border-2 border-dashed border-emerald-400 bg-emerald-50/50 hover:bg-emerald-100/50 transition-colors rounded flex flex-col items-center justify-center p-1 cursor-pointer"
-              >
-                <PenTool className="w-4 h-4 text-emerald-600 mb-0.5" />
-                <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider text-center">
-                  Click to {field.type === 'initials' ? 'Initials' : 'Sign'}
-                </span>
-              </div>
-            )}
+            <button
+              type="button"
+              aria-label="Remove field"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation()
+                onRemove()
+              }}
+              className="absolute -right-3 -top-3 flex size-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md transition-transform hover:scale-110"
+            >
+              <Trash2 className="size-3.5" aria-hidden="true" />
+            </button>
+            <div
+              role="presentation"
+              aria-label="Resize"
+              onPointerDown={(e) => startGesture('resize', e)}
+              onPointerMove={onPointerMove}
+              onPointerUp={endGesture}
+              onPointerCancel={endGesture}
+              className="absolute -bottom-1.5 -right-1.5 size-4 cursor-se-resize rounded-sm border-2 border-emerald-600 bg-white touch-none"
+            />
           </>
-        )}
-
-        {/* TEXT FIELD */}
-        {field.type === 'text' && (
-          <>
-            {isEditingText ? (
-              <input
-                ref={textInputRef}
-                type="text"
-                value={tempText}
-                onChange={(e) => setTempText(e.target.value)}
-                onBlur={handleTextCommit}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleTextCommit();
-                  if (e.key === 'Escape') {
-                    setTempText(field.value);
-                    setIsEditingText(false);
-                  }
-                }}
-                className="pointer-events-auto w-full h-full px-2 text-sm bg-white border border-emerald-500 rounded outline-hidden shadow-inner text-slate-900"
-                style={{
-                  fontSize: `${(field.fontSize || 14) * scale}px`,
-                  color: field.color || '#111827',
-                }}
-              />
-            ) : (
-              <div
-                onDoubleClick={() => setIsEditingText(true)}
-                className="w-full h-full px-1.5 flex items-center select-none truncate"
-                style={{
-                  fontSize: `${(field.fontSize || 14) * scale}px`,
-                  color: field.color || '#111827',
-                  fontFamily: field.fontFamily || 'sans-serif',
-                }}
-              >
-                {field.value || 'Click to enter text'}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* DATE FIELD */}
-        {field.type === 'date' && (
-          <div
-            className="w-full h-full px-1.5 flex items-center space-x-1 select-none font-mono"
-            style={{
-              fontSize: `${(field.fontSize || 13) * scale}px`,
-              color: field.color || '#111827',
-            }}
-          >
-            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span className="truncate">{field.value}</span>
-          </div>
-        )}
-
-        {/* CHECKMARK FIELD */}
-        {field.type === 'checkmark' && (
-          <div className="w-full h-full flex items-center justify-center text-emerald-600 font-bold">
-            <Check className="w-full h-full max-w-[80%] max-h-[80%] stroke-[3]" />
-          </div>
-        )}
+        ) : null}
       </div>
-
-      {/* Resize Handle (Bottom-Right Corner) */}
-      {isSelected && (
-        <div
-          onMouseDown={handleResizeStart}
-          onTouchStart={handleResizeStart}
-          className="resize-handle absolute -bottom-1.5 -right-1.5 w-4 h-4 rounded-full bg-emerald-600 border-2 border-white shadow-md cursor-se-resize flex items-center justify-center z-40 transition-transform hover:scale-125"
-          title="Resize"
-        >
-          <GripVertical className="w-2 h-2 text-white" />
-        </div>
-      )}
     </div>
-  );
-};
+  )
+}
+
+function TextPreview({ text, height, muted }: { text: string; height: number; muted: boolean }) {
+  return (
+    <span
+      className={cn(
+        'flex size-full items-center justify-center overflow-hidden whitespace-nowrap leading-none',
+        muted ? 'text-slate-500' : 'text-slate-900',
+      )}
+      style={{
+        fontSize: height * 0.62,
+        fontFamily: 'Helvetica, Arial, sans-serif',
+        padding: `0 ${TEXT_FIELD_PAD_RATIO * 100}%`,
+      }}
+    >
+      <FitText text={text} />
+    </span>
+  )
+}
+
+/** Shrinks text horizontally so long strings still fit the box, mirroring the export logic. */
+function FitText({ text }: { text: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const [scale, setScale] = useState(1)
+  const measure = (node: HTMLSpanElement | null) => {
+    ref.current = node
+    if (!node?.parentElement) return
+    const available = node.parentElement.clientWidth * (1 - TEXT_FIELD_PAD_RATIO * 2)
+    // offsetWidth ignores CSS transforms, so it is the unscaled natural width
+    const natural = node.offsetWidth
+    const next = natural > available && natural > 0 ? available / natural : 1
+    if (Math.abs(next - scale) > 0.01) setScale(next)
+  }
+  return (
+    <span ref={measure} style={{ display: 'inline-block', transform: `scale(${scale})`, transformOrigin: 'center' }}>
+      {text}
+    </span>
+  )
+}

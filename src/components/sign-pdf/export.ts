@@ -1,143 +1,187 @@
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { PDFDocument, StandardFonts, degrees, rgb, type PDFFont, type PDFImage, type PDFPage } from '@cantoo/pdf-lib'
 
-import { PlacedField } from './types';
+import type { PageInfo, PlacedField, SignatureSet } from './types'
+
+export type ExportInput = {
+  bytes: ArrayBuffer
+  pages: PageInfo[]
+  fields: PlacedField[]
+  signatures: SignatureSet
+  dateText: string
+}
+
+/** Horizontal padding (fraction of box width) used for text fields on screen and in the PDF. */
+export const TEXT_FIELD_PAD_RATIO = 0.04
 
 /**
- * Converts Hex color string (#RRGGBB) to pdf-lib rgb() color
+ * Fit a font size so the text fits both the box height and width.
  */
-function hexToPdfRgb(hex: string) {
-  let cleaned = hex.replace('#', '');
-  if (cleaned.length === 3) {
-    cleaned = cleaned
-      .split('')
-      .map((c) => c + c)
-      .join('');
+export function fitTextSize(font: PDFFont, text: string, boxW: number, boxH: number): number {
+  let size = boxH * 0.62
+  const maxW = boxW * (1 - TEXT_FIELD_PAD_RATIO * 2)
+  const w = font.widthOfTextAtSize(text, size)
+  if (w > maxW) size = (size * maxW) / w
+  return Math.max(size, 1)
+}
+
+type Mapper = {
+  /** visual (rotated, y-down) → pdf user space (y-up) */
+  toPdf: (vx: number, vy: number) => { x: number; y: number }
+  rotate: number
+}
+
+function makeMapper(page: PDFPage, info: PageInfo): Mapper {
+  const box = page.getCropBox()
+  const W = box.width
+  const H = box.height
+  const ox = box.x
+  const oy = box.y
+  const rotation = ((page.getRotation().angle % 360) + 360) % 360
+
+  switch (rotation) {
+    case 90:
+      return { rotate: 90, toPdf: (vx, vy) => ({ x: ox + vy, y: oy + vx }) }
+    case 180:
+      return { rotate: 180, toPdf: (vx, vy) => ({ x: ox + W - vx, y: oy + vy }) }
+    case 270:
+      return { rotate: 270, toPdf: (vx, vy) => ({ x: ox + W - vy, y: oy + H - vx }) }
+    default:
+      void info
+      return { rotate: 0, toPdf: (vx, vy) => ({ x: ox + vx, y: oy + H - vy }) }
   }
-  const num = parseInt(cleaned, 16);
-  if (isNaN(num)) return rgb(0.07, 0.1, 0.15); // default dark charcoal
-
-  const r = ((num >> 16) & 255) / 255;
-  const g = ((num >> 8) & 255) / 255;
-  const b = (num & 255) / 255;
-  return rgb(r, g, b);
 }
 
-/**
- * Converts a base64 Data URL to Uint8Array
- */
-function dataUrlToUint8Array(dataUrl: string): Uint8Array {
-  const base64 = dataUrl.split(',')[1] || dataUrl;
-  const binaryString = atob(base64);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
+function dataUrlToBytes(dataUrl: string): Uint8Array {
+  const base64 = dataUrl.split(',')[1] ?? ''
+  const bin = atob(base64)
+  const out = new Uint8Array(bin.length)
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i)
+  return out
+}
+
+function hexToRgb(hex: string) {
+  const h = hex.replace('#', '')
+  const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16)
+  return rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255)
+}
+
+export async function exportSignedPdf(input: ExportInput): Promise<Uint8Array> {
+  const pdf = await PDFDocument.load(input.bytes, { ignoreEncryption: true })
+  const font = await pdf.embedFont(StandardFonts.Helvetica)
+  const pdfPages = pdf.getPages()
+  const imageCache = new Map<string, PDFImage>()
+
+  const embed = async (dataUrl: string) => {
+    const cached = imageCache.get(dataUrl)
+    if (cached) return cached
+    const img = await pdf.embedPng(dataUrlToBytes(dataUrl))
+    imageCache.set(dataUrl, img)
+    return img
   }
-  return bytes;
-}
 
-/**
- * Creates a PNG data URL for a crisp vector checkmark
- */
-function createCheckmarkDataUrl(color = '#059669'): string {
-  const canvas = document.createElement('canvas');
-  canvas.width = 120;
-  canvas.height = 120;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return '';
+  for (const field of input.fields) {
+    const page = pdfPages[field.pageIndex]
+    const info = input.pages[field.pageIndex]
+    if (!page || !info) continue
 
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 14;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+    const { toPdf, rotate } = makeMapper(page, info)
+    const Wv = info.width
+    const Hv = info.height
 
-  ctx.beginPath();
-  ctx.moveTo(24, 62);
-  ctx.lineTo(48, 88);
-  ctx.lineTo(96, 32);
-  ctx.stroke();
+    const vx0 = field.x * Wv
+    const vy0 = field.y * Hv
+    const vw = field.w * Wv
+    const vh = field.h * Hv
+    const vy1 = vy0 + vh
 
-  return canvas.toDataURL('image/png');
-}
+    if (field.kind === 'signature' || field.kind === 'initials') {
+      const asset = field.kind === 'signature' ? input.signatures.signature : input.signatures.initials
+      if (!asset) continue
+      const img = await embed(asset.dataUrl)
+      const anchor = toPdf(vx0, vy1)
+      page.drawImage(img, { x: anchor.x, y: anchor.y, width: vw, height: vh, rotate: degrees(rotate) })
+      continue
+    }
 
-/**
- * Exports signed PDF by embedding fields into original PDF document
- */
-export async function exportSignedPdf(
-  originalPdfBytes: Uint8Array,
-  placedFields: PlacedField[]
-): Promise<Blob> {
-  const pdfDoc = await PDFDocument.load(originalPdfBytes);
-  const pages = pdfDoc.getPages();
-  const standardFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const text =
+      field.kind === 'name'
+        ? input.signatures.fullName
+        : field.kind === 'date'
+          ? input.dateText
+          : (field.text ?? '')
+    if (!text.trim()) continue
 
-  // Group fields by pageNumber (1-indexed)
-  for (const field of placedFields) {
-    const pageIndex = field.pageNumber - 1;
-    if (pageIndex < 0 || pageIndex >= pages.length) continue;
+    let drawn = false
+    try {
+      const size = fitTextSize(font, text, vw, vh)
+      const textW = font.widthOfTextAtSize(text, size)
+      const capH = font.heightAtSize(size, { descender: false })
+      const baselineVx = vx0 + vw * TEXT_FIELD_PAD_RATIO + Math.max(0, (vw * (1 - TEXT_FIELD_PAD_RATIO * 2) - textW) / 2)
+      const baselineVy = vy0 + vh / 2 + capH / 2 - size * 0.08
+      const anchor = toPdf(baselineVx, baselineVy)
+      page.drawText(text, {
+        x: anchor.x,
+        y: anchor.y,
+        size,
+        font,
+        color: hexToRgb('#111111'),
+        rotate: degrees(rotate),
+      })
+      drawn = true
+    } catch {
+      drawn = false
+    }
 
-    const page = pages[pageIndex];
-    const pageWidth = page.getWidth();
-    const pageHeight = page.getHeight();
-
-    // Calculate PDF coordinates (PDF origin (0,0) is bottom-left, web is top-left)
-    const fieldPdfX = (field.x / 100) * pageWidth;
-    const fieldPdfWidth = field.width;
-    const fieldPdfHeight = field.height;
-    const fieldPdfY = pageHeight - (field.y / 100) * pageHeight - fieldPdfHeight;
-
-    if (field.type === 'signature' || field.type === 'initials') {
-      if (!field.value) continue;
-      try {
-        const imageBytes = dataUrlToUint8Array(field.value);
-        let embeddedImage;
-        if (field.value.startsWith('data:image/jpeg') || field.value.startsWith('data:image/jpg')) {
-          embeddedImage = await pdfDoc.embedJpg(imageBytes);
-        } else {
-          embeddedImage = await pdfDoc.embedPng(imageBytes);
-        }
-
-        page.drawImage(embeddedImage, {
-          x: fieldPdfX,
-          y: fieldPdfY,
-          width: fieldPdfWidth,
-          height: fieldPdfHeight,
-        });
-      } catch (err) {
-        console.error('Failed to embed signature into PDF:', err);
-      }
-    } else if (field.type === 'checkmark') {
-      try {
-        const checkmarkDataUrl = createCheckmarkDataUrl(field.color || '#059669');
-        const checkmarkBytes = dataUrlToUint8Array(checkmarkDataUrl);
-        const embeddedImage = await pdfDoc.embedPng(checkmarkBytes);
-
-        page.drawImage(embeddedImage, {
-          x: fieldPdfX,
-          y: fieldPdfY,
-          width: fieldPdfWidth,
-          height: fieldPdfHeight,
-        });
-      } catch (err) {
-        console.error('Failed to embed checkmark into PDF:', err);
-      }
-    } else if (field.type === 'text' || field.type === 'date') {
-      if (!field.value) continue;
-      const fontSize = field.fontSize || (field.type === 'date' ? 12 : 14);
-      const textColor = hexToPdfRgb(field.color || '#111827');
-
-      // Vertically center text in field bounding box
-      const textY = fieldPdfY + Math.max(2, (fieldPdfHeight - fontSize) / 2);
-
-      page.drawText(field.value, {
-        x: fieldPdfX + 4,
-        y: textY,
-        size: fontSize,
-        font: standardFont,
-        color: textColor,
-      });
+    if (!drawn) {
+      // Characters outside WinAnsi (e.g. non-Latin scripts) can't be drawn with Helvetica; rasterize instead.
+      const asset = rasterizeText(text, vw / vh)
+      if (!asset) continue
+      const img = await embed(asset)
+      const anchor = toPdf(vx0, vy1)
+      page.drawImage(img, { x: anchor.x, y: anchor.y, width: vw, height: vh, rotate: degrees(rotate) })
     }
   }
 
-  const modifiedBytes = await pdfDoc.save();
-  return new Blob([modifiedBytes], { type: 'application/pdf' });
+  pdf.setModificationDate(new Date())
+  return pdf.save({ useObjectStreams: true })
+}
+
+function rasterizeText(text: string, aspect: number): string | null {
+  const h = 200
+  const w = Math.max(1, Math.round(h * aspect))
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+  let size = h * 0.62
+  ctx.font = `${size}px Helvetica, Arial, sans-serif`
+  const maxW = w * (1 - TEXT_FIELD_PAD_RATIO * 2)
+  const tw = ctx.measureText(text).width
+  if (tw > maxW) {
+    size = (size * maxW) / tw
+    ctx.font = `${size}px Helvetica, Arial, sans-serif`
+  }
+  ctx.fillStyle = '#111111'
+  ctx.textBaseline = 'middle'
+  ctx.textAlign = 'center'
+  ctx.fillText(text, w / 2, h / 2)
+  return canvas.toDataURL('image/png')
+}
+
+export function downloadBytes(bytes: Uint8Array, filename: string) {
+  const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 10_000)
+}
+
+export function signedFilename(original: string) {
+  const base = original.replace(/\.pdf$/i, '')
+  return `${base}_signed.pdf`
 }

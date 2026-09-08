@@ -601,3 +601,13 @@ textarea {
 }
 
 
+
+:root {
+  --font-sig-dancing: 'Dancing Script', cursive;
+  --font-sig-great-vibes: 'Great Vibes', cursive;
+  --font-sig-pacifico: 'Pacifico', cursive;
+  --font-sig-caveat: 'Caveat', cursive;
+  --font-sig-satisfy: 'Satisfy', cursive;
+  --font-sig-homemade: 'Homemade Apple', cursive;
+}
+
