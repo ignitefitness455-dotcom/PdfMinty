@@ -74,7 +74,7 @@ export const tools: Tool[] = [
     id: 'protect-pdf',
     title: 'Protect PDF',
     description:
-      'Encrypt and secure your sensitive PDFs using state-of-the-art browser password standard hashes.',
+      'Encrypt and secure sensitive PDFs using client-side AES standard algorithms.',
     category: 'security-edit',
     path: '/protect-pdf',
     icon: 'Shield',

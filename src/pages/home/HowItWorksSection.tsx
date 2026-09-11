@@ -16,7 +16,7 @@ export const HowItWorksSection: React.FC = () => {
           <p className="text-sm sm:text-base text-on-surface-variant leading-relaxed font-normal">
             PDFMinty processes your documents directly on your computer or phone. Because your files stay on
             your device, processing happens instantly with no upload delays, file size limits, or cloud storage
-            risks. Manage confidential contracts, forms, and financial records with complete peace of mind.
+            risks. Process confidential contracts, tax forms, and financial records with guaranteed zero data leakage.
           </p>
         </div>
         <div className="w-full md:w-80 shrink-0 border border-border-muted rounded-[24px] overflow-hidden shadow-2xl bg-surface-container-low p-5">

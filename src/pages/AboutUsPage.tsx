@@ -81,7 +81,7 @@ export const AboutUsPage: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
                 <Zap className="w-5 h-5" />
               </div>
-              <h3 className="text-base font-bold text-on-surface">Blazing Fast Speed</h3>
+              <h3 className="text-base font-bold text-on-surface">Fast Local Execution</h3>
               <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
                 No waiting for uploads or downloads. Processing happens instantly on your device.
               </p>

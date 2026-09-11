@@ -35,7 +35,7 @@ export const IsSafePdfArticlePage: React.FC = () => {
           </h1>
 
           <p className="text-base sm:text-xl font-medium text-on-surface-variant leading-relaxed">
-            Every day, millions of people upload tax forms, bank statements, and legal contracts to free online PDF converters. But where do those files actually go?
+            Tax forms, bank statements, and legal contracts are routinely submitted to free online PDF converters. But where do those files actually go?
           </p>
         </header>
 

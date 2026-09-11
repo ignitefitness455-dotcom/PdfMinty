@@ -110,7 +110,7 @@ export const TOOL_FAQS: ToolFaqMap = {
     },
     {
       question: 'Can I extract non-consecutive pages into one document?',
-      answer: 'Yes! You can enter comma-separated lists like "1, 3, 7-12, 15" to combine disconnected pages into a seamless new PDF file.',
+      answer: 'Yes. You can enter comma-separated lists like "1, 3, 7-12, 15" to combine disconnected pages into a single organized PDF file.',
     },
     {
       question: 'Will extracted pages retain interactive elements like links or form fields?',
@@ -458,7 +458,7 @@ export const TOOL_FAQS: ToolFaqMap = {
     },
     {
       question: 'Do I need to install any software or plugins to use AI PDF analysis?',
-      answer: 'No. Everything runs seamlessly inside your web browser on any desktop, laptop, or mobile device.',
+      answer: 'No. Processing runs directly inside your web browser on desktop, laptop, and mobile devices.',
     },
   ],
 
