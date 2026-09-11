@@ -138,8 +138,8 @@ async function run(): Promise<void> {
     // Purge any homepage-only JSON-LD structured script elements to avoid duplication
     clean = clean.replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/gi, "");
     
-    // Reset #root container
-    clean = clean.replace(/<div\s+id="root"[\s\S]*?<\/div>/i, '<div id="root"></div>');
+    // Reset #root container thoroughly
+    clean = clean.replace(/<div\s+id="root"[\s\S]*?(?=\s*(?:<script|<!--|<footer>|<\/body>))/i, '<div id="root"></div>');
 
     return clean;
   }
@@ -438,13 +438,18 @@ ${relatedTools.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a
       finalBody += getRelatedToolsHtml(item.slug);
     }
 
-    // Pre-inject longFormBody directly inside the React hydration root element (#root) for raw HTML crawler response!
+    // Pre-inject longFormBody directly inside the React hydration root element (#root) AND in <noscript> for universal bot/crawler visibility!
     const preRenderedContent: string = `
     <div id="root">
       <article class="prose max-w-4xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
         ${finalBody}
       </article>
     </div>
+    <noscript>
+      <div class="prose max-w-4xl mx-auto py-12 px-6 font-sans">
+        ${finalBody}
+      </div>
+    </noscript>
     `;
     
     // Replace empty #root mount tag with populated static HTML

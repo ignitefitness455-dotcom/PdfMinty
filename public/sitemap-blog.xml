@@ -329,7 +329,7 @@
     <image:image>
       <image:loc>https://pdfminty.com/og-image.png</image:loc>
       <image:title>Client-Side PDF Processing Explained: WASM &amp; Security | PdfMinty</image:title>
-      <image:caption>A deep technical dive into how modern browsers parse, edit, and render PDF binaries locally without server interaction.</image:caption>
+      <image:caption>Technical breakdown of how modern browsers parse, edit, and render PDF binaries locally without server interaction.</image:caption>
     </image:image>
   </url>
   <url>

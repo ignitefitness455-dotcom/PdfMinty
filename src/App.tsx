@@ -9,14 +9,14 @@ import { PWAController } from './components/PWAController';
 import { SkipToContent } from './components/SkipToContent';
 import ToolSkeleton from './components/ToolSkeleton';
 import { ROUTES } from './config/routes';
+import { AboutUsPage } from './pages/AboutUsPage';
+import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { TermsOfServicePage } from './pages/TermsOfServicePage';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 
-// Lazy: all non-home routes — splits each page & tool's code out of the initial bundle.
-const AboutUsPage = lazyWithRetry(() => import('./pages/AboutUsPage').then((m) => ({ default: m.AboutUsPage })));
-const ContactPage = lazyWithRetry(() => import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })));
-const PrivacyPolicyPage = lazyWithRetry(() => import('./pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })));
-const TermsOfServicePage = lazyWithRetry(() => import('./pages/TermsOfServicePage').then((m) => ({ default: m.TermsOfServicePage })));
+// Lazy: all interactive heavy tools — splits each tool's code out of the initial bundle.
 const MergePage = lazyWithRetry(() => import('./pages/MergePage').then((m) => ({ default: m.MergePage })));
 const SplitPage = lazyWithRetry(() => import('./pages/SplitPage').then((m) => ({ default: m.SplitPage })));
 const RotatePage = lazyWithRetry(() => import('./pages/RotatePage').then((m) => ({ default: m.RotatePage })));
@@ -64,6 +64,8 @@ const TrailingSlashRedirect: React.FC = () => {
 
   let normalizedPath = pathname;
   if (!normalizedPath.startsWith('/api') && !normalizedPath.includes('.')) {
+    // Strip trailing brackets/parentheses from link typos (e.g. /privacy-policy/))
+    normalizedPath = normalizedPath.replace(/[)\]}>,;]+$/, '');
     if (/\/{2,}/.test(normalizedPath)) {
       normalizedPath = normalizedPath.replace(/\/{2,}/g, '/');
     }
@@ -391,6 +393,9 @@ export const App: React.FC = () => {
             {/* Legacy path redirects */}
             <Route path="/about" element={<Navigate to={ROUTES.ABOUT_US} replace />} />
             <Route path="/contact-us" element={<Navigate to={ROUTES.CONTACT} replace />} />
+            <Route path="/privacy" element={<Navigate to={ROUTES.PRIVACY_POLICY} replace />} />
+            <Route path="/terms" element={<Navigate to={ROUTES.TERMS_OF_SERVICE} replace />} />
+            <Route path="/tos" element={<Navigate to={ROUTES.TERMS_OF_SERVICE} replace />} />
             <Route path="/edit-metadata" element={<Navigate to={ROUTES.EDIT_METADATA} replace />} />
             <Route path="/intelligence" element={<Navigate to={ROUTES.AI_ANALYZE} replace />} />
             <Route path="/protect" element={<Navigate to={ROUTES.PROTECT} replace />} />

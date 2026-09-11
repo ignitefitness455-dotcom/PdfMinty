@@ -6,6 +6,11 @@ import { getCorsOrigin, getCorsHeaders } from './utils/cors';
 const LEGACY_REDIRECTS: Record<string, string> = {
   '/about': '/about-us/',
   '/contact-us': '/contact/',
+  '/privacy': '/privacy-policy/',
+  '/privacy-policy': '/privacy-policy/',
+  '/terms': '/terms-of-service/',
+  '/terms-of-service': '/terms-of-service/',
+  '/tos': '/terms-of-service/',
   '/edit-metadata': '/edit-pdf-metadata/',
   '/protect': '/protect-pdf/',
   '/unlock': '/unlock-pdf/',
@@ -105,8 +110,13 @@ export const onRequest: PagesFunction = async (context) => {
     shouldRedirect = true;
   }
 
-  // 3. Dot-segment and consecutive slash collapsing for non-API paths
+  // 3. Dot-segment, trailing punctuation (e.g. from markdown link typos like /privacy-policy/)), and consecutive slash collapsing for non-API paths
   if (!targetPathname.startsWith('/api')) {
+    const cleanedPunctuation = targetPathname.replace(/[)\]}>,;]+$/, '');
+    if (cleanedPunctuation !== targetPathname) {
+      targetPathname = cleanedPunctuation;
+      shouldRedirect = true;
+    }
     const cleanedDots = targetPathname.replace(/\/\.\//g, '/').replace(/\/\.$/, '/');
     if (cleanedDots !== targetPathname) {
       targetPathname = cleanedDots;
@@ -268,14 +278,15 @@ export const onRequest: PagesFunction = async (context) => {
   );
   newResponse.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
-  // Content-Security-Policy — সব ক্লায়েন্টের জন্য অভিন্ন (UA-ভিত্তিক বাইপাস নেই)
+  // Content-Security-Policy — supports Google AdSense, analytics, and font resources
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://static.cloudflareinsights.com https://pagead2.googlesyndication.com https://adservice.google.com https://tpc.googlesyndication.com https://ep2.adtrafficquality.google https://googleads.g.doubleclick.net",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
-    "img-src 'self' blob: data: https://www.googletagmanager.com https://launchbuff.com https://launchstag.com",
-    "connect-src 'self' blob: https://www.google-analytics.com https://stats.g.doubleclick.net https://static.cloudflareinsights.com https://generativelanguage.googleapis.com",
+    "img-src 'self' blob: data: https://www.googletagmanager.com https://launchbuff.com https://launchstag.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
+    "connect-src 'self' blob: https://www.google-analytics.com https://stats.g.doubleclick.net https://static.cloudflareinsights.com https://generativelanguage.googleapis.com https://pagead2.googlesyndication.com https://ep2.adtrafficquality.google https://googleads.g.doubleclick.net",
+    "frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep2.adtrafficquality.google https://pagead2.googlesyndication.com",
     "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",

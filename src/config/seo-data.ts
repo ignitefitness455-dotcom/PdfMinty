@@ -7056,9 +7056,9 @@ longFormBody: `
     slug: 'privacy-policy',
     name: 'Privacy Policy',
     ogImage: '/og-image.png',
-    shortDescription: '100% in-browser processing privacy policy for PdfMinty',
+    shortDescription: '100% in-browser processing privacy policy for PdfMinty with Google AdSense disclosures',
     metaTitle: 'Privacy Policy — 100% Zero-Data Collection | PdfMinty',
-    metaDescription: "Read PdfMinty's Privacy Policy. We do not collect, upload, store, or transmit your PDF files. All processing happens 100% locally inside your web browser.",
+    metaDescription: "Read PdfMinty's Privacy Policy. We do not collect, upload, store, or transmit your PDF files. All processing happens 100% locally inside your web browser. Includes Google AdSense and cookie disclosures.",
     h1: 'Privacy Policy',
     icon: 'Shield',
     category: 'static',
@@ -7066,28 +7066,48 @@ longFormBody: `
     changefreq: 'yearly',
     type: 'article',
     datePublished: '2026-01-01',
-    dateModified: '2026-01-01',
+    dateModified: '2026-09-11',
     longFormBody: `
       <h1>Privacy Policy — 100% Zero-Data Collection | PdfMinty</h1>
-      <p><em>Last Reviewed: August 2026 • Technical Reviewer: Security & Compliance Architecture Team</em></p>
+      <p><em>Last Updated & Reviewed: September 2026 • Technical Reviewer: Security & Compliance Architecture Team</em></p>
 
       <h2>The Short Version</h2>
-      <p>PdfMinty's standard 22 PDF tools process files 100% locally inside your web browser without uploading your documents to any server. If you explicitly choose to use the opt-in AI PDF Assistant (/ai-analyze-pdf), extracted text is sent securely to Google Gemini API to fulfill your query, strictly after you give consent.</p>
+      <p>PdfMinty's standard 22 PDF tools process files 100% locally inside your web browser without uploading your documents to any server. Your document contents never leave your device. If you explicitly choose to use the opt-in AI PDF Assistant (/ai-analyze-pdf), extracted text is sent securely via encrypted API to Google Gemini to fulfill your query, strictly after you give consent. Below you will also find detailed disclosures regarding Google AdSense advertising cookies, analytics, and your international privacy rights.</p>
 
       <h2>1. Local In-Browser Processing (Standard Tools)</h2>
-      <p>When you select a PDF file in standard PdfMinty tools (merge, split, rotate, compress, protect, watermark, convert, etc.), it is processed entirely using client-side WebAssembly and JavaScript in your browser memory on your local device.</p>
+      <p>When you select a PDF file in standard PdfMinty tools (merge, split, rotate, compress, protect, watermark, convert, delete pages, reorder, etc.), it is processed entirely using client-side WebAssembly, JavaScript, and Web Workers in your browser memory on your local machine or mobile device.</p>
 
-      <h2>2. Zero Storage & No Uploads for Standard PDF Utilities</h2>
-      <p>We do not maintain backend servers that store or buffer your PDF documents for standard tools. All file transformations execute locally on your device.</p>
+      <h2>2. Zero Storage & No File Uploads</h2>
+      <p>We do not maintain backend servers or cloud storage buckets that store, cache, or buffer your PDF documents. All binary file transformations execute entirely within your device's RAM. When you close the browser tab or refresh the page, all file data is completely purged from memory.</p>
 
       <h2>3. Opt-In AI Feature Disclosure (/ai-analyze-pdf)</h2>
-      <p>PdfMinty offers an optional AI PDF Assistant. If you select a file and check the consent box in the AI tool, text extracted from up to the first 12 pages is sent via encrypted API to Google Gemini to answer your questions or generate summaries. Binary PDF files are never stored, and text is transmitted solely for processing your explicit query.</p>
+      <p>PdfMinty offers an optional AI PDF Assistant. If you select a file and check the explicit consent checkbox in the AI tool, extracted text from up to the first 12 pages is transmitted over an encrypted TLS connection to Google Gemini API to answer your questions or generate summaries. Binary PDF files are never stored, and text is transmitted solely for processing your immediate query.</p>
 
-      <h2>4. Analytics & Cookies</h2>
-      <p>PdfMinty uses minimal, privacy-focused website performance analytics to monitor overall site health. We do not sell user data, track personal identities, or store cookies containing sensitive information.</p>
+      <h2>4. Google AdSense & Third-Party Advertising Cookies</h2>
+      <p>PdfMinty uses Google AdSense to display advertisements when you visit our website. To comply with Google AdSense policies, please review the following required advertising disclosures:</p>
+      <ul>
+        <li>Third-party vendors, including Google, use cookies to serve ads based on a user's prior visits to your website or other websites on the Internet.</li>
+        <li>Google's use of advertising cookies enables it and its partners to serve ads to our users based on their visits to PdfMinty and/or other sites on the Internet.</li>
+        <li>Users may opt out of personalized advertising by visiting Google's <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">Ads Settings</a> or by visiting <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer">www.aboutads.info</a>.</li>
+        <li>For more details on how Google processes data when you visit partner sites, please see Google's policy at <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">How Google uses information from sites or apps that use our services</a>.</li>
+      </ul>
 
-      <h2>5. Contact Us About Privacy</h2>
-      <p>If you have any questions about our privacy practices, feel free to reach out directly via our <a href="/contact/">Contact Page</a>.</p>
+      <h2>5. Web Analytics & Cookie Usage</h2>
+      <p>PdfMinty uses privacy-respecting website performance analytics (such as Google Analytics 4 with IP anonymization and Cloudflare Web Analytics) to understand aggregate traffic trends, pageviews, and browser performance. We do not sell user data, track individual personal identities, or store cookies containing sensitive document data.</p>
+
+      <h2>6. GDPR & CCPA/CPRA Privacy Rights</h2>
+      <p>Depending on your geographic location, you possess statutory rights under privacy frameworks such as the European Union General Data Protection Regulation (GDPR) and the California Consumer Privacy Act (CCPA/CPRA):</p>
+      <ul>
+        <li><strong>Right of Access & Deletion:</strong> Because standard PDF operations do not collect or store user accounts, identities, or files, there is no personally identifiable file data retained on our servers to access or delete.</li>
+        <li><strong>Do Not Sell My Information:</strong> PdfMinty does not sell, rent, or monetize your personal information or document contents to any third parties.</li>
+        <li><strong>Browser Controls:</strong> You may configure your web browser to reject cookies or delete stored browsing traces at any time without impacting the core functionality of our client-side tools.</li>
+      </ul>
+
+      <h2>7. AI Bots, Crawlers & Search Engines Access Policy</h2>
+      <p>PdfMinty supports open web standards. Search engine crawlers, automated verification bots (including Google AdSense crawlers Mediapartners-Google and Google-Display-Ads-Bot), and benign AI assistant crawlers (such as GPTBot, ClaudeBot, and PerplexityBot) are welcome to access, crawl, and index all public pages, tools, documentation, and tutorials. Automated access to backend API routes (/api/*) is restricted to safeguard operational integrity.</p>
+
+      <h2>8. Contact Us Regarding Privacy</h2>
+      <p>If you have any questions, inquiries, or feedback regarding our privacy practices or cookie policies, please reach out via our <a href="/contact/">Contact Page</a> or by email at support@pdfminty.com.</p>
     `,
   },
   {
@@ -7095,9 +7115,9 @@ longFormBody: `
     slug: 'terms-of-service',
     name: 'Terms of Service',
     ogImage: '/og-image.png',
-    shortDescription: 'Service terms and usage guidelines for PdfMinty',
+    shortDescription: 'Service terms, acceptable use, and crawler guidelines for PdfMinty',
     metaTitle: 'Terms of Service — PdfMinty',
-    metaDescription: "Read PdfMinty's Terms of Service. Understand our terms of use, privacy guarantee, and service guidelines.",
+    metaDescription: "Read PdfMinty's Terms of Service. Understand our terms of use, privacy guarantee, acceptable use policy, and crawler guidelines.",
     h1: 'Terms of Service',
     icon: 'Scale',
     category: 'static',
@@ -7105,22 +7125,36 @@ longFormBody: `
     changefreq: 'yearly',
     type: 'article',
     datePublished: '2026-01-01',
-    dateModified: '2026-01-01',
+    dateModified: '2026-09-11',
     longFormBody: `
       <h1>Terms of Service — PdfMinty</h1>
-      <p><em>Last Reviewed: August 2026 • Technical Reviewer: Legal & Product Architecture Team</em></p>
+      <p><em>Last Updated & Reviewed: September 2026 • Technical Reviewer: Legal & Compliance Team</em></p>
 
       <h2>1. Acceptance of Terms</h2>
-      <p>By accessing or using PdfMinty (<a href="https://pdfminty.com">https://pdfminty.com</a>), you agree to comply with and be bound by these Terms of Service. If you do not agree, please discontinue using the service.</p>
+      <p>By accessing, browsing, or using PdfMinty (<a href="https://pdfminty.com">https://pdfminty.com</a>) and any of its associated 23 PDF tools, you acknowledge that you have read, understood, and agreed to be bound by these Terms of Service and our Privacy Policy. If you do not agree, please do not use our services.</p>
 
-      <h2>2. Nature of Service & In-Browser Processing</h2>
-      <p>PdfMinty provides free PDF tools designed to operate locally within your web browser for standard PDF utilities. For opt-in AI features (/ai-analyze-pdf), extracted text content is transmitted securely via API to Google Gemini only after explicit user consent. Standard PDF utilities do not transmit or store your documents on remote servers.</p>
+      <h2>2. Nature of Service & Client-Side In-Browser Execution</h2>
+      <p>PdfMinty provides free, browser-based document processing utilities. All standard tools (such as Merge, Split, Rotate, Compress, Protect, Unlock, Watermark, Delete Pages, Image to PDF, etc.) process files 100% locally on your computer or mobile device using WebAssembly and client-side JavaScript. We do not transmit or store your files on external servers for standard operations. For our opt-in AI PDF Assistant (/ai-analyze-pdf), extracted text is sent via encrypted API to Google Gemini only after you grant explicit consent.</p>
 
-      <h2>3. User Responsibilities & Data Ownership</h2>
-      <p>You retain full ownership and responsibility for all documents processed using PdfMinty. You are responsible for ensuring that you have legal rights to process any files you select.</p>
+      <h2>3. Permitted Web Crawler, Search Engine & AI Agent Access Policy</h2>
+      <p>PdfMinty encourages open web discovery, transparent indexing, and helpful artificial intelligence integration:</p>
+      <ul>
+        <li><strong>Authorized Crawlers:</strong> Legitimate search engine crawlers (Googlebot, Bingbot, Applebot, etc.), advertising verification bots (including Google AdSense crawlers Mediapartners-Google and Google-Display-Ads-Bot), and benign AI assistant bots (such as GPTBot, ClaudeBot, PerplexityBot, Cohere, and CCBot) are granted explicit permission to crawl, index, and reference all public tool pages, guides, and documentation.</li>
+        <li><strong>Direct AI Documentation:</strong> Automated systems may consult <a href="/llms.txt">/llms.txt</a> and <a href="/llms-full.txt">/llms-full.txt</a> for structured system instructions and endpoint directories.</li>
+        <li><strong>Prohibited Activities:</strong> Automated scrapers or bots are strictly prohibited from attempting to access, flood, or exploit backend API routes (/api/*), conducting denial-of-service (DoS) attacks, or bypassing technical security restrictions.</li>
+      </ul>
 
-      <h2>4. Disclaimer of Warranties</h2>
-      <p>PdfMinty is provided on an "as is" and "as available" basis without warranties of any kind. While we aim for maximum compatibility and performance, you use the software at your own discretion.</p>
+      <h2>4. User Responsibilities & Document Intellectual Property</h2>
+      <p>You retain all intellectual property rights and ownership of any documents, text, or images processed using PdfMinty. You represent and warrant that you own or have obtained all necessary licenses, authorizations, and permissions to process, alter, or modify any files submitted to the tools. You agree not to use the service for any unlawful, infringing, or malicious activities.</p>
+
+      <h2>5. Advertisements & Third-Party Services</h2>
+      <p>PdfMinty may display advertisements served by Google AdSense and other reputable third-party advertising partners. These networks may use cookies to serve relevant advertisements. Your interactions with third-party advertisers or external websites linked from PdfMinty are solely between you and the respective third party.</p>
+
+      <h2>6. Disclaimer of Warranties & Limitation of Liability</h2>
+      <p>PdfMinty and its tools are provided on an "as is" and "as available" basis, without warranty of any kind, whether express, implied, or statutory. In no event shall PdfMinty, its operators, or contributors be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising out of your access to, use of, or inability to use the site or its tools. Always keep local backup copies of your critical documents.</p>
+
+      <h2>7. Contact Us & Inquiries</h2>
+      <p>If you have any questions or feedback regarding these Terms of Service, please contact us via our <a href="/contact/">Contact Page</a> or email us at support@pdfminty.com.</p>
     `,
   },
   {

@@ -1,40 +1,39 @@
 # PDFMinty
+> Privacy-first, 100% client-side PDF toolkit with 23 free in-browser utilities. Zero server uploads for standard operations.
 
-PDFMinty is a high-speed, 100% client-side, offline-first PDF management suite. All file processing is performed locally inside your browser using clean Web Workers without uploading document contents to external servers, ensuring absolute privacy and enterprise-grade data security.
+AI agents, web crawlers, and automated assistants are permitted to read, index, and reference all public tools, tutorials, and documentation across PDFMinty.
 
-## Core Features
+## Public Tools & Direct Links
+- [Merge PDF](https://pdfminty.com/merge-pdf/): Combine multiple PDF files into a single ordered document in your browser.
+- [Split PDF](https://pdfminty.com/split-pdf/): Split PDF files into individual pages or custom page ranges.
+- [Compress PDF](https://pdfminty.com/compress-pdf/): Reduce PDF file sizes locally with visual quality presets.
+- [Rotate PDF](https://pdfminty.com/rotate-pdf/): Rotate PDF pages individually or across the entire document.
+- [Delete Pages](https://pdfminty.com/delete-pages-pdf/): Interactively delete unwanted pages from PDF files.
+- [Extract Pages](https://pdfminty.com/extract-pages-pdf/): Select and extract specific pages into a standalone PDF.
+- [Reorder PDF](https://pdfminty.com/reorder-pdf/): Drag and re-arrange the visual order of PDF pages.
+- [Watermark PDF](https://pdfminty.com/watermark-pdf/): Add text watermarks with custom positioning, opacity, and rotation.
+- [Add Page Numbers](https://pdfminty.com/add-page-numbers/): Stamp page numbering in headers, footers, or margins.
+- [Add Blank Page](https://pdfminty.com/add-blank-page/): Insert clean blank pages at any designated position.
+- [Protect PDF](https://pdfminty.com/protect-pdf/): Encrypt PDF documents with password security client-side.
+- [Unlock PDF](https://pdfminty.com/unlock-pdf/): Decrypt password-protected PDFs locally using authorized credentials.
+- [Image to PDF](https://pdfminty.com/image-to-pdf/): Convert PNG and JPEG images into a unified PDF file.
+- [PDF to Image](https://pdfminty.com/pdf-to-image/): Export PDF pages as high-resolution PNG or JPEG images.
+- [PDF to Markdown](https://pdfminty.com/pdf-to-markdown/): Extract clean structured Markdown from PDF text and tables.
+- [AI PDF Assistant](https://pdfminty.com/ai-analyze-pdf/): Opt-in AI summary and Q&A powered by Google Gemini API with explicit user consent.
+- [Grayscale PDF](https://pdfminty.com/grayscale-pdf/): Convert color PDFs to clean black-and-white monochrome documents.
+- [Flatten PDF](https://pdfminty.com/flatten-pdf/): Flatten interactive form fields and annotations into static print layers.
+- [Repair PDF](https://pdfminty.com/repair-pdf/): Rebuild corrupted cross-reference tables and damaged PDF trees.
+- [Edit PDF Metadata](https://pdfminty.com/edit-pdf-metadata/): Inspect and update PDF title, author, subject, and keywords.
+- [Sanitize PDF](https://pdfminty.com/sanitize-pdf/): Strip hidden metadata, JavaScript macros, and tracking tags from PDFs.
+- [Sign PDF](https://pdfminty.com/sign-pdf/): Draw, type, or stamp electronic signatures on PDF documents.
+- [OCR PDF](https://pdfminty.com/ocr-pdf/): Extract selectable text from scanned PDF documents locally.
 
-- **Merge PDF**: Combine multiple PDF files into an atomic ordered document (Up to 150MB total limits).
-- **Split PDF / Extract Pages**: Extract custom page index blocks into fresh, self-contained files.
-- **Compress PDF**: Shrink layout structures and reduce graphical stream footprints (Up to 75MB files).
-- **Rotate Pages**: Re-align skewed layout pages or rotate full documents.
-- **Delete Pages**: Select and discard unwanted pages interactively.
-- **Watermark PDF**: Stamp custom multi-line text overlays diagonally with custom opacity, sizing, and colors.
-- **Add Page Numbers**: Add dynamic pagination strings (e.g., "Page {n} of {total}") in any layout corner/alignment.
-- **Add Blank Page**: Embed blank page sheets at any page index.
-- **Protect PDF**: Secure files utilizing industry-standard password protection systems (Up to 100MB files).
-- **Unlock PDF**: Safely decrypt protected files locally (requires existing password authorization).
-- **Image to PDF**: Convert photos (PNG, JPEG) into standardized PDF pages with margins.
-- **PDF to Images**: High-definition rendering of PDF pages exported directly as PNG files.
-- **AI Analyze & Assistant**: Query documents and synthesize long content summaries locally using the Gemini API.
+## Legal, Trust & Policies
+- [Privacy Policy](https://pdfminty.com/privacy-policy/): Full data privacy disclosure, zero server-storage guarantee, and Google AdSense cookie compliance.
+- [Terms of Service](https://pdfminty.com/terms-of-service/): Service terms, acceptable use, crawler guidelines, and intellectual property conditions.
+- [About Us](https://pdfminty.com/about-us/): Mission, security principles, and company information.
+- [Contact Us](https://pdfminty.com/contact/): Support and contact channels.
+- [Knowledge Hub](https://pdfminty.com/blog/): In-depth PDF security and optimization tutorials.
 
-## Size Capacity Limits
-
-To preserve browser memory safety, individual file size boundaries are set based on operational complexity:
-
-- **Protect / Unlock PDF**: 100 MB per file
-- **Compress PDF**: 75 MB per file
-- **Merge PDF**: 50 MB per file (150 MB combined total)
-- **PDF to Image**: 35 MB per file
-- **Image to PDF**: 20 MB per image (100 MB combined total)
-- **AI Analyze**: 15 MB per file
-- **All other operations (Split, Rotate, Reorder, Delete, Page Numbers, Watermark, Add Blank Page)**: 50 MB per file
-
-## Technological Stack
-
-- Core Framework: React, Vite, TypeScript, Tailwind CSS
-- PDF Processor Engine: `pdf-lib` via client-side Web Workers
-- Layout Visualizer: Custom Canvas & `pdfjs-dist`
-- Animated Elements: `motion`
-- Icon Library: `lucide-react`
-- AI Assistant Integration: `@google/genai` SDK
+## AI Crawler Access Policy
+Benign AI agents, research crawlers, and search engines are permitted to access public pages, tool definitions, and documentation. Automated access to backend operational endpoints (/api/*) or denial-of-service traffic patterns are strictly prohibited.
