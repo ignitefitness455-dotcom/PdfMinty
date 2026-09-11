@@ -76,7 +76,7 @@ export const PrivacyPolicyPage: React.FC = () => {
           <section className="space-y-3 pt-6 border-t border-border-muted">
             <h2 className="text-lg font-extrabold text-on-surface flex items-center gap-2">
               <EyeOff className="w-5 h-5 text-emerald-500" />
-              3. Analytics & Cookies
+              4. Analytics & Cookies
             </h2>
             <p>
               PdfMinty uses minimal, privacy-focused website performance analytics to monitor overall site health. We do not sell user data, track personal identities, or store cookies containing sensitive information.
@@ -86,7 +86,7 @@ export const PrivacyPolicyPage: React.FC = () => {
           <section className="space-y-3 pt-6 border-t border-border-muted">
             <h2 className="text-lg font-extrabold text-on-surface flex items-center gap-2">
               <Lock className="w-5 h-5 text-emerald-500" />
-              4. Contact Us About Privacy
+              5. Contact Us About Privacy
             </h2>
             <p>
               If you have any questions about our privacy practices, feel free to reach out directly via our{' '}

@@ -99,13 +99,13 @@ export function generateSitemapXml(): SitemapGenerationResult {
 
   // 1. Static Core Pages (sitemap-pages.xml)
   const staticRoutes: Array<{ path: string; priority: string; changefreq: string; lastmod?: string }> = [
-    { path: '', priority: '1.0', changefreq: 'daily' },
-    { path: '/blog', priority: '0.9', changefreq: 'daily' },
-    { path: '/adobe-acrobat-alternative', priority: '0.8', changefreq: 'weekly' },
-    { path: '/about-us', priority: '0.5', changefreq: 'monthly' },
-    { path: '/contact', priority: '0.5', changefreq: 'monthly' },
-    { path: '/privacy-policy', priority: '0.3', changefreq: 'monthly' },
-    { path: '/terms-of-service', priority: '0.3', changefreq: 'monthly' },
+    { path: '/', priority: '1.0', changefreq: 'daily' },
+    { path: '/blog/', priority: '0.9', changefreq: 'daily' },
+    { path: '/adobe-acrobat-alternative/', priority: '0.8', changefreq: 'weekly' },
+    { path: '/about-us/', priority: '0.5', changefreq: 'monthly' },
+    { path: '/contact/', priority: '0.5', changefreq: 'monthly' },
+    { path: '/privacy-policy/', priority: '0.3', changefreq: 'monthly' },
+    { path: '/terms-of-service/', priority: '0.3', changefreq: 'monthly' },
   ];
 
   const pageEntries: SitemapUrlEntry[] = staticRoutes.map((route) => {
@@ -128,7 +128,10 @@ export function generateSitemapXml(): SitemapGenerationResult {
   const blogEntries: SitemapUrlEntry[] = [];
 
   const addedPaths = new Set<string>();
-  staticRoutes.forEach((r) => addedPaths.add(r.path.startsWith('/') ? r.path : `/${r.path}`));
+  staticRoutes.forEach((r) => {
+    const clean = r.path.replace(/^\//, '').replace(/\/$/, '');
+    addedPaths.add(clean ? `/${clean}/` : '/');
+  });
 
   for (const item of TOOLS as ToolSEOInfo[]) {
     const rawSlug = item.slug.startsWith('/') ? item.slug : `/${item.slug}`;

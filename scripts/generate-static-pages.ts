@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 import { HOMEPAGE_H1 } from '../src/config/homeConfig';
-import { SITE_URL, SITE_NAME, TOOLS, ToolSEOInfo } from '../src/config/seo-data';
+import { SITE_URL, SITE_NAME, TOOLS, ToolSEOInfo, RELATED_TOOL_MAPPING } from '../src/config/seo-data';
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE, I18N_TOOL_SLUGS, getHreflangs, getCanonicalUrl } from '../src/i18n/config';
 import { logger } from '../src/utils/logger';
 
@@ -381,10 +381,15 @@ async function run(): Promise<void> {
           .join('\n')
       : '';
 
+    const pageKeywords = item.keywords
+      ? (Array.isArray(item.keywords) ? item.keywords.join(', ') : item.keywords)
+      : `${item.name.toLowerCase()}, ${item.slug.replace(/-/g, ' ')}, pdf tools`;
+
     // Set custom page head meta tags
     const headMeta: string = `
   <title>${item.metaTitle}</title>
   <meta name="description" content="${item.metaDescription}">
+  <meta name="keywords" content="${pageKeywords}">
   <link rel="canonical" href="${pageUrl}">
 ${hreflangMarkup ? `${hreflangMarkup}\n` : ''}  <meta property="og:type" content="${item.type === 'article' ? 'article' : 'website'}">
   <meta property="og:title" content="${item.metaTitle}">
@@ -399,18 +404,28 @@ ${hreflangMarkup ? `${hreflangMarkup}\n` : ''}  <meta property="og:type" content
   ${jsonLdMarkup}
   `;
   
-    // Inject metadata immediately inside the head element
+    // Inject metadata immediately inside the head element and replace sitewide default keywords
     let preRenderedHtml: string = optimizedBase.replace("</head>", `${headMeta}\n</head>`);
+    if (preRenderedHtml.match(/<meta\s+name="keywords"[^>]*\/?>/i)) {
+      // Remove any duplicate keywords tag from base template so only the per-page tag remains
+      const firstKwRegex = /<meta\s+name="keywords"[^>]*\/?>/i;
+      preRenderedHtml = preRenderedHtml.replace(firstKwRegex, '');
+    }
     
-    // Helper function to build related tools list
+    // Helper function to build related tools list using contextual subset (4-6 tools)
     const getRelatedToolsHtml = (currentSlug: string): string => {
-      const filtered = TOOLS.filter((t: ToolSEOInfo) => t.slug !== currentSlug && t.type === 'tool');
+      const relatedSlugs = RELATED_TOOL_MAPPING[currentSlug] || [];
+      const relatedTools = relatedSlugs
+        .map((slug: string) => TOOLS.find((t: ToolSEOInfo) => t.slug === slug && t.type === 'tool'))
+        .filter((t): t is ToolSEOInfo => !!t);
+
+      if (relatedTools.length === 0) return '';
 
       return `
 <h2>Related PDF Tools</h2>
-<p>Explore more free, privacy-first PDF tools:</p>
+<p>Explore logically related, privacy-first PDF tools:</p>
 <ul>
-${filtered.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a> — ${t.shortDescription || t.description}</li>`).join('\n')}
+${relatedTools.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a> — ${t.shortDescription || t.description}</li>`).join('\n')}
 </ul>
 `;
     };

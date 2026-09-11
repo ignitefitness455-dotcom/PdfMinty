@@ -1,32 +1,9 @@
 import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-import { useLayout } from './Layout';
+import { RELATED_TOOL_MAPPING } from '../config/seo-data';
 
-const RELATED_MAPPING: Record<string, string[]> = {
-  'edit-pdf-metadata': ['sanitize-pdf', 'protect-pdf', 'unlock-pdf', 'repair-pdf', 'flatten-pdf'],
-  'sanitize-pdf': ['edit-pdf-metadata', 'protect-pdf', 'unlock-pdf', 'flatten-pdf', 'repair-pdf'],
-  'merge-pdf': ['split-pdf', 'reorder-pdf', 'extract-pages-pdf', 'delete-pages-pdf', 'add-blank-page'],
-  'split-pdf': ['merge-pdf', 'extract-pages-pdf', 'delete-pages-pdf', 'reorder-pdf', 'add-blank-page'],
-  'rotate-pdf': ['reorder-pdf', 'delete-pages-pdf', 'extract-pages-pdf', 'merge-pdf'],
-  'delete-pages-pdf': ['extract-pages-pdf', 'reorder-pdf', 'split-pdf', 'merge-pdf', 'add-blank-page'],
-  'extract-pages-pdf': ['delete-pages-pdf', 'reorder-pdf', 'split-pdf', 'merge-pdf', 'add-blank-page'],
-  'reorder-pdf': ['rotate-pdf', 'delete-pages-pdf', 'extract-pages-pdf', 'merge-pdf', 'add-blank-page'],
-  'watermark-pdf': ['add-page-numbers', 'protect-pdf', 'edit-pdf-metadata', 'flatten-pdf'],
-  'add-page-numbers': ['watermark-pdf', 'add-blank-page', 'reorder-pdf', 'merge-pdf'],
-  'add-blank-page': ['merge-pdf', 'split-pdf', 'reorder-pdf', 'add-page-numbers', 'delete-pages-pdf'],
-  'protect-pdf': ['unlock-pdf', 'sanitize-pdf', 'edit-pdf-metadata', 'flatten-pdf'],
-  'unlock-pdf': ['protect-pdf', 'sanitize-pdf', 'edit-pdf-metadata', 'repair-pdf'],
-  'image-to-pdf': ['pdf-to-image', 'merge-pdf', 'pdf-to-markdown', 'ai-analyze-pdf'],
-  'pdf-to-image': ['image-to-pdf', 'pdf-to-markdown', 'ai-analyze-pdf', 'extract-pages-pdf'],
-  'pdf-to-markdown': ['ai-analyze-pdf', 'pdf-to-image', 'image-to-pdf', 'extract-pages-pdf'],
-  'ai-analyze-pdf': ['pdf-to-markdown', 'pdf-to-image', 'sanitize-pdf', 'edit-pdf-metadata'],
-  'grayscale-pdf': ['flatten-pdf', 'watermark-pdf', 'sanitize-pdf', 'repair-pdf'],
-  'flatten-pdf': ['grayscale-pdf', 'protect-pdf', 'sanitize-pdf', 'watermark-pdf'],
-  'repair-pdf': ['unlock-pdf', 'sanitize-pdf', 'edit-pdf-metadata', 'flatten-pdf'],
-  'sign-pdf': ['watermark-pdf', 'protect-pdf', 'edit-pdf-metadata', 'flatten-pdf'],
-  'ocr-pdf': ['pdf-to-markdown', 'ai-analyze-pdf', 'pdf-to-image', 'image-to-pdf'],
-};
+import { useLayout } from './Layout';
 
 export const RelatedTools: React.FC = () => {
   const { pathname = '/' } = useLocation() || {};
@@ -39,7 +16,7 @@ export const RelatedTools: React.FC = () => {
 
     if (!activeTool) return [];
 
-    const curatedSlugs = RELATED_MAPPING[activeTool.slug];
+    const curatedSlugs = RELATED_TOOL_MAPPING[activeTool.slug];
 
     if (curatedSlugs) {
       // Filter existing tools matching the curated slugs in order
@@ -48,7 +25,7 @@ export const RelatedTools: React.FC = () => {
         .filter((t): t is typeof toolsList[number] => !!t && t.slug !== activeTool.slug);
       
       if (curatedList.length >= 3) {
-        return curatedList.slice(0, 3);
+        return curatedList.slice(0, 5);
       }
     }
 
@@ -56,32 +33,35 @@ export const RelatedTools: React.FC = () => {
     const currentIdx = toolsList.indexOf(activeTool);
     const fallbackIdx = currentIdx !== -1 ? currentIdx : 0;
 
-    return list.slice(fallbackIdx % list.length, (fallbackIdx % list.length) + 3);
+    return list.slice(fallbackIdx % list.length, (fallbackIdx % list.length) + 4);
   }, [toolsList, pathname]);
 
   if (pathname === '/' || related.length === 0) return null;
 
   return (
-    <div className="mt-12 pt-8 border-t border-slate-200" id="related_tools_box">
-      <h3 className="text-sm font-extrabold uppercase tracking-wide text-slate-400 mb-4">
+    <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800" id="related_tools_box">
+      <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-4">
         Related PDF Tools
       </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
         {related.map((tool) => (
           <Link
             key={tool.slug}
             to={`/${tool.slug}/`}
-            className="p-4 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 transition-all hover:shadow-sm"
+            className="p-3.5 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl hover:border-emerald-500 dark:hover:border-emerald-500 transition-all hover:shadow-sm flex flex-col justify-between"
           >
-            <span className="font-bold text-sm text-slate-800 block hover:text-emerald-700 transition-colors">
-              {tool.name}
-            </span>
-            <span className="text-[11px] text-slate-500 block line-clamp-1 mt-1">
-              {tool.description}
-            </span>
+            <div>
+              <span className="font-bold text-sm text-slate-800 dark:text-slate-100 block hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                {tool.name}
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 block line-clamp-2 mt-1">
+                {tool.shortDescription || tool.description}
+              </span>
+            </div>
           </Link>
         ))}
       </div>
     </div>
   );
 };
+

@@ -133,7 +133,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     .filter((t) => t.type === 'tool')
     .map((t) => ({
       name: t.name,
-      path: `/${t.slug}`,
+      path: `/${t.slug}/`,
       icon: iconMap[t.icon] || HelpCircle,
       desc: t.shortDescription,
     })), [iconMap]);

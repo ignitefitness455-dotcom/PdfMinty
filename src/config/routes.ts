@@ -28,7 +28,7 @@ export const ROUTES = {
   OCR_PDF: `/${TOOLS.find((t) => t.id === 'ocr-pdf')?.slug || 'ocr-pdf'}/`,
   TRUST_ARTICLE: `/${TOOLS.find((t) => t.id === 'trust-article')?.slug || 'is-it-safe-to-upload-pdf-to-online-tools'}/`,
   BLOG: '/blog/',
-  BLOG_POST: '/blog/:postSlug',
+  BLOG_POST: '/blog/:postSlug/',
   PRIVACY_POLICY: '/privacy-policy/',
   TERMS_OF_SERVICE: '/terms-of-service/',
   ABOUT_US: '/about-us/',
@@ -37,6 +37,6 @@ export const ROUTES = {
   ADOBE_SECURITY_ARTICLE: '/blog/adobe-security-vulnerabilities-offline-pdf-tools/',
   COMPARE_SMALLPDF: '/compare/pdfminty-vs-smallpdf/',
   COMPARE_ILOVEPDF: '/compare/pdfminty-vs-ilovepdf/',
-  COMPARE_PAGE: '/compare/:postSlug',
+  COMPARE_PAGE: '/compare/:postSlug/',
 };
 export default ROUTES;

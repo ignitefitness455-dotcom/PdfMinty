@@ -77,6 +77,7 @@ export const BlogPostPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-surface py-10 px-4 sm:px-6 lg:px-8 font-sans text-on-surface transition-colors duration-200">
       <SEO
+        slug={article.slug}
         titleOverride={`${article.h1 || article.name} | PdfMinty Knowledge Hub`}
         descriptionOverride={article.metaDescription || article.shortDescription}
       />

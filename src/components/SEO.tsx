@@ -61,9 +61,11 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
 
   // Per-tool og:image if declared in seo-data, else generic.
   const ogImage = item?.ogImage ? `${SITE_URL}${item.ogImage}` : `${SITE_URL}/og-image.png`;
-  const keywords = item?.name
-    ? `${item.name.toLowerCase()}, ${item.slug.replace(/-/g, ' ')}, pdf toolkit, client-side pdf`
-    : 'pdf toolkit, merge pdf, split pdf, compress pdf, protect pdf, edit pdf, client-side pdf editor, free pdf tools';
+  const keywords = item?.keywords
+    ? (Array.isArray(item.keywords) ? item.keywords.join(', ') : item.keywords)
+    : item?.name
+      ? `${item.name.toLowerCase()}, ${item.slug.replace(/-/g, ' ')}, pdf tools`
+      : 'pdf toolkit, client-side pdf editor, privacy pdf tools, local pdf tools, free browser pdf tools';
 
   return (
     <Helmet>

@@ -55,10 +55,39 @@ const ScrollToTop: React.FC = () => {
   return null;
 };
 
+/**
+ * Normalizes browser URL to the canonical trailing-slash structure.
+ * Redirects any non-slash or malformed directory paths to their canonical trailing-slash equivalent.
+ */
+const TrailingSlashRedirect: React.FC = () => {
+  const { pathname, search, hash } = useLocation();
+
+  let normalizedPath = pathname;
+  if (!normalizedPath.startsWith('/api') && !normalizedPath.includes('.')) {
+    if (/\/{2,}/.test(normalizedPath)) {
+      normalizedPath = normalizedPath.replace(/\/{2,}/g, '/');
+    }
+    const lower = normalizedPath.toLowerCase();
+    if (normalizedPath !== lower) {
+      normalizedPath = lower;
+    }
+    if (normalizedPath !== '/' && !normalizedPath.endsWith('/')) {
+      normalizedPath = `${normalizedPath}/`;
+    }
+  }
+
+  if (normalizedPath !== pathname) {
+    return <Navigate to={`${normalizedPath}${search}${hash}`} replace />;
+  }
+
+  return null;
+};
+
 export const App: React.FC = () => {
   return (
     <>
       <ScrollToTop />
+      <TrailingSlashRedirect />
       <SkipToContent />
       <Layout>
         <PWAController />
@@ -280,6 +309,14 @@ export const App: React.FC = () => {
               }
             />
             <Route
+              path="/blog/:postSlug"
+              element={
+                <ErrorBoundary resetKey="blog-post">
+                  <BlogPostPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
               path={ROUTES.COMPARE_SMALLPDF}
               element={
                 <ErrorBoundary resetKey="compare-smallpdf">
@@ -297,6 +334,14 @@ export const App: React.FC = () => {
             />
             <Route
               path={ROUTES.COMPARE_PAGE}
+              element={
+                <ErrorBoundary resetKey="compare-page">
+                  <BlogPostPage />
+                </ErrorBoundary>
+              }
+            />
+            <Route
+              path="/compare/:postSlug"
               element={
                 <ErrorBoundary resetKey="compare-page">
                   <BlogPostPage />
