@@ -1,6 +1,7 @@
 # Robots.txt for PDFMinty (https://pdfminty.com)
 User-agent: *
 Allow: /
+Allow: /ads.txt
 Allow: /fonts/
 Allow: /icons/
 Allow: /*.png
@@ -19,9 +20,15 @@ Disallow: /graphql
 # Google AdSense Crawler & Verification Bots
 User-agent: Mediapartners-Google
 Allow: /
+Allow: /ads.txt
 
 User-agent: Google-Display-Ads-Bot
 Allow: /
+Allow: /ads.txt
+
+User-agent: Google-adstxt
+Allow: /
+Allow: /ads.txt
 
 # Search Engine Crawlers
 User-agent: Googlebot

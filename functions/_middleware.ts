@@ -67,6 +67,28 @@ export const onRequest: PagesFunction = async (context) => {
   const url = new URL(context.request.url);
   const rawPath = url.pathname;
 
+  // 1. Canonical Hostname (www -> non-www) & Protocol (http -> https) normalization
+  if (url.hostname === 'www.pdfminty.com' || (url.hostname === 'pdfminty.com' && url.protocol === 'http:')) {
+    const targetUrl = `https://pdfminty.com${rawPath}${url.search}`;
+    return Response.redirect(targetUrl, 301);
+  }
+
+  // Guaranteed immediate handler for Google AdSense ads.txt
+  if (rawPath === '/ads.txt') {
+    return new Response('google.com, pub-3862038139324053, DIRECT, f08c47fec0942fa0\n', {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'public, max-age=3600',
+        'X-Content-Type-Options': 'nosniff',
+      },
+    });
+  }
+  if (rawPath === '/ads.txt/') {
+    return Response.redirect('https://pdfminty.com/ads.txt', 301);
+  }
+
   // Fast bypass for static assets: Vite chunks, CSS, fonts, images, wasm, etc.
   // Static assets must be served directly with their exact case-sensitive filenames and without page-level redirects.
   const isStaticAsset =
