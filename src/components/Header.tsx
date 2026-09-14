@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [logoLoaded, setLogoLoaded] = useState(true);
 
   return (
-    <header className="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border-muted transition-colors duration-200">
+    <header className="sticky top-0 z-50 bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/10 shadow-sm transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
         {/* Brand Logo & Name */}
         <Link

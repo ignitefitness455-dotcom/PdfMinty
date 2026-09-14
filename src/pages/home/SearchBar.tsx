@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SearchBarProps {
   value: string;
@@ -11,17 +12,21 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChange,
   isDebouncing,
-  placeholder = 'Search PDF tools...',
+  placeholder,
 }) => {
+  const { t } = useTranslation('common');
+  const effectivePlaceholder = placeholder || t('home.search.placeholder', { defaultValue: 'Search PDF tools...' });
+  const effectiveAriaLabel = t('home.search.ariaLabel', { defaultValue: 'Search PDF tools' });
+
   return (
     <div className="relative">
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        aria-label="Search PDF tools"
-        className="w-full rounded-2xl border border-border-muted bg-surface-container-low/50 backdrop-blur-md px-5 py-4 pr-12 text-sm text-primary placeholder-on-surface-variant/50 focus:border-security-green focus:outline-none focus:ring-4 focus:ring-security-green/10 transition-all duration-300"
+        placeholder={effectivePlaceholder}
+        aria-label={effectiveAriaLabel}
+        className="w-full rounded-2xl border border-white/50 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-lg shadow-black/5 px-5 py-4 pr-12 text-sm text-primary placeholder-on-surface-variant/70 focus:border-emerald-500/50 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all duration-300"
       />
       <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
         {isDebouncing && (

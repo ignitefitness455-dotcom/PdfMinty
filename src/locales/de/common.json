@@ -83,5 +83,185 @@
   "languageSwitcher": {
     "selectLanguage": "Sprache auswählen",
     "changeLanguageAria": "Sprache ändern"
+  },
+  "home": {
+    "hero": {
+      "badgeClient": "🔒 Lokale Verarbeitung direkt im Browser",
+      "badgePrivate": "100% private Browser-Werkzeuge",
+      "h1Part1": "Kostenlose browserbasierte PDF-Werkzeuge — 100% privat, ",
+      "h1Part2": "Ohne Uploads",
+      "subtitle": "Fügen Sie Ihre Dokumente direkt im Webbrowser zusammen, teilen und bearbeiten Sie sie. PDFMinty verarbeitet Standard-PDF-Aufgaben lokal auf Ihrem Gerät ohne Server-Uploads. Keine Konten erforderlich – schnelle, datenschutzorientierte PDF-Tools."
+    },
+    "search": {
+      "placeholder": "PDF-Werkzeuge durchsuchen...",
+      "ariaLabel": "PDF-Werkzeuge durchsuchen"
+    },
+    "categories": {
+      "all": "Alle",
+      "workflows": "Arbeitsabläufe",
+      "organize": "PDF organisieren",
+      "optimize": "PDF optimieren",
+      "convert": "PDF konvertieren",
+      "edit": "PDF bearbeiten",
+      "security": "PDF-Sicherheit",
+      "intelligence": "PDF-KI & Analyse"
+    },
+    "noToolsFound": {
+      "title": "Keine Werkzeuge gefunden",
+      "desc": "Wir konnten keine passenden Werkzeuge finden. Überprüfen Sie Ihre Rechtschreibung oder suchen Sie nach etwas anderem.",
+      "clearSearch": "Suche zurücksetzen"
+    },
+    "whyChoose": {
+      "title": "Warum PDFMinty wählen?",
+      "subtitle": "Professionelle Dokumentenwerkzeuge ohne Sicherheitskompromisse.",
+      "privacyTitle": "Datenschutz an erster Stelle",
+      "privacyDesc": "Ihre Dokumente bleiben auf Ihrem Gerät. Lokale PDF-Operationen laufen im Browserspeicher für maximalen Datenschutz.",
+      "noAccountTitle": "Keine Registrierung erforderlich",
+      "noAccountDesc": "Überspringen Sie Registrierungen und Passwörter. Greifen Sie sofort auf schnelle Werkzeuge zu, ohne persönliche Daten zu hinterlassen.",
+      "freeTitle": "Vollständig kostenlos",
+      "freeDesc": "Genießen Sie Dateibearbeitung ohne Bezahlschranken, Abonnements, künstliche Limits oder Wasserzeichen.",
+      "fastTitle": "Sofortige Verarbeitung",
+      "fastDesc": "Kein Warten auf Uploads oder Cloud-Warteschlangen. Ihr Prozessor verarbeitet Dateien sofort ohne Übertragungsverzögerung.",
+      "offlineTitle": "Funktioniert offline",
+      "offlineDesc": "Nach dem Laden verarbeiten die Kernwerkzeuge Ihre PDF-Dateien lokal auf Ihrem Computer auch ohne Internetverbindung.",
+      "toolsCountTitle": "22+ spezialisierte Werkzeuge",
+      "toolsCountDesc": "Vom Zusammenfügen und Teilen bis hin zu Verschlüsselung, OCR und Komprimierung – erledigen Sie jeden PDF-Workflow."
+    },
+    "howItWorks": {
+      "badge": "100% browserbasierter Datenschutz",
+      "title": "Schnelle, vertrauliche Dokumentenverarbeitung",
+      "desc": "PDFMinty verarbeitet Ihre Dokumente direkt auf Ihrem Computer oder Smartphone. Da Ihre Dateien auf Ihrem Gerät verbleiben, erfolgt die Verarbeitung sofort ohne Upload-Verzögerungen, Dateigrößenbeschränkungen oder Cloud-Speicherrisiken. Verarbeiten Sie vertrauliche Verträge und Steuerformulare mit garantiertem Datenschutz.",
+      "dragDrop": "PDF hierher ziehen & ablegen",
+      "orBrowse": "oder klicken, um lokal auszuwählen",
+      "stepsHeading": "So funktioniert es in 3 einfachen Schritten",
+      "step1Title": "Wählen Sie Ihr Werkzeug",
+      "step1Desc": "Wählen Sie aus über 22 PDF-Werkzeugen zum Zusammenfügen, Teilen, Bearbeiten oder Schützen Ihrer Dateien.",
+      "step2Title": "Dateien hinzufügen",
+      "step2Desc": "Ziehen Sie Ihre PDF-Dateien direkt in das Browserfenster. Alles bleibt lokal im Speicher.",
+      "step3Title": "Verarbeiten & Herunterladen",
+      "step3Desc": "Ihre PDF wird sofort auf Ihrer Hardware verarbeitet. Klicken Sie auf Herunterladen, um das Ergebnis zu speichern."
+    },
+    "faq": {
+      "badge": "Häufig gestellte Fragen",
+      "title": "Haben Sie Fragen? Wir haben Antworten.",
+      "subtitle": "Alles, was Sie über die privaten, browserbasierten PDF-Tools von PDFMinty wissen müssen.",
+      "items": [
+        {
+          "q": "Wie verarbeitet PdfMinty meine PDF-Dateien vertraulich?",
+          "a": "PdfMinty führt die Standard-PDF-Werkzeuge zu 100% lokal in Ihrem Webbrowser mittels WebAssembly und JavaScript aus, ohne dass Dateien auf Server hochgeladen werden. Einzige Ausnahme ist die KI-Analyse, die nur nach ausdrücklicher Zustimmung Text an Google Gemini sendet."
+        },
+        {
+          "q": "Ist PdfMinty wirklich kostenlos nutzbar?",
+          "a": "Ja, 100% kostenlos ohne versteckte Gebühren, Abonnements, Nutzungslimits oder Registrierungspflicht."
+        },
+        {
+          "q": "Verlassen meine Dateien jemals mein Gerät?",
+          "a": "Bei den Standard-Werkzeugen nein – die Verarbeitung erfolgt vollständig im lokalen Browserspeicher und funktioniert sogar offline."
+        },
+        {
+          "q": "Welche Dateiformate und PDF-Versionen werden unterstützt?",
+          "a": "PdfMinty unterstützt alle Standard-PDF-Dokumente inklusive passwortgeschützter PDFs, gescannter Seiten sowie Bildformate (JPEG, PNG, WebP) zur PDF-Umwandlung."
+        },
+        {
+          "q": "Wie unterscheidet sich PdfMinty von Diensten wie iLovePDF oder Smallpdf?",
+          "a": "Herkömmliche PDF-Dienste laden Ihre Dokumente auf Cloud-Server hoch. PdfMinty verarbeitet Dateien direkt auf Ihrem eigenen Gerät, wodurch Datenschutzrisiken und Wartezeiten entfallen."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Bereit, Ihre PDFs mit vollem Datenschutz zu verwalten?",
+      "subtitle": "Wählen Sie oben ein Werkzeug aus, um Ihre Dokumente sicher und lokal auf Ihrem Gerät zu verarbeiten. Schnell, kostenlos und ohne Registrierung.",
+      "button": "Alle Werkzeuge entdecken"
+    }
+  },
+  "tools": {
+    "merge-pdf": {
+      "name": "PDF zusammenfügen",
+      "desc": "Kombinieren Sie mehrere PDF-Dateien sekundenschnell zu einem Dokument."
+    },
+    "split-pdf": {
+      "name": "PDF teilen",
+      "desc": "Extrahieren Sie Seiten oder teilen Sie eine PDF nach benutzerdefinierten Bereichen."
+    },
+    "rotate-pdf": {
+      "name": "PDF drehen",
+      "desc": "Drehen Sie einzelne Seiten oder das gesamte PDF-Dokument im oder gegen den Uhrzeigersinn."
+    },
+    "delete-pages-pdf": {
+      "name": "Seiten löschen",
+      "desc": "Entfernen Sie unerwünschte Seiten sauber mit einer visuellen Vorschau."
+    },
+    "extract-pages-pdf": {
+      "name": "Seiten extrahieren",
+      "desc": "Wählen und speichern Sie bestimmte Seiten als eigenständige PDF."
+    },
+    "reorder-pdf": {
+      "name": "PDF-Seiten sortieren",
+      "desc": "Seitenminiaturen per Drag & Drop verschieben, um die Reihenfolge zu ändern."
+    },
+    "grayscale-pdf": {
+      "name": "PDF in Graustufen",
+      "desc": "Farbdokumente in sauberes Schwarzweiß oder Graustufen umwandeln und Druckertinte sparen."
+    },
+    "flatten-pdf": {
+      "name": "PDF glätten",
+      "desc": "Formularfelder, Ebenen und Anmerkungen dauerhaft in Standard-PDF-Seiten einbetten."
+    },
+    "image-to-pdf": {
+      "name": "Bild zu PDF",
+      "desc": "Wandeln Sie JPG-, PNG-, WEBP- und TIFF-Bilder in eine professionelle PDF-Datei um."
+    },
+    "pdf-to-image": {
+      "name": "PDF zu Bildern",
+      "desc": "Exportieren Sie hochauflösende JPG- oder PNG-Bilder von jeder Seite Ihres Dokuments."
+    },
+    "protect-pdf": {
+      "name": "PDF schützen",
+      "desc": "Verschlüsseln Sie Ihre PDF mit AES-256-Passwortschutz gegen unbefugten Zugriff."
+    },
+    "unlock-pdf": {
+      "name": "PDF entsperren",
+      "desc": "Entfernen Sie Besitzerpasswörter und Druck- oder Bearbeitungsbeschränkungen."
+    },
+    "watermark-pdf": {
+      "name": "Wasserzeichen auf PDF",
+      "desc": "Fügen Sie individuelle Text-Wasserzeichen (z. B. Vertraulich oder Entwurf) hinzu."
+    },
+    "add-page-numbers": {
+      "name": "Seitenzahlen hinzufügen",
+      "desc": "Formatierte Seitenzahlen in Kopf- oder Fußzeilen mit anpassbarem Start einfügen."
+    },
+    "add-blank-page": {
+      "name": "Leere Seite hinzufügen",
+      "desc": "Fügen Sie leere Seiten vor, nach oder zwischen bestehende Inhalte ein."
+    },
+    "edit-pdf-metadata": {
+      "name": "PDF-Metadaten bearbeiten",
+      "desc": "Titel, Autor, Thema, Stichwörter und Ersteller-Eigenschaften anzeigen und anpassen."
+    },
+    "sanitize-pdf": {
+      "name": "PDF bereinigen",
+      "desc": "Versteckte Metadaten, XML-Einträge, JavaScript-Code und Links restlos entfernen."
+    },
+    "pdf-to-markdown": {
+      "name": "PDF zu Markdown",
+      "desc": "Strukturierten Markdown-Text, Überschriften und Listen direkt aus der PDF extrahieren."
+    },
+    "sign-pdf": {
+      "name": "PDF unterschreiben",
+      "desc": "Zeichnen, tippen oder laden Sie Ihre digitale Signatur sicher auf jede PDF-Seite."
+    },
+    "ocr-pdf": {
+      "name": "OCR PDF",
+      "desc": "Erkennen und extrahieren Sie durchsuchbaren Text aus gescannten Dokumenten und Foto-PDFs."
+    },
+    "ai-analyze-pdf": {
+      "name": "KI-PDF-Analyse",
+      "desc": "Verträge zusammenfassen, Fragen stellen und Erkenntnisse mit sicherer KI gewinnen."
+    },
+    "repair-pdf": {
+      "name": "PDF reparieren",
+      "desc": "Beschädigte Verweistabellen reparieren und lesbare Daten aus korrupten Dateien retten."
+    }
   }
 }

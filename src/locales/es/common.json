@@ -83,5 +83,185 @@
   "languageSwitcher": {
     "selectLanguage": "Seleccionar Idioma",
     "changeLanguageAria": "Cambiar idioma"
+  },
+  "home": {
+    "hero": {
+      "badgeClient": "🔒 Procesamiento local en el navegador",
+      "badgePrivate": "Herramientas 100% privadas en el navegador",
+      "h1Part1": "Herramientas PDF gratuitas en el navegador — 100% privadas, ",
+      "h1Part2": "Sin subidas",
+      "subtitle": "Une, divide y edita tus documentos directamente en tu navegador web. PDFMinty procesa tareas PDF localmente en tu dispositivo sin subidas al servidor. Sin registros: herramientas PDF rápidas y privadas."
+    },
+    "search": {
+      "placeholder": "Buscar herramientas PDF...",
+      "ariaLabel": "Buscar herramientas PDF"
+    },
+    "categories": {
+      "all": "Todos",
+      "workflows": "Flujos de trabajo",
+      "organize": "Organizar PDF",
+      "optimize": "Optimizar PDF",
+      "convert": "Convertir PDF",
+      "edit": "Editar PDF",
+      "security": "Seguridad PDF",
+      "intelligence": "Inteligencia PDF"
+    },
+    "noToolsFound": {
+      "title": "No se encontraron herramientas",
+      "desc": "No encontramos herramientas que coincidan con tu búsqueda. Revisa la ortografía o intenta buscar otra cosa.",
+      "clearSearch": "Borrar búsqueda"
+    },
+    "whyChoose": {
+      "title": "¿Por qué elegir PDFMinty?",
+      "subtitle": "Herramientas de documentos profesionales sin comprometer la seguridad.",
+      "privacyTitle": "Privacidad primero",
+      "privacyDesc": "Tus documentos permanecen en tu dispositivo. Las operaciones locales se ejecutan en la memoria del navegador.",
+      "noAccountTitle": "Sin cuenta requerida",
+      "noAccountDesc": "Olvídate de registros y contraseñas. Accede a herramientas rápidas directamente sin crear una cuenta ni dejar datos.",
+      "freeTitle": "Completamente gratis",
+      "freeDesc": "Disfruta de editar y organizar archivos sin muros de pago, suscripciones, límites artificiales ni marcas de agua.",
+      "fastTitle": "Procesamiento instantáneo",
+      "fastDesc": "Sin esperas por subidas o colas en la nube. El procesador de tu dispositivo maneja los archivos al instante.",
+      "offlineTitle": "Funciona sin conexión",
+      "offlineDesc": "Una vez cargadas, las herramientas procesan tus archivos PDF localmente en tu ordenador incluso sin conexión a internet.",
+      "toolsCountTitle": "22+ herramientas especializadas",
+      "toolsCountDesc": "Desde unir y dividir hasta cifrado, OCR y compresión: completa cualquier flujo de trabajo de PDF aquí."
+    },
+    "howItWorks": {
+      "badge": "100% privacidad en el navegador",
+      "title": "Procesamiento de documentos rápido y privado",
+      "desc": "PDFMinty procesa tus documentos directamente en tu ordenador o teléfono. Como tus archivos permanecen en tu dispositivo, el procesamiento ocurre al instante sin demoras de subida ni riesgos de almacenamiento en la nube. Procesa contratos confidenciales con total tranquilidad.",
+      "dragDrop": "Arrastra y suelta el PDF aquí",
+      "orBrowse": "o haz clic para buscar localmente",
+      "stepsHeading": "Cómo funciona en 3 sencillos pasos",
+      "step1Title": "Selecciona tu herramienta",
+      "step1Desc": "Elige entre más de 22 herramientas PDF para unir, dividir, editar o proteger tus archivos.",
+      "step2Title": "Añade tus archivos",
+      "step2Desc": "Arrastra y suelta tus archivos PDF directamente en el navegador. Todo permanece localmente en la memoria.",
+      "step3Title": "Procesar y Descargar",
+      "step3Desc": "Tu PDF se procesa al instante en tu hardware. Haz clic en descargar para guardar el resultado de inmediato."
+    },
+    "faq": {
+      "badge": "Preguntas frecuentes",
+      "title": "¿Tienes preguntas? Tenemos respuestas.",
+      "subtitle": "Todo lo que necesitas saber sobre las herramientas PDF privadas en el navegador de PDFMinty.",
+      "items": [
+        {
+          "q": "¿Cómo procesa PdfMinty mis archivos PDF de forma privada?",
+          "a": "PdfMinty ejecuta sus herramientas PDF 100% localmente dentro de tu navegador web mediante WebAssembly y JavaScript, sin subir archivos a ningún servidor."
+        },
+        {
+          "q": "¿PdfMinty es completamente gratuito?",
+          "a": "Sí, 100% gratuito sin tarifas ocultas, suscripciones, límites de uso ni necesidad de registrarte."
+        },
+        {
+          "q": "¿Salen mis archivos de mi ordenador o móvil?",
+          "a": "Para las herramientas estándar, no: el procesamiento ocurre completamente en la memoria de tu navegador y funciona sin conexión."
+        },
+        {
+          "q": "¿Qué formatos y versiones de PDF son compatibles?",
+          "a": "PdfMinty es compatible con todos los documentos PDF estándar, incluidos los protegidos por contraseña e imágenes (JPEG, PNG, WebP)."
+        },
+        {
+          "q": "¿En qué se diferencia PdfMinty de convertidores como iLovePDF?",
+          "a": "Los convertidores tradicionales suben tus documentos a servidores en la nube. PdfMinty los procesa localmente en tu propia CPU sin riesgos de privacidad."
+        }
+      ]
+    },
+    "cta": {
+      "title": "¿Listo para gestionar tus PDFs con total privacidad?",
+      "subtitle": "Selecciona cualquier herramienta arriba para procesar tus documentos de forma privada y local en tu dispositivo.",
+      "button": "Explorar todas las herramientas"
+    }
+  },
+  "tools": {
+    "merge-pdf": {
+      "name": "Unir PDF",
+      "desc": "Combina varios archivos PDF en un solo documento en segundos."
+    },
+    "split-pdf": {
+      "name": "Dividir PDF",
+      "desc": "Extrae páginas o divide un PDF en archivos separados por rangos."
+    },
+    "rotate-pdf": {
+      "name": "Rotar PDF",
+      "desc": "Gira páginas específicas o documentos PDF completos en sentido horario o antihorario."
+    },
+    "delete-pages-pdf": {
+      "name": "Eliminar páginas",
+      "desc": "Elimina páginas no deseadas de tu archivo PDF con un selector visual."
+    },
+    "extract-pages-pdf": {
+      "name": "Extraer páginas",
+      "desc": "Selecciona y guarda páginas específicas como un PDF independiente."
+    },
+    "reorder-pdf": {
+      "name": "Reordenar páginas PDF",
+      "desc": "Arrastra y suelta miniaturas de páginas para reorganizar el orden de tu documento."
+    },
+    "grayscale-pdf": {
+      "name": "PDF en escala de grises",
+      "desc": "Convierte documentos a color en blanco y negro o escala de grises para ahorrar tinta."
+    },
+    "flatten-pdf": {
+      "name": "Aplanar PDF",
+      "desc": "Bloquea campos de formulario, capas y anotaciones permanentemente en páginas PDF estándar."
+    },
+    "image-to-pdf": {
+      "name": "Imagen a PDF",
+      "desc": "Convierte imágenes JPG, PNG, WEBP y TIFF en un único documento PDF profesional."
+    },
+    "pdf-to-image": {
+      "name": "PDF a imágenes",
+      "desc": "Exporta imágenes JPG o PNG de alta resolución desde cualquier página de tu PDF."
+    },
+    "protect-pdf": {
+      "name": "Proteger PDF",
+      "desc": "Cifra tu PDF con protección de contraseña AES-256 para restringir el acceso."
+    },
+    "unlock-pdf": {
+      "name": "Desbloquear PDF",
+      "desc": "Elimina contraseñas y restricciones de impresión o edición de tus archivos PDF."
+    },
+    "watermark-pdf": {
+      "name": "Marca de agua PDF",
+      "desc": "Añade marcas de agua personalizadas (Confidencial, Borrador) en las páginas de tu PDF."
+    },
+    "add-page-numbers": {
+      "name": "Números de página",
+      "desc": "Inserta numeración con formato en encabezados o pies de página personalizables."
+    },
+    "add-blank-page": {
+      "name": "Añadir página en blanco",
+      "desc": "Inserta páginas en blanco antes, después o entre el contenido existente."
+    },
+    "edit-pdf-metadata": {
+      "name": "Editar metadatos PDF",
+      "desc": "Ver y modificar el título, autor, asunto, palabras clave y creador del PDF."
+    },
+    "sanitize-pdf": {
+      "name": "Sanitizar PDF",
+      "desc": "Elimina metadatos ocultos, registros XML, código JavaScript y enlaces incrustados."
+    },
+    "pdf-to-markdown": {
+      "name": "PDF a Markdown",
+      "desc": "Extrae texto Markdown limpio, encabezados y listas directamente desde tu PDF."
+    },
+    "sign-pdf": {
+      "name": "Firmar PDF",
+      "desc": "Dibuja, escribe o sube tu firma digital manuscrita en cualquier página de PDF."
+    },
+    "ocr-pdf": {
+      "name": "OCR PDF",
+      "desc": "Reconoce y extrae texto editable de documentos escaneados y PDFs con fotos."
+    },
+    "ai-analyze-pdf": {
+      "name": "Analizar PDF con IA",
+      "desc": "Resume contratos, consulta datos y extrae información valiosa con IA segura."
+    },
+    "repair-pdf": {
+      "name": "Reparar PDF",
+      "desc": "Reconstruye tablas de referencia cruzada dañadas y recupera texto legible de archivos corruptos."
+    }
   }
 }

@@ -23,9 +23,15 @@ const getBasename = (): string => {
   const first = segments[0] as typeof SUPPORTED_LOCALES[number];
   if (first && first !== DEFAULT_LOCALE && SUPPORTED_LOCALES.includes(first)) {
     i18n.changeLanguage(first);
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = first;
+    }
     return `/${first}`;
   }
   i18n.changeLanguage(DEFAULT_LOCALE);
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = DEFAULT_LOCALE;
+  }
   return '/';
 };
 

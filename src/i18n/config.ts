@@ -1,7 +1,18 @@
 import i18n from 'i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import resourcesToBackend from 'i18next-resources-to-backend';
 import { initReactI18next } from 'react-i18next';
+
+import deCommon from '../locales/de/common.json';
+import deFaq from '../locales/de/faq.json';
+import deMergePdf from '../locales/de/merge-pdf.json';
+import enCommon from '../locales/en/common.json';
+import enFaq from '../locales/en/faq.json';
+import enMergePdf from '../locales/en/merge-pdf.json';
+import esCommon from '../locales/es/common.json';
+import esFaq from '../locales/es/faq.json';
+import esMergePdf from '../locales/es/merge-pdf.json';
+import frCommon from '../locales/fr/common.json';
+import frFaq from '../locales/fr/faq.json';
+import frMergePdf from '../locales/fr/merge-pdf.json';
 
 // Supported locales defined in ONE config array so adding more locales touches only this place
 export const SUPPORTED_LOCALES = ['en', 'de', 'fr', 'es'] as const;
@@ -69,7 +80,7 @@ export function getLocalizedPath(baseSlug: string, locale: SupportedLocale): str
 /**
  * Derives the target navigation path when switching language from the current pathname.
  * If the current page is an i18n-enabled route (e.g. merge-pdf), it preserves the page under the new locale.
- * Otherwise, it falls back to that locale's homepage (e.g. /bn/ or /).
+ * Otherwise, it falls back to that locale's homepage (e.g. /de/ or /).
  */
 export function getSwitchLocalePath(currentPathname: string, targetLocale: SupportedLocale): string {
   const pathWithoutQuery = (currentPathname || '').split('?')[0];
@@ -125,30 +136,61 @@ export function getHreflangs(
   return entries;
 }
 
+export function getInitialLocale(): SupportedLocale {
+  if (typeof window !== 'undefined' && window.location) {
+    const segments = window.location.pathname.split('/').filter(Boolean);
+    const first = segments[0] as SupportedLocale;
+    if (first && (SUPPORTED_LOCALES as readonly string[]).includes(first)) {
+      return first;
+    }
+  }
+  return DEFAULT_LOCALE;
+}
+
+export const resources = {
+  en: {
+    common: enCommon,
+    'merge-pdf': enMergePdf,
+    faq: enFaq,
+  },
+  de: {
+    common: deCommon,
+    'merge-pdf': deMergePdf,
+    faq: deFaq,
+  },
+  fr: {
+    common: frCommon,
+    'merge-pdf': frMergePdf,
+    faq: frFaq,
+  },
+  es: {
+    common: esCommon,
+    'merge-pdf': esMergePdf,
+    faq: esFaq,
+  },
+};
+
+const initialLocale = getInitialLocale();
+
 i18n
-  .use(
-    resourcesToBackend(
-      (language: string, namespace: string) =>
-        import(`../locales/${language}/${namespace}.json`)
-    )
-  )
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    supportedLngs: SUPPORTED_LOCALES as unknown as string[],
+    lng: initialLocale,
     fallbackLng: DEFAULT_LOCALE,
+    supportedLngs: SUPPORTED_LOCALES as unknown as string[],
     defaultNS: DEFAULT_NAMESPACE,
     ns: [DEFAULT_NAMESPACE, 'merge-pdf', 'faq'],
+    resources,
     interpolation: {
       escapeValue: false, // React already escapes values
-    },
-    detection: {
-      order: ['path', 'htmlTag'],
-      caches: ['localStorage'],
     },
     react: {
       useSuspense: false,
     },
   });
+
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = initialLocale;
+}
 
 export default i18n;

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { EmailJoinForm } from '../components/EmailJoinForm';
 import { useLayout } from '../components/Layout';
@@ -18,14 +19,14 @@ import { TrustBadgeSection } from './home/TrustBadgeSection';
 import { WhyChooseSection } from './home/WhyChooseSection';
 
 const CATEGORIES = [
-  { id: 'all', name: 'All' },
-  { id: 'workflows', name: 'Workflows' },
-  { id: 'organize', name: 'Organize PDF' },
-  { id: 'optimize', name: 'Optimize PDF' },
-  { id: 'convert', name: 'Convert PDF' },
-  { id: 'edit', name: 'Edit PDF' },
-  { id: 'security', name: 'PDF Security' },
-  { id: 'intelligence', name: 'PDF Intelligence' }
+  { id: 'all', nameKey: 'home.categories.all', defaultName: 'All' },
+  { id: 'workflows', nameKey: 'home.categories.workflows', defaultName: 'Workflows' },
+  { id: 'organize', nameKey: 'home.categories.organize', defaultName: 'Organize PDF' },
+  { id: 'optimize', nameKey: 'home.categories.optimize', defaultName: 'Optimize PDF' },
+  { id: 'convert', nameKey: 'home.categories.convert', defaultName: 'Convert PDF' },
+  { id: 'edit', nameKey: 'home.categories.edit', defaultName: 'Edit PDF' },
+  { id: 'security', nameKey: 'home.categories.security', defaultName: 'PDF Security' },
+  { id: 'intelligence', nameKey: 'home.categories.intelligence', defaultName: 'PDF Intelligence' }
 ];
 
 const isToolInCategory = (slug: string, categoryId: string): boolean => {
@@ -53,6 +54,7 @@ const isToolInCategory = (slug: string, categoryId: string): boolean => {
 
 export const HomePage: React.FC = () => {
   const { toolsList = [] } = useLayout() || {};
+  const { t } = useTranslation('common');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -81,15 +83,20 @@ export const HomePage: React.FC = () => {
 
     if (!cleanQuery) return categoryFiltered;
     
-    return categoryFiltered.filter(
-      (tool) =>
+    return categoryFiltered.filter((tool) => {
+      const locName = t(`tools.${tool.slug}.name`, { defaultValue: tool.name });
+      const locDesc = t(`tools.${tool.slug}.desc`, { defaultValue: tool.description });
+      return (
         (tool.name || '').toLowerCase().includes(cleanQuery) ||
-        (tool.description || '').toLowerCase().includes(cleanQuery)
-    );
-  }, [sortedTools, debouncedValue, selectedCategory]);
+        (tool.description || '').toLowerCase().includes(cleanQuery) ||
+        locName.toLowerCase().includes(cleanQuery) ||
+        locDesc.toLowerCase().includes(cleanQuery)
+      );
+    });
+  }, [sortedTools, debouncedValue, selectedCategory, t]);
 
   return (
-    <div className="animate-fadein relative z-10 font-sans text-on-background bg-background pb-12 overflow-x-hidden">
+    <div className="animate-fadein relative z-10 font-sans text-on-background bg-transparent pb-12 overflow-x-hidden">
       <SEO />
 
       {/* Decorative Glow Elements */}
@@ -132,11 +139,11 @@ export const HomePage: React.FC = () => {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`whitespace-nowrap flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
                     isActive
-                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                      : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                      ? 'bg-emerald-600/90 backdrop-blur-md border-emerald-500/50 text-white shadow-lg shadow-emerald-600/20'
+                      : 'bg-white/40 dark:bg-black/30 hover:bg-white/60 dark:hover:bg-white/10 backdrop-blur-md border-white/50 dark:border-white/10 text-slate-700 dark:text-slate-200 shadow-sm'
                   }`}
                 >
-                  <span>{category.name}</span>
+                  <span>{t(category.nameKey, { defaultValue: category.defaultName })}</span>
                   <span
                     className={`text-[10px] md:text-[11px] px-2 py-0.5 rounded-full font-black ${
                       isActive
@@ -164,11 +171,11 @@ export const HomePage: React.FC = () => {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`whitespace-nowrap flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-tight transition-all duration-200 cursor-pointer border active:scale-95 shrink-0 sm:shrink ${
                     isActive
-                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                      : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                      ? 'bg-emerald-600/90 backdrop-blur-md border-emerald-500/50 text-white shadow-lg shadow-emerald-600/20'
+                      : 'bg-white/40 dark:bg-black/30 hover:bg-white/60 dark:hover:bg-white/10 backdrop-blur-md border-white/50 dark:border-white/10 text-slate-700 dark:text-slate-200 shadow-sm'
                   }`}
                 >
-                  <span>{category.name}</span>
+                  <span>{t(category.nameKey, { defaultValue: category.defaultName })}</span>
                   <span
                     className={`text-[10px] md:text-[11px] px-2 py-0.5 rounded-full font-black ${
                       isActive

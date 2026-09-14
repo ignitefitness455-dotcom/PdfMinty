@@ -8,7 +8,7 @@ export const TrustBadgeSection: React.FC = () => {
       aria-labelledby="featured-badge-title"
       className="mt-16 mb-6 max-w-4xl mx-auto px-4"
     >
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900/90 dark:to-slate-950/90 p-8 sm:p-10 text-center shadow-sm hover:shadow-md transition-shadow duration-300">
+      <div className="relative overflow-hidden rounded-[32px] border border-white/50 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl p-8 sm:p-10 text-center shadow-xl hover:shadow-2xl transition-shadow duration-300">
         {/* Subtle decorative background glow */}
         <div
           className="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-80 pointer-events-none opacity-20 dark:opacity-10 blur-3xl -z-10 rounded-full"

@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
   const { t } = useTranslation('common');
 
   return (
-    <footer className="bg-surface-container-low border-t border-border-muted pt-12 pb-8 font-sans text-on-surface-variant transition-colors duration-200">
+    <footer className="bg-white/30 dark:bg-black/20 backdrop-blur-md border-t border-white/50 dark:border-white/10 pt-12 pb-8 font-sans text-on-surface-variant transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

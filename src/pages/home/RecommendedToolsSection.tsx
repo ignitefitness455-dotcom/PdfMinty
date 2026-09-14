@@ -21,7 +21,7 @@ export const RecommendedToolsSection: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card 1: NordVPN */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-6">
+        <div className="bg-white/40 dark:bg-black/30 backdrop-blur-xl border border-white/50 dark:border-white/10 hover:border-emerald-500/40 p-6 sm:p-8 rounded-[24px] shadow-sm hover:shadow-lg transition-all flex flex-col justify-between space-y-6">
           <div className="space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
               <Shield className="w-6 h-6" />
@@ -49,7 +49,7 @@ export const RecommendedToolsSection: React.FC = () => {
         </div>
 
         {/* Card 2: NordPass */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-6">
+        <div className="bg-white/40 dark:bg-black/30 backdrop-blur-xl border border-white/50 dark:border-white/10 hover:border-emerald-500/40 p-6 sm:p-8 rounded-[24px] shadow-sm hover:shadow-lg transition-all flex flex-col justify-between space-y-6">
           <div className="space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
               <Key className="w-6 h-6" />

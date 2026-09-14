@@ -100,6 +100,8 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
       // Ignore localStorage restrictions if any
     }
 
+    i18n.changeLanguage(targetLocale);
+
     // Navigate to target path using hard reload to load correct static HTML and reset React Router basename
     const targetPath = getSwitchLocalePath(window.location.pathname, targetLocale);
     window.location.assign(targetPath);

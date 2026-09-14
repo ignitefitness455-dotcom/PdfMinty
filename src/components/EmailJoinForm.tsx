@@ -78,7 +78,7 @@ export const EmailJoinForm: React.FC<EmailJoinFormProps> = ({
   };
 
   return (
-    <div className="w-full bg-surface-container-low border border-border-muted rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-all duration-300">
+    <div className="w-full bg-white/40 dark:bg-black/30 backdrop-blur-xl border border-white/50 dark:border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-300">
       <div className="max-w-xl mx-auto space-y-5 text-center sm:text-left">
         {/* Simple Header */}
         <div>
@@ -116,7 +116,7 @@ export const EmailJoinForm: React.FC<EmailJoinFormProps> = ({
                   placeholder="Enter your email address..."
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-surface-container-high border border-border-muted text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all shadow-inner"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/50 dark:bg-black/40 border border-white/50 dark:border-white/10 text-sm text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all shadow-inner"
                 />
               </div>
 
