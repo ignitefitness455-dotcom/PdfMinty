@@ -1,0 +1,87 @@
+{
+  "header": {
+    "siteName": "PdfMinty",
+    "tagline": "Herramientas PDF con Privacidad Primero",
+    "badgeOffline": "100% PRIVADO Y SIN CONEXIÓN",
+    "nav": {
+      "home": "Inicio",
+      "tools": "Herramientas",
+      "blog": "Blog",
+      "about": "Acerca de",
+      "contact": "Contacto"
+    },
+    "themeToggle": {
+      "ariaLabel": "Cambiar a modo oscuro",
+      "switchToLight": "Cambiar a Modo Claro",
+      "switchToDark": "Cambiar a Modo Oscuro"
+    },
+    "mobileMenu": {
+      "ariaLabel": "Abrir menú móvil",
+      "open": "Abrir menú",
+      "close": "Cerrar menú"
+    }
+  },
+  "footer": {
+    "brandDescription": "Herramientas PDF gratuitas y enfocadas en la privacidad. Las herramientas principales se ejecutan 100% localmente en tu navegador sin subir archivos a servidores externos.",
+    "sections": {
+      "coreTools": "Herramientas Principales",
+      "popularTools": "Herramientas Populares",
+      "resources": "Recursos",
+      "companyLegal": "Empresa y Legal",
+      "converters": "Convertidores",
+      "legalTrust": "Legal y Confianza"
+    },
+    "links": {
+      "mergePdf": "Unir Archivos PDF",
+      "splitPdf": "Dividir Páginas PDF",
+      "grayscalePdf": "PDF en Escala de Grises",
+      "protectPdf": "Proteger y Cifrar PDF",
+      "pdfToImg": "Convertir PDF a Imagen",
+      "compressPdf": "Comprimir PDF",
+      "unlockPdf": "Desbloquear PDF",
+      "organizePdf": "Organizar PDF",
+      "rotatePdf": "Girar PDF",
+      "pdfToWord": "PDF a Word (DOCX)",
+      "pdfToText": "PDF a Texto",
+      "pdfToZip": "PDF a ZIP",
+      "pdfToJpg": "PDF a JPG",
+      "jpgToPdf": "JPG a PDF",
+      "pngToPdf": "PNG a PDF",
+      "webpToPdf": "WEBP a PDF",
+      "knowledgeHub": "Centro de Conocimiento",
+      "compareSmallpdf": "PdfMinty vs SmallPDF",
+      "compareIlovepdf": "PdfMinty vs iLovePDF",
+      "adobeSecurity": "Adobe vs Seguridad del Navegador",
+      "trustArticle": "¿Es seguro el PDF en línea?",
+      "aboutUs": "Sobre Nosotros",
+      "contactUs": "Contáctenos",
+      "privacyPolicy": "Política de Privacidad",
+      "termsOfService": "Términos de Servicio",
+      "howItWorks": "Cómo Funciona"
+    },
+    "copyright": "© {{year}} PdfMinty. Todos los derechos reservados. Diseñado para 100% de privacidad documental.",
+    "badges": {
+      "privacyFirst": "Privacidad Primero",
+      "clientSide": "Suite PDF del Lado del Cliente",
+      "zeroLogs": "Sin Registros de Datos",
+      "openFree": "Gratis y Abierto",
+      "webAssembly": "Potenciado por WebAssembly"
+    }
+  },
+  "mobileDrawer": {
+    "siteName": "PdfMinty",
+    "brandTagline": "Kit de herramientas PDF privado",
+    "closeAriaLabel": "Cerrar panel de navegación",
+    "sectionTools": "Herramientas PDF",
+    "sectionSettings": "Configuración de Pantalla e Idioma",
+    "languageLabel": "Idioma",
+    "displayThemeLabel": "Tema Visual",
+    "switchToLight": "Tema Claro",
+    "switchToDark": "Tema Oscuro",
+    "toggleLabel": "Cambiar"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Seleccionar Idioma",
+    "changeLanguageAria": "Cambiar idioma"
+  }
+}

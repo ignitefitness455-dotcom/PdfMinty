@@ -1,0 +1,87 @@
+{
+  "header": {
+    "siteName": "PdfMinty",
+    "tagline": "Datenschutzfreundliche PDF-Tools",
+    "badgeOffline": "100% PRIVAT & OFFLINE",
+    "nav": {
+      "home": "Startseite",
+      "tools": "Werkzeuge",
+      "blog": "Blog",
+      "about": "Über uns",
+      "contact": "Kontakt"
+    },
+    "themeToggle": {
+      "ariaLabel": "Dunkelmodus umschalten",
+      "switchToLight": "Zu hellem Modus wechseln",
+      "switchToDark": "Zu dunklem Modus wechseln"
+    },
+    "mobileMenu": {
+      "ariaLabel": "Mobiles Menü öffnen",
+      "open": "Menü öffnen",
+      "close": "Menü schließen"
+    }
+  },
+  "footer": {
+    "brandDescription": "Kostenlose, datenschutzorientierte PDF-Werkzeuge. Alle Kernwerkzeuge laufen zu 100% lokal in Ihrem Browser ohne Server-Uploads. Ihre Dateien bleiben privat.",
+    "sections": {
+      "coreTools": "Hauptwerkzeuge",
+      "popularTools": "Beliebte Werkzeuge",
+      "resources": "Ressourcen",
+      "companyLegal": "Unternehmen & Rechtliches",
+      "converters": "Konverter",
+      "legalTrust": "Recht & Vertrauen"
+    },
+    "links": {
+      "mergePdf": "PDF zusammenfügen",
+      "splitPdf": "PDF teilen",
+      "grayscalePdf": "PDF in Graustufen",
+      "protectPdf": "PDF schützen & verschlüsseln",
+      "pdfToImg": "PDF in Bild umwandeln",
+      "compressPdf": "PDF komprimieren",
+      "unlockPdf": "PDF entsperren",
+      "organizePdf": "PDF organisieren",
+      "rotatePdf": "PDF drehen",
+      "pdfToWord": "PDF zu Word (DOCX)",
+      "pdfToText": "PDF zu Text",
+      "pdfToZip": "PDF zu ZIP",
+      "pdfToJpg": "PDF zu JPG",
+      "jpgToPdf": "JPG zu PDF",
+      "pngToPdf": "PNG zu PDF",
+      "webpToPdf": "WEBP zu PDF",
+      "knowledgeHub": "Wissenszentrum",
+      "compareSmallpdf": "PdfMinty vs SmallPDF",
+      "compareIlovepdf": "PdfMinty vs iLovePDF",
+      "adobeSecurity": "Adobe vs Browser-Sicherheit",
+      "trustArticle": "Ist Online-PDF sicher?",
+      "aboutUs": "Über uns",
+      "contactUs": "Kontaktieren Sie uns",
+      "privacyPolicy": "Datenschutzerklärung",
+      "termsOfService": "Nutzungsbedingungen",
+      "howItWorks": "So funktioniert es"
+    },
+    "copyright": "© {{year}} PdfMinty. Alle Rechte vorbehalten. Entwickelt für 100% Dateidatenschutz.",
+    "badges": {
+      "privacyFirst": "Datenschutz zuerst",
+      "clientSide": "Client-seitige PDF-Suite",
+      "zeroLogs": "Keine Datenprotokolle",
+      "openFree": "Kostenlos & Offen",
+      "webAssembly": "WebAssembly-basiert"
+    }
+  },
+  "mobileDrawer": {
+    "siteName": "PdfMinty",
+    "brandTagline": "Datenschutzfreundlicher PDF-Baukasten",
+    "closeAriaLabel": "Navigationsmenü schließen",
+    "sectionTools": "PDF-Werkzeuge",
+    "sectionSettings": "Anzeige & Spracheinstellungen",
+    "languageLabel": "Sprache",
+    "displayThemeLabel": "Design-Modus",
+    "switchToLight": "Helles Design",
+    "switchToDark": "Dunkles Design",
+    "toggleLabel": "Umschalten"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "Sprache auswählen",
+    "changeLanguageAria": "Sprache ändern"
+  }
+}

@@ -53,7 +53,7 @@ export function useHreflang(
     }
     const cleanSlug = (baseSlug || '').replace(/^\//, '').replace(/\/$/, '');
 
-    const isI18nEnabled = isI18nToolSlug(cleanSlug);
+    const isI18nEnabled = cleanSlug === '' || isI18nToolSlug(cleanSlug);
     const canonicalUrl = cleanSlug
       ? getCanonicalUrl(cleanSlug, currentLocale, siteUrl)
       : currentLocale === DEFAULT_LOCALE

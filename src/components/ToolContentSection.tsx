@@ -382,7 +382,9 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
             [&_strong]:font-semibold [&_strong]:text-on-surface dark:[&_strong]:text-white
             [&_a]:text-emerald-600 dark:[&_a]:text-emerald-400 [&_a]:underline hover:[&_a]:opacity-80"
           dangerouslySetInnerHTML={{
-            __html: longFormBody.replace(/^\s*<h1>[\s\S]*?<\/h1>/i, ''),
+            __html: longFormBody
+              .replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>/i, '')
+              .replace(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi, '<h2>$1</h2>'),
           }}
         />
       )}

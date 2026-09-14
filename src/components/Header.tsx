@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import { ROUTES } from '../config/routes';
 import { useTheme } from '../contexts/ThemeContext';
 
+import LanguageSwitcher from './LanguageSwitcher';
+
 interface HeaderProps {
   theme?: 'light' | 'dark';
   setThemeSetting?: (theme: 'light' | 'dark') => void;
@@ -85,6 +87,8 @@ export const Header: React.FC<HeaderProps> = ({
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
             <span>{t('header.badgeOffline', { defaultValue: '100% PRIVATE & OFFLINE' })}</span>
           </div>
+
+          <LanguageSwitcher variant="header" className="hidden sm:inline-block" />
 
           {/* Theme Toggle Button */}
           <button

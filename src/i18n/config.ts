@@ -4,7 +4,7 @@ import resourcesToBackend from 'i18next-resources-to-backend';
 import { initReactI18next } from 'react-i18next';
 
 // Supported locales defined in ONE config array so adding more locales touches only this place
-export const SUPPORTED_LOCALES = ['en'] as const;
+export const SUPPORTED_LOCALES = ['en', 'de', 'fr', 'es'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const DEFAULT_LOCALE: SupportedLocale = 'en';
@@ -22,10 +22,32 @@ export const LOCALE_METADATA: Record<SupportedLocale, LocaleMetadata> = {
     name: 'English',
     nativeName: 'English',
   },
+  de: {
+    code: 'de',
+    name: 'German',
+    nativeName: 'Deutsch',
+  },
+  fr: {
+    code: 'fr',
+    name: 'French',
+    nativeName: 'Français',
+  },
+  es: {
+    code: 'es',
+    name: 'Spanish',
+    nativeName: 'Español',
+  },
 };
 
 // Tool slugs configured with localized routing enabled
-export const I18N_TOOL_SLUGS = [] as const;
+export const I18N_TOOL_SLUGS = [
+  'merge-pdf',
+  'split-pdf',
+  'grayscale-pdf',
+  'protect-pdf',
+  'image-to-pdf',
+  'pdf-to-image',
+] as const;
 export type I18nToolSlug = (typeof I18N_TOOL_SLUGS)[number];
 
 export function isI18nToolSlug(slug: string): boolean {

@@ -206,6 +206,13 @@ export const App: React.FC = () => {
                 </ErrorBoundary>
               }
             />
+            {/* Search-intent alias routes */}
+            <Route path="/jpg-to-pdf" element={<Navigate to={ROUTES.IMG_TO_PDF} replace />} />
+            <Route path="/jpg-to-pdf/" element={<Navigate to={ROUTES.IMG_TO_PDF} replace />} />
+            <Route path="/jpeg-to-pdf" element={<Navigate to={ROUTES.IMG_TO_PDF} replace />} />
+            <Route path="/jpeg-to-pdf/" element={<Navigate to={ROUTES.IMG_TO_PDF} replace />} />
+            <Route path="/png-to-pdf" element={<Navigate to={ROUTES.IMG_TO_PDF} replace />} />
+            <Route path="/png-to-pdf/" element={<Navigate to={ROUTES.IMG_TO_PDF} replace />} />
             <Route
               path={ROUTES.PDF_TO_IMG}
               element={
@@ -214,6 +221,12 @@ export const App: React.FC = () => {
                 </ErrorBoundary>
               }
             />
+            <Route path="/pdf-to-jpg" element={<Navigate to={ROUTES.PDF_TO_IMG} replace />} />
+            <Route path="/pdf-to-jpg/" element={<Navigate to={ROUTES.PDF_TO_IMG} replace />} />
+            <Route path="/pdf-to-jpeg" element={<Navigate to={ROUTES.PDF_TO_IMG} replace />} />
+            <Route path="/pdf-to-jpeg/" element={<Navigate to={ROUTES.PDF_TO_IMG} replace />} />
+            <Route path="/pdf-to-png" element={<Navigate to={ROUTES.PDF_TO_IMG} replace />} />
+            <Route path="/pdf-to-png/" element={<Navigate to={ROUTES.PDF_TO_IMG} replace />} />
             <Route
               path={ROUTES.PDF_TO_MARKDOWN}
               element={

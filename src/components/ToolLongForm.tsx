@@ -13,8 +13,10 @@ export const ToolLongForm: React.FC<ToolLongFormProps> = ({ slug }) => {
     return null;
   }
 
-  // Strip leading <h1>...</h1> tag so we don't have multiple H1 tags on the page.
-  const cleanHtml = tool.longFormBody.replace(/^\s*<h1>[\s\S]*?<\/h1>/i, '');
+  // Strip leading <h1>...</h1> tag and convert any secondary <h1> to <h2> so there is strictly ONLY ONE H1 tag on the page.
+  const cleanHtml = tool.longFormBody
+    .replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>/i, '')
+    .replace(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi, '<h2>$1</h2>');
 
   return (
     <div className="mt-16 pt-12 border-t border-border-muted" id="tool-long-form-wrapper">

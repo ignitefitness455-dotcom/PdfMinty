@@ -431,12 +431,18 @@ ${relatedTools.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a
     };
 
     let finalBody: string = item.longFormBody;
-    if (item.type === 'article' && !finalBody.includes('<h1')) {
-      finalBody = `<h1>${item.h1 || item.name}</h1>\n${finalBody}`;
-    }
+    // Strip any existing <h1> in body and convert to <h2> so there is strictly no duplicate H1
+    finalBody = finalBody.replace(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi, '<h2>$1</h2>');
+
+    // Prepend the page's exact, canonical <h1> tag
+    finalBody = `<h1>${item.h1 || item.name}</h1>\n${finalBody}`;
+
     if (item.type !== 'article') {
       finalBody += getRelatedToolsHtml(item.slug);
     }
+
+    // In <noscript>, convert all <h1> tags to <h2> so the entire document has strictly ONE unique <h1> (inside #root)
+    const noscriptBody = finalBody.replace(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi, '<h2 class="text-2xl font-bold mb-4">$1</h2>');
 
     // Pre-inject longFormBody directly inside the React hydration root element (#root) AND in <noscript> for universal bot/crawler visibility!
     const preRenderedContent: string = `
@@ -447,7 +453,7 @@ ${relatedTools.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a
     </div>
     <noscript>
       <div class="prose max-w-4xl mx-auto py-12 px-6 font-sans">
-        ${finalBody}
+        ${noscriptBody}
       </div>
     </noscript>
     `;
@@ -744,6 +750,11 @@ ${toolsListHtml}
   <title>PDFMinty — Free Privacy-First PDF Toolkit</title>
   <meta name="description" content="Free privacy-first PDF toolkit. Merge, split, compress, protect, and edit PDFs 100% in your browser. No uploads, no sign-up, complete confidentiality.">
   <link rel="canonical" href="${SITE_URL}/">
+  <link rel="alternate" hreflang="en" href="${SITE_URL}/">
+  <link rel="alternate" hreflang="de" href="${SITE_URL}/de/">
+  <link rel="alternate" hreflang="fr" href="${SITE_URL}/fr/">
+  <link rel="alternate" hreflang="es" href="${SITE_URL}/es/">
+  <link rel="alternate" hreflang="x-default" href="${SITE_URL}/">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${SITE_URL}/">
   <meta property="og:title" content="PDFMinty — Free Privacy-First PDF Toolkit">
@@ -821,45 +832,125 @@ ${toolsListHtml}
   logger.info("Successfully pre-rendered static HTML for the Homepage at dist/index.html");
 
   // ----------------------------------------------------
-  // Pre-render the Bengali Homepage (dist/bn/index.html)
+  // Pre-render EU Localized Homepages (de, fr, es)
   // ----------------------------------------------------
-  const bnHomepageDir = path.join(distDir, 'bn');
-  if (!fs.existsSync(bnHomepageDir)) {
-    fs.mkdirSync(bnHomepageDir, { recursive: true });
-  }
+  const euLocales = [
+    {
+      code: 'de',
+      title: 'PdfMinty — Kostenlose datenschutzfreundliche PDF-Werkzeuge (100% im Browser)',
+      desc: 'Kostenlose PDF-Tools direkt im Browser. PDF zusammenfügen, teilen, komprimieren und schützen. Keine Uploads, keine Registrierung, 100% Datenschutz.',
+    },
+    {
+      code: 'fr',
+      title: 'PdfMinty — Outils PDF gratuits et confidentiels (100% dans le navigateur)',
+      desc: 'Suite d’outils PDF gratuits dans votre navigateur. Fusionnez, divisez, compressez et protégez vos fichiers PDF sans téléversement et en toute confidentialité.',
+    },
+    {
+      code: 'es',
+      title: 'PdfMinty — Herramientas PDF gratis y privadas (100% en el navegador)',
+      desc: 'Herramientas PDF gratuitas en tu navegador. Une, divide, comprime y protege PDFs sin subir archivos a servidores. 100% privado y seguro.',
+    },
+  ];
 
-  const bnHomepageTitle = 'PdfMinty — ১০০% নিরাপদ ও ফ্রি অনলাইন PDF টুলস (সম্পূর্ণ ব্রাউজারে)';
-  const bnHomepageDesc = 'সম্পূর্ণ ব্রাউজারে ক্লায়েন্ট-সাইড প্রসেসিংয়ে PDF মার্জ, স্প্লিট, কম্প্রেস ও এডিট করুন। কোনো ফাইল সার্ভারে আপলোড হয় না — আপনার ডকুমেন্ট থাকে ১০০% নিরাপদ ও গোপনীয়।';
   const cleanSiteUrl = SITE_URL.replace(/\/+$/, '');
-  const bnCanonical = `${cleanSiteUrl}/bn/`;
 
-  const bnHeadMeta = `
-  <title>${bnHomepageTitle}</title>
-  <meta name="description" content="${bnHomepageDesc}">
-  <link rel="canonical" href="${bnCanonical}">
+  for (const eu of euLocales) {
+    const euHomepageDir = path.join(distDir, eu.code);
+    if (!fs.existsSync(euHomepageDir)) {
+      fs.mkdirSync(euHomepageDir, { recursive: true });
+    }
+
+    const euCanonical = `${cleanSiteUrl}/${eu.code}/`;
+    const euHeadMeta = `
+  <title>${eu.title}</title>
+  <meta name="description" content="${eu.desc}">
+  <link rel="canonical" href="${euCanonical}">
   <link rel="alternate" hreflang="en" href="${cleanSiteUrl}/">
-  <link rel="alternate" hreflang="bn" href="${bnCanonical}">
+  <link rel="alternate" hreflang="de" href="${cleanSiteUrl}/de/">
+  <link rel="alternate" hreflang="fr" href="${cleanSiteUrl}/fr/">
+  <link rel="alternate" hreflang="es" href="${cleanSiteUrl}/es/">
   <link rel="alternate" hreflang="x-default" href="${cleanSiteUrl}/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="${bnHomepageTitle}">
-  <meta property="og:description" content="${bnHomepageDesc}">
-  <meta property="og:url" content="${bnCanonical}">
+  <meta property="og:title" content="${eu.title}">
+  <meta property="og:description" content="${eu.desc}">
+  <meta property="og:url" content="${euCanonical}">
   <meta property="og:image" content="${SITE_URL}/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="${bnCanonical}">
-  <meta name="twitter:title" content="${bnHomepageTitle}">
-  <meta name="twitter:description" content="${bnHomepageDesc}">
+  <meta name="twitter:url" content="${euCanonical}">
+  <meta name="twitter:title" content="${eu.title}">
+  <meta name="twitter:description" content="${eu.desc}">
   <meta name="twitter:image" content="${SITE_URL}/og-image.png">
   `;
 
-  let bnHomepageHtml = optimizedBase.replace(/<html(\s+[^>]*)?lang="[a-zA-Z\-]+"/i, '<html lang="bn"');
-  if (!bnHomepageHtml.includes('lang="bn"')) {
-    bnHomepageHtml = bnHomepageHtml.replace('<html', '<html lang="bn"');
+    let euHomepageHtml = optimizedBase.replace(/<html(\s+[^>]*)?lang="[a-zA-Z\-]+"/i, `<html lang="${eu.code}"`);
+    if (!euHomepageHtml.includes(`lang="${eu.code}"`)) {
+      euHomepageHtml = euHomepageHtml.replace('<html', `<html lang="${eu.code}"`);
+    }
+    euHomepageHtml = euHomepageHtml.replace("</head>", `${euHeadMeta}\n</head>`);
+    euHomepageHtml = euHomepageHtml.replace(/<div\s+id="root"[\s\S]*?<\/div>/i, homepageRootContent.trim());
+    fs.writeFileSync(path.join(euHomepageDir, 'index.html'), euHomepageHtml, 'utf8');
+    logger.info(`Successfully pre-rendered static HTML for ${eu.code.toUpperCase()} Homepage at dist/${eu.code}/index.html`);
+
+    // Pre-render localized tool pages for each tool in I18N_TOOL_SLUGS
+    for (const toolSlug of I18N_TOOL_SLUGS) {
+      const toolDir = path.join(euHomepageDir, toolSlug);
+      if (!fs.existsSync(toolDir)) {
+        fs.mkdirSync(toolDir, { recursive: true });
+      }
+      const toolCanonical = `${cleanSiteUrl}/${eu.code}/${toolSlug}/`;
+      const toolHreflangs = getHreflangs(toolSlug, cleanSiteUrl)
+        .map((entry) => `  <link rel="alternate" hreflang="${entry.hreflang}" href="${entry.href}">`)
+        .join('\n');
+
+      const toolHeadMeta = `
+  <title>${eu.code === 'de' ? 'PDF zusammenfügen — Kostenlos & Privat | PDFMinty' : eu.code === 'fr' ? 'Fusionner PDF — Gratuit & Confidentiel | PDFMinty' : 'Unir PDF — Gratis y Privado | PDFMinty'}</title>
+  <meta name="description" content="${eu.desc}">
+  <link rel="canonical" href="${toolCanonical}">
+${toolHreflangs}
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${eu.title}">
+  <meta property="og:description" content="${eu.desc}">
+  <meta property="og:url" content="${toolCanonical}">
+  <meta property="og:image" content="${SITE_URL}/og-image.png">
+  `;
+
+      let toolHtml = optimizedBase.replace(/<html(\s+[^>]*)?lang="[a-zA-Z\-]+"/i, `<html lang="${eu.code}"`);
+      toolHtml = toolHtml.replace("</head>", `${toolHeadMeta}\n</head>`);
+      fs.writeFileSync(path.join(toolDir, 'index.html'), toolHtml, 'utf8');
+    }
   }
-  bnHomepageHtml = bnHomepageHtml.replace("</head>", `${bnHeadMeta}\n</head>`);
-  bnHomepageHtml = bnHomepageHtml.replace(/<div\s+id="root"[\s\S]*?<\/div>/i, homepageRootContent.trim());
-  fs.writeFileSync(path.join(bnHomepageDir, 'index.html'), bnHomepageHtml, 'utf8');
-  logger.info("Successfully pre-rendered static HTML for Bengali Homepage at dist/bn/index.html");
+
+  // Generate static redirect pages for high search-volume aliases
+  const aliasRoutes = [
+    { alias: 'jpg-to-pdf', target: 'image-to-pdf', title: 'JPG to PDF — Convert JPG Images to PDF Free | PDFMinty' },
+    { alias: 'jpeg-to-pdf', target: 'image-to-pdf', title: 'JPG to PDF — Convert JPG Images to PDF Free | PDFMinty' },
+    { alias: 'png-to-pdf', target: 'image-to-pdf', title: 'PNG to PDF — Convert PNG Images to PDF Free | PDFMinty' },
+    { alias: 'pdf-to-jpg', target: 'pdf-to-image', title: 'PDF to JPG — Convert PDF to High Quality JPG Images Free | PDFMinty' },
+    { alias: 'pdf-to-jpeg', target: 'pdf-to-image', title: 'PDF to JPG — Convert PDF to High Quality JPG Images Free | PDFMinty' },
+    { alias: 'pdf-to-png', target: 'pdf-to-image', title: 'PDF to PNG — Convert PDF to High Quality PNG Images Free | PDFMinty' },
+  ];
+
+  for (const { alias, target, title } of aliasRoutes) {
+    const aliasDir = path.join(distDir, alias);
+    if (!fs.existsSync(aliasDir)) {
+      fs.mkdirSync(aliasDir, { recursive: true });
+    }
+    const targetUrl = `${cleanSiteUrl}/${target}/`;
+    const aliasHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0;url=/${target}/">
+  <link rel="canonical" href="${targetUrl}">
+  <title>${title}</title>
+</head>
+<body>
+  <p>Redirecting to <a href="/${target}/">${title}</a>...</p>
+</body>
+</html>`;
+    fs.writeFileSync(path.join(aliasDir, 'index.html'), aliasHtml, 'utf8');
+    logger.info(`Generated search-intent alias redirect at: dist/${alias}/index.html -> /${target}/`);
+  }
 }
 
 run().catch((err: unknown) => {

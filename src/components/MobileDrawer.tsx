@@ -1,9 +1,12 @@
 import { Sun, Moon } from 'lucide-react';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
 import { useModal } from '../hooks/useModal';
+
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface MenuItem {
   name: string;
@@ -28,6 +31,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   menuItems,
 }) => {
   const location = useLocation();
+  const { t } = useTranslation('common');
   const { modalRef, onKeyDown } = useModal(mobileMenuOpen, () => {
     setMobileMenuOpen(false);
   });
@@ -142,7 +146,12 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-4 space-y-4">
           <div>
             <p className="px-4 text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase mb-2">
-              Display Theme
+              {t('mobileDrawer.languageLabel', { defaultValue: 'Language' })}
+            </p>
+            <LanguageSwitcher variant="mobile" onSelect={() => setMobileMenuOpen(false)} className="px-4 mb-4" />
+
+            <p className="px-4 text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase mb-2 mt-4">
+              {t('mobileDrawer.displayThemeLabel', { defaultValue: 'Display Theme' })}
             </p>
             <button
               onClick={() => setThemeSetting(theme === 'dark' ? 'light' : 'dark')}

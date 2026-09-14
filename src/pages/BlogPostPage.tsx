@@ -32,6 +32,15 @@ export const BlogPostPage: React.FC = () => {
     return false;
   });
 
+  // Clean HTML to guarantee strictly only ONE <h1> tag on the page
+  const cleanArticleBody = React.useMemo(() => {
+    if (!article) return '';
+    const raw = article.longFormBody || article.shortDescription || '';
+    return raw
+      .replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>/i, '')
+      .replace(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi, '<h2>$1</h2>');
+  }, [article]);
+
   if (!article) {
     return (
       <>
@@ -170,7 +179,7 @@ export const BlogPostPage: React.FC = () => {
         {/* Article Body */}
         <div
           className="blog-prose prose dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: article.longFormBody || article.shortDescription }}
+          dangerouslySetInnerHTML={{ __html: cleanArticleBody }}
         />
 
         {/* Closing CTA Banner */}

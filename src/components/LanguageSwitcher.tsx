@@ -1,7 +1,6 @@
 import { Globe, Check, ChevronDown } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   DEFAULT_LOCALE,
@@ -23,13 +22,11 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   className = '',
 }) => {
   const { i18n } = useTranslation();
-  const location = useLocation();
-  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Derive current locale from pathname or fallback to active i18n language
-  const currentPathWithoutQuery = (location?.pathname || '').split('?')[0];
+  const currentPathWithoutQuery = window.location.pathname.split('?')[0];
   const firstPathSegment = currentPathWithoutQuery.split('/').filter(Boolean)[0];
   const isPrefixed =
     firstPathSegment &&
@@ -103,16 +100,9 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
       // Ignore localStorage restrictions if any
     }
 
-    // Update active i18n instance
-    i18n.changeLanguage(targetLocale);
-
-    // Navigate to target path
-    const targetPath = getSwitchLocalePath(location.pathname, targetLocale);
-    navigate(targetPath);
-
-    if (onSelect) {
-      onSelect();
-    }
+    // Navigate to target path using hard reload to load correct static HTML and reset React Router basename
+    const targetPath = getSwitchLocalePath(window.location.pathname, targetLocale);
+    window.location.assign(targetPath);
   };
 
   // Mobile list view variant (e.g. within MobileDrawer)

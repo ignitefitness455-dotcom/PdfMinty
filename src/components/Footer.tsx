@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
 
+import LanguageSwitcher from './LanguageSwitcher';
+
 export const Footer: React.FC = () => {
   const { t } = useTranslation('common');
 
@@ -135,12 +137,15 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border-muted flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          <p>
-            {t('footer.copyright', {
-              year: new Date().getFullYear(),
-              defaultValue: `© ${new Date().getFullYear()} PdfMinty. All rights reserved. Built for 100% file privacy.`,
-            })}
-          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <LanguageSwitcher variant="footer" />
+            <p>
+              {t('footer.copyright', {
+                year: new Date().getFullYear(),
+                defaultValue: `© ${new Date().getFullYear()} PdfMinty. All rights reserved. Built for 100% file privacy.`,
+              })}
+            </p>
+          </div>
           <div className="flex flex-wrap items-center gap-4 text-on-surface-variant/80 font-medium">
             <span>{t('footer.badges.clientSide', { defaultValue: 'Client-side PDF Suite' })}</span>
             <span>•</span>
