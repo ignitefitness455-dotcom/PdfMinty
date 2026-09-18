@@ -340,14 +340,14 @@ export default function InternalSEO() {
           ],
         }
       );
-    } else if (cleanSlug === 'privacy-policy' || cleanSlug === 'terms-of-service') {
+    } else if (baseSlug === 'privacy-policy' || baseSlug === 'terms-of-service') {
       structuredData.push(
         {
           '@context': 'https://schema.org',
           '@type': 'WebPage',
           name: seoInfo.metaTitle,
           description: seoInfo.metaDescription,
-          url: `${SITE_URL}/${cleanSlug}/`,
+          url: `${SITE_URL}/${baseSlug}/`,
         },
         {
           '@context': 'https://schema.org',
@@ -363,7 +363,7 @@ export default function InternalSEO() {
               '@type': 'ListItem',
               position: 2,
               name: seoInfo.name,
-              item: `${SITE_URL}/${cleanSlug}/`,
+              item: `${SITE_URL}/${baseSlug}/`,
             },
           ],
         }
