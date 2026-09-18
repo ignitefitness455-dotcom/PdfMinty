@@ -1,27 +1,10 @@
 import i18n from 'i18next';
+import resourcesToBackend from 'i18next-resources-to-backend';
 import { initReactI18next } from 'react-i18next';
 
-import bnCommon from '../locales/bn/common.json';
-import bnFaq from '../locales/bn/faq.json';
-import bnMergePdf from '../locales/bn/merge-pdf.json';
-import deCommon from '../locales/de/common.json';
-import deFaq from '../locales/de/faq.json';
-import deMergePdf from '../locales/de/merge-pdf.json';
 import enCommon from '../locales/en/common.json';
 import enFaq from '../locales/en/faq.json';
 import enMergePdf from '../locales/en/merge-pdf.json';
-import esCommon from '../locales/es/common.json';
-import esFaq from '../locales/es/faq.json';
-import esMergePdf from '../locales/es/merge-pdf.json';
-import frCommon from '../locales/fr/common.json';
-import frFaq from '../locales/fr/faq.json';
-import frMergePdf from '../locales/fr/merge-pdf.json';
-import hiCommon from '../locales/hi/common.json';
-import hiFaq from '../locales/hi/faq.json';
-import hiMergePdf from '../locales/hi/merge-pdf.json';
-import zhCommon from '../locales/zh/common.json';
-import zhFaq from '../locales/zh/faq.json';
-import zhMergePdf from '../locales/zh/merge-pdf.json';
 
 // Supported locales defined in ONE config array so adding more locales touches only this place
 export const SUPPORTED_LOCALES = ['en', 'de', 'fr', 'es', 'bn', 'hi', 'zh'] as const;
@@ -193,42 +176,17 @@ export const resources = {
     'merge-pdf': enMergePdf,
     faq: enFaq,
   },
-  de: {
-    common: deCommon,
-    'merge-pdf': deMergePdf,
-    faq: deFaq,
-  },
-  fr: {
-    common: frCommon,
-    'merge-pdf': frMergePdf,
-    faq: frFaq,
-  },
-  es: {
-    common: esCommon,
-    'merge-pdf': esMergePdf,
-    faq: esFaq,
-  },
-  bn: {
-    common: bnCommon,
-    'merge-pdf': bnMergePdf,
-    faq: bnFaq,
-  },
-  hi: {
-    common: hiCommon,
-    'merge-pdf': hiMergePdf,
-    faq: hiFaq,
-  },
-  zh: {
-    common: zhCommon,
-    'merge-pdf': zhMergePdf,
-    faq: zhFaq,
-  },
 };
 
 const initialLocale = getInitialLocale();
 
 i18n
   .use(initReactI18next)
+  .use(
+    resourcesToBackend((language: string, namespace: string) => {
+      return import(`../locales/${language}/${namespace}.json`);
+    })
+  )
   .init({
     lng: initialLocale,
     fallbackLng: DEFAULT_LOCALE,
@@ -237,7 +195,7 @@ i18n
     ns: [DEFAULT_NAMESPACE, 'merge-pdf', 'faq'],
     resources,
     interpolation: {
-      escapeValue: false, // React already escapes values
+      escapeValue: false,
     },
     react: {
       useSuspense: false,

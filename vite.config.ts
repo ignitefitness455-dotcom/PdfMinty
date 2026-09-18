@@ -217,6 +217,15 @@ export default defineConfig({
             if (id.includes('@google/genai')) {
               return 'vendor-genai';
             }
+            if (id.includes('i18next') || id.includes('react-i18next')) {
+              return 'vendor-i18n';
+            }
+            if (id.includes('fabric')) {
+              return 'vendor-fabric';
+            }
+            if (id.includes('signature_pad')) {
+              return 'vendor-sigpad';
+            }
           }
         },
       },
