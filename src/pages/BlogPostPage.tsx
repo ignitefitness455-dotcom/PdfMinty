@@ -44,11 +44,16 @@ export const BlogPostPage: React.FC = () => {
   // Clean HTML to guarantee strictly only ONE <h1> tag on the page
   const cleanArticleBody = React.useMemo(() => {
     if (!article) return '';
-    const raw = article.longFormBody || article.shortDescription || '';
+    const localizedBody = t(`articles.${article.id}.body`, {
+      defaultValue: t(`articles.${article.slug}.body`, {
+        defaultValue: article.longFormBody || article.shortDescription || '',
+      }),
+    });
+    const raw = localizedBody;
     return raw
       .replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>/i, '')
       .replace(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi, '<h2>$1</h2>');
-  }, [article]);
+  }, [article, t]);
 
   if (!article) {
     return (

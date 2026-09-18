@@ -49,6 +49,7 @@ export const BlogPage: React.FC = () => {
         return 'Optimization';
       case 'blog-metadata':
       case 'blog-merge-pdf':
+      case 'blog-pdf-form-wont-let-me-type':
       case 'blog-how-to-convert-pdf-to-word-for-free-2026':
       case 'how-to-add-page-numbers-to-a-pdf-for-free':
         return 'Tutorials';

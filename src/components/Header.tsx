@@ -64,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
             {t('header.nav.home', { defaultValue: 'Home' })}
           </Link>
           <a
-            href="/#all-tools"
+            href="#all-tools"
             className="hover:text-emerald-500 transition-colors"
           >
             {t('header.nav.tools', { defaultValue: 'Tools' })}
