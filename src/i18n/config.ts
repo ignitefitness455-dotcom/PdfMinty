@@ -1,6 +1,9 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
+import bnCommon from '../locales/bn/common.json';
+import bnFaq from '../locales/bn/faq.json';
+import bnMergePdf from '../locales/bn/merge-pdf.json';
 import deCommon from '../locales/de/common.json';
 import deFaq from '../locales/de/faq.json';
 import deMergePdf from '../locales/de/merge-pdf.json';
@@ -13,9 +16,15 @@ import esMergePdf from '../locales/es/merge-pdf.json';
 import frCommon from '../locales/fr/common.json';
 import frFaq from '../locales/fr/faq.json';
 import frMergePdf from '../locales/fr/merge-pdf.json';
+import hiCommon from '../locales/hi/common.json';
+import hiFaq from '../locales/hi/faq.json';
+import hiMergePdf from '../locales/hi/merge-pdf.json';
+import zhCommon from '../locales/zh/common.json';
+import zhFaq from '../locales/zh/faq.json';
+import zhMergePdf from '../locales/zh/merge-pdf.json';
 
 // Supported locales defined in ONE config array so adding more locales touches only this place
-export const SUPPORTED_LOCALES = ['en', 'de', 'fr', 'es'] as const;
+export const SUPPORTED_LOCALES = ['en', 'de', 'fr', 'es', 'bn', 'hi', 'zh'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const DEFAULT_LOCALE: SupportedLocale = 'en';
@@ -48,6 +57,21 @@ export const LOCALE_METADATA: Record<SupportedLocale, LocaleMetadata> = {
     name: 'Spanish',
     nativeName: 'Español',
   },
+  bn: {
+    code: 'bn',
+    name: 'Bengali',
+    nativeName: 'বাংলা',
+  },
+  hi: {
+    code: 'hi',
+    name: 'Hindi',
+    nativeName: 'हिन्दी',
+  },
+  zh: {
+    code: 'zh',
+    name: 'Chinese',
+    nativeName: '中文',
+  },
 };
 
 // Tool slugs configured with localized routing enabled
@@ -58,6 +82,22 @@ export const I18N_TOOL_SLUGS = [
   'protect-pdf',
   'image-to-pdf',
   'pdf-to-image',
+  'rotate-pdf',
+  'delete-pages-pdf',
+  'extract-pages-pdf',
+  'reorder-pdf',
+  'watermark-pdf',
+  'add-page-numbers',
+  'add-blank-page',
+  'unlock-pdf',
+  'pdf-to-markdown',
+  'ai-analyze-pdf',
+  'flatten-pdf',
+  'repair-pdf',
+  'sign-pdf',
+  'ocr-pdf',
+  'edit-pdf-metadata',
+  'sanitize-pdf'
 ] as const;
 export type I18nToolSlug = (typeof I18N_TOOL_SLUGS)[number];
 
@@ -95,7 +135,7 @@ export function getSwitchLocalePath(currentPathname: string, targetLocale: Suppo
   const baseSlug = baseSegments.join('/');
   const cleanSlug = baseSlug.replace(/^\//, '').replace(/\/$/, '');
 
-  if (cleanSlug && isI18nToolSlug(cleanSlug)) {
+  if (cleanSlug) {
     return getLocalizedPath(cleanSlug, targetLocale);
   }
 
@@ -167,6 +207,21 @@ export const resources = {
     common: esCommon,
     'merge-pdf': esMergePdf,
     faq: esFaq,
+  },
+  bn: {
+    common: bnCommon,
+    'merge-pdf': bnMergePdf,
+    faq: bnFaq,
+  },
+  hi: {
+    common: hiCommon,
+    'merge-pdf': hiMergePdf,
+    faq: hiFaq,
+  },
+  zh: {
+    common: zhCommon,
+    'merge-pdf': zhMergePdf,
+    faq: zhFaq,
   },
 };
 

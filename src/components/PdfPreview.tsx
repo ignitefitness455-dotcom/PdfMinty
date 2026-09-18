@@ -1,5 +1,6 @@
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import React, { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { getPdfJs } from '../core/index';
 
@@ -20,6 +21,7 @@ export const PdfPreview: React.FC<PdfPreviewProps> = ({
   rotations,
   scale,
 }) => {
+  const { t } = useTranslation('common');
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
   const [pageCount, setPageCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -66,7 +68,7 @@ export const PdfPreview: React.FC<PdfPreviewProps> = ({
         }
       } catch (err: unknown) {
         if (!cancelled) {
-          const message = err instanceof Error ? err.message : 'Failed to load PDF preview.';
+          const message = err instanceof Error ? err.message : t('preview.failedToLoad', { defaultValue: 'Failed to load PDF preview.' });
           setError(message);
         }
       } finally {
@@ -75,7 +77,7 @@ export const PdfPreview: React.FC<PdfPreviewProps> = ({
     })();
 
     return () => { cancelled = true; };
-  }, [file]);
+  }, [file, t]);
 
   if (loading) {
     return (
@@ -90,7 +92,7 @@ export const PdfPreview: React.FC<PdfPreviewProps> = ({
   if (error) {
     return (
       <div className="text-sm text-rose-500 font-medium py-4 text-center">
-        Preview unavailable: {error}
+        {t('preview.unavailable', { error, defaultValue: `Preview unavailable: ${error}` })}
       </div>
     );
   }

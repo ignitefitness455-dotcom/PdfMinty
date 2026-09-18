@@ -1,5 +1,6 @@
 import { AlertCircle, Shield, ExternalLink } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { NORD_AFFILIATE_LINKS } from '../config/constants';
 import { useToast } from '../contexts/ToastContext';
@@ -32,6 +33,7 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
   autoDownload = false,
   downloadFilenamePrefix = 'pdfminty_output',
 }: ToolWorkspaceProps<TOptions>) {
+  const { t } = useTranslation('common');
   const [files, setFiles] = useState<File[]>([]);
   const [options, setOptions] = useState<TOptions>(defaultOptions);
   const [loading, setLoading] = useState(false);
@@ -51,7 +53,7 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
 
   const handleProcess = useCallback(async () => {
     if (files.length === 0) {
-      setError('Please select at least one file.');
+      setError(t('toolWorkspace.selectPrompt', { defaultValue: 'Please select at least one file.' }));
       return;
     }
     setLoading(true);
@@ -64,18 +66,18 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
         if (autoDownload) {
           await downloadBlob(output, `${downloadFilenamePrefix}_${Date.now()}.pdf`);
         }
-        showToast('Operation completed successfully!', 'success');
+        showToast(t('toolCommon.success', { defaultValue: 'Operation completed successfully!' }), 'success');
       } else {
-        showToast('Operation completed.', 'success');
+        showToast(t('toolCommon.success', { defaultValue: 'Operation completed.' }), 'success');
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setError(message || 'Processing failed.');
-      showToast(message || 'Processing failed.', 'error');
+      setError(message || t('toolCommon.error', { defaultValue: 'Processing failed.' }));
+      showToast(message || t('toolCommon.error', { defaultValue: 'Processing failed.' }), 'error');
     } finally {
       setLoading(false);
     }
-  }, [files, options, onProcess, autoDownload, downloadFilenamePrefix, showToast]);
+  }, [files, options, onProcess, autoDownload, downloadFilenamePrefix, showToast, t]);
 
   const handleDownload = useCallback(async () => {
     if (!result) return;
@@ -120,8 +122,8 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
         >
           <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
           <div className="flex items-center gap-2">
-            <span className="font-bold">Processing PDF...</span>
-            <span className="text-xs text-emerald-700">Please wait while your file is being processed.</span>
+            <span className="font-bold">{t('toolWorkspace.processingTitle', { defaultValue: 'Processing PDF...' })}</span>
+            <span className="text-xs text-emerald-700">{t('toolWorkspace.processingDesc', { defaultValue: 'Please wait while your file is being processed.' })}</span>
           </div>
         </div>
       )}
@@ -135,7 +137,7 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
         {loading && (
           <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" />
         )}
-        <span>{loading ? 'Processing...' : 'Process'}</span>
+        <span>{loading ? t('toolCommon.processing', { defaultValue: 'Processing...' }) : t('toolCommon.process', { defaultValue: 'Process' })}</span>
       </button>
 
       {result && !autoDownload && (
@@ -143,7 +145,7 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
           onClick={handleDownload}
           className="ml-2 px-4 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
         >
-          Download Result
+          {t('toolCommon.download', { defaultValue: 'Download Result' })}
         </button>
       )}
 
@@ -154,8 +156,8 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
               <Shield className="w-4 h-4" />
             </div>
             <div>
-              <p className="font-bold text-on-surface">Security & Privacy Tip</p>
-              <p className="text-on-surface-variant">Sharing or uploading sensitive documents online? Keep your connection encrypted with NordVPN.</p>
+              <p className="font-bold text-on-surface">{t('toolWorkspace.securityTipTitle', { defaultValue: 'Security & Privacy Tip' })}</p>
+              <p className="text-on-surface-variant">{t('toolWorkspace.securityTipDesc', { defaultValue: 'Sharing or uploading sensitive documents online? Keep your connection encrypted with NordVPN.' })}</p>
             </div>
           </div>
           <a
@@ -164,7 +166,7 @@ export function ToolWorkspace<TOptions extends Record<string, unknown>>({
             rel="nofollow sponsored noreferrer"
             className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0 transition-colors shadow-sm"
           >
-            <span>Get NordVPN</span>
+            <span>{t('toolWorkspace.getNordVpn', { defaultValue: 'Get NordVPN' })}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>

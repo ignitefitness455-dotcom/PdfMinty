@@ -113,11 +113,6 @@ export const App: React.FC = () => {
                 </ErrorBoundary>
               }
             />
-            {/* Legacy localized redirects */}
-            <Route path="/bn/merge-pdf" element={<Navigate to={ROUTES.MERGE} replace />} />
-            <Route path="/bn/merge-pdf/" element={<Navigate to={ROUTES.MERGE} replace />} />
-            <Route path="/bn/*" element={<Navigate to="/" replace />} />
-            <Route path="/bn" element={<Navigate to="/" replace />} />
             <Route
               path={ROUTES.SPLIT}
               element={

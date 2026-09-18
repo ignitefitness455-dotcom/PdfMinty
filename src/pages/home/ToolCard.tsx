@@ -68,7 +68,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
           <div className="flex items-center gap-1.5 shrink-0">
             {isHighlighted && (
               <span className="text-[10px] font-black tracking-wider px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400 rounded-full border border-amber-500/25 uppercase shrink-0 whitespace-nowrap shadow-2xs">
-                ★ HIGH DEMAND
+                {t('home.toolCard.highDemand', { defaultValue: '★ HIGH DEMAND' })}
               </span>
             )}
             {badge && !['popular', 'ai_hybrid'].includes(toolSEO.badge || '') && (
@@ -90,7 +90,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
       </div>
 
       <div className="mt-5 w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 group-hover:bg-emerald-600 dark:group-hover:bg-emerald-500 group-hover:border-emerald-600 dark:group-hover:border-emerald-500 text-slate-700 dark:text-slate-200 group-hover:text-white transition-all duration-200 flex items-center justify-between text-xs sm:text-sm font-bold shadow-2xs">
-        <span>{t('header.tools', { defaultValue: 'Use Tool' })}</span>
+        <span>{t('home.toolCard.useTool', { defaultValue: 'Use Tool' })}</span>
         <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" aria-hidden="true" />
       </div>
     </button>

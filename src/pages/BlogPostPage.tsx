@@ -1,19 +1,28 @@
 import { ShieldCheck, Calendar, Clock, Share2, Check, UserCheck, ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 import { useParams, useLocation, Link } from 'react-router-dom';
 
 import RelatedBlogs from '../components/RelatedBlogs';
 import SEO from '../components/SEO';
 import { ROUTES } from '../config/routes';
 import { TOOLS } from '../config/seo-data';
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '../i18n/config';
 
 export const BlogPostPage: React.FC = () => {
+  const { t, i18n } = useTranslation('common');
   const { postSlug, slug: paramSlug } = useParams<{ postSlug?: string; slug?: string }>();
   const location = useLocation();
   const [copied, setCopied] = useState(false);
 
-  const currentPath = location.pathname.replace(/^\//, '').replace(/\/$/, '');
+  let currentPath = (location.pathname || '').replace(/^\//, '').replace(/\/$/, '');
+  for (const loc of SUPPORTED_LOCALES) {
+    if (loc !== DEFAULT_LOCALE && (currentPath === loc || currentPath.startsWith(`${loc}/`))) {
+      currentPath = currentPath.substring(loc.length + 1);
+      break;
+    }
+  }
   const targetSlug = postSlug || paramSlug || currentPath;
 
   const article = TOOLS.find((p) => {
@@ -45,22 +54,20 @@ export const BlogPostPage: React.FC = () => {
     return (
       <>
         <Helmet>
-          <title>Article Not Found | PDFMinty</title>
+          <title>{t("blogPost.notFound", { defaultValue: "Article Not Found" })} | PDFMinty</title>
           <meta name="robots" content="noindex, nofollow" />
         </Helmet>
         <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center font-sans">
         <div className="w-16 h-16 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center font-black text-2xl mb-4">
           404
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-on-surface mb-2">Article Not Found</h1>
-        <p className="text-sm text-on-surface-variant max-w-md mb-6">
-          The requested guide or article could not be located in our knowledge hub.
-        </p>
+        <h1 className="text-2xl sm:text-3xl font-black text-on-surface mb-2">{t('blogPost.notFound', { defaultValue: 'Article Not Found' })}</h1>
+        <p className="text-sm text-on-surface-variant max-w-md mb-6">{t('blogPost.notFoundDesc', { defaultValue: 'The requested guide or article could not be located in our knowledge hub.' })}</p>
         <Link
           to={ROUTES.BLOG}
           className="px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-emerald-500 transition-all"
         >
-          Return to Knowledge Hub
+          {t('blog.returnToHub', { defaultValue: 'Return to Knowledge Hub' })}
         </Link>
       </div>
       </>
@@ -72,7 +79,21 @@ export const BlogPostPage: React.FC = () => {
     const text = html ? html.replace(/<[^>]*>/g, '') : '';
     const words = text.trim().split(/\s+/).length;
     const time = Math.max(1, Math.ceil(words / 225));
-    return `${time} min read`;
+    return t('blog.readTime', { count: time, defaultValue: `${time} min read` });
+  };
+
+  const getFormattedDate = (dateStr?: string): string => {
+    const d = dateStr || '2026-07-16';
+    try {
+      const locale = i18n.language === 'bn' ? 'bn-BD' : i18n.language === 'de' ? 'de-DE' : 'en-US';
+      return new Date(d).toLocaleDateString(locale, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch {
+      return d;
+    }
   };
 
   const handleShare = () => {
@@ -83,27 +104,38 @@ export const BlogPostPage: React.FC = () => {
     }
   };
 
+  const localizedArticleName = t(`articles.${article.id}.name`, {
+    defaultValue: t(`articles.${article.slug}.name`, { defaultValue: article.h1 || article.name }),
+  });
+
+  const localizedArticleDesc = t(`articles.${article.id}.shortDesc`, {
+    defaultValue: t(`articles.${article.slug}.shortDesc`, { defaultValue: article.shortDescription }),
+  });
+
+  const catKey = (article.category || 'guides').toLowerCase();
+  const localizedCategory = t(`blog.categories.${catKey}`, { defaultValue: article.category || 'Guide' });
+
   return (
     <div className="min-h-screen bg-surface py-10 px-4 sm:px-6 lg:px-8 font-sans text-on-surface transition-colors duration-200">
       <SEO
         slug={article.slug}
-        titleOverride={`${article.h1 || article.name} | PdfMinty Knowledge Hub`}
-        descriptionOverride={article.metaDescription || article.shortDescription}
+        titleOverride={`${localizedArticleName} | PdfMinty Knowledge Hub`}
+        descriptionOverride={article.metaDescription || localizedArticleDesc}
       />
 
       <article className="max-w-4xl mx-auto space-y-10" id="blog-post-container">
         {/* Breadcrumb Navigation */}
         <nav className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium overflow-x-auto pb-1">
           <Link to={ROUTES.HOME} className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors shrink-0">
-            Home
+            {t('nav.home', { defaultValue: 'Home' })}
           </Link>
           <ChevronRight className="w-3.5 h-3.5 shrink-0 text-slate-400" />
           <Link to={ROUTES.BLOG} className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors shrink-0">
-            Knowledge Hub
+            {t('blog.knowledgeHub', { defaultValue: 'Knowledge Hub' })}
           </Link>
           <ChevronRight className="w-3.5 h-3.5 shrink-0 text-slate-400" />
           <span className="text-slate-800 dark:text-slate-200 font-bold truncate max-w-[200px] sm:max-w-xs">
-            {article.name}
+            {localizedArticleName}
           </span>
         </nav>
 
@@ -112,11 +144,11 @@ export const BlogPostPage: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2.5">
               <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
-                {article.category || 'Guide'}
+                {localizedCategory}
               </span>
               <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
                 <Calendar className="w-3.5 h-3.5" />
-                {article.datePublished || '2026-07-16'}
+                {getFormattedDate(article.datePublished)}
               </span>
               <span className="text-slate-300 dark:text-slate-700">•</span>
               <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
@@ -133,23 +165,23 @@ export const BlogPostPage: React.FC = () => {
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-500" />
-                  <span className="text-emerald-600 dark:text-emerald-400">Link Copied!</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">{t('blog.linkCopied', { defaultValue: 'Link Copied!' })}</span>
                 </>
               ) : (
                 <>
                   <Share2 className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Share Article</span>
+                  <span>{t('blog.shareArticle', { defaultValue: 'Share Article' })}</span>
                 </>
               )}
             </button>
           </div>
 
           <h1 className="text-[28px] sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.18] sm:leading-[1.12] text-slate-900 dark:text-white border-l-4 sm:border-l-8 border-emerald-500 pl-3.5 sm:pl-6 my-4">
-            {article.h1 || article.name}
+            {localizedArticleName}
           </h1>
 
           <p className="text-base sm:text-xl font-medium text-slate-600 dark:text-slate-300 leading-relaxed">
-            {article.shortDescription}
+            {localizedArticleDesc}
           </p>
 
           {/* Author Badge & In-Browser Guarantee */}
@@ -160,18 +192,18 @@ export const BlogPostPage: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-1 text-xs font-bold text-slate-900 dark:text-white">
-                  <span>PDFMinty Editorial Team</span>
+                  <span>{t('blog.editorialTeam', { defaultValue: 'PDFMinty Editorial Team' })}</span>
                   <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
                 </div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Document Privacy & Security Analysis
+                  {t('blog.teamSubtitle', { defaultValue: 'Document Privacy & Security Analysis' })}
                 </div>
               </div>
             </div>
 
             <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="w-4 h-4 shrink-0" />
-              <span>100% In-Browser Privacy Guarantee</span>
+              <span>{t('blog.privacyBadge', { defaultValue: '100% In-Browser Privacy Guarantee' })}</span>
             </div>
           </div>
         </header>
@@ -189,20 +221,20 @@ export const BlogPostPage: React.FC = () => {
           <div className="relative z-10 space-y-4 max-w-2xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-black uppercase tracking-widest shadow-sm">
               <ShieldCheck className="w-4 h-4 text-emerald-200" />
-              <span>Zero Uploads • 100% In-Browser</span>
+              <span>{t('blog.ctaBadge', { defaultValue: 'Zero Uploads • 100% In-Browser' })}</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md m-0">
-              Ready to process your PDFs securely?
+              {t('blog.ctaTitle', { defaultValue: 'Ready to process your PDFs securely?' })}
             </h2>
             <p className="text-sm sm:text-base font-semibold text-emerald-50 max-w-xl mx-auto leading-relaxed drop-shadow-sm m-0">
-              Use PdfMinty's free, 100% private in-browser tools today. No uploads, zero server traces.
+              {t('blog.ctaSubtitle', { defaultValue: "Use PdfMinty's free, 100% private in-browser tools today. No uploads, zero server traces." })}
             </p>
             <div className="pt-2">
               <Link
                 to={ROUTES.HOME}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-emerald-50 text-emerald-950 dark:!bg-white dark:!text-emerald-950 hover:dark:!bg-emerald-50 font-black text-sm sm:text-base rounded-2xl transition-all shadow-2xl hover:scale-105 active:scale-95 no-underline"
               >
-                <span>Explore All Free PDF Tools →</span>
+                <span>{t('blog.ctaButton', { defaultValue: 'Explore All Free PDF Tools →' })}</span>
               </Link>
             </div>
           </div>

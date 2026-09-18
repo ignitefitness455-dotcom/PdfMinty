@@ -36,7 +36,7 @@ export const HowItWorksSection: React.FC = () => {
                 </span>
               </div>
               <div className="px-2 py-0.5 rounded bg-security-green/10 text-security-green text-[9px] font-black uppercase">
-                100% Offline
+                {t('home.howItWorks.offlineBadge', { defaultValue: '100% Offline' })}
               </div>
             </div>
             {/* Workspace body / dropzone representation */}

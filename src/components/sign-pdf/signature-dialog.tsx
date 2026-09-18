@@ -1,5 +1,6 @@
 import { Eraser, ImageUp, Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import SignaturePad from 'signature_pad'
 
 import { cn } from '../../lib/utils'
@@ -23,6 +24,7 @@ type Props = {
 type Mode = 'type' | 'draw' | 'upload'
 
 export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props) {
+  const { t } = useTranslation('common')
   const [mode, setMode] = useState<Mode>('type')
   const [fullName, setFullName] = useState(initial.fullName)
   const [initialsText, setInitialsText] = useState(initial.initialsText)
@@ -61,10 +63,10 @@ export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props)
         if (which === 'signature') setUploadedSignature(asset)
         else setUploadedInitials(asset)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Could not read the image.')
+        setError(err instanceof Error ? err.message : t('signPdf.dialog.imageReadError', { defaultValue: 'Could not read the image.' }))
       }
     },
-    [],
+    [t],
   )
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props)
   const apply = async () => {
     setError(null)
     if (!fullName.trim()) {
-      setError('Please enter your full name.')
+      setError(t('signPdf.dialog.enterNameError', { defaultValue: 'Please enter your full name.' }))
       return
     }
     setBusy(true)
@@ -101,7 +103,11 @@ export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props)
       }
 
       if (!signature) {
-        setError(mode === 'draw' ? 'Please draw your signature.' : 'Please upload a signature image.')
+        setError(
+          mode === 'draw'
+            ? t('signPdf.dialog.drawSigError', { defaultValue: 'Please draw your signature.' })
+            : t('signPdf.dialog.uploadSigError', { defaultValue: 'Please upload a signature image.' }),
+        )
         return
       }
 
@@ -116,24 +122,34 @@ export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[calc(100svh-2rem)] overflow-y-auto p-0 sm:max-w-2xl">
         <DialogHeader className="border-b border-slate-200 dark:border-slate-800 px-6 pb-4 pt-6">
-          <DialogTitle className="text-lg">Set your signature details</DialogTitle>
-          <DialogDescription>Create the signature and initials you&apos;ll place on the document.</DialogDescription>
+          <DialogTitle className="text-lg">
+            {t('signPdf.dialog.title', { defaultValue: 'Set your signature details' })}
+          </DialogTitle>
+          <DialogDescription>
+            {t('signPdf.dialog.desc', {
+              defaultValue: "Create the signature and initials you'll place on the document.",
+            })}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-5 px-6 pb-6">
           <div className="grid gap-4 sm:grid-cols-[1fr_140px]">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="sig-full-name">Full name</Label>
+              <Label htmlFor="sig-full-name">
+                {t('signPdf.dialog.fullName', { defaultValue: 'Full name' })}
+              </Label>
               <Input
                 id="sig-full-name"
                 value={fullName}
                 autoComplete="name"
-                placeholder="e.g. Jane Doe"
+                placeholder={t('signPdf.dialog.namePlaceholder', { defaultValue: 'e.g. Jane Doe' })}
                 onChange={(e) => handleNameChange(e.target.value)}
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="sig-initials">Initials</Label>
+              <Label htmlFor="sig-initials">
+                {t('signPdf.dialog.initials', { defaultValue: 'Initials' })}
+              </Label>
               <Input
                 id="sig-initials"
                 value={initialsText}
@@ -150,13 +166,13 @@ export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props)
           <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
             <TabsList className="w-full">
               <TabsTrigger value="type" className="flex-1">
-                Type
+                {t('signPdf.dialog.tabType', { defaultValue: 'Type' })}
               </TabsTrigger>
               <TabsTrigger value="draw" className="flex-1">
-                Draw
+                {t('signPdf.dialog.tabDraw', { defaultValue: 'Draw' })}
               </TabsTrigger>
               <TabsTrigger value="upload" className="flex-1">
-                Upload
+                {t('signPdf.dialog.tabUpload', { defaultValue: 'Upload' })}
               </TabsTrigger>
             </TabsList>
 
@@ -182,7 +198,7 @@ export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props)
                         style={{ fontFamily: font.css, color }}
                         aria-hidden="true"
                       >
-                        {fullName.trim() || 'Your name'}
+                        {fullName.trim() || t('signPdf.dialog.yourName', { defaultValue: 'Your name' })}
                       </span>
                       <span className="shrink-0 text-[11px] text-slate-500">{font.label}</span>
                     </button>
@@ -194,27 +210,37 @@ export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props)
             <TabsContent value="draw" className="flex flex-col gap-4 pt-2">
               <ColorPicker value={color} onChange={setColor} />
               <div className="grid gap-4 sm:grid-cols-[1fr_180px]">
-                <DrawPad label="Signature" color={color} height={200} onChange={setDrawnSignature} />
-                <DrawPad label="Initials" color={color} height={200} onChange={setDrawnInitials} />
+                <DrawPad
+                  label={t('signPdf.dialog.signature', { defaultValue: 'Signature' })}
+                  color={color}
+                  height={200}
+                  onChange={setDrawnSignature}
+                />
+                <DrawPad
+                  label={t('signPdf.dialog.initials', { defaultValue: 'Initials' })}
+                  color={color}
+                  height={200}
+                  onChange={setDrawnInitials}
+                />
               </div>
             </TabsContent>
 
             <TabsContent value="upload" className="flex flex-col gap-4 pt-2">
               <div className="grid gap-4 sm:grid-cols-[1fr_180px]">
                 <UploadBox
-                  label="Signature"
+                  label={t('signPdf.dialog.signature', { defaultValue: 'Signature' })}
                   asset={uploadedSignature}
                   onFile={(f) => setPendingFiles((p) => ({ ...p, signature: f }))}
                 />
                 <UploadBox
-                  label="Initials"
+                  label={t('signPdf.dialog.initials', { defaultValue: 'Initials' })}
                   asset={uploadedInitials}
                   onFile={(f) => setPendingFiles((p) => ({ ...p, initials: f }))}
                 />
               </div>
               <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 px-3 py-2">
                 <Label htmlFor="remove-bg" className="text-sm">
-                  Remove white background
+                  {t('signPdf.dialog.removeBg', { defaultValue: 'Remove white background' })}
                 </Label>
                 <Switch id="remove-bg" checked={removeBg} onCheckedChange={setRemoveBg} />
               </div>
@@ -229,11 +255,11 @@ export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props)
 
           <div className="flex justify-end gap-2 border-t border-slate-200 dark:border-slate-800 pt-4">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('signPdf.dialog.cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button onClick={apply} disabled={!canApply || busy} className="min-w-28">
               {busy ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
-              Apply
+              {t('signPdf.dialog.apply', { defaultValue: 'Apply' })}
             </Button>
           </div>
         </div>
@@ -243,9 +269,16 @@ export function SignatureDialog({ open, onOpenChange, initial, onApply }: Props)
 }
 
 function ColorPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { t } = useTranslation('common')
   return (
-    <div role="radiogroup" aria-label="Ink color" className="flex items-center gap-2">
-      <span className="text-xs font-medium text-slate-500">Color</span>
+    <div
+      role="radiogroup"
+      aria-label={t('signPdf.dialog.color', { defaultValue: 'Ink color' })}
+      className="flex items-center gap-2"
+    >
+      <span className="text-xs font-medium text-slate-500">
+        {t('signPdf.dialog.color', { defaultValue: 'Color' })}
+      </span>
       {INK_COLORS.map((c) => (
         <button
           key={c.id}
@@ -276,6 +309,7 @@ function DrawPad({
   height: number
   onChange: (asset: SignatureAsset | null) => void
 }) {
+  const { t } = useTranslation('common')
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const padRef = useRef<SignaturePad | null>(null)
@@ -352,7 +386,7 @@ function DrawPad({
         <span className="text-xs font-medium text-slate-500">{label}</span>
         <Button variant="ghost" size="xs" onClick={clear} disabled={empty}>
           <Eraser aria-hidden="true" />
-          Clear
+          {t('signPdf.dialog.clear', { defaultValue: 'Clear' })}
         </Button>
       </div>
       <div
@@ -363,7 +397,7 @@ function DrawPad({
         <canvas
           ref={canvasRef}
           className="block touch-none"
-          aria-label={`Draw your ${label.toLowerCase()}`}
+          aria-label={t('signPdf.dialog.drawAria', { label: label.toLowerCase(), defaultValue: `Draw your ${label.toLowerCase()}` })}
           role="img"
         />
         <div
@@ -372,7 +406,7 @@ function DrawPad({
         />
         {empty ? (
           <span className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-sm text-slate-500">
-            Draw here
+            {t('signPdf.dialog.drawHere', { defaultValue: 'Draw here' })}
           </span>
         ) : null}
       </div>
@@ -389,6 +423,7 @@ function UploadBox({
   asset: SignatureAsset | null
   onFile: (file: File) => void
 }) {
+  const { t } = useTranslation('common')
   const inputRef = useRef<HTMLInputElement>(null)
   return (
     <div className="flex flex-col gap-1.5">
@@ -396,7 +431,7 @@ function UploadBox({
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="flex h-[200px] flex-col items-center justify-center gap-2 overflow-hidden rounded-lg border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-sm text-slate-500 transition-colors hover:border-emerald-600/60 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+        className="flex h-[200px] flex-col items-center justify-center gap-2 overflow-hidden rounded-lg border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-sm text-slate-500 transition-colors hover:border-emerald-600/60 hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault()
@@ -407,7 +442,7 @@ function UploadBox({
         {asset ? (
           <img
             src={asset.dataUrl}
-            alt={`${label} preview`}
+            alt={t('signPdf.dialog.previewAlt', { label, defaultValue: `${label} preview` })}
             className="max-h-full max-w-full object-contain"
             style={{
               backgroundImage:
@@ -419,7 +454,7 @@ function UploadBox({
         ) : (
           <>
             <ImageUp className="size-6" aria-hidden="true" />
-            <span>Click or drop an image</span>
+            <span>{t('signPdf.dialog.clickOrDrop', { defaultValue: 'Click or drop an image' })}</span>
             <span className="text-xs">PNG, JPG</span>
           </>
         )}

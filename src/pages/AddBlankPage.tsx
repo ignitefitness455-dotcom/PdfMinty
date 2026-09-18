@@ -1,16 +1,17 @@
-import { ArrowLeft, FilePlus, AlertCircle, Download } from 'lucide-react';
+import { FilePlus, AlertCircle, Download } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const AddBlankPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [positionType, setPositionType] = useState<'start' | 'end' | 'custom'>('end');
   const [customIndex, setCustomIndex] = useState<number>(2);
@@ -44,7 +45,7 @@ export const AddBlankPage: React.FC = () => {
       setTotalPages(count);
       if (customIndex > count + 1) setCustomIndex(count + 1);
     } catch {
-      setError('Failed to read PDF. It may be corrupted.');
+      setError(t('addBlankPage.readError', { defaultValue: 'Failed to read PDF. It may be corrupted.' }));
     }
   };
 
@@ -61,7 +62,7 @@ export const AddBlankPage: React.FC = () => {
     if (positionType === 'custom') {
       const upperBound = totalPages > 0 ? totalPages + 1 : 1;
       if (customIndex < 1 || customIndex > upperBound) {
-        setError(`Position must be between 1 and ${upperBound}.`);
+        setError(t('addBlankPage.positionRangeError', { max: upperBound, defaultValue: `Position must be between 1 and ${upperBound}.` }));
         return;
       }
     }
@@ -86,7 +87,7 @@ export const AddBlankPage: React.FC = () => {
     } catch (err: unknown) {
       logger.error('Add blank page error:', err);
       const message = err instanceof Error ? err.message : String(err);
-      setError(message || 'An unexpected error occurred while adding the blank page.');
+      setError(message || t('addBlankPage.unexpectedError', { defaultValue: 'An unexpected error occurred while adding the blank page.' }));
     } finally {
       setLoading(false);
     }
@@ -95,39 +96,19 @@ export const AddBlankPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="add_blank_container">
       <SEO slug="add-blank-page" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Add Blank Page to PDF Free — Insert Empty Pages Online
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['add-blank-page'].maxSingleMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Embed empty canvas spaces into start, middle, or end indices of your document. Files must be under {TOOL_SIZE_LIMITS['add-blank-page'].maxSingleMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="add-blank-page" limitMB={TOOL_SIZE_LIMITS['add-blank-page'].maxSingleMB} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <FilePlus className="w-5 h-5 text-sky-600" />
+            <div className="flex items-center gap-2 text-primary font-bold">
+              <FilePlus className="w-5 h-5 text-sky-600" />
+              <span>{t('addBlankPage.workspace', { defaultValue: 'Document Workspace' })}</span>
+            </div>
 
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
-                title="Select a PDF to pad"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['add-blank-page'].maxSingleMB}MB)`}
                 maxSizeMB={TOOL_SIZE_LIMITS['add-blank-page'].maxSingleMB}
               />
             ) : (
@@ -138,7 +119,8 @@ export const AddBlankPage: React.FC = () => {
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
                   <p className="text-xs text-slate-400">
-                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB •{' '}
+                    {t('addBlankPage.pdfDocument', { defaultValue: 'PDF Document' })}
                   </p>
                 </div>
                 <button
@@ -154,9 +136,9 @@ export const AddBlankPage: React.FC = () => {
                       setDownloadUrl(null);
                     }
                   }}
-                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
-                  Change File
+                  {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                 </button>
               </div>
             )}
@@ -166,10 +148,10 @@ export const AddBlankPage: React.FC = () => {
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="add_blank_success_banner">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                <span>Page Inserted Successfully! Your modified PDF has been generated.</span>
+                <span>{t('addBlankPage.successTitle', { defaultValue: 'Page Inserted Successfully! Your modified PDF has been generated.' })}</span>
               </div>
-              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                An empty page has been safely injected at the specified index completely in your browser.
+              <p className="text-slate-500 text-[11px] font-normal leading-normal">
+                {t('addBlankPage.successDesc', { defaultValue: 'A new blank page has been inserted into your document completely offline in your browser.' })}
               </p>
               {downloadUrl && (
                 <div className="pt-2">
@@ -180,7 +162,7 @@ export const AddBlankPage: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
                     <Download className="w-4 h-4 animate-bounce" />
-                    <span>Download Modified PDF</span>
+                    <span>{t('addBlankPage.downloadModified', { defaultValue: 'Download Modified PDF' })}</span>
                   </a>
                 </div>
               )}
@@ -192,21 +174,21 @@ export const AddBlankPage: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
             <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Insert Location
+              {t('addBlankPage.insertLocation', { defaultValue: 'Insert Location' })}
             </h3>
 
             <div className="space-y-3">
               {[
-                { type: 'start' as const, label: 'Start', desc: 'Prepend at very beginning of file' },
-                { type: 'end' as const, label: 'End', desc: 'Append at final trailing page' },
-                { type: 'custom' as const, label: 'Custom Index', desc: 'Insert at specific page offset' },
+                { type: 'start' as const, labelKey: 'addBlankPage.posStart', label: 'Start', descKey: 'addBlankPage.posStartDesc', desc: 'Prepend at very beginning of file' },
+                { type: 'end' as const, labelKey: 'addBlankPage.posEnd', label: 'End', descKey: 'addBlankPage.posEndDesc', desc: 'Append at final trailing page' },
+                { type: 'custom' as const, labelKey: 'addBlankPage.posCustom', label: 'Custom Index', descKey: 'addBlankPage.posCustomDesc', desc: 'Insert at specific page offset' },
               ].map((pos) => (
                 <button
                   key={pos.type}
                   type="button"
                   onClick={() => setPositionType(pos.type)}
                   aria-pressed={positionType === pos.type}
-                  aria-label={`Insert at ${pos.label}`}
+                  aria-label={t(pos.labelKey, { defaultValue: pos.label })}
                   className={`w-full p-3 rounded-xl border text-left transition-all ${
                     positionType === pos.type
                       ? 'border-sky-500 bg-sky-50/50 ring-2 ring-sky-500/15'
@@ -214,9 +196,9 @@ export const AddBlankPage: React.FC = () => {
                   }`}
                   disabled={!selectedFile}
                 >
-                  <span className="font-bold text-sm text-slate-900 block">{pos.label}</span>
+                  <span className="font-bold text-sm text-slate-900 block">{t(pos.labelKey, { defaultValue: pos.label })}</span>
                   <span className="text-[11px] text-slate-500 block leading-normal mt-0.5">
-                    {pos.desc}
+                    {t(pos.descKey, { defaultValue: pos.desc })}
                   </span>
                 </button>
               ))}
@@ -224,7 +206,7 @@ export const AddBlankPage: React.FC = () => {
               {positionType === 'custom' && (
                 <div className="space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-200 animate-fadeIn text-xs">
                   <label htmlFor="custom_pg_index" className="font-bold text-slate-600 block">
-                    Insert at page index:
+                    {t('addBlankPage.insertAtLabel', { defaultValue: 'Insert at page index:' })}
                   </label>
                   <input
                     id="custom_pg_index"
@@ -245,7 +227,11 @@ export const AddBlankPage: React.FC = () => {
                     className="w-full border border-slate-300 rounded-lg py-1.5 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-bold"
                   />
                   <p className="text-xs text-slate-400">
-                    Document has {totalPages} pages. Insert position must be between 1 and {totalPages + 1}.
+                    {t('addBlankPage.pageLimitHelp', {
+                      total: totalPages,
+                      max: totalPages + 1,
+                      defaultValue: `Document has ${totalPages} pages. Insert position must be between 1 and ${totalPages + 1}.`,
+                    })}
                   </p>
                 </div>
               )}
@@ -272,12 +258,12 @@ export const AddBlankPage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Threading sheets...</span>
+                  <span>{t('addBlankPage.threadingButton', { defaultValue: 'Threading sheets...' })}</span>
                 </span>
               ) : (
                 <>
                   <FilePlus className="w-4 h-4" />
-                  <span>Insert Page</span>
+                  <span>{t('addBlankPage.insertButton', { defaultValue: 'Insert Page' })}</span>
                 </>
               )}
             </button>

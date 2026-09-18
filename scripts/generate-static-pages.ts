@@ -746,15 +746,15 @@ ${toolsListHtml}
 
   let homepageHtml: string = cleanBaseTemplate(baseHtml);
 
+  const homepageHreflangs = SUPPORTED_LOCALES.map(loc => 
+    `  <link rel="alternate" hreflang="${loc}" href="${SITE_URL}${loc === 'en' ? '/' : `/${loc}/`}">`
+  ).join('\n') + `\n  <link rel="alternate" hreflang="x-default" href="${SITE_URL}/">`;
+
   const homepageHead = `
   <title>PDFMinty — Free Privacy-First PDF Toolkit</title>
   <meta name="description" content="Free privacy-first PDF toolkit. Merge, split, compress, protect, and edit PDFs 100% in your browser. No uploads, no sign-up, complete confidentiality.">
   <link rel="canonical" href="${SITE_URL}/">
-  <link rel="alternate" hreflang="en" href="${SITE_URL}/">
-  <link rel="alternate" hreflang="de" href="${SITE_URL}/de/">
-  <link rel="alternate" hreflang="fr" href="${SITE_URL}/fr/">
-  <link rel="alternate" hreflang="es" href="${SITE_URL}/es/">
-  <link rel="alternate" hreflang="x-default" href="${SITE_URL}/">
+${homepageHreflangs}
   <meta property="og:type" content="website">
   <meta property="og:url" content="${SITE_URL}/">
   <meta property="og:title" content="PDFMinty — Free Privacy-First PDF Toolkit">
@@ -832,9 +832,9 @@ ${toolsListHtml}
   logger.info("Successfully pre-rendered static HTML for the Homepage at dist/index.html");
 
   // ----------------------------------------------------
-  // Pre-render EU Localized Homepages (de, fr, es)
+  // Pre-render Localized Homepages
   // ----------------------------------------------------
-  const euLocales = [
+  const localizedHomepages = [
     {
       code: 'de',
       title: 'PdfMinty — Kostenlose datenschutzfreundliche PDF-Werkzeuge (100% im Browser)',
@@ -850,25 +850,41 @@ ${toolsListHtml}
       title: 'PdfMinty — Herramientas PDF gratis y privadas (100% en el navegador)',
       desc: 'Herramientas PDF gratuitas en tu navegador. Une, divide, comprime y protege PDFs sin subir archivos a servidores. 100% privado y seguro.',
     },
+    {
+      code: 'bn',
+      title: 'PdfMinty — বিনামূল্যে গোপনীয়তা-বান্ধব পিডিএফ টুলস (১০০% ব্রাউজারে)',
+      desc: 'ব্রাউজারেই বিনামূল্যে পিডিএফ টুলস। কোনো সার্ভার আপলোড বা নিবন্ধন ছাড়া পিডিএফ যুক্ত করুন, ভাগ করুন, সংকুচিত করুন এবং সুরক্ষিত করুন। ১০০% গোপনীয়তা।',
+    },
+    {
+      code: 'hi',
+      title: 'PdfMinty — मुफ्त प्राइवेसी-फर्स्ट पीडीएफ टूल्स (100% ब्राउज़र में)',
+      desc: 'आपके ब्राउज़र में मुफ्त पीडीएफ टूल्स। सर्वर अपलोड या रजिस्ट्रेशन के बिना पीडीएफ मर्ज, स्प्लिट, कंप्रेस और प्रोटेक्ट करें। 100% प्राइवेसी।',
+    },
+    {
+      code: 'zh',
+      title: 'PdfMinty — 免费的隐私优先PDF工具（100%在浏览器中运行）',
+      desc: '直接在浏览器中使用的免费PDF工具。无需服务器上传或注册，即可合并、拆分、压缩和保护PDF。100%隐私安全。',
+    },
   ];
 
   const cleanSiteUrl = SITE_URL.replace(/\/+$/, '');
 
-  for (const eu of euLocales) {
+  for (const eu of localizedHomepages) {
     const euHomepageDir = path.join(distDir, eu.code);
     if (!fs.existsSync(euHomepageDir)) {
       fs.mkdirSync(euHomepageDir, { recursive: true });
     }
 
     const euCanonical = `${cleanSiteUrl}/${eu.code}/`;
+    const hreflangLinks = SUPPORTED_LOCALES.map(loc => 
+      `  <link rel="alternate" hreflang="${loc}" href="${cleanSiteUrl}${loc === 'en' ? '/' : `/${loc}/`}">`
+    ).join('\n');
+
     const euHeadMeta = `
   <title>${eu.title}</title>
   <meta name="description" content="${eu.desc}">
   <link rel="canonical" href="${euCanonical}">
-  <link rel="alternate" hreflang="en" href="${cleanSiteUrl}/">
-  <link rel="alternate" hreflang="de" href="${cleanSiteUrl}/de/">
-  <link rel="alternate" hreflang="fr" href="${cleanSiteUrl}/fr/">
-  <link rel="alternate" hreflang="es" href="${cleanSiteUrl}/es/">
+${hreflangLinks}
   <link rel="alternate" hreflang="x-default" href="${cleanSiteUrl}/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${eu.title}">
@@ -890,34 +906,6 @@ ${toolsListHtml}
     euHomepageHtml = euHomepageHtml.replace(/<div\s+id="root"[\s\S]*?<\/div>/i, homepageRootContent.trim());
     fs.writeFileSync(path.join(euHomepageDir, 'index.html'), euHomepageHtml, 'utf8');
     logger.info(`Successfully pre-rendered static HTML for ${eu.code.toUpperCase()} Homepage at dist/${eu.code}/index.html`);
-
-    // Pre-render localized tool pages for each tool in I18N_TOOL_SLUGS
-    for (const toolSlug of I18N_TOOL_SLUGS) {
-      const toolDir = path.join(euHomepageDir, toolSlug);
-      if (!fs.existsSync(toolDir)) {
-        fs.mkdirSync(toolDir, { recursive: true });
-      }
-      const toolCanonical = `${cleanSiteUrl}/${eu.code}/${toolSlug}/`;
-      const toolHreflangs = getHreflangs(toolSlug, cleanSiteUrl)
-        .map((entry) => `  <link rel="alternate" hreflang="${entry.hreflang}" href="${entry.href}">`)
-        .join('\n');
-
-      const toolHeadMeta = `
-  <title>${eu.code === 'de' ? 'PDF zusammenfügen — Kostenlos & Privat | PDFMinty' : eu.code === 'fr' ? 'Fusionner PDF — Gratuit & Confidentiel | PDFMinty' : 'Unir PDF — Gratis y Privado | PDFMinty'}</title>
-  <meta name="description" content="${eu.desc}">
-  <link rel="canonical" href="${toolCanonical}">
-${toolHreflangs}
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="${eu.title}">
-  <meta property="og:description" content="${eu.desc}">
-  <meta property="og:url" content="${toolCanonical}">
-  <meta property="og:image" content="${SITE_URL}/og-image.png">
-  `;
-
-      let toolHtml = optimizedBase.replace(/<html(\s+[^>]*)?lang="[a-zA-Z\-]+"/i, `<html lang="${eu.code}"`);
-      toolHtml = toolHtml.replace("</head>", `${toolHeadMeta}\n</head>`);
-      fs.writeFileSync(path.join(toolDir, 'index.html'), toolHtml, 'utf8');
-    }
   }
 
   // Generate static redirect pages for high search-volume aliases
@@ -941,6 +929,8 @@ ${toolHreflangs}
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="refresh" content="0;url=/${target}/">
+  <meta name="robots" content="noindex, follow">
+  <meta name="description" content="Redirecting to ${title}">
   <link rel="canonical" href="${targetUrl}">
   <title>${title}</title>
 </head>

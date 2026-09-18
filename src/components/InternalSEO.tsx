@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
 import { ROUTES } from '../config/routes';
@@ -7,6 +8,9 @@ import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '../i18n/config';
 
 export const Breadcrumbs: React.FC = () => {
   const { pathname = '/' } = useLocation() || {};
+  const { t } = useTranslation('common');
+  const homePath = '/';
+  const blogPath = ROUTES.BLOG;
   
   const cleanSlug = useMemo(() => {
     if (!pathname || pathname === '/') return '';
@@ -26,26 +30,39 @@ export const Breadcrumbs: React.FC = () => {
 
   const currentItem = TOOLS.find((t) => t && t.slug && t.slug.toLowerCase() === cleanSlug);
 
+  const homeLabel = t('header.nav.home', { defaultValue: 'Home' });
+  const toolsLabel = t('header.nav.tools', { defaultValue: 'Tools' });
+  const blogLabel = t('header.nav.blog', { defaultValue: 'Knowledge Hub' });
+
+  const breadcrumbAria = t('breadcrumbs.label', { defaultValue: 'Breadcrumb' });
+
   if (cleanSlug === 'blog') {
     return (
-      <nav aria-label="Breadcrumb" className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
-        <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
-          Home
+      <nav aria-label={breadcrumbAria} className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
+        <Link to={homePath} className="hover:text-emerald-600 transition-colors uppercase font-sans">
+          {homeLabel}
         </Link>
         <span>/</span>
         <span className="text-slate-600 dark:text-slate-400 uppercase font-sans">
-          Knowledge Hub
+          {blogLabel}
         </span>
       </nav>
     );
   }
 
   if (cleanSlug === 'about-us' || cleanSlug === 'contact' || cleanSlug === 'privacy-policy' || cleanSlug === 'terms-of-service') {
-    const title = currentItem?.name || (cleanSlug === 'about-us' ? 'About Us' : cleanSlug === 'contact' ? 'Contact Us' : cleanSlug === 'privacy-policy' ? 'Privacy Policy' : 'Terms of Service');
+    const title = cleanSlug === 'about-us'
+      ? t('header.nav.about', { defaultValue: 'About Us' })
+      : cleanSlug === 'contact'
+      ? t('header.nav.contact', { defaultValue: 'Contact Us' })
+      : cleanSlug === 'privacy-policy'
+      ? t('footer.links.privacyPolicy', { defaultValue: 'Privacy Policy' })
+      : t('footer.links.termsOfService', { defaultValue: 'Terms of Service' });
+
     return (
-      <nav aria-label="Breadcrumb" className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
-        <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
-          Home
+      <nav aria-label={breadcrumbAria} className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
+        <Link to={homePath} className="hover:text-emerald-600 transition-colors uppercase font-sans">
+          {homeLabel}
         </Link>
         <span>/</span>
         <span className="text-slate-600 dark:text-slate-400 uppercase font-sans">
@@ -60,30 +77,31 @@ export const Breadcrumbs: React.FC = () => {
   }
 
   const isArticle = currentItem.type === 'article';
+  const itemName = t(`tools.${currentItem.slug}.name`, { defaultValue: currentItem.name });
 
   return (
-    <nav aria-label="Breadcrumb" className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
-      <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
-        Home
+    <nav aria-label={breadcrumbAria} className="flex text-[11px] sm:text-xs text-slate-400/80 mb-6 gap-2 font-bold font-sans tracking-wide">
+      <Link to={homePath} className="hover:text-emerald-600 transition-colors uppercase font-sans">
+        {homeLabel}
       </Link>
       <span>/</span>
       {isArticle ? (
         <>
-          <Link to={ROUTES.BLOG} className="hover:text-emerald-600 transition-colors uppercase font-sans">
-            Knowledge Hub
+          <Link to={blogPath} className="hover:text-emerald-600 transition-colors uppercase font-sans">
+            {blogLabel}
           </Link>
           <span>/</span>
         </>
       ) : (
         <>
-          <Link to="/" className="hover:text-emerald-600 transition-colors uppercase font-sans">
-            Tools
+          <Link to={homePath} className="hover:text-emerald-600 transition-colors uppercase font-sans">
+            {toolsLabel}
           </Link>
           <span>/</span>
         </>
       )}
       <span className="text-slate-600 dark:text-slate-400 uppercase font-sans truncate max-w-[200px] sm:max-w-xs">
-        {currentItem.name}
+        {itemName}
       </span>
     </nav>
   );
@@ -101,18 +119,30 @@ export default function InternalSEO() {
     return undefined;
   }, []);
 
-  const cleanSlug = (location?.pathname || '').replace(/^\//, '').replace(/\/$/, '');
-  const structuredData: Record<string, unknown>[] = [];
+  const rawPath = (location?.pathname || '').replace(/^\//, '').replace(/\/$/, '');
+  let currentLocale = DEFAULT_LOCALE;
+  let baseSlug = rawPath;
 
-  // 1. Homepage (`/`)
-  if (!cleanSlug) {
+  for (const loc of SUPPORTED_LOCALES) {
+    if (loc !== DEFAULT_LOCALE && (rawPath === loc || rawPath.startsWith(`${loc}/`))) {
+      currentLocale = loc;
+      baseSlug = rawPath === loc ? '' : rawPath.substring(loc.length + 1);
+      break;
+    }
+  }
+
+  const structuredData: Record<string, unknown>[] = [];
+  const homeUrl = currentLocale === DEFAULT_LOCALE ? `${SITE_URL}/` : `${SITE_URL}/${currentLocale}/`;
+
+  // 1. Homepage (`/` or `/${currentLocale}/`)
+  if (!baseSlug) {
     structuredData.push(
       {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         '@id': `${SITE_URL}/#website`,
         name: SITE_NAME,
-        url: `${SITE_URL}/`,
+        url: homeUrl,
         publisher: { '@id': `${SITE_URL}/#organization` },
       },
       {
@@ -128,9 +158,9 @@ export default function InternalSEO() {
           contactType: 'customer support',
         },
       }
-      // FAQPage সরানো হয়েছে — স্ট্যাটিক HTML-এ homepageFaqSchema দ্বারা প্রদত্ত (T-1 fix)
+      // FAQPage is provided in static HTML by homepageFaqSchema
     );
-  } else if (cleanSlug === 'blog') {
+  } else if (baseSlug === 'blog') {
     // 2. Blog Index (`/blog/`)
     structuredData.push(
       {
@@ -166,8 +196,10 @@ export default function InternalSEO() {
     );
   } else {
     // 3. Tool, Article, or Static Page
-    const seoInfo = TOOLS.find((t) => t && t.slug === cleanSlug);
+    const seoInfo = TOOLS.find((t) => t && t.slug === baseSlug);
     if (!seoInfo) return null;
+
+    const pageCanonicalUrl = currentLocale === DEFAULT_LOCALE ? `${SITE_URL}/${seoInfo.slug}/` : `${SITE_URL}/${currentLocale}/${seoInfo.slug}/`;
 
     if (seoInfo.type === 'tool') {
       structuredData.push({
@@ -175,7 +207,7 @@ export default function InternalSEO() {
         '@type': 'WebApplication',
         name: `PdfMinty - ${seoInfo.name}`,
         description: seoInfo.shortDescription || seoInfo.metaDescription,
-        url: `${SITE_URL}/${seoInfo.slug}/`,
+        url: pageCanonicalUrl,
         applicationCategory: 'UtilitiesApplication',
         operatingSystem: 'All',
         browserRequirements: 'Requires HTML5, WebAssembly',
@@ -202,7 +234,7 @@ export default function InternalSEO() {
           totalTime: seoInfo.howTo.totalTime,
           step: seoInfo.howTo.steps.map((stepText, index) => ({
             '@type': 'HowToStep',
-            url: `${SITE_URL}/${seoInfo.slug}/#step${index + 1}`,
+            url: `${pageCanonicalUrl}#step${index + 1}`,
             name: stepText,
             itemListElement: [{ '@type': 'HowToDirection', text: stepText }],
           })),
@@ -217,13 +249,13 @@ export default function InternalSEO() {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: `${SITE_URL}/`,
+            item: homeUrl,
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: seoInfo.name,
-            item: `${SITE_URL}/${seoInfo.slug}/`,
+            item: pageCanonicalUrl,
           },
         ],
       });
@@ -242,7 +274,7 @@ export default function InternalSEO() {
           })),
         });
       }
-    } else if (cleanSlug === 'about-us') {
+    } else if (baseSlug === 'about-us') {
       structuredData.push(
         {
           '@context': 'https://schema.org',
@@ -275,7 +307,7 @@ export default function InternalSEO() {
           ],
         }
       );
-    } else if (cleanSlug === 'contact') {
+    } else if (baseSlug === 'contact') {
       structuredData.push(
         {
           '@context': 'https://schema.org',

@@ -1,5 +1,6 @@
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { renderPageToCanvas } from './pdfjs'
 import { PlacedFieldView } from './placed-field'
@@ -36,6 +37,7 @@ export function PdfPage({
   onDropField,
   onVisible,
 }: Props) {
+  const { t } = useTranslation('common')
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
@@ -83,7 +85,7 @@ export function PdfPage({
 
   return (
     <section
-      aria-label={`Page ${info.index + 1}`}
+      aria-label={t('signPdf.fieldView.pageAria', { page: info.index + 1, defaultValue: `Page ${info.index + 1}` })}
       className="flex flex-col items-center gap-2"
       data-page-index={info.index}
     >

@@ -1,5 +1,6 @@
 import { RotateCw, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { cn } from '../../lib/utils'
 
@@ -31,6 +32,7 @@ export function PlacedFieldView({
   onChange,
   onRemove,
 }: Props) {
+  const { t } = useTranslation('common')
   const [editing, setEditing] = useState(false)
   const [isRotating, setIsRotating] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -206,12 +208,17 @@ export function PlacedFieldView({
 
   const rotation = field.rotation || 0
 
+  const kindLabel = t(`signPdf.fields.${field.kind}`, { defaultValue: FIELD_LABEL[field.kind] })
+
   return (
     <div
       ref={containerRef}
       role="button"
       tabIndex={0}
-      aria-label={`${FIELD_LABEL[field.kind]} field. Drag to move, rotate, use arrow keys to nudge, Delete to remove.`}
+      aria-label={t('signPdf.fieldView.fieldAria', {
+        kind: kindLabel,
+        defaultValue: `${kindLabel} field. Drag to move, rotate, use arrow keys to nudge, Delete to remove.`,
+      })}
       data-field="true"
       className={cn(
         'absolute touch-none select-none outline-none',
@@ -249,7 +256,7 @@ export function PlacedFieldView({
             />
           ) : (
             <span className="flex size-full items-center justify-center text-[10px] text-slate-500">
-              {FIELD_LABEL[field.kind]}
+              {kindLabel}
             </span>
           )
         ) : editing ? (
@@ -265,10 +272,19 @@ export function PlacedFieldView({
             onPointerDown={(e) => e.stopPropagation()}
             className="size-full bg-transparent text-center text-slate-900 outline-none"
             style={{ fontSize: px.height * 0.62, fontFamily: 'Helvetica, Arial, sans-serif', padding: `0 ${TEXT_FIELD_PAD_RATIO * 100}%` }}
-            aria-label="Text field content"
+            aria-label={kindLabel}
           />
         ) : (
-          <TextPreview text={text || (field.kind === 'text' ? 'Double-click to edit' : '')} height={px.height} muted={!text} />
+          <TextPreview
+            text={
+              text ||
+              (field.kind === 'text'
+                ? t('signPdf.fieldView.doubleClickToEdit', { defaultValue: 'Double-click to edit' })
+                : '')
+            }
+            height={px.height}
+            muted={!text}
+          />
         )}
 
         {selected && !editing ? (
@@ -279,7 +295,9 @@ export function PlacedFieldView({
             >
               <button
                 type="button"
-                aria-label="Rotate signature. Drag to rotate or tap to turn 90 degrees."
+                aria-label={t('signPdf.fieldView.rotateAria', {
+                  defaultValue: 'Rotate signature. Drag to rotate or tap to turn 90 degrees.',
+                })}
                 onPointerDown={(e) => startGesture('rotate', e)}
                 onPointerMove={onPointerMove}
                 onPointerUp={endGesture}
@@ -301,13 +319,13 @@ export function PlacedFieldView({
             {/* Delete button */}
             <button
               type="button"
-              aria-label="Remove field"
+              aria-label={t('signPdf.fieldView.removeAria', { defaultValue: 'Remove field' })}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation()
                 onRemove()
               }}
-              className="absolute -right-3 -top-3 flex size-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md transition-transform hover:scale-110"
+              className="absolute -right-3 -top-3 flex size-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md transition-transform hover:scale-110 cursor-pointer"
             >
               <Trash2 className="size-3.5" aria-hidden="true" />
             </button>
@@ -315,7 +333,7 @@ export function PlacedFieldView({
             {/* Resize handle */}
             <div
               role="presentation"
-              aria-label="Resize"
+              aria-label={t('signPdf.fieldView.resizeAria', { defaultValue: 'Resize' })}
               onPointerDown={(e) => startGesture('resize', e)}
               onPointerMove={onPointerMove}
               onPointerUp={endGesture}

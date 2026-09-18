@@ -1,12 +1,12 @@
-import { ArrowLeft, Move, Download, AlertCircle, Sparkles, Loader2 } from 'lucide-react';
+import { Move, Download, AlertCircle, Sparkles, Loader2 } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
@@ -47,6 +47,7 @@ const parsePageSequence = (input: string, maxPages: number): number[] => {
 };
 
 export const ReorderPdfPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [renderingThumbnails, setRenderingThumbnails] = useState(false);
@@ -126,7 +127,7 @@ export const ReorderPdfPage: React.FC = () => {
         if (myToken !== operationTokenRef.current) return;
         logger.error('Failed to render previews:', err);
         setError(
-          'Error generating page layouts. You can still confirm standard sequencing if required.'
+          t('reorderPdf.previewWarning', { defaultValue: 'Error generating page layouts. You can still confirm standard sequencing if required.' })
         );
       } finally {
         if (myToken === operationTokenRef.current) {
@@ -253,28 +254,7 @@ export const ReorderPdfPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-fadein" id="reorder_page_container">
       <SEO slug="reorder-pdf" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Reorder PDF Pages Free — Organize & Rearrange Pages
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 dark:text-slate-400 text-sm">
-          Sort, rearrange, or shuffle PDF pages interactively. Drag and drop any slot to fine-tune your document order. Files must be under {TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="reorder-pdf" limitMB={TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
@@ -284,8 +264,6 @@ export const ReorderPdfPage: React.FC = () => {
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
-                title="Select a PDF to drag & reorder"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB}MB)`}
                 accept=".pdf,application/pdf"
                 maxSizeMB={TOOL_SIZE_LIMITS['reorder-pdf'].maxSingleMB}
               />
@@ -314,9 +292,9 @@ export const ReorderPdfPage: React.FC = () => {
                       setDownloadUrl(null);
                     }
                   }}
-                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 py-1 px-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 py-1 px-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 >
-                  Change File
+                  {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                 </button>
               </div>
             )}
@@ -326,11 +304,8 @@ export const ReorderPdfPage: React.FC = () => {
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="reorder_success_banner">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                <span>Pages Reordered Successfully! Your custom PDF is ready.</span>
+                <span>{t('reorderPdf.successTitle', { defaultValue: 'Pages Reordered Successfully! Your custom PDF is ready.' })}</span>
               </div>
-              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                Your PDF document has been successfully compiled with the custom page sequence.
-              </p>
               {downloadUrl && (
                 <div className="pt-2">
                   <a
@@ -340,7 +315,7 @@ export const ReorderPdfPage: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
                     <Download className="w-4 h-4 animate-bounce" />
-                    <span>Download Reordered PDF</span>
+                    <span>{t('reorderPdf.downloadReordered', { defaultValue: 'Download Reordered PDF' })}</span>
                   </a>
                 </div>
               )}
@@ -349,8 +324,8 @@ export const ReorderPdfPage: React.FC = () => {
 
           {!selectedFile && (
             <EmptyState
-              title="Upload a PDF to reorder pages"
-              description="Select a document above to drag, drop, and rearrange your PDF page order."
+              title={t('reorderPdf.emptyTitle', { defaultValue: 'Upload a PDF to reorder pages' })}
+              description={t('reorderPdf.emptyDesc', { defaultValue: 'Select a document above to drag, drop, and rearrange your PDF page order.' })}
             />
           )}
 
@@ -358,9 +333,7 @@ export const ReorderPdfPage: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div className="space-y-0.5">
-                  <h3 className="text-sm font-extrabold text-slate-700 dark:text-slate-300">
-                    Arrange PDF Page Elements
-                  </h3>
+                  <h3 className="text-sm font-extrabold text-slate-700 dark:text-slate-300">{t('reorderPdf.arrangeElements', { defaultValue: 'Arrange PDF Page Elements' })}</h3>
                   <p className="text-[11px] text-slate-400">
                     Drag thumbnails left or right to re-sequence. Dropping swaps the positions
                     cleanly.
@@ -370,9 +343,7 @@ export const ReorderPdfPage: React.FC = () => {
                   <button
                     onClick={resetOrder}
                     className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:underline bg-slate-50 dark:bg-slate-950/45 py-1 px-2.5 rounded-lg border border-slate-200 dark:border-slate-800 self-start sm:self-auto"
-                  >
-                    Reset Order
-                  </button>
+                  >{t('reorderPdf.resetOrder', { defaultValue: 'Reset Order' })}</button>
                 )}
               </div>
 
@@ -381,7 +352,7 @@ export const ReorderPdfPage: React.FC = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                     <label htmlFor="manual-page-sequence-input" className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
-                      <span>Manual Page Sequence</span>
+                      <span>{t('reorderPdf.manualSequence', { defaultValue: 'Manual Page Sequence' })}</span>
                     </label>
                     <span className="text-[10px] text-slate-400 font-medium">
                       e.g., 1, 3, 2, 4-6 (Supports ranges & duplicates)
@@ -406,9 +377,7 @@ export const ReorderPdfPage: React.FC = () => {
                       type="button"
                       onClick={applyManualSequence}
                       className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-1.5 rounded-lg shadow-sm transition-colors cursor-pointer whitespace-nowrap"
-                    >
-                      Apply Order
-                    </button>
+                    >{t('reorderPdf.applyOrder', { defaultValue: 'Apply Order' })}</button>
                   </div>
                 </div>
               )}
@@ -419,9 +388,7 @@ export const ReorderPdfPage: React.FC = () => {
                   id="reorder_thumbnails_loader"
                 >
                   <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
-                  <p className="text-xs font-bold text-slate-400">
-                    Rendering pages for workspace drag grids...
-                  </p>
+                  <p className="text-xs font-bold text-slate-400">{t('reorderPdf.renderingPages', { defaultValue: 'Rendering pages for workspace drag grids...' })}</p>
                 </div>
               ) : items.length > 0 ? (
                 <div
@@ -483,7 +450,7 @@ export const ReorderPdfPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-center">
-                  <p className="text-xs text-slate-500">Add a file above to begin ordering.</p>
+                  <p className="text-xs text-slate-500">{t('reorderPdf.addFilePrompt', { defaultValue: 'Add a file above to begin ordering.' })}</p>
                 </div>
               )}
             </div>
@@ -493,9 +460,7 @@ export const ReorderPdfPage: React.FC = () => {
         {/* Configuration Column */}
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
-              Layout Summary
-            </h3>
+            <h3 className="font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">{t('reorderPdf.layoutSummary', { defaultValue: 'Layout Summary' })}</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
               Rearranging pages lets you correct scanner mistakes, adjust slide order, or prepend
               covers before merging or sending.
@@ -511,9 +476,7 @@ export const ReorderPdfPage: React.FC = () => {
 
             {items.length > 0 && (
               <div className="p-3 bg-slate-50 dark:bg-slate-950/45 border border-slate-200 dark:border-slate-800 rounded-xl space-y-1.5">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
-                  Output Ordering Matrix
-                </p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{t('reorderPdf.outputMatrix', { defaultValue: 'Output Ordering Matrix' })}</p>
                 <div className="flex flex-wrap gap-1">
                   {items.map((item, index) => (
                     <span
@@ -547,12 +510,12 @@ export const ReorderPdfPage: React.FC = () => {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Reordering Assembling...</span>
+                  <span>{t('reorderPdf.processingButton', { defaultValue: 'Reordering Assembling...' })}</span>
                 </>
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  <span>Reorder and Save PDF</span>
+                  <span>{t('reorderPdf.reorderSaveButton', { defaultValue: 'Reorder and Save PDF' })}</span>
                 </>
               )}
             </button>

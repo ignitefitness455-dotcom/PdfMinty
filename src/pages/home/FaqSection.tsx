@@ -12,7 +12,8 @@ export const FaqSection: React.FC = () => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
-  const faqItems = (t('home.faq.items', { returnObjects: true, defaultValue: FAQS }) as Array<{ q: string; a: string }>) || FAQS;
+  const rawFaqItems = t('home.faq.items', { returnObjects: true, defaultValue: FAQS });
+  const faqItems = (Array.isArray(rawFaqItems) ? rawFaqItems : FAQS) as Array<{ q: string; a: string }>;
 
   return (
     <div className="mt-24 relative z-20 max-w-4xl mx-auto">

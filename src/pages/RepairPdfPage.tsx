@@ -1,16 +1,17 @@
-import { ArrowLeft, RefreshCw, AlertCircle, Wrench, Download, CheckCircle2 } from 'lucide-react';
+import { RefreshCw, AlertCircle, Wrench, Download, CheckCircle2 } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const RepairPdfPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +71,7 @@ export const RepairPdfPage: React.FC = () => {
     } catch (err: unknown) {
       logger.error('Repair error:', err);
       const message = err instanceof Error ? err.message : String(err);
-      setError(message || 'An unexpected error occurred while attempting to repair the PDF.');
+      setError(message || t('repairPdf.unexpectedError', { defaultValue: 'An unexpected error occurred while attempting to repair the PDF.' }));
     } finally {
       setLoading(false);
     }
@@ -81,43 +82,20 @@ export const RepairPdfPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-fadein" id="repair_page_container">
       <SEO slug="repair-pdf" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-black text-primary tracking-tight">
-            Repair PDF Free — Fix Corrupted & Damaged PDF Files
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {limitMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm font-semibold">
-          Attempt to fix common structural corruptions, broken cross-reference tables (XREFs), missing trailers, or header alignment issues locally.
-        </p>
-      </div>
+      <ToolHeader slug="repair-pdf" limitMB={limitMB} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <div className="flex items-center gap-2 text-primary font-bold">
               <Wrench className="w-5 h-5 text-security-green" />
-              <span>Document Workspace</span>
+              <span>{t('repairPdf.workspace', { defaultValue: 'Document Workspace' })}</span>
             </div>
 
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
                 accept=".pdf,application/pdf"
-                title="Select a corrupted PDF to repair"
-                subtitle={`Drag and drop your document here or browse (Max: ${limitMB}MB)`}
                 maxSizeMB={limitMB}
               />
             ) : (
@@ -128,7 +106,7 @@ export const RepairPdfPage: React.FC = () => {
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
                   <p className="text-xs text-slate-400">
-                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {t('repairPdf.pdfDocument', { defaultValue: 'PDF Document' })}
                   </p>
                 </div>
                 <button
@@ -143,7 +121,7 @@ export const RepairPdfPage: React.FC = () => {
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
-                  Remove
+                  {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                 </button>
               </div>
             )}
@@ -159,11 +137,11 @@ export const RepairPdfPage: React.FC = () => {
               <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                  <span>Repair Completed Successfully! Repaired file downloaded.</span>
+                  <span>{t('repairPdf.successTitle', { defaultValue: 'Repair Completed Successfully! Repaired file downloaded.' })}</span>
                 </div>
                 {repairsList.length > 0 && (
                   <div className="space-y-1.5 border-t border-emerald-200/50 pt-2.5">
-                    <p className="text-slate-500 text-[10px] uppercase tracking-wider font-extrabold">Applied Repairs:</p>
+                    <p className="text-slate-500 text-[10px] uppercase tracking-wider font-extrabold">{t('repairPdf.appliedRepairs', { defaultValue: 'Applied Repairs:' })}</p>
                     <ul className="space-y-1">
                       {repairsList.map((repair, idx) => (
                         <li key={idx} className="flex items-start gap-1.5 text-slate-600 font-semibold text-[11px]">
@@ -183,7 +161,7 @@ export const RepairPdfPage: React.FC = () => {
                       className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                     >
                       <Download className="w-4 h-4 animate-bounce" />
-                      <span>Download Repaired PDF</span>
+                      <span>{t('repairPdf.downloadRepaired', { defaultValue: 'Download Repaired PDF' })}</span>
                     </a>
                   </div>
                 )}
@@ -194,11 +172,9 @@ export const RepairPdfPage: React.FC = () => {
 
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Repair Actions
-            </h3>
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">{t('repairPdf.actionsTitle', { defaultValue: 'Repair Actions' })}</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              This utility performs multi-stage sanitization, including stripping redundant server headers, standardizing EOF offsets, and rebuilding cross-reference metadata tables.
+              {t('repairPdf.actionsDesc', { defaultValue: 'This utility performs multi-stage sanitization, including stripping redundant server headers, standardizing EOF offsets, and rebuilding cross-reference metadata tables.' })}
             </p>
           </div>
 
@@ -215,12 +191,12 @@ export const RepairPdfPage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center space-x-1.5">
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Repairing PDF...</span>
+                  <span>{t('repairPdf.repairingButton', { defaultValue: 'Repairing PDF...' })}</span>
                 </span>
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  <span>Repair & Download</span>
+                  <span>{t('repairPdf.repairButton', { defaultValue: 'Repair & Download' })}</span>
                 </>
               )}
             </button>

@@ -1,15 +1,16 @@
-import { Download, FilePenLine, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Download, FilePenLine, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 
 export default function EditMetadataPage() {
+  const { t } = useTranslation('common');
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,35 +79,14 @@ export default function EditMetadataPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-fadein" id="edit_metadata_container">
       <SEO slug="edit-pdf-metadata" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Edit PDF Metadata Free — Clean & Change PDF Properties
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {limitMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Change PDF title, author, subject, and keywords offline directly in your browser. Files must be under {limitMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="edit-pdf-metadata" limitMB={limitMB} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <div className="flex items-center gap-2 text-slate-800 font-bold">
               <FilePenLine className="w-5 h-5 text-emerald-600" />
-              <span>Select Document</span>
+              <span>{t('editMetadata.selectDocument', { defaultValue: 'Select Document' })}</span>
             </div>
 
             {!file ? (
@@ -123,8 +103,6 @@ export default function EditMetadataPage() {
                   }
                 }}
                 accept=".pdf,application/pdf"
-                title="Select a PDF to edit metadata"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${limitMB}MB)`}
                 maxSizeMB={limitMB}
                 id="edit_metadata_uploader"
               />
@@ -148,7 +126,7 @@ export default function EditMetadataPage() {
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1.5 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
-                  Change File
+                  {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                 </button>
               </div>
             )}
@@ -157,11 +135,8 @@ export default function EditMetadataPage() {
               <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="metadata_success_banner">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                  <span>Metadata Updated Successfully! Your modified PDF has been generated.</span>
+                  <span>{t('toolCommon.success', { defaultValue: 'Metadata Updated Successfully! Your modified PDF has been generated.' })}</span>
                 </div>
-                <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                  All PDF metadata tags have been updated.
-                </p>
                 {downloadUrl && (
                   <div className="pt-2">
                     <a
@@ -171,7 +146,7 @@ export default function EditMetadataPage() {
                       className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                     >
                       <Download className="w-4 h-4 animate-bounce" />
-                      <span>Download PDF with Metadata</span>
+                      <span>{t('toolCommon.download', { defaultValue: 'Download PDF with Metadata' })}</span>
                     </a>
                   </div>
                 )}
@@ -180,10 +155,10 @@ export default function EditMetadataPage() {
 
             {file && (
               <div className="space-y-4 pt-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Document Properties</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">{t('editMetadata.documentProperties', { defaultValue: 'Document Properties' })}</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <label htmlFor="meta_title" className="text-xs font-bold text-slate-700">Title</label>
+                    <label htmlFor="meta_title" className="text-xs font-bold text-slate-700">{t("editMetadata.lblTitle")}</label>
                     <input
                       id="meta_title"
                       type="text"
@@ -195,7 +170,7 @@ export default function EditMetadataPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="meta_author" className="text-xs font-bold text-slate-700">Author</label>
+                    <label htmlFor="meta_author" className="text-xs font-bold text-slate-700">{t("editMetadata.lblAuthor")}</label>
                     <input
                       id="meta_author"
                       type="text"
@@ -207,7 +182,7 @@ export default function EditMetadataPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="meta_subject" className="text-xs font-bold text-slate-700">Subject</label>
+                    <label htmlFor="meta_subject" className="text-xs font-bold text-slate-700">{t("editMetadata.lblSubject")}</label>
                     <input
                       id="meta_subject"
                       type="text"
@@ -219,7 +194,7 @@ export default function EditMetadataPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="meta_keywords" className="text-xs font-bold text-slate-700">Keywords</label>
+                    <label htmlFor="meta_keywords" className="text-xs font-bold text-slate-700">{t("editMetadata.lblKeywords")}</label>
                     <input
                       id="meta_keywords"
                       type="text"
@@ -231,7 +206,7 @@ export default function EditMetadataPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="meta_creator" className="text-xs font-bold text-slate-700">Creator</label>
+                    <label htmlFor="meta_creator" className="text-xs font-bold text-slate-700">{t("editMetadata.lblCreator")}</label>
                     <input
                       id="meta_creator"
                       type="text"
@@ -243,7 +218,7 @@ export default function EditMetadataPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="meta_producer" className="text-xs font-bold text-slate-700">Producer</label>
+                    <label htmlFor="meta_producer" className="text-xs font-bold text-slate-700">{t("editMetadata.lblProducer")}</label>
                     <input
                       id="meta_producer"
                       type="text"
@@ -262,12 +237,8 @@ export default function EditMetadataPage() {
 
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Metadata Update
-            </h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Updates your document info tags without modifying page contents or layout quality.
-            </p>
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">{t('editMetadata.metadataUpdate', { defaultValue: 'Metadata Update' })}</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">{t('editMetadata.metadataUpdateDesc', { defaultValue: 'Updates your document info tags without modifying page contents or layout quality.' })}</p>
           </div>
 
           <div className="space-y-3 pt-4 border-t border-slate-100">
@@ -290,12 +261,12 @@ export default function EditMetadataPage() {
               {isProcessing ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Updating...</span>
+                  <span>{t('toolCommon.processing', { defaultValue: 'Updating...' })}</span>
                 </span>
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  <span>Update & Download</span>
+                  <span>{t('toolCommon.process', { defaultValue: 'Update & Download' })}</span>
                 </>
               )}
             </button>
@@ -307,10 +278,10 @@ export default function EditMetadataPage() {
       <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8 text-slate-700 leading-relaxed" id="metadata_guide_section">
         <div className="space-y-3">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-            Complete Guide to PDF Document Metadata & Privacy
+            {t("editMetadata.guideTitle")}
           </h2>
           <p className="text-sm sm:text-base text-slate-600">
-            Whenever a PDF document is generated by desktop software like Microsoft Word, Google Docs, Adobe InDesign, or LaTeX, invisible metadata properties are automatically embedded into the file header. While metadata helps index files in document management archives, it frequently exposes sensitive internal details when files are shared externally.
+            {t("editMetadata.guideDesc")}
           </p>
         </div>
 
@@ -318,42 +289,42 @@ export default function EditMetadataPage() {
           <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
             <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              Standard PDF Properties (Document Info)
+              {t("editMetadata.stdProps")}
             </h3>
             <ul className="text-xs space-y-1.5 text-slate-600 list-disc pl-4">
-              <li><strong>Title & Subject:</strong> The internal document designation, often preserving internal project codenames or drafts.</li>
-              <li><strong>Author:</strong> The registered user name, operating system account, or legal identity of the author.</li>
-              <li><strong>Keywords:</strong> Search indexing terms used across local filing repositories.</li>
-              <li><strong>Creator & Producer:</strong> The exact software binaries and PDF conversion engines used to assemble the file.</li>
+              <li>{t("editMetadata.liTitle")}</li>
+              <li>{t("editMetadata.liAuthor")}</li>
+              <li>{t("editMetadata.liKeywords")}</li>
+              <li>{t("editMetadata.liCreator")}</li>
             </ul>
           </div>
 
           <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
             <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              Why Edit or Clean Metadata Before Sharing?
+              {t("editMetadata.whyEdit")}
             </h3>
             <ul className="text-xs space-y-1.5 text-slate-600 list-disc pl-4">
-              <li><strong>Prevent Accidental Data Leaks:</strong> Avoid revealing previous client names, legal drafting histories, or internal employee usernames.</li>
-              <li><strong>Professional Presentation:</strong> Ensure executive proposals and public reports display clean, polished titles in PDF reader title bars.</li>
-              <li><strong>Regulatory & Legal Privacy:</strong> Comply with data minimization rules before filing documents with public tribunals or regulatory agencies.</li>
+              <li>{t("editMetadata.liLeaks")}</li>
+              <li>{t("editMetadata.liPres")}</li>
+              <li>{t("editMetadata.liReg")}</li>
             </ul>
           </div>
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-bold text-slate-900">How to Edit PDF Properties with PdfMinty in 3 Steps</h3>
+          <h3 className="text-lg font-bold text-slate-900">{t('editMetadata.howToEdit', { defaultValue: 'How to Edit PDF Properties with PdfMinty in 3 Steps' })}</h3>
           <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-600">
-            <li><strong>Load your document locally:</strong> Select or drop your PDF into the upload area above. The file is analyzed strictly inside your browser sandbox.</li>
-            <li><strong>Update property fields:</strong> Customize the Title, Author, Subject, Keywords, Creator, and Producer values according to your requirements.</li>
-            <li><strong>Save instantly:</strong> Click "Update & Download" to compile the new document headers in milliseconds with zero server delay.</li>
+            <li>{t("editMetadata.step1")}</li>
+            <li>{t("editMetadata.step2")}</li>
+            <li>{t("editMetadata.step3")}</li>
           </ol>
         </div>
 
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-xs text-emerald-900">
-          <p className="font-bold">🔒 Zero-Upload Client-Side Guarantee</p>
+          <p className="font-bold">{t("editMetadata.zeroUploadGuarantee")}</p>
           <p className="leading-normal text-slate-600">
-            Unlike traditional cloud conversion sites that upload entire documents to remote servers, PdfMinty reads and edits binary PDF dictionaries directly inside client-side memory using WebAssembly. Your confidential documents remain strictly on your local hardware.
+            {t("editMetadata.offlineNotice")}
           </p>
         </div>
       </section>

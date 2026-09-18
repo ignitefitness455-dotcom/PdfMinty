@@ -1,15 +1,16 @@
-import { Download, ShieldBan, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Download, ShieldBan, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 
 export default function SanitizePdfPage() {
+  const { t } = useTranslation('common');
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,35 +68,14 @@ export default function SanitizePdfPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-fadein" id="sanitize_pdf_container">
       <SEO slug="sanitize-pdf" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Sanitize PDF Free — Remove Hidden Data & Metadata
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {limitMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Remove embedded scripts, hidden metadata, and malicious actions from your PDF offline for secure sharing. Files must be under {limitMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="sanitize-pdf" limitMB={limitMB} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <div className="flex items-center gap-2 text-slate-800 font-bold">
               <ShieldBan className="w-5 h-5 text-emerald-600" />
-              <span>Select Document</span>
+              <span>{t('sanitizePdf.workspace', { defaultValue: 'Document Workspace' })}</span>
             </div>
 
             {!file ? (
@@ -113,8 +93,6 @@ export default function SanitizePdfPage() {
                   }
                 }}
                 accept=".pdf,application/pdf"
-                title="Select a PDF to sanitize"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${limitMB}MB)`}
                 maxSizeMB={limitMB}
                 id="sanitize_pdf_uploader"
               />
@@ -139,7 +117,7 @@ export default function SanitizePdfPage() {
                   }}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1.5 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
-                  Change File
+                  {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                 </button>
               </div>
             )}
@@ -148,11 +126,9 @@ export default function SanitizePdfPage() {
               <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="sanitize_success_banner">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                  <span>Sanitization Completed Successfully! Your clean PDF is ready.</span>
+                  <span>{t('sanitizePdf.successTitle', { defaultValue: 'Sanitization Completed Successfully! Your clean PDF is ready.' })}</span>
                 </div>
-                <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                  All scripts, hidden actions, and metadata have been purged from the file.
-                </p>
+                <p className="text-slate-500 text-[11px] font-semibold leading-normal">{t('sanitizePdf.successDesc', { defaultValue: 'All scripts, hidden actions, and metadata have been purged from the file.' })}</p>
                 {downloadUrl && (
                   <div className="pt-2">
                     <a
@@ -162,7 +138,7 @@ export default function SanitizePdfPage() {
                       className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                     >
                       <Download className="w-4 h-4 animate-bounce" />
-                      <span>Download Sanitized PDF</span>
+                      <span>{t('sanitizePdf.downloadSanitized', { defaultValue: 'Download Sanitized PDF' })}</span>
                     </a>
                   </div>
                 )}
@@ -171,7 +147,7 @@ export default function SanitizePdfPage() {
 
             {warnings.length > 0 && (
               <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-2">Sanitization Results:</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-2">{t("sanitizePdf.resultsTitle")}</h4>
                 <ul className="list-disc pl-5 space-y-1 text-xs text-emerald-700 font-medium">
                   {warnings.map((w, i) => (
                     <li key={i}>{w}</li>
@@ -184,11 +160,9 @@ export default function SanitizePdfPage() {
 
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Sanitize Actions
-            </h3>
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">{t('sanitizePdf.actionsTitle', { defaultValue: 'Sanitize Actions' })}</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              This process permanently neutralizes embedded JavaScript, OpenAction triggers, and potentially harmful Launch actions hidden inside the PDF structure.
+              {t("sanitizePdf.actionsDesc")}
             </p>
           </div>
 
@@ -212,12 +186,12 @@ export default function SanitizePdfPage() {
               {isProcessing ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Sanitizing...</span>
+                  <span>{t('sanitizePdf.processingButton', { defaultValue: 'Sanitizing...' })}</span>
                 </span>
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  <span>Sanitize & Download</span>
+                  <span>{t('sanitizePdf.processButton', { defaultValue: 'Sanitize & Download' })}</span>
                 </>
               )}
             </button>
@@ -229,10 +203,10 @@ export default function SanitizePdfPage() {
       <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8 text-slate-700 leading-relaxed" id="sanitize_guide_section">
         <div className="space-y-3">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-            Understanding PDF Document Sanitization & Threat Neutralization
+            {t("sanitizePdf.guideTitle")}
           </h2>
           <p className="text-sm sm:text-base text-slate-600">
-            PDF documents are much more than static visual pages; they are structured, interactive binary containers capable of embedding executable JavaScript scripts, remote network triggers, automated form actions, and rich XML Metadata (XMP) packages. Sanitization is the process of inspecting and systematically purging hidden data layers and active elements to make documents safe for public release.
+            {t("sanitizePdf.guideDesc")}
           </p>
         </div>
 
@@ -240,42 +214,42 @@ export default function SanitizePdfPage() {
           <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
             <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              What Gets Removed During Sanitization?
+              {t("sanitizePdf.whatRemoved")}
             </h3>
             <ul className="text-xs space-y-1.5 text-slate-600 list-disc pl-4">
-              <li><strong>Embedded JavaScript & Triggers:</strong> Removes executable scripts attached to button clicks or page load triggers (`/OpenAction`, `/JS`).</li>
-              <li><strong>Hidden Metadata & XMP Packages:</strong> Strips camera GPS tags, revision histories, and author fingerprints.</li>
-              <li><strong>External Launch Actions:</strong> Neutralizes commands that attempt to execute external software or open unverified URLs (`/Launch`).</li>
-              <li><strong>Form Scripting & Stored Data:</strong> Clears unrendered calculation scripts and background tracking fields.</li>
+              <li>{t("sanitizePdf.liJs")}</li>
+              <li>{t("sanitizePdf.liMeta")}</li>
+              <li>{t("sanitizePdf.liLaunch")}</li>
+              <li>{t("sanitizePdf.liForm")}</li>
             </ul>
           </div>
 
           <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
             <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              Who Needs PDF Sanitization?
+              {t("sanitizePdf.whoNeeds")}
             </h3>
             <ul className="text-xs space-y-1.5 text-slate-600 list-disc pl-4">
-              <li><strong>Legal & Compliance Teams:</strong> Disclose filings and evidence without exposing draft revisions or privileged metadata.</li>
-              <li><strong>Government & Whistleblowers:</strong> Protect the anonymity of reporters, researchers, and public servants.</li>
-              <li><strong>Cybersecurity Officers:</strong> Disarm potentially weaponized PDF attachments before opening or distributing them to team members.</li>
+              <li>{t("sanitizePdf.liLegal")}</li>
+              <li>{t("sanitizePdf.liGov")}</li>
+              <li>{t("sanitizePdf.liSec")}</li>
             </ul>
           </div>
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-bold text-slate-900">How to Sanitize PDFs Securely in Your Browser</h3>
+          <h3 className="text-lg font-bold text-slate-900">{t('sanitizePdf.howToSanitize', { defaultValue: 'How to Sanitize PDFs Securely in Your Browser' })}</h3>
           <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-600">
-            <li><strong>Select File:</strong> Drag and drop your target document into the uploader above.</li>
-            <li><strong>Automatic Engine Analysis:</strong> Our WebAssembly engine scans the internal object dictionary for JavaScript, OpenAction hooks, and XMP streams.</li>
-            <li><strong>Download Clean Document:</strong> Download the sanitized, fully sterilized PDF with complete confidence.</li>
+            <li>{t("sanitizePdf.step1")}</li>
+            <li>{t("sanitizePdf.step2")}</li>
+            <li>{t("sanitizePdf.step3")}</li>
           </ol>
         </div>
 
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-xs text-emerald-900">
-          <p className="font-bold">🔒 Total Offline Privacy Protection</p>
+          <p className="font-bold">{t("sanitizePdf.offlineProtection")}</p>
           <p className="leading-normal text-slate-600">
-            PdfMinty operates 100% inside your browser environment. Your confidential files are never transmitted across the network or stored in external databases, guaranteeing total data security and GDPR/HIPAA alignment.
+            {t("sanitizePdf.offlineNotice")}
           </p>
         </div>
       </section>

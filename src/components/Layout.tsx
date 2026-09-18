@@ -23,9 +23,11 @@ import {
   ShieldBan,
 } from 'lucide-react';
 import React, { useState, createContext, useContext, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
 import { TOOLS } from '../config/seo-data';
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '../i18n/config';
 
 import { FeedbackModal } from './FeedbackModal';
 import { Footer } from './Footer';
@@ -63,6 +65,7 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { t } = useTranslation('common');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -123,21 +126,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   }), []);
 
   const toolsList = useMemo<ToolInfo[]>(() => TOOLS
-    .filter((t) => t.type === 'tool')
-    .map((t) => ({
-      name: t.name,
-      slug: t.slug,
-      description: t.shortDescription,
-    })), []);
+    .filter((toolItem) => toolItem.type === 'tool')
+    .map((toolItem) => ({
+      name: t(`tools.${toolItem.slug}.name`, { defaultValue: toolItem.name }),
+      slug: toolItem.slug,
+      description: t(`tools.${toolItem.slug}.desc`, { defaultValue: toolItem.shortDescription }),
+    })), [t]);
 
   const menuItems = useMemo(() => TOOLS
-    .filter((t) => t.type === 'tool')
-    .map((t) => ({
-      name: t.name,
-      path: `/${t.slug}/`,
-      icon: iconMap[t.icon] || HelpCircle,
-      desc: t.shortDescription,
-    })), [iconMap]);
+    .filter((toolItem) => toolItem.type === 'tool')
+    .map((toolItem) => ({
+      name: t(`tools.${toolItem.slug}.name`, { defaultValue: toolItem.name }),
+      path: `/${toolItem.slug}/`,
+      icon: iconMap[toolItem.icon] || HelpCircle,
+      desc: t(`tools.${toolItem.slug}.desc`, { defaultValue: toolItem.shortDescription }),
+    })), [iconMap, t]);
 
   return (
     <LayoutContext.Provider value={{ toolsList }}>
@@ -178,8 +181,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {children}
             {(() => {
               let activeSlug = location.pathname.replace(/^\//, '').replace(/\/$/, '');
-              if (activeSlug.startsWith('bn/')) {
-                activeSlug = activeSlug.substring(3);
+              for (const loc of SUPPORTED_LOCALES) {
+                if (loc !== DEFAULT_LOCALE && (activeSlug === loc || activeSlug.startsWith(`${loc}/`))) {
+                  activeSlug = activeSlug.substring(loc.length + 1);
+                  break;
+                }
               }
               const activeItem = TOOLS.find((t) => t.slug === activeSlug);
               if (activeItem?.type === 'tool') {

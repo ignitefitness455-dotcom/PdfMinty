@@ -1,5 +1,6 @@
 import { Upload, File, AlertCircle, ShieldCheck } from 'lucide-react';
 import React, { useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { extractFileProcessingContext } from '../error-handler';
 
@@ -18,15 +19,21 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   onFilesSelected,
   accept = '.pdf,application/pdf',
   multiple = false,
-  title = 'Drag and drop your files here',
-  subtitle = 'or click to browse from your device',
+  title,
+  subtitle,
   maxSizeMB = 50,
   icon: IconComponent = Upload,
   id,
 }) => {
+  const { t } = useTranslation('common');
   const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const displayTitle =
+    title || t('fileUploader.dragDrop', { defaultValue: 'Drag and drop your files here' });
+  const displaySubtitle =
+    subtitle || t('fileUploader.orBrowse', { defaultValue: 'or click to browse from your device' });
 
   const processFiles = useCallback(
     async (filesList: FileList | null) => {
@@ -207,10 +214,10 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       <div className="flex items-center justify-between px-1">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-xs font-bold tracking-wide select-none">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span>🔒 Client-Side In-Browser Processing</span>
+          <span>{t('fileUploader.clientSide', { defaultValue: '🔒 Client-Side In-Browser Processing' })}</span>
         </div>
         <span className="text-[11px] font-semibold text-slate-400 hidden sm:inline">
-          Local Browser Memory Only
+          {t('fileUploader.localMemory', { defaultValue: 'Local Browser Memory Only' })}
         </span>
       </div>
 
@@ -223,7 +230,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         onKeyDown={handleKeyDown}
         tabIndex={0}
         role="button"
-        aria-label={`${title}. ${subtitle}. Press Enter or Space to browse.`}
+        aria-label={`${displayTitle}. ${displaySubtitle}. ${t('fileUploader.browseAria', { defaultValue: 'Press Enter or Space to browse.' })}`}
         aria-disabled={false}
         id="uploader_dropzone"
         className={`relative w-full border-2 border-dashed rounded-2xl py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 group outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 ${
@@ -240,7 +247,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           onChange={handleChange}
           className="sr-only"
           id={id ? `${id}_input` : 'uploader_hidden_input'}
-          aria-label="File input"
+          aria-label={t('fileUploader.inputAria', { defaultValue: 'File input' })}
         />
 
         <div
@@ -254,10 +261,10 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           <IconComponent className="w-8 h-8" />
         </div>
 
-        <h3 className="font-semibold text-slate-800 text-base md:text-lg mb-1">{title}</h3>
-        <p className="text-slate-500 text-sm mb-2">{subtitle}</p>
+        <h3 className="font-semibold text-slate-800 text-base md:text-lg mb-1">{displayTitle}</h3>
+        <p className="text-slate-500 text-sm mb-2">{displaySubtitle}</p>
         <span className="inline-flex py-1 px-3 rounded-md bg-white border border-slate-200 text-xs text-slate-500 font-medium group-hover:border-emerald-200 group-hover:text-emerald-700">
-          Max file size: {maxSizeMB}MB
+          {t('fileUploader.maxSize', { size: maxSizeMB, defaultValue: `Max file size: ${maxSizeMB}MB` })}
         </span>
       </div>
 

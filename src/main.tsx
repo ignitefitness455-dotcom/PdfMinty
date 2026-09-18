@@ -28,9 +28,21 @@ const getBasename = (): string => {
     }
     return `/${first}`;
   }
-  i18n.changeLanguage(DEFAULT_LOCALE);
+
+  // Fallback to user's explicitly selected locale from storage, or DEFAULT_LOCALE
+  let targetLocale = DEFAULT_LOCALE;
+  try {
+    const saved = (localStorage.getItem('pdfminty_locale') || localStorage.getItem('i18nextLng')) as typeof SUPPORTED_LOCALES[number];
+    if (saved && SUPPORTED_LOCALES.includes(saved)) {
+      targetLocale = saved;
+    }
+  } catch {
+    // Ignore storage restrictions
+  }
+
+  i18n.changeLanguage(targetLocale);
   if (typeof document !== 'undefined') {
-    document.documentElement.lang = DEFAULT_LOCALE;
+    document.documentElement.lang = targetLocale;
   }
   return '/';
 };

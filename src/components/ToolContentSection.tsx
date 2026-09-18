@@ -1,5 +1,20 @@
-import { HelpCircle, ChevronDown, Check, Shield, Sparkles, ArrowRight, AlertTriangle, Cpu, Laptop, FileCode, ExternalLink, Calendar, Lock } from 'lucide-react';
+import {
+  HelpCircle,
+  ChevronDown,
+  Check,
+  Shield,
+  Sparkles,
+  ArrowRight,
+  AlertTriangle,
+  Cpu,
+  Laptop,
+  FileCode,
+  ExternalLink,
+  Calendar,
+  Lock,
+} from 'lucide-react';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { NORD_AFFILIATE_LINKS } from '../config/constants';
@@ -10,7 +25,11 @@ interface ToolContentSectionProps {
 }
 
 export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) => {
+  const { t, i18n } = useTranslation('common');
+
   if (!tool) return null;
+
+  const isEn = !i18n.language || i18n.language === 'en';
 
   const {
     name,
@@ -25,7 +44,36 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
     relatedLinks,
     lastReviewedDate = 'August 2026 • Verified by Security & Product Architecture Team',
     longFormBody,
+    slug,
   } = tool;
+
+  const toolName = t(`tools.${slug}.name`, { defaultValue: name });
+
+  const localizedProblemSolved = t(`tools.${slug}.problemSolved`, { defaultValue: problemSolved });
+  const localizedCtaText = t(`tools.${slug}.primaryCtaText`, {
+    defaultValue: primaryCtaText || `Start ${toolName} Now`,
+  });
+  const localizedHowToName = t(`tools.${slug}.howTo.name`, {
+    defaultValue: howTo?.name || `How to Use ${toolName}`,
+  });
+  const localizedLimits = t(`tools.${slug}.limits`, {
+    defaultValue: supportedFormats?.limits || '',
+  });
+  const localizedDeviceBrowser = t(`tools.${slug}.deviceBrowser`, {
+    defaultValue: technicalNotes?.deviceBrowser || '',
+  });
+  const localizedFileSizeMemory = t(`tools.${slug}.fileSizeMemory`, {
+    defaultValue: technicalNotes?.fileSizeMemory || '',
+  });
+  const localizedAccessibility = t(`tools.${slug}.accessibility`, {
+    defaultValue: technicalNotes?.accessibility || '',
+  });
+  const localizedPrivacyNote = t(`tools.${slug}.privacyNote`, {
+    defaultValue: privacyNote || '',
+  });
+  const localizedLongFormBody = t(`tools.${slug}.longFormBody`, {
+    defaultValue: isEn ? longFormBody : '',
+  });
 
   const handleCtaClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -54,13 +102,13 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Problem Solved</span>
+              <span>{t('toolContent.problemSolved', { defaultValue: 'Problem Solved' })}</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-on-surface tracking-tight">
-              Why Use {name}?
+              {t('toolContent.whyUse', { name: toolName, defaultValue: `Why Use ${toolName}?` })}
             </h2>
             <p className="text-on-surface-variant text-sm sm:text-base leading-relaxed font-normal">
-              {problemSolved}
+              {localizedProblemSolved}
             </p>
           </div>
 
@@ -69,16 +117,21 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
               href="#file-uploader-deck"
               onClick={handleCtaClick}
               className="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all hover:scale-[1.02] cursor-pointer text-sm sm:text-base"
-              aria-label={`Primary CTA: ${primaryCtaText || `Start ${name} Now`}`}
+              aria-label={`Primary CTA: ${localizedCtaText}`}
             >
               <Sparkles className="w-4 h-4" />
-              <span>{primaryCtaText || `Start ${name} Now`}</span>
+              <span>{localizedCtaText}</span>
               <ArrowRight className="w-4 h-4" />
             </a>
 
             <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-on-surface-variant/80">
               <Calendar className="w-4 h-4 text-emerald-500" />
-              <span>Last reviewed: {lastReviewedDate}</span>
+              <span>
+                {t('toolContent.lastReviewed', {
+                  date: lastReviewedDate,
+                  defaultValue: `Last reviewed: ${lastReviewedDate}`,
+                })}
+              </span>
             </div>
           </div>
         </section>
@@ -89,33 +142,38 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
         <section className="space-y-8" id="tool-howto-section">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <h2 className="text-2xl sm:text-3xl font-black text-on-surface tracking-tight">
-              {howTo.name || `How to Use ${name}`}
+              {localizedHowToName}
             </h2>
             <p className="text-on-surface-variant text-sm sm:text-base">
-              Follow these clear, step-by-step instructions to complete your document task safely.
+              {t('toolContent.howToSubtitle', {
+                defaultValue: 'Follow these clear, step-by-step instructions to complete your document task safely.',
+              })}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-            {howTo.steps.map((step, index) => (
-              <div
-                key={index}
-                className="relative bg-surface-container-low p-6 sm:p-7 rounded-2xl border border-border-muted shadow-sm flex flex-col justify-between hover:border-emerald-500/40 transition-all group"
-              >
-                <div className="space-y-4">
-                  <div className="w-10 h-10 rounded-xl bg-surface-container-high border border-border-muted flex items-center justify-center font-mono font-black text-on-surface text-sm group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-colors">
-                    0{index + 1}
+            {howTo.steps.map((step, index) => {
+              const stepText = t(`tools.${slug}.howTo.steps.${index}`, { defaultValue: step });
+              return (
+                <div
+                  key={index}
+                  className="relative bg-surface-container-low p-6 sm:p-7 rounded-2xl border border-border-muted shadow-sm flex flex-col justify-between hover:border-emerald-500/40 transition-all group"
+                >
+                  <div className="space-y-4">
+                    <div className="w-10 h-10 rounded-xl bg-surface-container-high border border-border-muted flex items-center justify-center font-mono font-black text-on-surface text-sm group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-colors">
+                      0{index + 1}
+                    </div>
+                    <p className="text-on-surface-variant text-sm sm:text-base font-medium leading-relaxed">
+                      {stepText}
+                    </p>
                   </div>
-                  <p className="text-on-surface-variant text-sm sm:text-base font-medium leading-relaxed">
-                    {step}
-                  </p>
+                  <div className="pt-4 flex items-center space-x-1.5 text-xs uppercase tracking-wider font-bold text-on-surface-variant/80">
+                    <Check className="w-4 h-4 text-emerald-500" />
+                    <span>{t('toolContent.stepComplete', { defaultValue: 'Step Complete' })}</span>
+                  </div>
                 </div>
-                <div className="pt-4 flex items-center space-x-1.5 text-xs uppercase tracking-wider font-bold text-on-surface-variant/80">
-                  <Check className="w-4 h-4 text-emerald-500" />
-                  <span>Step Complete</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
@@ -125,13 +183,13 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
         <section className="space-y-6" id="tool-formats-specs">
           <h2 className="text-xl sm:text-2xl font-extrabold text-on-surface tracking-tight flex items-center gap-2.5">
             <FileCode className="w-5 h-5 text-emerald-500 shrink-0" />
-            <span>Supported Formats & File Specifications</span>
+            <span>{t('toolContent.supportedFormats', { defaultValue: 'Supported Formats & File Specifications' })}</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
             <div className="bg-surface-container-low p-6 rounded-2xl border border-border-muted space-y-3">
               <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
-                Supported Inputs
+                {t('toolContent.supportedInputs', { defaultValue: 'Supported Inputs' })}
               </span>
               <ul className="text-sm text-on-surface-variant space-y-2 font-medium">
                 {supportedFormats.input.map((inp, idx) => (
@@ -145,7 +203,7 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
 
             <div className="bg-surface-container-low p-6 rounded-2xl border border-border-muted space-y-3">
               <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
-                Output Formats
+                {t('toolContent.outputFormats', { defaultValue: 'Output Formats' })}
               </span>
               <ul className="text-sm text-on-surface-variant space-y-2 font-medium">
                 {supportedFormats.output.map((outp, idx) => (
@@ -159,10 +217,10 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
 
             <div className="bg-surface-container-low p-6 rounded-2xl border border-border-muted space-y-3">
               <span className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
-                Realistic Limitations
+                {t('toolContent.limitations', { defaultValue: 'Realistic Limitations' })}
               </span>
               <p className="text-sm text-on-surface-variant leading-relaxed font-medium">
-                {supportedFormats.limits}
+                {localizedLimits}
               </p>
             </div>
           </div>
@@ -174,37 +232,37 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
         <section className="space-y-6" id="tool-technical-notes">
           <h2 className="text-xl sm:text-2xl font-extrabold text-on-surface tracking-tight flex items-center gap-2.5">
             <Laptop className="w-5 h-5 text-emerald-500 shrink-0" />
-            <span>Device, Browser & Accessibility Compatibility</span>
+            <span>{t('toolContent.compatibility', { defaultValue: 'Device, Browser & Accessibility Compatibility' })}</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
             <div className="bg-surface-container-low p-6 rounded-2xl border border-border-muted space-y-3">
               <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-on-surface uppercase tracking-wider">
                 <Laptop className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Devices & Browsers</span>
+                <span>{t('toolContent.devicesBrowsers', { defaultValue: 'Devices & Browsers' })}</span>
               </div>
               <p className="text-sm text-on-surface-variant leading-relaxed font-medium">
-                {technicalNotes.deviceBrowser}
+                {localizedDeviceBrowser}
               </p>
             </div>
 
             <div className="bg-surface-container-low p-6 rounded-2xl border border-border-muted space-y-3">
               <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-on-surface uppercase tracking-wider">
                 <Cpu className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>File Size & Memory</span>
+                <span>{t('toolContent.fileSizeMemory', { defaultValue: 'File Size & Memory' })}</span>
               </div>
               <p className="text-sm text-on-surface-variant leading-relaxed font-medium">
-                {technicalNotes.fileSizeMemory}
+                {localizedFileSizeMemory}
               </p>
             </div>
 
             <div className="bg-surface-container-low p-6 rounded-2xl border border-border-muted space-y-3">
               <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-on-surface uppercase tracking-wider">
                 <Shield className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Accessibility</span>
+                <span>{t('toolContent.accessibility', { defaultValue: 'Accessibility' })}</span>
               </div>
               <p className="text-sm text-on-surface-variant leading-relaxed font-medium">
-                {technicalNotes.accessibility}
+                {localizedAccessibility}
               </p>
             </div>
           </div>
@@ -216,10 +274,10 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
         <section className="bg-emerald-500/10 border border-emerald-500/20 p-6 sm:p-7 rounded-2xl space-y-3" id="tool-privacy-note">
           <div className="flex items-center gap-2.5 text-emerald-600 dark:text-emerald-400 font-bold text-sm sm:text-base">
             <Lock className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-            <span>Verified Technical Privacy Guarantee</span>
+            <span>{t('toolContent.privacyGuarantee', { defaultValue: 'Verified Technical Privacy Guarantee' })}</span>
           </div>
           <p className="text-sm sm:text-base text-on-surface-variant font-normal leading-relaxed">
-            {privacyNote}
+            {localizedPrivacyNote}
           </p>
         </section>
       )}
@@ -229,21 +287,26 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
         <section className="space-y-6" id="tool-troubleshooting-section">
           <h2 className="text-xl sm:text-2xl font-extrabold text-on-surface tracking-tight flex items-center gap-2.5">
             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
-            <span>Troubleshooting Common Issues</span>
+            <span>{t('toolContent.troubleshooting', { defaultValue: 'Troubleshooting Common Issues' })}</span>
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            {troubleshooting.map((item, idx) => (
-              <div key={idx} className="bg-surface-container-low p-5 sm:p-6 rounded-2xl border border-border-muted space-y-2.5">
-                <p className="text-sm font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0" />
-                  <span>{item.issue}</span>
-                </p>
-                <p className="text-sm text-on-surface-variant leading-relaxed font-normal pt-2 border-t border-border-muted/50">
-                  <strong className="font-bold text-on-surface">Resolution:</strong> {item.resolution}
-                </p>
-              </div>
-            ))}
+            {troubleshooting.map((item, idx) => {
+              const issueText = t(`tools.${slug}.troubleshooting.${idx}.issue`, { defaultValue: item.issue });
+              const resolutionText = t(`tools.${slug}.troubleshooting.${idx}.resolution`, { defaultValue: item.resolution });
+              return (
+                <div key={idx} className="bg-surface-container-low p-5 sm:p-6 rounded-2xl border border-border-muted space-y-2.5">
+                  <p className="text-sm font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                    <span>{issueText}</span>
+                  </p>
+                  <p className="text-sm text-on-surface-variant leading-relaxed font-normal pt-2 border-t border-border-muted/50">
+                    <strong className="font-bold text-on-surface">{t('toolContent.resolution', { defaultValue: 'Resolution:' })}</strong>{' '}
+                    {resolutionText}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </section>
       )}
@@ -254,28 +317,34 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
           <div className="text-center space-y-2">
             <h2 className="text-2xl sm:text-3xl font-black text-on-surface tracking-tight flex items-center justify-center gap-2.5">
               <HelpCircle className="w-6 h-6 text-emerald-500 shrink-0" />
-              <span>Frequently Asked Questions</span>
+              <span>{t('toolContent.faqs', { defaultValue: 'Frequently Asked Questions' })}</span>
             </h2>
             <p className="text-on-surface-variant text-sm sm:text-base">
-              Real questions answered directly with verified technical details.
+              {t('toolContent.faqsSubtitle', {
+                defaultValue: 'Real questions answered directly with verified technical details.',
+              })}
             </p>
           </div>
 
           <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <details
-                key={index}
-                className="group border border-border-muted rounded-2xl bg-surface-container-low shadow-sm open:border-emerald-500/40 transition-all overflow-hidden [&_summary::-webkit-details-marker]:hidden"
-              >
-                <summary className="flex items-center justify-between p-5 sm:p-6 font-bold text-on-surface text-sm sm:text-base cursor-pointer hover:bg-surface-container-high/50 select-none list-none outline-none focus:ring-2 focus:ring-emerald-500/25">
-                  <span className="pr-4 leading-snug">{faq.q}</span>
-                  <ChevronDown className="w-5 h-5 text-on-surface-variant group-open:rotate-180 transition-transform duration-200 flex-shrink-0" />
-                </summary>
-                <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-border-muted/50 bg-surface-container-high/20 text-on-surface-variant text-sm sm:text-base leading-relaxed">
-                  <p>{faq.a}</p>
-                </div>
-              </details>
-            ))}
+            {faqs.map((faq, index) => {
+              const question = t(`tools.${slug}.faqs.${index}.q`, { defaultValue: faq.q });
+              const answer = t(`tools.${slug}.faqs.${index}.a`, { defaultValue: faq.a });
+              return (
+                <details
+                  key={index}
+                  className="group border border-border-muted rounded-2xl bg-surface-container-low shadow-sm open:border-emerald-500/40 transition-all overflow-hidden [&_summary::-webkit-details-marker]:hidden"
+                >
+                  <summary className="flex items-center justify-between p-5 sm:p-6 font-bold text-on-surface text-sm sm:text-base cursor-pointer hover:bg-surface-container-high/50 select-none list-none outline-none focus:ring-2 focus:ring-emerald-500/25">
+                    <span className="pr-4 leading-snug">{question}</span>
+                    <ChevronDown className="w-5 h-5 text-on-surface-variant group-open:rotate-180 transition-transform duration-200 flex-shrink-0" />
+                  </summary>
+                  <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-border-muted/50 bg-surface-container-high/20 text-on-surface-variant text-sm sm:text-base leading-relaxed">
+                    <p>{answer}</p>
+                  </div>
+                </details>
+              );
+            })}
           </div>
 
           {/* Third-party Sponsored / Affiliate Disclosure box below tool experience */}
@@ -283,10 +352,12 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-on-surface font-bold text-sm sm:text-base">
                 <Shield className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Recommended Network Security [Sponsored Partner]</span>
+                <span>{t('toolContent.sponsoredTitle', { defaultValue: 'Recommended Network Security [Sponsored Partner]' })}</span>
               </div>
               <p className="text-xs sm:text-sm text-on-surface-variant font-medium">
-                Keep your internet connection encrypted on public Wi-Fi networks when handling PDF documents.
+                {t('toolContent.sponsoredDesc', {
+                  defaultValue: 'Keep your internet connection encrypted on public Wi-Fi networks when handling PDF documents.',
+                })}
               </p>
             </div>
             <div className="flex items-center gap-3 shrink-0 text-xs sm:text-sm font-bold">
@@ -296,7 +367,7 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
                 rel="nofollow sponsored noreferrer"
                 className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:underline"
               >
-                <span>NordVPN (Affiliate)</span>
+                <span>NordVPN ({t("affiliate.label", { defaultValue: "Affiliate" })})</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
               <span className="text-border-muted">|</span>
@@ -306,7 +377,7 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
                 rel="nofollow sponsored noreferrer"
                 className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:underline"
               >
-                <span>NordPass (Affiliate)</span>
+                <span>NordPass ({t("affiliate.label", { defaultValue: "Affiliate" })})</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
@@ -327,19 +398,23 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
                   <div className="space-y-3.5">
                     <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                       <Sparkles className="w-4 h-4" />
-                      <span>Related Tools</span>
+                      <span>{t('toolContent.relatedTools', { defaultValue: 'Related Tools' })}</span>
                     </h3>
                     <div className="flex flex-wrap gap-2.5">
-                      {relatedToolsList.map((link, idx) => (
-                        <Link
-                          key={idx}
-                          to={link.url}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-xs sm:text-sm font-bold text-on-surface hover:text-emerald-600 transition-colors"
-                        >
-                          <span>{link.title}</span>
-                          <ArrowRight className="w-3.5 h-3.5 text-emerald-500" />
-                        </Link>
-                      ))}
+                      {relatedToolsList.map((link, idx) => {
+                        const toolSlug = link.url.replace(/^\//, '');
+                        const localizedTitle = t(`tools.${toolSlug}.name`, { defaultValue: link.title });
+                        return (
+                          <Link
+                            key={idx}
+                            to={link.url}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-border-muted text-xs sm:text-sm font-bold text-on-surface hover:text-emerald-600 transition-colors"
+                          >
+                            <span>{localizedTitle}</span>
+                            <ArrowRight className="w-3.5 h-3.5 text-emerald-500" />
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -348,7 +423,7 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
                   <div className="space-y-3.5">
                     <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
                       <FileCode className="w-4 h-4" />
-                      <span>Related Guides & Articles</span>
+                      <span>{t('toolContent.relatedGuides', { defaultValue: 'Related Guides & Articles' })}</span>
                     </h3>
                     <div className="flex flex-wrap gap-2.5">
                       {relatedGuidesList.map((link, idx) => (
@@ -371,7 +446,7 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
       )}
 
       {/* 9. Long form body if additional explanatory text exists */}
-      {longFormBody && (
+      {localizedLongFormBody && (
         <article
           className="max-w-3xl mx-auto pt-8 border-t border-border-muted
             [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-on-surface dark:[&_h2]:text-slate-100 [&_h2]:tracking-tight [&_h2]:mt-10 [&_h2]:mb-4 
@@ -382,7 +457,7 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
             [&_strong]:font-semibold [&_strong]:text-on-surface dark:[&_strong]:text-white
             [&_a]:text-emerald-600 dark:[&_a]:text-emerald-400 [&_a]:underline hover:[&_a]:opacity-80"
           dangerouslySetInnerHTML={{
-            __html: longFormBody
+            __html: localizedLongFormBody
               .replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>/i, '')
               .replace(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi, '<h2>$1</h2>'),
           }}
@@ -392,20 +467,22 @@ export const ToolContentSection: React.FC<ToolContentSectionProps> = ({ tool }) 
       {/* 10. Clear Bottom Conversion CTA */}
       <section className="bg-surface-container-low p-6 sm:p-10 rounded-2xl border border-emerald-500/20 shadow-sm text-center space-y-4">
         <h3 className="text-xl sm:text-2xl font-black text-on-surface tracking-tight">
-          Ready to Use {name}?
+          {t('toolContent.readyToUse', { name: toolName, defaultValue: `Ready to Use ${toolName}?` })}
         </h3>
         <p className="text-on-surface-variant text-sm sm:text-base max-w-xl mx-auto font-normal">
-          Zero software installation, no account registration, and 100% private in-browser document processing.
+          {t('toolContent.readySubtitle', {
+            defaultValue: 'Zero software installation, no account registration, and 100% private in-browser document processing.',
+          })}
         </p>
         <div className="pt-2">
           <a
             href="#file-uploader-deck"
             onClick={handleCtaClick}
             className="inline-flex items-center gap-2 px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all hover:scale-[1.02] cursor-pointer text-sm sm:text-base"
-            aria-label={`Bottom CTA: ${primaryCtaText || `Start ${name} Now`}`}
+            aria-label={`Bottom CTA: ${localizedCtaText}`}
           >
             <Sparkles className="w-4 h-4" />
-            <span>{primaryCtaText || `Start ${name} Now`}</span>
+            <span>{localizedCtaText}</span>
             <ArrowRight className="w-4 h-4" />
           </a>
         </div>

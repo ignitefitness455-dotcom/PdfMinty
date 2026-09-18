@@ -43,6 +43,27 @@ export const SEO: React.FC<SEOProps> = ({ slug, titleOverride, descriptionOverri
     if (tDesc && tDesc !== 'seo.metaDescription') {
       localizedDescription = tDesc;
     }
+  } else if (currentLocale !== DEFAULT_LOCALE && baseSlug === 'sign-pdf') {
+    const tTitle = t('signPdf.title', { ns: 'common', defaultValue: '' });
+    if (tTitle && tTitle !== 'signPdf.title') {
+      localizedTitle = `${tTitle} - ${SITE_NAME}`;
+    }
+    const tDesc = t('signPdf.description', { ns: 'common', defaultValue: '' });
+    if (tDesc && tDesc !== 'signPdf.description') {
+      localizedDescription = tDesc;
+    }
+  } else if (currentLocale !== DEFAULT_LOCALE && baseSlug) {
+    const tH1 = t(`tools.${baseSlug}.h1`, { ns: 'common', defaultValue: '' });
+    const tName = t(`tools.${baseSlug}.name`, { ns: 'common', defaultValue: '' });
+    const tDesc = t(`tools.${baseSlug}.desc`, { ns: 'common', defaultValue: '' });
+    if (tH1 && tH1 !== `tools.${baseSlug}.h1`) {
+      localizedTitle = `${tH1} | ${SITE_NAME}`;
+    } else if (tName && tName !== `tools.${baseSlug}.name`) {
+      localizedTitle = `${tName} | ${SITE_NAME}`;
+    }
+    if (tDesc && tDesc !== `tools.${baseSlug}.desc`) {
+      localizedDescription = tDesc;
+    }
   }
 
   // Default values for homepage or custom non-tool pathways.

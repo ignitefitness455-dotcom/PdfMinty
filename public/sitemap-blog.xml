@@ -376,4 +376,26 @@
       <image:caption>Understand the legal weight of electronic signatures under the EU eIDAS Regulation and UK law. Learn how to securely sign PDFs offline.</image:caption>
     </image:image>
   </url>
+  <url>
+    <loc>https://pdfminty.com/blog/pdf-wont-open/</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-pdf-wont-open.png</image:loc>
+      <image:title>PDF Won&apos;t Open? 9 Real Fixes That Work (Windows, Mac, Mobile)</image:title>
+      <image:caption>Fix corrupted files, broken app associations, browser conflicts and locked PDFs with 9 step-by-step fixes.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://pdfminty.com/blog/cant-copy-text-from-pdf/</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>Can&apos;t Copy Text from a PDF? Why It Happens + 5 Real Fixes</image:title>
+      <image:caption>Can&apos;t copy text from a PDF? It&apos;s usually a scanned image, a copy-protection flag, or broken fonts. Here are 5 fixes, including OCR that works without uploading your file.</image:caption>
+    </image:image>
+  </url>
 </urlset>

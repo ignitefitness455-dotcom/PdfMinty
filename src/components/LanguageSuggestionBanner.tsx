@@ -36,7 +36,23 @@ const BANNER_MESSAGES: Record<SupportedLocale, BannerContent> = {
     actionText: 'Switch to English',
     dismissText: 'Keep current',
   },
+  bn: {
+    prompt: 'আপনি কি পিডিএফমিন্টি বাংলা ভাষায় ব্যবহার করতে চান?',
+    actionText: 'বাংলায় পরিবর্তন করুন',
+    dismissText: 'ইংরেজিতে চালিয়ে যান',
+  },
+  hi: {
+    prompt: 'क्या आप PdfMinty का उपयोग हिंदी में करना पसंद करेंगे?',
+    actionText: 'हिंदी में बदलें',
+    dismissText: 'अंग्रेज़ी में जारी रखें',
+  },
+  zh: {
+    prompt: '您想使用中文版的 PdfMinty 吗？',
+    actionText: '切换到中文',
+    dismissText: '保留当前语言',
+  },
 };
+
 
 const STORAGE_KEY = 'pdfminty_lang_suggestion_dismissed';
 

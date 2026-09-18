@@ -1,13 +1,12 @@
-import { ArrowLeft, Files, Trash2, ArrowUp, ArrowDown, Download, AlertCircle } from 'lucide-react';
+import { Files, Trash2, ArrowUp, ArrowDown, Download, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 
 import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
@@ -138,37 +137,7 @@ export const MergePage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="merge_page_container">
       <SEO slug="merge-pdf" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>{t('returnDashboard', { defaultValue: 'Return to Dashboard' })}</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            {t('pageTitle', {
-              defaultValue: 'Merge PDF Files Free — Combine PDF Documents Online',
-            })}
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            {t('limitBadge', {
-              limit: TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB,
-              defaultValue: `Limit: ${TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB}MB per file`,
-            })}
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          {t('pageSubtitle', {
-            maxSingle: TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB,
-            maxTotal: TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB,
-            defaultValue: `Combine several PDFs into a single, structured file. Individual files must be under ${TOOL_SIZE_LIMITS['merge-pdf'].maxSingleMB} MB (Max total: ${TOOL_SIZE_LIMITS['merge-pdf'].maxTotalMB} MB).`,
-          })}
-        </p>
-      </div>
+      <ToolHeader slug="merge-pdf" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Upload Deck */}

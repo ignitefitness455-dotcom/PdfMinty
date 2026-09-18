@@ -1,11 +1,13 @@
 import { Mail, Clock, Send, CheckCircle2, Copy, Shield, Sparkles, MessageSquare } from 'lucide-react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import SEO from '../components/SEO';
 import { ROUTES } from '../config/routes';
 
 export const ContactPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -45,13 +47,11 @@ export const ContactPage: React.FC = () => {
         <div className="text-center space-y-4 border-b border-border-muted pb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide uppercase">
             <Mail className="w-4 h-4" />
-            <span>We're Here to Help</span>
+            <span>{t('contact.hereToHelp', { defaultValue: 'We\'re Here to Help' })}</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black text-on-surface tracking-tight">
-            Contact Us
-          </h1>
+          <h1 className="text-3xl sm:text-5xl font-black text-on-surface tracking-tight">{t('contact.title', { defaultValue: 'Contact Us' })}</h1>
           <p className="text-base sm:text-lg font-medium text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-            PdfMinty is a fast, privacy-focused PDF utility suite built for simplicity, security, and speed. Standard file processing happens directly inside your web browser without uploading your documents to remote cloud servers.
+            {t("contact.headerSub")}
           </p>
         </div>
 
@@ -62,8 +62,8 @@ export const ContactPage: React.FC = () => {
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
               <Mail className="w-6 h-6" />
             </div>
-            <h2 className="text-base font-bold text-on-surface">Direct Email</h2>
-            <p className="text-xs text-on-surface-variant">Send us your thoughts anytime</p>
+            <h2 className="text-base font-bold text-on-surface">{t('contact.directEmail', { defaultValue: 'Direct Email' })}</h2>
+            <p className="text-xs text-on-surface-variant">{t('contact.sendThoughts', { defaultValue: 'Send us your thoughts anytime' })}</p>
             <div className="pt-2 w-full">
               <div className="flex items-center justify-between gap-2 p-2.5 bg-surface-container-high border border-border-muted rounded-xl text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">
                 <span className="truncate">support@pdfminty.com</span>
@@ -84,8 +84,8 @@ export const ContactPage: React.FC = () => {
             <div className="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0">
               <Clock className="w-6 h-6" />
             </div>
-            <h2 className="text-base font-bold text-on-surface">Response Time</h2>
-            <p className="text-xs text-on-surface-variant">We reply as fast as possible</p>
+            <h2 className="text-base font-bold text-on-surface">{t('contact.responseTime', { defaultValue: 'Response Time' })}</h2>
+            <p className="text-xs text-on-surface-variant">{t('contact.replyFast', { defaultValue: 'We reply as fast as possible' })}</p>
             <div className="pt-2">
               <span className="inline-block px-4 py-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400 font-extrabold text-sm">
                 24 - 48 Hours
@@ -98,12 +98,10 @@ export const ContactPage: React.FC = () => {
             <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0">
               <Shield className="w-6 h-6" />
             </div>
-            <h2 className="text-base font-bold text-on-surface">Privacy Guaranteed</h2>
-            <p className="text-xs text-on-surface-variant">100% Local & Secure</p>
+            <h2 className="text-base font-bold text-on-surface">{t('contact.privacyGuaranteed', { defaultValue: 'Privacy Guaranteed' })}</h2>
+            <p className="text-xs text-on-surface-variant">{t("contact.localSecure")}</p>
             <div className="pt-2">
-              <span className="inline-block px-4 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 font-extrabold text-xs">
-                Zero Cloud Uploads
-              </span>
+              <span className="inline-block px-4 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 font-extrabold text-xs">{t('contact.zeroUploadsBadge', { defaultValue: 'Zero Cloud Uploads' })}</span>
             </div>
           </div>
         </div>
@@ -115,10 +113,10 @@ export const ContactPage: React.FC = () => {
             <div className="space-y-1">
               <h2 className="text-xl font-extrabold text-on-surface flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-emerald-500" />
-                Send Us a Message
+                {t("contact.sendUsMsg")}
               </h2>
               <p className="text-xs text-on-surface-variant">
-                Fill out the form below or email us directly at <a href="mailto:support@pdfminty.com" className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">support@pdfminty.com</a>.
+                {t("contact.fillForm")} <a href="mailto:support@pdfminty.com" className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">support@pdfminty.com</a>.
               </p>
             </div>
 
@@ -127,9 +125,9 @@ export const ContactPage: React.FC = () => {
                 <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-extrabold text-on-surface">Message Received!</h3>
+                <h3 className="text-lg font-extrabold text-on-surface">{t('contact.messageReceived', { defaultValue: 'Message Received!' })}</h3>
                 <p className="text-xs sm:text-sm text-on-surface-variant max-w-md mx-auto">
-                  Thank you for reaching out to PdfMinty. We have received your message and will respond to your email within <strong>24 to 48 hours</strong>.
+                  <span dangerouslySetInnerHTML={{ __html: t("contact.successMsg") }} />
                 </p>
                 <button
                   onClick={() => {
@@ -138,7 +136,7 @@ export const ContactPage: React.FC = () => {
                   }}
                   className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
                 >
-                  Send Another Message
+                  {t("contact.sendAnother")}
                 </button>
               </div>
             ) : (
@@ -146,7 +144,7 @@ export const ContactPage: React.FC = () => {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label htmlFor="contact-name" className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                      Your Name <span className="text-rose-500">*</span>
+                      {t("contact.yourName")} <span className="text-rose-500">*</span>
                     </label>
                     <input
                       id="contact-name"
@@ -161,7 +159,7 @@ export const ContactPage: React.FC = () => {
 
                   <div className="space-y-1.5">
                     <label htmlFor="contact-email" className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                      Your Email <span className="text-rose-500">*</span>
+                      {t("contact.yourEmail")} <span className="text-rose-500">*</span>
                     </label>
                     <input
                       id="contact-email"
@@ -177,7 +175,7 @@ export const ContactPage: React.FC = () => {
 
                 <div className="space-y-1.5">
                   <label htmlFor="contact-subject" className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                    Subject
+                    {t("contact.subject")}
                   </label>
                   <select
                     id="contact-subject"
@@ -185,22 +183,22 @@ export const ContactPage: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-high border border-border-muted text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
-                    <option value="General Inquiry">General Inquiry</option>
-                    <option value="Feature Request">Feature Request</option>
-                    <option value="Bug Report">Bug Report</option>
-                    <option value="Privacy Question">Privacy Question</option>
+                    <option value="General Inquiry">{t("contact.optGeneral")}</option>
+                    <option value="Feature Request">{t("contact.optFeature")}</option>
+                    <option value="Bug Report">{t("contact.optBug")}</option>
+                    <option value="Privacy Question">{t("contact.optPrivacy")}</option>
                   </select>
                 </div>
 
                 <div className="space-y-1.5">
                   <label htmlFor="contact-message" className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                    Message <span className="text-rose-500">*</span>
+                    {t("contact.message")} <span className="text-rose-500">*</span>
                   </label>
                   <textarea
                     id="contact-message"
                     required
                     rows={5}
-                    placeholder="How can we help you?"
+                    placeholder={t("contact.helpPlaceholder")}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-high border border-border-muted text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
@@ -213,11 +211,11 @@ export const ContactPage: React.FC = () => {
                   className="w-full py-3 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {loading ? (
-                    <span>Sending...</span>
+                    <span>{t('contact.sending', { defaultValue: 'Sending...' })}</span>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      <span>Send Message</span>
+                      <span>{t('contact.sendMessage', { defaultValue: 'Send Message' })}</span>
                     </>
                   )}
                 </button>
@@ -230,17 +228,17 @@ export const ContactPage: React.FC = () => {
             <div className="bg-surface-container-low border border-border-muted p-6 rounded-2xl space-y-4 shadow-sm">
               <h3 className="text-base font-extrabold text-on-surface flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-sky-500" />
-                About PdfMinty
+                {t("contact.aboutBoxTitle")}
               </h3>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                PdfMinty is built to provide ultra-fast, completely private PDF utilities. Your PDF documents are processed locally and never leave your computer.
+                {t("contact.aboutBoxDesc")}
               </p>
               <div className="pt-2 border-t border-border-muted">
                 <Link
                   to={ROUTES.ABOUT_US}
                   className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
                 >
-                  Read full story on About Us &rarr;
+                  {t("contact.aboutBoxLink")}
                 </Link>
               </div>
             </div>

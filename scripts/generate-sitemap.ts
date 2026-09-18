@@ -98,20 +98,25 @@ export function generateSitemapXml(): SitemapGenerationResult {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD at build time
 
   // 1. Static Core Pages (sitemap-pages.xml)
-  const staticRoutes: Array<{ path: string; priority: string; changefreq: string; lastmod?: string }> = [
-    { path: '/', priority: '1.0', changefreq: 'daily' },
-    { path: '/blog/', priority: '0.9', changefreq: 'daily' },
-    { path: '/adobe-acrobat-alternative/', priority: '0.8', changefreq: 'weekly' },
-    { path: '/about-us/', priority: '0.5', changefreq: 'monthly' },
-    { path: '/contact/', priority: '0.5', changefreq: 'monthly' },
-    { path: '/privacy-policy/', priority: '0.3', changefreq: 'monthly' },
-    { path: '/terms-of-service/', priority: '0.3', changefreq: 'monthly' },
+  const staticRoutes: Array<{ path: string; priority: string; changefreq: string; lastmod?: string; isI18n?: boolean }> = [
+    { path: '/', priority: '1.0', changefreq: 'daily', isI18n: true, lastmod: today },
+    { path: '/blog/', priority: '0.9', changefreq: 'daily', lastmod: today },
+    { path: '/adobe-acrobat-alternative/', priority: '0.8', changefreq: 'weekly', lastmod: '2026-08-08' },
+    { path: '/about-us/', priority: '0.5', changefreq: 'monthly', lastmod: '2026-08-08' },
+    { path: '/contact/', priority: '0.5', changefreq: 'monthly', lastmod: '2026-08-08' },
+    { path: '/privacy-policy/', priority: '0.3', changefreq: 'monthly', lastmod: '2026-08-08' },
+    { path: '/terms-of-service/', priority: '0.3', changefreq: 'monthly', lastmod: '2026-08-08' },
   ];
 
-  const pageEntries: SitemapUrlEntry[] = staticRoutes.map((route) => {
+  const homepageHreflangs = getHreflangs('', baseUrl);
+
+  const pageEntries: SitemapUrlEntry[] = [];
+  
+  for (const route of staticRoutes) {
     const slashedPath = route.path === '' ? '/' : (route.path.endsWith('/') ? route.path : `${route.path}/`);
     const loc = `${baseUrl}${slashedPath.startsWith('/') ? slashedPath : `/${slashedPath}`}`;
-    return {
+    
+    pageEntries.push({
       loc,
       lastmod: route.lastmod,
       changefreq: route.changefreq,
@@ -119,8 +124,27 @@ export function generateSitemapXml(): SitemapGenerationResult {
       imageLoc: `${baseUrl}/og-image.png`,
       title: 'PdfMinty — Free Privacy-First PDF Toolkit',
       caption: 'Free in-browser PDF utilities with zero server uploads',
-    };
-  });
+      hreflangs: route.isI18n ? homepageHreflangs : undefined,
+    });
+
+    // Add localized versions of homepage to sitemap-pages.xml
+    if (route.isI18n) {
+      for (const locLang of SUPPORTED_LOCALES) {
+        if (locLang !== DEFAULT_LOCALE) {
+          pageEntries.push({
+            loc: `${baseUrl}/${locLang}/`,
+            lastmod: route.lastmod,
+            changefreq: route.changefreq,
+            priority: route.priority,
+            imageLoc: `${baseUrl}/og-image.png`,
+            title: `PdfMinty [${locLang.toUpperCase()}] — Free Privacy-First PDF Toolkit`,
+            caption: 'Free in-browser PDF utilities with zero server uploads',
+            hreflangs: homepageHreflangs,
+          });
+        }
+      }
+    }
+  }
 
   // 2. Tools and localized tools (sitemap-tools.xml)
   // 3. Blog articles and comparison guides (sitemap-blog.xml)

@@ -111,16 +111,13 @@ export const HomePage: React.FC = () => {
       <HeroSection />
 
       <section aria-labelledby="all-tools-heading">
-        <h2 id="all-tools-heading" className="sr-only">
-          Free In-Browser PDF Tools
-        </h2>
+        <h2 id="all-tools-heading" className="sr-only">{t('homePage.srToolsHeading', { defaultValue: 'Free In-Browser PDF Tools' })}</h2>
 
         <div className="mb-8 max-w-lg mx-auto" id="all-tools">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
             isDebouncing={isDebouncing}
-            placeholder="Search PDF tools..."
           />
         </div>
 

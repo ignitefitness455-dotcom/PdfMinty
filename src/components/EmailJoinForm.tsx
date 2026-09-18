@@ -1,5 +1,6 @@
 import { Mail, ArrowRight, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface EmailJoinFormProps {
   title?: string;
@@ -7,9 +8,15 @@ interface EmailJoinFormProps {
 }
 
 export const EmailJoinForm: React.FC<EmailJoinFormProps> = ({
-  title = 'Join Our Newsletter',
-  subtitle = 'Subscribe to receive the latest updates, PDF workflows, and security tips directly to your inbox.',
+  title,
+  subtitle,
 }) => {
+  const { t } = useTranslation('common');
+  const effectiveTitle = title || t('home.newsletter.title', { defaultValue: 'Join Our Newsletter' });
+  const effectiveSubtitle = subtitle || t('home.newsletter.subtitle', {
+    defaultValue: 'Subscribe to receive the latest updates, PDF workflows, and security tips directly to your inbox.',
+  });
+
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{
@@ -23,13 +30,13 @@ export const EmailJoinForm: React.FC<EmailJoinFormProps> = ({
 
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
-      setStatus({ type: 'error', message: 'Please enter your email address.' });
+      setStatus({ type: 'error', message: t('home.newsletter.emptyEmail', { defaultValue: 'Please enter your email address.' }) });
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
-      setStatus({ type: 'error', message: 'Please enter a valid email address.' });
+      setStatus({ type: 'error', message: t('home.newsletter.invalidEmail', { defaultValue: 'Please enter a valid email address.' }) });
       return;
     }
 
@@ -49,27 +56,27 @@ export const EmailJoinForm: React.FC<EmailJoinFormProps> = ({
       if (response.ok && data.success) {
         setStatus({
           type: 'success',
-          message: 'Thank you for joining! Check your inbox for updates.',
+          message: t('home.newsletter.success', { defaultValue: 'Thank you for joining! Check your inbox for updates.' }),
         });
         setEmail('');
       } else {
         if (response.status === 404 || !data) {
           setStatus({
             type: 'success',
-            message: 'Thank you for joining! Check your inbox for updates.',
+            message: t('home.newsletter.success', { defaultValue: 'Thank you for joining! Check your inbox for updates.' }),
           });
           setEmail('');
         } else {
           setStatus({
             type: 'error',
-            message: data.error || 'Failed to process subscription. Please try again.',
+            message: data.error || t('home.newsletter.error', { defaultValue: 'Failed to process subscription. Please try again.' }),
           });
         }
       }
     } catch {
       setStatus({
         type: 'success',
-        message: 'Thank you for joining! Check your inbox for updates.',
+        message: t('home.newsletter.success', { defaultValue: 'Thank you for joining! Check your inbox for updates.' }),
       });
       setEmail('');
     } finally {
@@ -83,11 +90,11 @@ export const EmailJoinForm: React.FC<EmailJoinFormProps> = ({
         {/* Simple Header */}
         <div>
           <h3 className="text-xl sm:text-2xl font-bold text-on-surface tracking-tight font-sans">
-            {title}
+            {effectiveTitle}
           </h3>
-          {subtitle && (
+          {effectiveSubtitle && (
             <p className="text-xs sm:text-sm text-on-surface-variant mt-1.5 leading-relaxed">
-              {subtitle}
+              {effectiveSubtitle}
             </p>
           )}
         </div>
@@ -113,7 +120,7 @@ export const EmailJoinForm: React.FC<EmailJoinFormProps> = ({
                   type="email"
                   autoComplete="email"
                   required
-                  placeholder="Enter your email address..."
+                  placeholder={t('home.newsletter.placeholder', { defaultValue: 'Enter your email address...' })}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/50 dark:bg-black/40 border border-white/50 dark:border-white/10 text-sm text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all shadow-inner"
@@ -129,11 +136,11 @@ export const EmailJoinForm: React.FC<EmailJoinFormProps> = ({
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Joining...</span>
+                    <span>{t('home.newsletter.buttonLoading', { defaultValue: 'Joining...' })}</span>
                   </>
                 ) : (
                   <>
-                    <span>Join</span>
+                    <span>{t('home.newsletter.button', { defaultValue: 'Join' })}</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                   </>
                 )}

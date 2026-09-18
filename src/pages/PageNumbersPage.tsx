@@ -1,16 +1,17 @@
-import { ArrowLeft, Hash, AlertCircle, Download } from 'lucide-react';
+import { Hash, AlertCircle, Download } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const PageNumbersPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [pattern, setPattern] = useState<string>('Page {n} of {total}');
   const [patternWarning, setPatternWarning] = useState<string | null>(null);
@@ -136,28 +137,7 @@ export const PageNumbersPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="page_numbers_container">
       <SEO slug="add-page-numbers" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Add Page Numbers to PDF Free — Number Document Pages
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['add-page-numbers'].maxSingleMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Overlay sequential pagination logs across all page footers securely. Files must be under {TOOL_SIZE_LIMITS['add-page-numbers'].maxSingleMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="add-page-numbers" limitMB={TOOL_SIZE_LIMITS['add-page-numbers'].maxSingleMB} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
@@ -167,8 +147,6 @@ export const PageNumbersPage: React.FC = () => {
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
-                title="Select a PDF to paginate"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['add-page-numbers'].maxSingleMB}MB)`}
                 maxSizeMB={TOOL_SIZE_LIMITS['add-page-numbers'].maxSingleMB}
               />
             ) : (
@@ -194,7 +172,7 @@ export const PageNumbersPage: React.FC = () => {
                     }}
                     className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                   >
-                    Change File
+                    {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                   </button>
                 </div>
 
@@ -202,18 +180,16 @@ export const PageNumbersPage: React.FC = () => {
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                     <h3 className="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>
-                      <span>Real-time Placement Preview</span>
+                      <span>{t('pageNumbers.realtimePreview', { defaultValue: 'Real-time Placement Preview' })}</span>
                     </h3>
-                    <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-150">
-                      Page 1 of 12
-                    </span>
+                    <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-150">{t('pageNumbers.pageIndicator', { defaultValue: 'Page 1 of 12' })}</span>
                   </div>
 
                   <div className="relative w-full aspect-[1/1.4] max-w-sm mx-auto bg-slate-50 rounded-xl overflow-hidden shadow-inner border border-slate-200 flex items-center justify-center">
                     {renderingPreview ? (
                       <div className="flex flex-col items-center gap-2.5 text-slate-400">
                         <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-[10px] font-bold tracking-wider uppercase animate-pulse">Loading Document...</span>
+                        <span className="text-[10px] font-bold tracking-wider uppercase animate-pulse">{t('pageNumbers.loadingDocument', { defaultValue: 'Loading Document...' })}</span>
                       </div>
                     ) : (
                       <div className="relative w-full h-full flex items-center justify-center bg-white">
@@ -243,9 +219,7 @@ export const PageNumbersPage: React.FC = () => {
                                 <div className="h-2 w-2/3 bg-slate-800 rounded"></div>
                               </div>
                             </div>
-                            <div className="text-[9px] text-slate-400 font-bold self-center text-center mt-auto bg-slate-50 px-2 py-1 rounded border border-slate-100">
-                              Template View
-                            </div>
+                            <div className="text-[9px] text-slate-400 font-bold self-center text-center mt-auto bg-slate-50 px-2 py-1 rounded border border-slate-100">{t('pageNumbers.templateView', { defaultValue: 'Template View' })}</div>
                           </div>
                         )}
 
@@ -254,9 +228,7 @@ export const PageNumbersPage: React.FC = () => {
                           <div className="absolute inset-0 bg-slate-900/5 backdrop-blur-[0.5px] flex items-center justify-center p-4">
                             <div className="bg-slate-800/90 text-white text-[10px] font-bold tracking-wide py-1.5 px-3 rounded shadow-lg text-center leading-normal max-w-[200px]">
                               Title Page (Skipped)
-                              <span className="block text-[8px] text-slate-300 font-medium mt-0.5">
-                                Pagination starts on page 2
-                              </span>
+                              <span className="block text-[8px] text-slate-300 font-medium mt-0.5">{t('pageNumbers.paginationStarts', { defaultValue: 'Pagination starts on page 2' })}</span>
                             </div>
                           </div>
                         ) : (
@@ -286,11 +258,8 @@ export const PageNumbersPage: React.FC = () => {
               <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="page_numbers_success_banner">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                  <span>Page Numbering Completed Successfully! Your numbered PDF has been generated.</span>
+                  <span>{t('toolCommon.success', { defaultValue: 'Page Numbering Completed Successfully! Your numbered PDF has been generated.' })}</span>
                 </div>
-                <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                  Sequential page numbers have been overlayed on your document pages.
-                </p>
                 {downloadUrl && (
                   <div className="pt-2">
                     <a
@@ -300,7 +269,7 @@ export const PageNumbersPage: React.FC = () => {
                       className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                     >
                       <Download className="w-4 h-4 animate-bounce" />
-                      <span>Download Numbered PDF</span>
+                      <span>{t('toolCommon.download', { defaultValue: 'Download Numbered PDF' })}</span>
                     </a>
                   </div>
                 )}
@@ -312,9 +281,7 @@ export const PageNumbersPage: React.FC = () => {
         {/* Configurations column */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Layout Format
-            </h3>
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">{t('pageNumbers.layoutFormat', { defaultValue: 'Layout Format' })}</h3>
 
             <div className="space-y-2">
               <label
@@ -399,12 +366,12 @@ export const PageNumbersPage: React.FC = () => {
                 className="w-full border border-slate-300 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
                 disabled={!selectedFile}
               >
-                <option value="bottom-right">Bottom Right (Standard)</option>
-                <option value="bottom-center">Bottom Center</option>
-                <option value="bottom-left">Bottom Left</option>
-                <option value="top-right">Top Right</option>
-                <option value="top-center">Top Center</option>
-                <option value="top-left">Top Left</option>
+                <option value="bottom-right">{t("pageNumbers.bottomRight")}</option>
+                <option value="bottom-center">{t("pageNumbers.posBottomCenter")}</option>
+                <option value="bottom-left">{t("pageNumbers.posBottomLeft")}</option>
+                <option value="top-right">{t("pageNumbers.posTopRight")}</option>
+                <option value="top-center">{t("pageNumbers.posTopCenter")}</option>
+                <option value="top-left">{t("pageNumbers.posTopLeft")}</option>
               </select>
             </div>
 
@@ -465,12 +432,12 @@ export const PageNumbersPage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Rendering footers...</span>
+                  <span>{t('toolCommon.processing', { defaultValue: 'Rendering footers...' })}</span>
                 </span>
               ) : (
                 <>
                   <Hash className="w-4 h-4" />
-                  <span>Number All Pages</span>
+                  <span>{t('toolCommon.process', { defaultValue: 'Number All Pages' })}</span>
                 </>
               )}
             </button>

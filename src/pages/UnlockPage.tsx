@@ -1,16 +1,17 @@
-import { ArrowLeft, Lock, AlertCircle, KeyRound, Download } from 'lucide-react';
+import { Lock, AlertCircle, KeyRound, Download } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const UnlockPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -42,7 +43,7 @@ export const UnlockPage: React.FC = () => {
   const handleUnlock = async () => {
     if (!selectedFile) return;
     if (!password.trim()) {
-      setError('Please provide the corresponding encryption key.');
+      setError(t('unlockPdf.emptyKeyError', { defaultValue: 'Please provide the corresponding encryption key.' }));
       return;
     }
 
@@ -72,7 +73,10 @@ export const UnlockPage: React.FC = () => {
       logger.error('Unlock error:', err);
       const message = err instanceof Error ? err.message : String(err);
       setError(
-        message || 'Decryption failed. Please verify the keys match target structures.'
+        message ||
+          t('unlockPdf.decryptError', {
+            defaultValue: 'Decryption failed. Please verify the keys match target structures.',
+          })
       );
     } finally {
       setLoading(false);
@@ -83,39 +87,20 @@ export const UnlockPage: React.FC = () => {
     <div className="space-y-6 max-w-4xl mx-auto" id="unlock_page_container">
       <SEO slug="unlock-pdf" />
 
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Unlock PDF Free — Remove Password & Restrictions
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['unlock-pdf'].maxSingleMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Strip password credentials from secure documents offline to acquire clean, unlocked copies. Files must be under {TOOL_SIZE_LIMITS['unlock-pdf'].maxSingleMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="unlock-pdf" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <Lock className="w-5 h-5 text-teal-600" />
+            <div className="flex items-center gap-2 text-primary font-bold">
+              <Lock className="w-5 h-5 text-teal-600" />
+              <span>{t('unlockPdf.workspace', { defaultValue: 'Document Workspace' })}</span>
+            </div>
 
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
                 accept=".pdf,application/pdf"
-                title="Select locked PDF to decrypt"
-                subtitle={`Drag secure PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['unlock-pdf'].maxSingleMB}MB)`}
                 maxSizeMB={TOOL_SIZE_LIMITS['unlock-pdf'].maxSingleMB}
               />
             ) : (
@@ -126,7 +111,7 @@ export const UnlockPage: React.FC = () => {
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
                   <p className="text-xs text-slate-400">
-                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {t('unlockPdf.pdfDocument', { defaultValue: 'PDF Document' })}
                   </p>
                 </div>
                 <button
@@ -138,9 +123,9 @@ export const UnlockPage: React.FC = () => {
                       setDownloadUrl(null);
                     }
                   }}
-                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
-                  Change File
+                  {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                 </button>
               </div>
             )}
@@ -150,10 +135,10 @@ export const UnlockPage: React.FC = () => {
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="unlock_success_banner">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                <span>File Unlocked Successfully! Your clean PDF is ready.</span>
+                <span>{t('unlockPdf.successTitle', { defaultValue: 'File Unlocked Successfully! Your clean PDF is ready.' })}</span>
               </div>
               <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                All password restrictions and lock properties have been completely removed from this file.
+                {t('unlockPdf.successDesc', { defaultValue: 'All password restrictions and lock properties have been completely removed from this file.' })}
               </p>
               {downloadUrl && (
                 <div className="pt-2">
@@ -164,7 +149,7 @@ export const UnlockPage: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
                     <Download className="w-4 h-4 animate-bounce" />
-                    <span>Download Unlocked PDF</span>
+                    <span>{t('unlockPdf.downloadUnlocked', { defaultValue: 'Download Unlocked PDF' })}</span>
                   </a>
                 </div>
               )}
@@ -176,7 +161,7 @@ export const UnlockPage: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
             <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Provide Credentials
+              {t('unlockPdf.settingsTitle', { defaultValue: 'Provide Credentials' })}
             </h3>
 
             <div className="space-y-2">
@@ -184,7 +169,7 @@ export const UnlockPage: React.FC = () => {
                 htmlFor="sec_phrase"
                 className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
               >
-                Password key:
+                {t('unlockPdf.passwordLabel', { defaultValue: 'Password key:' })}
               </label>
               <div className="relative">
                 <input
@@ -192,7 +177,7 @@ export const UnlockPage: React.FC = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter standard password phrase"
+                  placeholder={t('unlockPdf.passwordPlaceholder', { defaultValue: 'Enter standard password phrase' })}
                   className="w-full border border-slate-300 rounded-xl py-2 pl-9 pr-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   disabled={!selectedFile}
                 />
@@ -201,8 +186,9 @@ export const UnlockPage: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-400">
-              You must already possess editing or viewing credentials to unlock encrypted
-              structures.
+              {t('unlockPdf.passwordHelp', {
+                defaultValue: 'You must already possess editing or viewing credentials to unlock encrypted structures.',
+              })}
             </p>
           </div>
 
@@ -226,12 +212,12 @@ export const UnlockPage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Stripping locks...</span>
+                  <span>{t('unlockPdf.unlockingButton', { defaultValue: 'Stripping locks...' })}</span>
                 </span>
               ) : (
                 <>
                   <Lock className="w-4 h-4" />
-                  <span>Unlock File</span>
+                  <span>{t('unlockPdf.unlockButton', { defaultValue: 'Unlock File' })}</span>
                 </>
               )}
             </button>

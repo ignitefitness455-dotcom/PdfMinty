@@ -1,5 +1,6 @@
 import { ArrowLeft, BookOpen, Search, Clock, Calendar, Shield, Cpu, FileSignature, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { SEO } from '../components/SEO';
@@ -7,6 +8,7 @@ import { ROUTES } from '../config/routes';
 import { TOOLS, ToolSEOInfo } from '../config/seo-data';
 
 export const BlogPage: React.FC = () => {
+  const { t, i18n } = useTranslation('common');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'Security' | 'Privacy' | 'Optimization' | 'Tutorials'>('all');
 
@@ -92,21 +94,40 @@ export const BlogPage: React.FC = () => {
     const text = html ? html.replace(/<[^>]*>/g, '') : '';
     const words = text.trim().split(/\s+/).length;
     const time = Math.max(1, Math.ceil(words / 225)); // average 225 words per minute
-    return `${time} min read`;
+    return t('blog.readTime', { count: time, defaultValue: `${time} min read` });
   };
 
   // Format the publication dates beautifully
   const getFormattedDate = (post: ToolSEOInfo): string => {
     const dateStr = post.datePublished || '2026-07-16';
     try {
-      return new Date(dateStr).toLocaleDateString('en-US', {
+      const locale = i18n.language === 'bn' ? 'bn-BD' : i18n.language === 'de' ? 'de-DE' : 'en-US';
+      return new Date(dateStr).toLocaleDateString(locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
       });
     } catch {
-      return 'July 16, 2026';
+      return dateStr;
     }
+  };
+
+  const getArticleTitle = useCallback((post: ToolSEOInfo) => {
+    return t(`articles.${post.id}.name`, {
+      defaultValue: t(`articles.${post.slug}.name`, { defaultValue: post.name }),
+    });
+  }, [t]);
+
+  const getArticleDesc = useCallback((post: ToolSEOInfo) => {
+    return t(`articles.${post.id}.shortDesc`, {
+      defaultValue: t(`articles.${post.slug}.shortDesc`, { defaultValue: post.shortDescription }),
+    });
+  }, [t]);
+
+  const getCategoryLabel = (category: string) => {
+    return t(`blog.categories.${category.toLowerCase()}`, {
+      defaultValue: category === 'all' ? 'All Articles' : category,
+    });
   };
 
   // Filtered posts based on search query and category selection
@@ -114,13 +135,17 @@ export const BlogPage: React.FC = () => {
     return blogPosts.filter((post) => {
       const category = getPostCategory(post.id);
       const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
+      const title = getArticleTitle(post).toLowerCase();
+      const desc = getArticleDesc(post).toLowerCase();
+      const query = searchQuery.toLowerCase();
       const matchesSearch =
-        post.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.shortDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (post.h1 && post.h1.toLowerCase().includes(searchQuery.toLowerCase()));
+        post.name.toLowerCase().includes(query) ||
+        post.shortDescription.toLowerCase().includes(query) ||
+        title.includes(query) ||
+        desc.includes(query);
       return matchesCategory && matchesSearch;
     });
-  }, [blogPosts, selectedCategory, searchQuery]);
+  }, [blogPosts, selectedCategory, searchQuery, getArticleTitle, getArticleDesc]);
 
   // Separate featured post (first post when no active search & 'all' selected)
   const showFeaturedHero = selectedCategory === 'all' && !searchQuery && filteredPosts.length > 0;
@@ -139,7 +164,7 @@ export const BlogPage: React.FC = () => {
           id="back-to-home-link"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Return to Tools Dashboard</span>
+          <span>{t('toolCommon.returnToDashboard', { defaultValue: 'Return to Tools Dashboard' })}</span>
         </Link>
       </div>
 
@@ -147,13 +172,15 @@ export const BlogPage: React.FC = () => {
       <div className="space-y-4 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
           <BookOpen className="w-4 h-4" />
-          <span>Knowledge Hub & Security Guides</span>
+          <span>{t('blog.hubBadge', { defaultValue: 'Knowledge Hub & Security Guides' })}</span>
         </div>
         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-slate-900 dark:text-slate-50">
-          PDFMinty Knowledge Hub
+          {t('blog.hubTitle', { defaultValue: 'PDFMinty Knowledge Hub' })}
         </h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
-          Expert guides, privacy-first tutorials, and technical insights on secure PDF processing, offline browser cryptography, and document workflow optimization.
+          {t('blog.hubSubtitle', {
+            defaultValue: 'Expert guides, privacy-first tutorials, and technical insights on secure PDF processing, offline browser cryptography, and document workflow optimization.',
+          })}
         </p>
       </div>
 
@@ -165,7 +192,7 @@ export const BlogPage: React.FC = () => {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Search guides, tutorials, or comparisons..."
+              placeholder={t('blog.searchPlaceholder', { defaultValue: 'Search guides, tutorials, or comparisons...' })}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-16 py-2.5 bg-background border border-border-muted rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
@@ -176,14 +203,14 @@ export const BlogPage: React.FC = () => {
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
-                Clear
+                {t('blog.clearSearch', { defaultValue: 'Clear' })}
               </button>
             )}
           </div>
 
           {/* Article Count Indicator */}
           <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            Showing <span className="font-bold text-emerald-600 dark:text-emerald-400">{filteredPosts.length}</span> {filteredPosts.length === 1 ? 'article' : 'articles'}
+            {t('blog.showingArticles', { count: filteredPosts.length, defaultValue: `Showing ${filteredPosts.length} articles` })}
           </div>
         </div>
 
@@ -202,7 +229,7 @@ export const BlogPage: React.FC = () => {
                     : 'bg-background hover:bg-surface-container-high border-border-muted text-slate-600 dark:text-slate-300'
                 }`}
               >
-                <span>{cat === 'all' ? 'All Articles' : cat}</span>
+                <span>{getCategoryLabel(cat)}</span>
                 <span
                   className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono ${
                     isSelected ? 'bg-white/20 text-white' : 'bg-surface-container-high text-slate-500 dark:text-slate-400'
@@ -227,22 +254,22 @@ export const BlogPage: React.FC = () => {
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-full shadow-sm">
                 <Sparkles className="w-3.5 h-3.5" />
-                Featured Article
+                {t('blog.featuredArticle', { defaultValue: 'Featured Article' })}
               </span>
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-xs font-bold text-emerald-300">
                 {getCategoryIcon(getPostCategory(featuredPost.id))}
-                {getPostCategory(featuredPost.id)}
+                {getCategoryLabel(getPostCategory(featuredPost.id))}
               </span>
             </div>
 
             <Link to={`/${featuredPost.slug}/`} className="block group-hover:text-emerald-300 transition-colors">
               <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight text-white">
-                {featuredPost.name}
+                {getArticleTitle(featuredPost)}
               </h2>
             </Link>
 
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed line-clamp-3 font-normal">
-              {featuredPost.shortDescription}
+              {getArticleDesc(featuredPost)}
             </p>
 
             <div className="pt-2 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 text-xs text-slate-300 font-medium">
@@ -251,9 +278,7 @@ export const BlogPage: React.FC = () => {
                   <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 p-0.5 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                     <img src="/logo.svg" alt="PDFMinty Logo" className="w-full h-full object-contain" />
                   </div>
-                  <span className="text-emerald-300 font-bold">
-                    PDFMinty Editorial Team
-                  </span>
+                  <span className="text-emerald-300 font-bold">{t('blog.editorialTeam', { defaultValue: 'PDFMinty Editorial Team' })}</span>
                 </div>
                 <span className="flex items-center gap-1 font-mono text-[11px] text-slate-400">
                   <Calendar className="w-3.5 h-3.5" />
@@ -269,7 +294,7 @@ export const BlogPage: React.FC = () => {
                 to={`/${featuredPost.slug}/`}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md group-hover:translate-x-1"
               >
-                <span>Read Full Article</span>
+                <span>{t('blog.readFullArticle', { defaultValue: 'Read Full Article' })}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -296,7 +321,7 @@ export const BlogPage: React.FC = () => {
                   <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface-container-high border border-border-muted rounded-lg text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">
                       {getCategoryIcon(category)}
-                      {category}
+                      {getCategoryLabel(category)}
                     </span>
                     <div className="flex items-center gap-3 font-mono text-[11px]">
                       <span className="flex items-center gap-1">
@@ -309,13 +334,13 @@ export const BlogPage: React.FC = () => {
                   {/* Title */}
                   <Link to={targetPath} className="block group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                     <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-snug tracking-tight">
-                      {post.name}
+                      {getArticleTitle(post)}
                     </h2>
                   </Link>
 
                   {/* Description */}
                   <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3">
-                    {post.shortDescription}
+                    {getArticleDesc(post)}
                   </p>
                 </div>
 
@@ -324,10 +349,10 @@ export const BlogPage: React.FC = () => {
                     <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 p-0.5 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                       <img src="/logo.svg" alt="PDFMinty Logo" className="w-full h-full object-contain" />
                     </div>
-                    <span className="text-[11px] font-bold">PDFMinty Team</span>
+                    <span className="text-[11px] font-bold">{t('blog.editorialTeam', { defaultValue: 'PDFMinty Team' })}</span>
                     <span className="text-slate-300 dark:text-slate-700">•</span>
                     <span className="flex items-center gap-1 font-mono text-[11px]">
-                      <Clock className="w-3 h-3 text-slate-400" />
+                      <Clock className="w-3.5 h-3.5 text-slate-400" />
                       {readingTime}
                     </span>
                   </div>
@@ -336,7 +361,7 @@ export const BlogPage: React.FC = () => {
                     to={targetPath}
                     className="inline-flex items-center space-x-1.5 text-emerald-600 dark:text-emerald-400 font-bold hover:underline"
                   >
-                    <span>Read Article</span>
+                    <span>{t('blog.readArticle', { defaultValue: 'Read Article' })}</span>
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </div>
@@ -347,10 +372,8 @@ export const BlogPage: React.FC = () => {
       ) : (
         <div className="text-center py-16 bg-surface-container-low border border-border-muted rounded-2xl">
           <BookOpen className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">No articles match your search criteria</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-2">
-            Try adjusting your search query or selecting a different category to explore our guides.
-          </p>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">{t('blog.noArticlesMatch', { defaultValue: 'No articles match your search criteria' })}</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-2">{t('blog.tryAdjusting', { defaultValue: 'Try adjusting your search query or selecting a different category to explore our guides.' })}</p>
           <button
             onClick={() => {
               setSearchQuery('');
@@ -358,7 +381,7 @@ export const BlogPage: React.FC = () => {
             }}
             className="mt-5 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-500 transition-all shadow-md"
           >
-            Reset Filters
+            {t('blog.resetFilters', { defaultValue: 'Reset Filters' })}
           </button>
         </div>
       )}
@@ -368,13 +391,13 @@ export const BlogPage: React.FC = () => {
         <div className="space-y-2 max-w-2xl">
           <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider">
             <Shield className="w-4 h-4" />
-            <span>Privacy Guarantee</span>
+            <span>{t('blog.privacyCalloutBadge', { defaultValue: 'Privacy Guarantee' })}</span>
           </div>
-          <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
-            Looking for private, serverless PDF tools?
-          </h3>
+          <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">{t('blog.privacyCalloutTitle', { defaultValue: 'Looking for private, serverless PDF tools?' })}</h3>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-            All PDFMinty tools process your documents completely inside your browser memory using client-side WebAssembly. No registration required, zero tracking, and no cloud uploads.
+            {t('blog.privacyCalloutDesc', {
+              defaultValue: 'All PDFMinty tools process your documents completely inside your browser memory using client-side WebAssembly. No registration required, zero tracking, and no cloud uploads.',
+            })}
           </p>
         </div>
 
@@ -383,7 +406,7 @@ export const BlogPage: React.FC = () => {
           className="shrink-0 inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md hover:shadow-lg"
         >
           <CheckCircle2 className="w-4 h-4" />
-          <span>Explore All Free Tools</span>
+          <span>{t('blog.privacyCalloutButton', { defaultValue: 'Explore All Free Tools' })}</span>
         </Link>
       </div>
     </div>

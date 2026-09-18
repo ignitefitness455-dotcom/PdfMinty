@@ -1,6 +1,7 @@
 import { ZoomIn, ZoomOut } from 'lucide-react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import React, { useState, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { LazyPDFPage } from './LazyPDFPage';
 
@@ -23,6 +24,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   scale = 0.3,
   label,
 }) => {
+  const { t } = useTranslation('common');
   const [internalSelection, setInternalSelection] = useState<Set<number>>(
     selectedPages ?? new Set()
   );
@@ -82,10 +84,10 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-100 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200/60 shadow-xs">
         <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>{label ?? `${pageCount} page${pageCount !== 1 ? 's' : ''}`}</span>
+          <span>{label ?? t('preview.pagesCount', { count: pageCount, defaultValue: `${pageCount} page${pageCount !== 1 ? 's' : ''}` })}</span>
           {currentSelection.size > 0 && (
             <span className="text-emerald-600 dark:text-emerald-400 font-extrabold ml-1">
-              · {currentSelection.size} selected
+              · {t('preview.selectedCount', { count: currentSelection.size, defaultValue: `${currentSelection.size} selected` })}
             </span>
           )}
         </span>
@@ -97,8 +99,8 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               onClick={() => handleZoomChange(-0.05)}
               disabled={zoom <= 0.15}
               className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 hover:text-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
-              title="Zoom Out"
-              aria-label="Zoom Out"
+              title={t('preview.zoomOut', { defaultValue: 'Zoom Out' })}
+              aria-label={t('preview.zoomOut', { defaultValue: 'Zoom Out' })}
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
@@ -109,8 +111,8 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               onClick={() => handleZoomChange(0.05)}
               disabled={zoom >= 1.2}
               className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 hover:text-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
-              title="Zoom In"
-              aria-label="Zoom In"
+              title={t('preview.zoomIn', { defaultValue: 'Zoom In' })}
+              aria-label={t('preview.zoomIn', { defaultValue: 'Zoom In' })}
             >
               <ZoomIn className="w-3.5 h-3.5" />
             </button>
@@ -119,9 +121,9 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               onClick={() => setZoom(scale)}
               disabled={zoom === scale}
               className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 disabled:opacity-40 disabled:pointer-events-none px-1.5 py-0.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
-              title="Reset to default scale"
+              title={t('preview.resetZoomTitle', { defaultValue: 'Reset to default scale' })}
             >
-              Reset
+              {t('preview.resetZoom', { defaultValue: 'Reset' })}
             </button>
           </div>
 
@@ -131,13 +133,13 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                 onClick={selectAll}
                 className="text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all bg-white dark:bg-slate-900 px-3 py-1 rounded-xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs cursor-pointer hover:border-emerald-500/30"
               >
-                All
+                {t('preview.selectAll', { defaultValue: 'All' })}
               </button>
               <button
                 onClick={clearAll}
                 className="text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-rose-600 transition-all bg-white dark:bg-slate-900 px-3 py-1 rounded-xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs cursor-pointer hover:border-rose-500/30"
               >
-                Clear
+                {t('preview.clearSelection', { defaultValue: 'Clear' })}
               </button>
             </div>
           ) : null}
@@ -164,7 +166,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                 scale={zoom}
               />
               <div className="absolute top-2 left-2 bg-slate-950/80 text-white font-mono text-[9px] font-extrabold px-2 py-0.5 rounded-lg pointer-events-none select-none shadow-sm backdrop-blur-xs">
-                Page {i + 1}
+                {t('preview.pageLabel', { count: i + 1, defaultValue: `Page ${i + 1}` })}
               </div>
             </div>
           </div>
@@ -173,7 +175,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
 
       {currentSelection.size > 0 && (
         <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-          Tip: Hold Shift and click to select a range of pages.
+          {t('preview.shiftTip', { defaultValue: 'Tip: Hold Shift and click to select a range of pages.' })}
         </p>
       )}
     </div>

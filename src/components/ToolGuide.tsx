@@ -1,5 +1,6 @@
 import { HelpCircle, ChevronDown, Check, Shield } from 'lucide-react';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { NORD_AFFILIATE_LINKS } from '../config/constants';
 import { TOOLS } from '../config/seo-data';
@@ -9,6 +10,7 @@ interface ToolGuideProps {
 }
 
 export const ToolGuide: React.FC<ToolGuideProps> = ({ slug }) => {
+  const { t } = useTranslation();
   // Find the matching tool
   const tool = TOOLS.find((t) => t.slug === slug);
 
@@ -26,10 +28,10 @@ export const ToolGuide: React.FC<ToolGuideProps> = ({ slug }) => {
         <section className="space-y-8" id="tool-guide-howto-section">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <h2 className="text-2xl font-black text-on-surface tracking-tight">
-              {howTo.name || `How to Use ${name}`}
+              {t(`tools.${tool.slug}.howTo.name`, { defaultValue: howTo.name || `How to Use ${name}` })}
             </h2>
             <p className="text-on-surface-variant text-sm">
-              Follow these simple, secure steps to process your documents locally in seconds.
+              {t('toolGuide.howtoSubtitle', { defaultValue: 'Follow these simple, secure steps to process your documents locally in seconds.' })}
             </p>
           </div>
 
@@ -45,12 +47,12 @@ export const ToolGuide: React.FC<ToolGuideProps> = ({ slug }) => {
                     0{index + 1}
                   </div>
                   <p className="text-on-surface-variant text-sm font-semibold leading-relaxed">
-                    {step}
+                    {t(`tools.${tool.slug}.howTo.steps.${index}`, { defaultValue: step })}
                   </p>
                 </div>
                 <div className="pt-4 flex items-center space-x-1 text-[10px] uppercase tracking-wider font-extrabold text-on-surface-variant/80">
                   <Check className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>Step Complete</span>
+                  <span>{t('toolGuide.stepComplete', { defaultValue: 'Step Complete' })}</span>
                 </div>
               </div>
             ))}
@@ -64,10 +66,10 @@ export const ToolGuide: React.FC<ToolGuideProps> = ({ slug }) => {
           <div className="text-center space-y-2">
             <h2 className="text-2xl font-black text-on-surface tracking-tight flex items-center justify-center gap-2">
               <HelpCircle className="w-6 h-6 text-emerald-500 flex-shrink-0" />
-              <span>Frequently Asked Questions</span>
+              <span>{t('toolGuide.faqTitle', { defaultValue: 'Frequently Asked Questions' })}</span>
             </h2>
             <p className="text-on-surface-variant text-sm">
-              Have questions about privacy, capabilities, or technical details? We have direct answers.
+              {t('toolGuide.faqSubtitle', { defaultValue: 'Have questions about privacy, capabilities, or technical details? We have direct answers.' })}
             </p>
           </div>
 
@@ -79,11 +81,11 @@ export const ToolGuide: React.FC<ToolGuideProps> = ({ slug }) => {
                 id={`faq-details-item-${index + 1}`}
               >
                 <summary className="flex items-center justify-between p-5 font-bold text-on-surface text-sm md:text-base cursor-pointer hover:bg-surface-container-high/50 select-none list-none outline-none focus:ring-2 focus:ring-emerald-500/25">
-                  <span className="pr-4 leading-snug">{faq.q}</span>
+                  <span className="pr-4 leading-snug">{t(`tools.${tool.slug}.faqs.${index}.q`, { defaultValue: faq.q })}</span>
                   <ChevronDown className="w-5 h-5 text-on-surface-variant group-open:rotate-180 transition-transform duration-200 flex-shrink-0" />
                 </summary>
                 <div className="px-5 pb-5 pt-1 border-t border-border-muted/50 bg-surface-container-high/20 text-on-surface-variant text-sm leading-relaxed">
-                  <p>{faq.a}</p>
+                  <p>{t(`tools.${tool.slug}.faqs.${index}.a`, { defaultValue: faq.a })}</p>
                 </div>
               </details>
             ))}
@@ -94,10 +96,10 @@ export const ToolGuide: React.FC<ToolGuideProps> = ({ slug }) => {
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
                 <Shield className="w-4 h-4" />
-                <span>Recommended Security Tools</span>
+                <span>{t('toolGuide.securityTools', { defaultValue: 'Recommended Security Tools' })}</span>
               </div>
               <p className="text-xs text-on-surface-variant font-medium">
-                Ensure document confidentiality on any network with VPN encryption & password management.
+                {t('toolGuide.securityToolsDesc', { defaultValue: 'Ensure document confidentiality on any network with VPN encryption & password management.' })}
               </p>
             </div>
             <div className="flex items-center gap-3 shrink-0 text-xs font-bold">

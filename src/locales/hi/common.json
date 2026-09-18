@@ -1,0 +1,364 @@
+{
+  "header": {
+    "siteName": "PdfMinty",
+    "tagline": "गोपनीयता-प्रथम पीडीएफ उपकरण",
+    "badgeOffline": "100% निजी और ऑफ़लाइन",
+    "nav": {
+      "home": "होम",
+      "tools": "उपकरण",
+      "blog": "ब्लॉग",
+      "about": "हमारे बारे में",
+      "contact": "संपर्क"
+    },
+    "themeToggle": {
+      "ariaLabel": "Toggle dark mode",
+      "switchToLight": "Switch to Light Mode",
+      "switchToDark": "Switch to Dark Mode"
+    },
+    "mobileMenu": {
+      "ariaLabel": "Open mobile navigation menu",
+      "open": "Open menu",
+      "close": "Close menu"
+    }
+  },
+  "footer": {
+    "sections": {
+      "coreTools": "मुख्य उपकरण",
+      "popularTools": "लोकप्रिय उपकरण",
+      "resources": "Resources",
+      "companyLegal": "Company & Legal",
+      "converters": "Converters",
+      "legalTrust": "Legal & Trust"
+    },
+    "copyright": "© {{year}} PdfMinty. सर्वाधिकार सुरक्षित।",
+    "brandDescription": "Free, privacy-first PDF utility suite. Core document tools run 100% locally in your browser without uploads. AI and OCR features utilize secure, encrypted API processing.",
+    "links": {
+      "mergePdf": "Merge PDF Files",
+      "splitPdf": "Split PDF Pages",
+      "grayscalePdf": "Grayscale PDF",
+      "protectPdf": "Protect & Encrypt PDF",
+      "pdfToImg": "Convert PDF to Image",
+      "compressPdf": "Compress PDF",
+      "unlockPdf": "Unlock PDF",
+      "organizePdf": "Organize PDF",
+      "rotatePdf": "Rotate PDF",
+      "pdfToWord": "PDF to Word (DOCX)",
+      "pdfToText": "PDF to Text",
+      "pdfToZip": "PDF to ZIP",
+      "pdfToJpg": "PDF to JPG",
+      "jpgToPdf": "JPG to PDF",
+      "pngToPdf": "PNG to PDF",
+      "webpToPdf": "WEBP to PDF",
+      "knowledgeHub": "Knowledge Hub",
+      "compareSmallpdf": "PdfMinty vs SmallPDF",
+      "compareIlovepdf": "PdfMinty vs iLovePDF",
+      "adobeSecurity": "Adobe vs Browser Security",
+      "trustArticle": "Is Online PDF Safe?",
+      "aboutUs": "About Us",
+      "contactUs": "Contact Us",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "howItWorks": "How It Works"
+    },
+    "badges": {
+      "privacyFirst": "In-Browser Privacy First",
+      "clientSide": "Client-side PDF Suite",
+      "zeroLogs": "Zero Data Logs",
+      "openFree": "Open & Free",
+      "webAssembly": "WebAssembly Powered"
+    }
+  },
+  "mobileDrawer": {
+    "siteName": "PdfMinty",
+    "brandTagline": "Privacy-First PDF Toolkit",
+    "closeAriaLabel": "Close navigation drawer",
+    "sectionTools": "PDF Tools",
+    "sectionSettings": "Display & Language Settings",
+    "languageLabel": "Language",
+    "displayThemeLabel": "Display Theme",
+    "switchToLight": "Switch to Light Theme",
+    "switchToDark": "Switch to Dark Theme",
+    "toggleLabel": "Toggle"
+  },
+  "languageSwitcher": {
+    "selectLanguage": "भाषा चुनें",
+    "changeLanguageAria": "Change language"
+  },
+  "home": {
+    "hero": {
+      "badgePrivate": "निजी ब्राउज़र उपकरण",
+      "h1Part1": "मुफ़्त ब्राउज़र-आधारित पीडीएफ उपकरण — 100% निजी, ",
+      "h1Part2": "कोई अपलोड नहीं",
+      "subtitle": "अपने वेब ब्राउज़र में सीधे अपने दस्तावेज़ों को मर्ज करें, विभाजित करें और संपादित करें।",
+      "badgeClient": "🔒 Client-Side In-Browser Processing"
+    },
+    "search": {
+      "placeholder": "Search PDF tools...",
+      "ariaLabel": "Search PDF tools"
+    },
+    "categories": {
+      "all": "All",
+      "workflows": "Workflows",
+      "organize": "Organize PDF",
+      "optimize": "Optimize PDF",
+      "convert": "Convert PDF",
+      "edit": "Edit PDF",
+      "security": "PDF Security",
+      "intelligence": "PDF Intelligence"
+    },
+    "noToolsFound": {
+      "title": "No tools found",
+      "desc": "We couldn't find any tools matching your search. Try checking your spelling or search for something else.",
+      "clearSearch": "Clear Search"
+    },
+    "whyChoose": {
+      "title": "Why Choose PDFMinty?",
+      "subtitle": "Professional-grade document tools with zero security compromises.",
+      "privacyTitle": "Privacy First",
+      "privacyDesc": "Your standard documents stay on your device. Local PDF operations run in browser memory for privacy-first handling.",
+      "noAccountTitle": "No Account Required",
+      "noAccountDesc": "Skip signups and passwords. Access fast, direct tools instantly without creating an account or leaving personal data.",
+      "freeTitle": "Completely Free",
+      "freeDesc": "Enjoy file editing and organizing with no paywalls, subscriptions, artificial limits, or watermarks.",
+      "fastTitle": "Instant Processing",
+      "fastDesc": "No waiting for uploads or cloud queues. Your device's processor handles files immediately with zero transfer lag.",
+      "offlineTitle": "Works Offline",
+      "offlineDesc": "Once loaded, core tools process your PDF files locally on your computer even without an active internet connection.",
+      "toolsCountTitle": "22+ Specialized Tools",
+      "toolsCountDesc": "From merging and splitting to encryption, OCR, and compression — complete every PDF workflow right here."
+    },
+    "howItWorks": {
+      "badge": "100% In-Browser Privacy",
+      "title": "Fast, Private Document Processing",
+      "desc": "PDFMinty processes your documents directly on your computer or phone. Because your files stay on your device, processing happens instantly with no upload delays, file size limits, or cloud storage risks. Process confidential contracts, tax forms, and financial records with guaranteed zero data leakage.",
+      "dragDrop": "Drag & Drop PDF here",
+      "orBrowse": "or click to browse locally",
+      "stepsHeading": "How It Works in 3 Simple Steps",
+      "step1Title": "Select Your Tool",
+      "step1Desc": "Choose from 22+ dedicated PDF tools above for merging, splitting, editing, or securing your files.",
+      "step2Title": "Add Your Files",
+      "step2Desc": "Drag and drop your PDF files directly into your browser window. Everything stays local in memory.",
+      "step3Title": "Process & Download",
+      "step3Desc": "Your PDF is processed instantly on your hardware. Click download to save the result immediately."
+    },
+    "faq": {
+      "badge": "Frequently Asked Questions",
+      "title": "Got Questions? We Have Answers.",
+      "subtitle": "Everything you need to know about PDFMinty's private, in-browser PDF tools.",
+      "items": [
+        {
+          "q": "How does PdfMinty process my PDF files privately?",
+          "a": "PdfMinty executes our standard PDF tools (merging, splitting, compressing, editing, signing) 100% locally inside your web browser using WebAssembly and client-side JavaScript without uploading files to any server. The only exception is the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box."
+        },
+        {
+          "q": "Is PdfMinty completely free to use?",
+          "a": "Yes, 100% free with no hidden fees, subscriptions, usage limits, or account registration required."
+        },
+        {
+          "q": "Do my files ever leave my computer or mobile device?",
+          "a": "For our standard PDF tools, no — processing happens entirely in your local browser memory and works offline. The only exception is the AI Analyze tool, which only sends extracted text to Google Gemini after you explicitly check a consent box."
+        },
+        {
+          "q": "What file formats and PDF versions are supported?",
+          "a": "PdfMinty supports standard PDF documents across all versions, including password-protected PDFs, scanned document pages, and standard image formats (JPEG, PNG, WebP) for PDF conversion."
+        },
+        {
+          "q": "How does PdfMinty compare to online converters like iLovePDF or Smallpdf?",
+          "a": "Traditional PDF converters upload your confidential documents to external cloud servers to process them. PdfMinty processes standard tools locally on your own CPU and memory, eliminating privacy risks and server wait times."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to manage your PDFs with total privacy?",
+      "subtitle": "Select any tool above to process your documents privately on your device. Fast performance, no subscriptions, and privacy-first client-side processing.",
+      "button": "Explore All Tools"
+    }
+  },
+  "tools": {
+    "merge-pdf": {
+      "name": "Merge PDF",
+      "desc": "Combine multiple PDF files into one single document in seconds."
+    },
+    "split-pdf": {
+      "name": "Split PDF",
+      "desc": "Extract pages or split a PDF into separate files by custom ranges."
+    },
+    "rotate-pdf": {
+      "name": "Rotate PDF",
+      "desc": "Rotate specific pages or entire PDF documents clockwise or counter-clockwise."
+    },
+    "delete-pages-pdf": {
+      "name": "Delete Pages",
+      "desc": "Remove unwanted pages from your PDF file cleanly with a visual selector."
+    },
+    "extract-pages-pdf": {
+      "name": "Extract Pages",
+      "desc": "Select and save specific pages as an independent, lightweight PDF."
+    },
+    "reorder-pdf": {
+      "name": "Reorder PDF Pages",
+      "desc": "Drag and drop page thumbnails to rearrange your document's page order."
+    },
+    "grayscale-pdf": {
+      "name": "Grayscale PDF",
+      "desc": "Convert color documents into clean black-and-white or grayscale for printer ink saving."
+    },
+    "flatten-pdf": {
+      "name": "Flatten PDF",
+      "desc": "Lock form fields, digital layers, and annotations permanently into standard PDF pages."
+    },
+    "image-to-pdf": {
+      "name": "Image to PDF",
+      "desc": "Convert JPG, PNG, WEBP, and TIFF images into a single professional PDF."
+    },
+    "pdf-to-image": {
+      "name": "PDF to Images",
+      "desc": "Export high-resolution JPG or PNG pictures from any page in your PDF document."
+    },
+    "protect-pdf": {
+      "name": "Protect PDF",
+      "desc": "Encrypt your PDF with AES-256 password protection to restrict unauthorized viewing."
+    },
+    "unlock-pdf": {
+      "name": "Unlock PDF",
+      "desc": "Remove owner passwords and printing or editing restrictions from your secured PDF files."
+    },
+    "watermark-pdf": {
+      "name": "Watermark PDF",
+      "desc": "Stamp customized confidential or draft text watermarks across document pages."
+    },
+    "add-page-numbers": {
+      "name": "Page Numbers",
+      "desc": "Insert formatted numbering in header or footer positions with customizable offsets."
+    },
+    "add-blank-page": {
+      "name": "Add Blank Page",
+      "desc": "Insert blank document pages before, after, or between existing content."
+    },
+    "edit-pdf-metadata": {
+      "name": "Edit PDF Metadata",
+      "desc": "View and modify document Title, Author, Subject, Keywords, and Creator properties."
+    },
+    "sanitize-pdf": {
+      "name": "Sanitize PDF",
+      "desc": "Strip hidden metadata, XML records, JavaScript code, and embedded links completely."
+    },
+    "pdf-to-markdown": {
+      "name": "PDF to Markdown",
+      "desc": "Extract clean structural Markdown text, headings, and lists directly from your PDF."
+    },
+    "sign-pdf": {
+      "name": "Sign PDF",
+      "desc": "Draw, type, or upload your handwritten digital signature onto any PDF page securely."
+    },
+    "ocr-pdf": {
+      "name": "OCR PDF",
+      "desc": "Recognize and extract searchable text from scanned paper documents and photo PDFs."
+    },
+    "ai-analyze-pdf": {
+      "name": "AI Analyze PDF",
+      "desc": "Summarize contracts, query data points, and extract insights using browser-safe AI."
+    },
+    "repair-pdf": {
+      "name": "Repair PDF",
+      "desc": "Rebuild damaged cross-reference tables and recover readable text from corrupted files."
+    }
+  },
+  "auto": {},
+  "signPdf": {
+    "title": "पीडीएफ पर हस्ताक्षर करें (Sign PDF)",
+    "description": "दस्तावेज़ों पर डिजिटल हस्ताक्षर करने का आसान टूल। अपना हस्ताक्षर बनाएं, टाइप करें या अपलोड करें, इसे पेज पर कहीं भी रखें और हस्ताक्षरित पीडीएफ डाउनलोड करें।",
+    "selectPdf": "पीडीएफ फ़ाइल चुनें",
+    "orDropPdf": "या यहाँ पीडीएफ फ़ाइल ड्रॉप करें",
+    "featurePrivateTitle": "गोपनीयता सबसे पहले",
+    "featurePrivateBody": "आपकी पीडीएफ फाइल आपके ब्राउज़र से बाहर नहीं जाती। सब कुछ आपके डिवाइस पर ही प्रोसेस होता है।",
+    "featureInstantTitle": "तुरंत और तेज़",
+    "featureInstantBody": "कोई सर्वर अपलोड नहीं, कोई इंतज़ार नहीं। कुछ ही सेकंड में हस्ताक्षर जोड़ें और डाउनलोड करें।",
+    "featureQualityTitle": "वेक्टर गुणवत्ता",
+    "featureQualityBody": "हस्ताक्षर और टेक्स्ट मूल पीडीएफ में उच्च रिज़ॉल्यूशन के साथ जोड़े जाते हैं।",
+    "guideTitle": "पीडीएफ दस्तावेज़ों पर इलेक्ट्रॉनिक हस्ताक्षर करने की पूरी गाइड",
+    "guideLead": "कानूनी रूप से मान्य डिजिटल हस्ताक्षर बनाएं और बिना किसी सर्वर अपलोड के सीधे अपने ब्राउज़र में अनुबंधों, फॉर्मों या समझौतों पर जोड़ें।",
+    "methodsTitle": "हस्ताक्षर जोड़ने के 3 आसान तरीके",
+    "methodDrawTitle": "हाथ से बनाया गया हस्ताक्षर",
+    "methodDrawDesc": "टचस्क्रीन, माउस या ट्रैकपैड का उपयोग करके अपनी पसंद की मोटाई में प्राकृतिक और सहज हस्ताक्षर बनाएं।",
+    "methodTypeTitle": "स्टाइलिश फॉन्ट में टाइप करें",
+    "methodTypeDesc": "अपना कानूनी नाम टाइप करें और Dancing Script, Great Vibes या Pacifico जैसे सुंदर फॉन्ट में काला, नीला या लाल रंग चुनें।",
+    "methodUploadTitle": "फोटो या स्कैन किया हस्ताक्षर अपलोड करें",
+    "methodUploadDesc": "अपने हस्ताक्षर की फोटो या पीएनजी अपलोड करें। PdfMinty सफेद बैकग्राउंड को हटाकर केवल पारदर्शी हस्ताक्षर को दस्तावेज़ पर जोड़ता है।",
+    "stepsTitle": "3 आसान चरणों में अपनी पीडीएफ पर हस्ताक्षर करें",
+    "step1Bold": "पीडीएफ फाइल अपलोड करें:",
+    "step1Text": "अपने अनुबंध या फॉर्म को सुरक्षित ब्राउज़र व्यूअर में डालें। 50MB तक की फाइलें समर्थित हैं।",
+    "step2Bold": "तत्व बनाएं और रखें:",
+    "step2Text": "अपना हस्ताक्षर या इनिशियल्स बनाएं, फिर हस्ताक्षर, नाम, तिथि या टेक्स्ट फील्ड को सीधे पेज पर रखें।",
+    "step3Bold": "एडजस्ट करें और डाउनलोड करें:",
+    "step3Text": "किसी भी फील्ड को सटीक रूप से घुमाएं, रीसाइज करें या मूव करें, फिर 'हस्ताक्षर करें और डाउनलोड करें' पर क्लिक करें।",
+    "privacyTitle": "🔒 100% क्लाइंट-साइड गोपनीयता और सुरक्षा",
+    "privacyText": "आपके दस्तावेज़ और हस्ताक्षर आपके लोकल डिवाइस पर पूरी तरह सुरक्षित रहते हैं। कोई भी डेटा किसी क्लाउड सर्वर पर नहीं भेजा जाता।",
+    "errors": {
+      "choosePdf": "कृपया एक पीडीएफ फाइल चुनें।",
+      "fileTooLarge": "यह पीडीएफ फाइल 50 MB से बड़ी है।",
+      "cannotOpen": "यह फाइल खोली नहीं जा सकी। कृपया कोई दूसरी पीडीएफ चुनें।",
+      "exportFailed": "हस्ताक्षरित पीडीएफ नहीं बन सकी। कृपया पुनः प्रयास करें।"
+    },
+    "header": {
+      "pageCount": "{{count}} पेज",
+      "pagesCount": "{{count}} पेज",
+      "zoomOut": "ज़ूम आउट",
+      "zoomIn": "ज़ूम इन"
+    },
+    "sidebar": {
+      "signingOptions": "हस्ताक्षर विकल्प",
+      "yourSignature": "आपका हस्ताक्षर",
+      "change": "बदलें",
+      "create": "बनाएं",
+      "clickToSet": "हस्ताक्षर सेट करने के लिए क्लिक करें",
+      "fields": "फील्ड्स",
+      "fieldsHelp": "फील्ड पर क्लिक करें और फिर दस्तावेज़ में जहां चाहें वहां क्लिक करें, या सीधे ड्रैग करें।",
+      "dateFormat": "तारीख का प्रारूप",
+      "dateHelp": "हर डाले गए डेट फील्ड पर लागू होगा।",
+      "signButton": "हस्ताक्षर करें और डाउनलोड करें",
+      "signing": "हस्ताक्षर हो रहा है…",
+      "placeFieldPrompt": "आगे बढ़ने के लिए कम से कम एक फील्ड रखें",
+      "fieldsPlaced": "{{count}} फील्ड जोड़ा गया",
+      "fieldsPlaced_plural": "{{count}} फील्ड जोड़े गए",
+      "chooseAnother": "दूसरी फाइल चुनें"
+    },
+    "fields": {
+      "signature": "हस्ताक्षर",
+      "initials": "संक्षिप्त नाम (Initials)",
+      "name": "नाम",
+      "date": "तारीख",
+      "text": "टेक्स्ट"
+    },
+    "dialog": {
+      "title": "हस्ताक्षर विवरण सेट करें",
+      "desc": "दस्तावेज़ पर लगाने के लिए अपना हस्ताक्षर और संक्षिप्त नाम बनाएं।",
+      "fullName": "पूरा नाम",
+      "namePlaceholder": "उदा. राहुल शर्मा",
+      "initials": "संक्षिप्त नाम (Initials)",
+      "tabType": "टाइप करें",
+      "tabDraw": "बनाएं",
+      "tabUpload": "अपलोड करें",
+      "color": "स्याही का रंग",
+      "yourName": "आपका नाम",
+      "signature": "हस्ताक्षर",
+      "clear": "साफ़ करें",
+      "drawHere": "यहाँ हस्ताक्षर करें",
+      "clickOrDrop": "क्लिक करें या यहाँ इमेज डालें",
+      "removeBg": "सफेद बैकग्राउंड हटाएं",
+      "cancel": "रद्द करें",
+      "apply": "लागू करें",
+      "enterNameError": "कृपया अपना पूरा नाम दर्ज करें।",
+      "drawSigError": "कृपया अपना हस्ताक्षर बनाएं।",
+      "uploadSigError": "कृपया एक हस्ताक्षर छवि अपलोड करें।",
+      "imageReadError": "छवि नहीं पढ़ी जा सकी।"
+    },
+    "fieldView": {
+      "doubleClickToEdit": "संपादित करने के लिए दो बार क्लिक करें",
+      "rotateAria": "हस्ताक्षर घुमाएं। घुमाने के लिए ड्रैग करें या 90 डिग्री मोड़ने के लिए टैप करें।",
+      "removeAria": "फील्ड हटाएं",
+      "fieldAria": "{{kind}} फील्ड। स्थानांतरित करने के लिए खींचें, घुमाएं, तीर कुंजियों से खिसकाएं, हटाने के लिए Delete दबाएं।",
+      "pageAria": "पेज {{page}}"
+    }
+  }
+}

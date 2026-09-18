@@ -177,91 +177,244 @@
   "tools": {
     "merge-pdf": {
       "name": "Unir PDF",
-      "desc": "Combina varios archivos PDF en un solo documento en segundos."
+      "desc": "Combina múltiples archivos PDF en un solo documento en segundos.",
+      "h1": "Unir Archivos PDF Gratis — Combinar Documentos Online"
     },
     "split-pdf": {
       "name": "Dividir PDF",
-      "desc": "Extrae páginas o divide un PDF en archivos separados por rangos."
+      "desc": "Extrae páginas o divide un PDF en archivos independientes por rangos.",
+      "h1": "Dividir PDF Gratis — Separar y Extraer Páginas Online"
     },
     "rotate-pdf": {
-      "name": "Rotar PDF",
-      "desc": "Gira páginas específicas o documentos PDF completos en sentido horario o antihorario."
+      "name": "Girar PDF",
+      "desc": "Gira páginas específicas o documentos PDF completos en cualquier sentido.",
+      "h1": "Girar Páginas PDF Online — Corregir Orientación Gratis"
     },
     "delete-pages-pdf": {
-      "name": "Eliminar páginas",
-      "desc": "Elimina páginas no deseadas de tu archivo PDF con un selector visual."
+      "name": "Eliminar Páginas",
+      "desc": "Elimina páginas no deseadas de tu archivo PDF de forma visual y rápida.",
+      "h1": "Eliminar Páginas de PDF — Quitar Páginas Gratis"
     },
     "extract-pages-pdf": {
-      "name": "Extraer páginas",
-      "desc": "Selecciona y guarda páginas específicas como un PDF independiente."
+      "name": "Extraer Páginas",
+      "desc": "Selecciona y guarda páginas específicas como un PDF independiente.",
+      "h1": "Extraer Páginas de PDF — Guardar Páginas Específicas"
     },
     "reorder-pdf": {
-      "name": "Reordenar páginas PDF",
-      "desc": "Arrastra y suelta miniaturas de páginas para reorganizar el orden de tu documento."
+      "name": "Reordenar Páginas",
+      "desc": "Arrastra y suelta miniaturas para reorganizar el orden de las páginas.",
+      "h1": "Reordenar Páginas PDF — Organizar Documento Gratis"
     },
     "grayscale-pdf": {
-      "name": "PDF en escala de grises",
-      "desc": "Convierte documentos a color en blanco y negro o escala de grises para ahorrar tinta."
+      "name": "PDF en Escala de Grises",
+      "desc": "Convierte documentos a color en blanco y negro limpio para ahorrar tinta.",
+      "h1": "Convertir PDF a Escala de Grises — Blanco y Negro Gratis"
     },
     "flatten-pdf": {
       "name": "Aplanar PDF",
-      "desc": "Bloquea campos de formulario, capas y anotaciones permanentemente en páginas PDF estándar."
+      "desc": "Bloquea permanentemente campos de formulario, capas y anotaciones.",
+      "h1": "Aplanar PDF Online — Bloquear Formularios y Capas Gratis"
     },
     "image-to-pdf": {
       "name": "Imagen a PDF",
-      "desc": "Convierte imágenes JPG, PNG, WEBP y TIFF en un único documento PDF profesional."
+      "desc": "Convierte imágenes JPG, PNG y WEBP en un PDF profesional.",
+      "h1": "Convertir JPG a PDF Online — Imágenes a PDF Gratis"
     },
     "pdf-to-image": {
-      "name": "PDF a imágenes",
-      "desc": "Exporta imágenes JPG o PNG de alta resolución desde cualquier página de tu PDF."
+      "name": "PDF a Imágenes",
+      "desc": "Exporta imágenes JPG o PNG de alta resolución desde cualquier página de tu PDF.",
+      "h1": "Convertir PDF a JPG Online — PDF a Imagen Gratis"
     },
     "protect-pdf": {
       "name": "Proteger PDF",
-      "desc": "Cifra tu PDF con protección de contraseña AES-256 para restringir el acceso."
+      "desc": "Protege tu PDF con contraseña y cifrado AES de alta seguridad.",
+      "h1": "Proteger PDF con Contraseña — Encriptar PDF Online Gratis"
     },
     "unlock-pdf": {
       "name": "Desbloquear PDF",
-      "desc": "Elimina contraseñas y restricciones de impresión o edición de tus archivos PDF."
+      "desc": "Elimina contraseñas y restricciones de seguridad de tus archivos PDF.",
+      "h1": "Desbloquear PDF Online — Quitar Contraseña Gratis"
     },
     "watermark-pdf": {
-      "name": "Marca de agua PDF",
-      "desc": "Añade marcas de agua personalizadas (Confidencial, Borrador) en las páginas de tu PDF."
+      "name": "Marca de Agua en PDF",
+      "desc": "Añade marcas de agua de texto personalizadas en las páginas de tu documento.",
+      "h1": "Añadir Marca de Agua a PDF — Texto Personalizado Gratis"
     },
     "add-page-numbers": {
-      "name": "Números de página",
-      "desc": "Inserta numeración con formato en encabezados o pies de página personalizables."
+      "name": "Números de Página",
+      "desc": "Inserta numeración en el encabezado o pie de página con posición adaptable.",
+      "h1": "Añadir Números de Página a PDF — Encabezado y Pie Gratis"
     },
     "add-blank-page": {
-      "name": "Añadir página en blanco",
-      "desc": "Inserta páginas en blanco antes, después o entre el contenido existente."
+      "name": "Añadir Página en Blanco",
+      "desc": "Inserta páginas en blanco antes, después o entre páginas existentes.",
+      "h1": "Añadir Páginas en Blanco a PDF — Insertar Páginas Gratis"
     },
     "edit-pdf-metadata": {
-      "name": "Editar metadatos PDF",
-      "desc": "Ver y modificar el título, autor, asunto, palabras clave y creador del PDF."
+      "name": "Editar Metadatos de PDF",
+      "desc": "Modifica el título, autor, asunto y palabras clave de tu PDF fácilmente.",
+      "h1": "Editar Metadatos PDF Online — Cambiar Autor y Título Gratis"
     },
     "sanitize-pdf": {
       "name": "Sanitizar PDF",
-      "desc": "Elimina metadatos ocultos, registros XML, código JavaScript y enlaces incrustados."
+      "desc": "Elimina metadatos ocultos, scripts de JavaScript y enlaces incrustados.",
+      "h1": "Sanitizar PDF Online — Eliminar Metadatos Ocultos Gratis"
     },
     "pdf-to-markdown": {
       "name": "PDF a Markdown",
-      "desc": "Extrae texto Markdown limpio, encabezados y listas directamente desde tu PDF."
+      "desc": "Extrae texto formateado en Markdown, títulos y listas directamente de tu PDF.",
+      "h1": "Convertir PDF a Markdown Online — Extraer Texto Gratis"
     },
     "sign-pdf": {
       "name": "Firmar PDF",
-      "desc": "Dibuja, escribe o sube tu firma digital manuscrita en cualquier página de PDF."
+      "desc": "Dibuja, escribe o sube tu firma digital en cualquier página de tu PDF con seguridad.",
+      "h1": "Firmar PDF Online Gratis — Añadir Firma Electrónica"
     },
     "ocr-pdf": {
       "name": "OCR PDF",
-      "desc": "Reconoce y extrae texto editable de documentos escaneados y PDFs con fotos."
+      "desc": "Reconoce y extrae texto editable de documentos escaneados y PDFs con fotos.",
+      "h1": "OCR PDF Online — Convertir PDF Escaneado a Texto Gratis"
     },
     "ai-analyze-pdf": {
       "name": "Analizar PDF con IA",
-      "desc": "Resume contratos, consulta datos y extrae información valiosa con IA segura."
+      "desc": "Resume contratos, consulta datos y extrae información con IA segura.",
+      "h1": "Analizar PDF con IA — Chatear y Resumir Documentos Online"
     },
     "repair-pdf": {
       "name": "Reparar PDF",
-      "desc": "Reconstruye tablas de referencia cruzada dañadas y recupera texto legible de archivos corruptos."
+      "desc": "Reconstruye tablas dañadas y recupera texto legible de archivos corruptos.",
+      "h1": "Reparar PDF Online — Arreglar Archivos Dañados Gratis"
+    }
+  },
+  "toolCommon": {
+    "returnToDashboard": "Volver al Panel",
+    "limit": "Límite: {{limit}}MB",
+    "selectPdf": "Selecciona un PDF para comenzar",
+    "changeFile": "Cambiar Archivo",
+    "settings": "Configuración",
+    "options": "Opciones",
+    "process": "Procesar",
+    "processing": "Procesando...",
+    "download": "Descargar Archivo",
+    "downloadAll": "Descargar Todo",
+    "reset": "Empezar de Nuevo",
+    "success": "¡Completado con éxito! Descarga a continuación.",
+    "error": "Ocurrió un error al procesar el archivo.",
+    "fileInfo": "{{name}} ({{size}} MB)",
+    "pageRange": "Rango de páginas",
+    "allPages": "Todas las páginas",
+    "selectedPages": "Páginas seleccionadas",
+    "preview": "Vista previa",
+    "apply": "Aplicar cambios"
+  },
+  "fileUploader": {
+    "dragDrop": "Arrastra y suelta tus archivos aquí",
+    "orBrowse": "o haz clic para explorar desde tu dispositivo",
+    "clientSide": "🔒 Procesamiento 100% local en tu navegador",
+    "localMemory": "Solo en memoria local del navegador",
+    "maxSize": "Tamaño máximo: {{size}}MB",
+    "chooseFile": "Examinar archivos",
+    "selectPdf": "Selecciona un archivo PDF"
+  },
+  "emptyState": {
+    "title": "Sube un PDF para comenzar",
+    "desc": "Elige un documento arriba para procesar, editar o configurar con esta herramienta."
+  },
+  "auto": {},
+  "signPdf": {
+    "title": "Firmar PDF",
+    "description": "Tu herramienta para firmar documentos digitalmente. Dibuja, escribe o sube tu firma, colócala en cualquier lugar de la página y descarga el PDF firmado.",
+    "selectPdf": "Seleccionar archivo PDF",
+    "orDropPdf": "o arrastra un PDF aquí",
+    "featurePrivateTitle": "Privacidad garantizada",
+    "featurePrivateBody": "Tu PDF nunca sale de tu navegador. Todo se procesa localmente en tu dispositivo.",
+    "featureInstantTitle": "Instantáneo",
+    "featureInstantBody": "Sin cargas a servidores, sin esperas. Coloca tu firma y descarga en cuestión de segundos.",
+    "featureQualityTitle": "Calidad vectorial",
+    "featureQualityBody": "Las firmas y los textos se incrustan en resolución nativa completa en el PDF original.",
+    "guideTitle": "Guía completa para firmar documentos PDF electrónicamente",
+    "guideLead": "Crea fácilmente firmas electrónicas válidas y colócalas en contratos, acuerdos, contratos de arrendamiento o solicitudes de empleo directamente en tu navegador sin subir archivos a ningún servidor.",
+    "methodsTitle": "3 formas prácticas de añadir tu firma",
+    "methodDrawTitle": "Firma dibujada a mano",
+    "methodDrawDesc": "Usa tu ratón, panel táctil o el dedo/lápiz en pantallas táctiles para trazar una firma natural y suave con grosor de tinta personalizado.",
+    "methodTypeTitle": "Escribir con caligrafía",
+    "methodTypeDesc": "Escribe tu nombre legal y elige entre hermosas fuentes cursivas como Dancing Script, Great Vibes y Pacifico con tinta negra, azul o roja.",
+    "methodUploadTitle": "Subir imagen o firma escaneada",
+    "methodUploadDesc": "Sube una foto o PNG de tu firma. PdfMinty elimina automáticamente el fondo blanco para que solo la tinta de tu firma se coloque de forma transparente en el documento.",
+    "stepsTitle": "Cómo firmar tu PDF en 3 sencillos pasos",
+    "step1Bold": "Sube el documento PDF:",
+    "step1Text": "Arrastra tu contrato o formulario al visor seguro del navegador. Compatible con archivos de hasta 50 MB.",
+    "step2Bold": "Crea y coloca elementos:",
+    "step2Text": "Crea tu firma o iniciales, luego haz clic o arrastra los campos de firma, nombre, fecha o texto libre directamente a la página.",
+    "step3Bold": "Ajusta y descarga:",
+    "step3Text": "Gira, cambia el tamaño o reposiciona cualquier campo con precisión milimétrica y haz clic en 'Firmar y Descargar' para guardar tu documento firmado al instante.",
+    "privacyTitle": "🔒 100% privacidad y seguridad del lado del cliente",
+    "privacyText": "Tus documentos y firmas permanecen estrictamente confidenciales en tu dispositivo local. Nunca se envía ningún archivo a servidores en la nube.",
+    "errors": {
+      "choosePdf": "Por favor, selecciona un archivo PDF.",
+      "fileTooLarge": "Este archivo PDF supera el límite de 50 MB.",
+      "cannotOpen": "No se pudo abrir este archivo. Por favor, prueba con otro PDF.",
+      "exportFailed": "No se pudo generar el PDF firmado. Por favor, inténtalo de nuevo."
+    },
+    "header": {
+      "pageCount": "{{count}} página",
+      "pagesCount": "{{count}} páginas",
+      "zoomOut": "Alejar",
+      "zoomIn": "Acercar"
+    },
+    "sidebar": {
+      "signingOptions": "Opciones de firma",
+      "yourSignature": "Tu firma",
+      "change": "Cambiar",
+      "create": "Crear",
+      "clickToSet": "Haz clic para configurar tu firma",
+      "fields": "Campos",
+      "fieldsHelp": "Haz clic en un campo y luego en el documento para colocarlo, o arrástralo directamente a una página.",
+      "dateFormat": "Formato de fecha",
+      "dateHelp": "Se aplicará a cada campo de fecha que coloques.",
+      "signButton": "Firmar y Descargar",
+      "signing": "Firmando…",
+      "placeFieldPrompt": "Coloca al menos un campo para continuar",
+      "fieldsPlaced": "{{count}} campo colocado",
+      "fieldsPlaced_plural": "{{count}} campos colocados",
+      "chooseAnother": "Elegir otro archivo"
+    },
+    "fields": {
+      "signature": "Firma",
+      "initials": "Iniciales",
+      "name": "Nombre",
+      "date": "Fecha",
+      "text": "Texto"
+    },
+    "dialog": {
+      "title": "Configurar los detalles de tu firma",
+      "desc": "Crea la firma y las iniciales que colocarás en el documento.",
+      "fullName": "Nombre completo",
+      "namePlaceholder": "ej. Carlos Rodríguez",
+      "initials": "Iniciales",
+      "tabType": "Escribir",
+      "tabDraw": "Dibujar",
+      "tabUpload": "Subir imagen",
+      "color": "Color de tinta",
+      "yourName": "Tu nombre",
+      "signature": "Firma",
+      "clear": "Borrar",
+      "drawHere": "Firma aquí",
+      "clickOrDrop": "Haz clic o arrastra una imagen aquí",
+      "removeBg": "Eliminar fondo blanco",
+      "cancel": "Cancelar",
+      "apply": "Aplicar",
+      "enterNameError": "Por favor, introduce tu nombre completo.",
+      "drawSigError": "Por favor, dibuja tu firma.",
+      "uploadSigError": "Por favor, sube una imagen de tu firma.",
+      "imageReadError": "No se pudo leer la imagen."
+    },
+    "fieldView": {
+      "doubleClickToEdit": "Doble clic para editar",
+      "rotateAria": "Girar firma. Arrastra para girar o toca para girar 90 grados.",
+      "removeAria": "Eliminar campo",
+      "fieldAria": "Campo de {{kind}}. Arrastra para mover, girar, flechas para ajustar, Supr para eliminar.",
+      "pageAria": "Página {{page}}"
     }
   }
 }

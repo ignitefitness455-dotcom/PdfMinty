@@ -19,12 +19,14 @@ import {
   Minimize2,
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import SEO from '../components/SEO';
 import { ROUTES } from '../config/routes';
 
 export const AdobeAlternativePage: React.FC = () => {
+  const { t } = useTranslation('common');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const toggleFaq = (index: number) => {
@@ -33,25 +35,25 @@ export const AdobeAlternativePage: React.FC = () => {
 
   const tasks = [
     {
-      title: 'Merging files before you send them',
+      title: t('adobeAlternative.task0'),
       href: ROUTES.MERGE,
       icon: Layers,
       color: 'text-emerald-500 bg-emerald-500/10',
     },
     {
-      title: 'Splitting a large PDF into sections',
+      title: t('adobeAlternative.task1'),
       href: ROUTES.SPLIT,
       icon: Scissors,
       color: 'text-sky-500 bg-sky-500/10',
     },
     {
-      title: 'Shrinking a file for an email attachment limit',
+      title: t('adobeAlternative.task2'),
       href: ROUTES.GRAYSCALE,
       icon: Minimize2,
       color: 'text-indigo-500 bg-indigo-500/10',
     },
     {
-      title: 'Fixing page orientation',
+      title: t('adobeAlternative.task3'),
       href: ROUTES.ROTATE,
       icon: RotateCw,
       color: 'text-amber-500 bg-amber-500/10',
@@ -63,43 +65,43 @@ export const AdobeAlternativePage: React.FC = () => {
       color: 'text-rose-500 bg-rose-500/10',
     },
     {
-      title: 'Adding a watermark or stamp',
+      title: t('adobeAlternative.task5'),
       href: ROUTES.WATERMARK,
       icon: Stamp,
       color: 'text-purple-500 bg-purple-500/10',
     },
     {
-      title: 'Numbering pages',
+      title: t('adobeAlternative.task6'),
       href: ROUTES.PAGE_NUMBERS,
       icon: Hash,
       color: 'text-blue-500 bg-blue-500/10',
     },
     {
-      title: 'Inserting a blank page',
+      title: t('adobeAlternative.task7'),
       href: ROUTES.ADD_BLANK,
       icon: PlusSquare,
       color: 'text-teal-500 bg-teal-500/10',
     },
     {
-      title: 'Password-protecting a sensitive file',
+      title: t('adobeAlternative.task8'),
       href: ROUTES.PROTECT,
       icon: Lock,
       color: 'text-emerald-600 bg-emerald-600/10',
     },
     {
-      title: 'Removing a password you own',
+      title: t('adobeAlternative.task9'),
       href: ROUTES.UNLOCK,
       icon: KeyRound,
       color: 'text-cyan-500 bg-cyan-500/10',
     },
     {
-      title: 'Turning images into a PDF',
+      title: t('adobeAlternative.task10'),
       href: ROUTES.IMG_TO_PDF,
       icon: Image,
       color: 'text-orange-500 bg-orange-500/10',
     },
     {
-      title: 'Turning PDF pages into images',
+      title: t('adobeAlternative.task11'),
       href: ROUTES.PDF_TO_IMG,
       icon: FileImage,
       color: 'text-pink-500 bg-pink-500/10',
@@ -114,36 +116,36 @@ export const AdobeAlternativePage: React.FC = () => {
 
   const faqs = [
     {
-      q: 'Is PDFMinty really free, or is there a paid tier later?',
-      a: "Every tool on PDFMinty is free with no account and no watermark. There's no hidden upgrade wall, monthly subscription, or credit-card required.",
+      q: t('adobeAlternative.faq0Q'),
+      a: t('adobeAlternative.faq0A'),
     },
     {
-      q: 'Do I need to sign up or install anything?',
-      a: 'No. Open the tool in your browser and use it. Nothing to download, nothing to register, and no background software daemons running on your machine.',
+      q: t('adobeAlternative.faq1Q'),
+      a: t('adobeAlternative.faq1A'),
     },
     {
-      q: 'Where do my files go when I use PDFMinty?',
-      a: 'Nowhere but your own device for standard PDF tools. Processing happens locally in your browser memory via WebAssembly without cloud file uploads.',
+      q: t('adobeAlternative.faq2Q'),
+      a: t('adobeAlternative.faq2A'),
     },
     {
-      q: 'Can PDFMinty fully replace Adobe Acrobat?',
-      a: "For merging, splitting, compressing, rotating, watermarking, password protection, metadata sanitization, and image/PDF conversion — yes, for virtually all everyday office tasks. If you strictly require commercial prepress CMYK color separations, legacy XFA dynamic forms, or hardware PKI smartcards, retain Acrobat.",
+      q: t('adobeAlternative.faq3Q'),
+      a: t('adobeAlternative.faq3A'),
     },
     {
-      q: 'Is a browser-based tool as safe as a desktop app?',
-      a: "Since your file never leaves your device, there's no upload step and no server storing a copy of your document — see our related post on PDF tool security for the full picture, including the limits of that claim.",
+      q: t('adobeAlternative.faq4Q'),
+      a: t('adobeAlternative.faq4A'),
     },
     {
-      q: 'Does PDFMinty work when offline or on an airplane?',
-      a: 'Yes! PDFMinty is built as a Progressive Web App (PWA). Once loaded in your browser, its WebAssembly engine and scripts are cached by the browser Service Worker, allowing full offline execution without Wi-Fi.',
+      q: t('adobeAlternative.faq5Q'),
+      a: t('adobeAlternative.faq5A'),
     },
     {
-      q: 'Are electronic signatures made on PDFMinty legally valid?',
-      a: 'Yes. Under the US ESIGN Act and EU eIDAS regulations for Simple Electronic Signatures (SES), signatures drawn and flattened directly into documents carry full legal enforceability for standard agreements and NDAs.',
+      q: t('adobeAlternative.faq6Q'),
+      a: t('adobeAlternative.faq6A'),
     },
     {
-      q: 'How does client-side compression achieve up to 80% file size reduction?',
-      a: 'By converting heavy color profiles to grayscale, resampling raster images to high-density screen resolutions, and applying lossless Flate stream compression entirely in local browser memory.',
+      q: t('adobeAlternative.faq7Q'),
+      a: t('adobeAlternative.faq7A'),
     },
   ];
 
@@ -162,18 +164,18 @@ export const AdobeAlternativePage: React.FC = () => {
           className="inline-flex items-center gap-1.5 text-xs font-bold text-on-surface-variant hover:text-emerald-500 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to All PDF Tools</span>
+          <span>{t('adobeAlternative.backToTools', { defaultValue: 'Back to All PDF Tools' })}</span>
         </Link>
 
         {/* Hero Section */}
         <header className="text-center space-y-6 pt-2 pb-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide uppercase">
             <Sparkles className="w-4 h-4" />
-            <span>Free Adobe Acrobat Alternative</span>
+            <span>{t('adobeAlternative.alternativeSubtitle', { defaultValue: 'Free Adobe Acrobat Alternative' })}</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-on-surface tracking-tight leading-tight max-w-3xl mx-auto">
-            Adobe Acrobat costs <span className="text-rose-500 line-through">$240/year</span>. PDFMinty costs <span className="text-emerald-500">$0 — forever</span>.
+            <span dangerouslySetInnerHTML={{ __html: t('adobeAlternative.pricingStrike') }} />
           </h1>
 
           <p className="text-base sm:text-xl font-medium text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
@@ -185,18 +187,18 @@ export const AdobeAlternativePage: React.FC = () => {
               href="#pick-your-task"
               className="inline-flex items-center gap-2.5 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base rounded-2xl transition-all shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:translate-y-0"
             >
-              <span>Start with any tool</span>
+              <span>{t('adobeAlternative.startWithAnyTool', { defaultValue: 'Start with any tool' })}</span>
               <ArrowRight className="w-5 h-5" />
             </a>
 
             <div className="text-xs sm:text-sm font-semibold text-on-surface-variant/80 flex flex-wrap justify-center items-center gap-2 sm:gap-3 pt-2">
-              <span>No account required</span>
+              <span>{t('adobeAlternative.noAccount', { defaultValue: 'No account required' })}</span>
               <span className="text-border-muted">•</span>
-              <span>No file uploads</span>
+              <span>{t('adobeAlternative.noUploads', { defaultValue: 'No file uploads' })}</span>
               <span className="text-border-muted">•</span>
-              <span>No watermarks</span>
+              <span>{t('adobeAlternative.noWatermarks', { defaultValue: 'No watermarks' })}</span>
               <span className="text-border-muted">•</span>
-              <span>No subscription</span>
+              <span>{t('adobeAlternative.noSubscription', { defaultValue: 'No subscription' })}</span>
             </div>
           </div>
         </header>
@@ -217,8 +219,8 @@ export const AdobeAlternativePage: React.FC = () => {
             <table className="w-full text-left text-xs sm:text-sm border-collapse">
               <thead>
                 <tr className="border-b border-border-muted bg-surface-container-high/60">
-                  <th className="py-4 px-4 sm:px-6 font-bold text-on-surface">Feature</th>
-                  <th className="py-4 px-4 sm:px-6 font-bold text-on-surface w-1/3">Adobe Acrobat Pro</th>
+                  <th className="py-4 px-4 sm:px-6 font-bold text-on-surface">{t("adobeAlternative.featCol")}</th>
+                  <th className="py-4 px-4 sm:px-6 font-bold text-on-surface w-1/3">{t("adobeAlternative.acrobatCol")}</th>
                   <th className="py-4 px-4 sm:px-6 font-bold text-emerald-600 dark:text-emerald-400 w-1/3 bg-emerald-500/5">
                     PDFMinty
                   </th>
@@ -226,94 +228,94 @@ export const AdobeAlternativePage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-border-muted text-on-surface-variant font-medium">
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Annual Price</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.annualPrice")}</td>
                   <td className="py-3.5 px-4 sm:px-6 text-rose-500 font-bold">~$19.99/mo ($239.88/yr)</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-600 dark:text-emerald-400 font-black bg-emerald-500/5">
                     $0 — 100% Free Forever
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Account Required</td>
-                  <td className="py-3.5 px-4 sm:px-6">Mandatory Adobe ID</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.accountReq")}</td>
+                  <td className="py-3.5 px-4 sm:px-6">{t("adobeAlternative.adobeId")}</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/5">
-                    No Signups or Logins Required
+                    {t("adobeAlternative.noSignups")}
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Files Leave Your Device</td>
-                  <td className="py-3.5 px-4 sm:px-6">Yes (Cloud sync & telemetry)</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.filesLeave")}</td>
+                  <td className="py-3.5 px-4 sm:px-6">{t("adobeAlternative.yesCloudSync")}</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/5">
-                    No — 100% in-browser memory sandbox
+                    {t("adobeAlternative.noSandbox")}
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Setup / Installation</td>
-                  <td className="py-3.5 px-4 sm:px-6">2+ GB desktop app + Creative Cloud daemon</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.setupInstall")}</td>
+                  <td className="py-3.5 px-4 sm:px-6">{t("adobeAlternative.adobeHeavyInstall")}</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/5">
-                    Zero install — instant WebAssembly
+                    {t("adobeAlternative.zeroInstall")}
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Merge Multiple PDFs</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅ Combine Files</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">✅ Visual Page Reordering</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.mergePdfs")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">{t("adobeAlternative.combineFiles")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">{t("adobeAlternative.visualReorder")}</td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Split & Page Range Extraction</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅ Organize Pages</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">✅ Visual Page Selection</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.splitRange")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">{t("adobeAlternative.organizePages")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">{t("adobeAlternative.visualSelect")}</td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Grayscale & Compression</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅ Raster Resampling</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">✅ Stream Deflate + B&W (50-80% shrink)</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.grayCompress")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">{t("adobeAlternative.rasterResample")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">{t("adobeAlternative.streamDeflate")}</td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Rotate & Delete Pages</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.rotateDelete")}</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">✅</td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Watermark, Page Numbers, Blank Pages</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.watermarkPages")}</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">✅</td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Password Protect & Unlock</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅ AES-128 / AES-256</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.protectUnlock")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">{t("adobeAlternative.aes128256")}</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/5">
-                    ✅ Client-Side AES Encryption & Unlock
+                    {t("adobeAlternative.clientAes")}
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Metadata Scrubbing & Sanitization</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅ Sanitize Document</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.metaScrub")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">{t("adobeAlternative.sanitizeDoc")}</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/5">
-                    ✅ Scrubs Authors, GPS & Printers
+                    {t("adobeAlternative.scrubGps")}
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Image ↔ PDF Conversion</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.imgConversion")}</td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">✅ High-DPI Canvas Rendering</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">{t("adobeAlternative.highDpiCanvas")}</td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Electronic Signature Stamping</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅ Adobe Acrobat Sign</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">✅ Draw, Type, Stamp & Flatten</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.eSignature")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500">{t("adobeAlternative.adobeSign")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">{t("adobeAlternative.drawFlatten")}</td>
                 </tr>
                 <tr>
-                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">Offline Capability</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-amber-500">Requires 30-day online check</td>
-                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">✅ 100% Offline (PWA Service Worker)</td>
+                  <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">{t("adobeAlternative.offlineCap")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-amber-500">{t("adobeAlternative.requires30Day")}</td>
+                  <td className="py-3.5 px-4 sm:px-6 text-emerald-500 bg-emerald-500/5">{t("adobeAlternative.offlinePwa")}</td>
                 </tr>
                 <tr>
                   <td className="py-3.5 px-4 sm:px-6 font-semibold text-on-surface">
-                    Commercial Prepress CMYK Trapping & XFA Dynamic XML Forms
+                    {t("adobeAlternative.prepressXfa")}
                   </td>
                   <td className="py-3.5 px-4 sm:px-6 text-emerald-500">✅</td>
                   <td className="py-3.5 px-4 sm:px-6 text-on-surface-variant font-medium bg-emerald-500/5">
-                    Not supported — use Acrobat for offset printing
+                    {t("adobeAlternative.notSupportedAcrobat")}
                   </td>
                 </tr>
               </tbody>
@@ -336,19 +338,19 @@ export const AdobeAlternativePage: React.FC = () => {
             <table className="w-full text-left text-xs sm:text-sm border-collapse">
               <thead>
                 <tr className="border-b border-border-muted bg-surface-container-high/60">
-                  <th className="py-3.5 px-4 font-bold text-on-surface">Team Size</th>
-                  <th className="py-3.5 px-4 font-bold text-on-surface">1 Year (Adobe Pro)</th>
-                  <th className="py-3.5 px-4 font-bold text-on-surface">3 Years (Adobe Pro)</th>
-                  <th className="py-3.5 px-4 font-bold text-on-surface">5 Years (Adobe Pro)</th>
+                  <th className="py-3.5 px-4 font-bold text-on-surface">{t("adobeAlternative.teamSize")}</th>
+                  <th className="py-3.5 px-4 font-bold text-on-surface">{t("adobeAlternative.cost1Year")}</th>
+                  <th className="py-3.5 px-4 font-bold text-on-surface">{t("adobeAlternative.cost3Years")}</th>
+                  <th className="py-3.5 px-4 font-bold text-on-surface">{t("adobeAlternative.cost5Years")}</th>
                   <th className="py-3.5 px-4 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">
-                    5 Years (PDFMinty)
+                    {t("adobeAlternative.cost5YearsMinty")}
                   </th>
-                  <th className="py-3.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">Total Savings</th>
+                  <th className="py-3.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">{t("adobeAlternative.totalSavings")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-muted text-on-surface-variant font-medium">
                 <tr>
-                  <td className="py-3 px-4 font-semibold text-on-surface">1 Solo User / Freelancer</td>
+                  <td className="py-3 px-4 font-semibold text-on-surface">{t("adobeAlternative.soloUser")}</td>
                   <td className="py-3 px-4">$239.88</td>
                   <td className="py-3 px-4">$719.64</td>
                   <td className="py-3 px-4 text-rose-500 font-bold">$1,199.40</td>
@@ -356,7 +358,7 @@ export const AdobeAlternativePage: React.FC = () => {
                   <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-bold">+$1,199.40</td>
                 </tr>
                 <tr>
-                  <td className="py-3 px-4 font-semibold text-on-surface">5-Person Small Office</td>
+                  <td className="py-3 px-4 font-semibold text-on-surface">{t("adobeAlternative.team5")}</td>
                   <td className="py-3 px-4">$1,439.40</td>
                   <td className="py-3 px-4">$4,318.20</td>
                   <td className="py-3 px-4 text-rose-500 font-bold">$7,197.00</td>
@@ -364,7 +366,7 @@ export const AdobeAlternativePage: React.FC = () => {
                   <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-bold">+$7,197.00</td>
                 </tr>
                 <tr>
-                  <td className="py-3 px-4 font-semibold text-on-surface">20-Person Department</td>
+                  <td className="py-3 px-4 font-semibold text-on-surface">{t("adobeAlternative.team20")}</td>
                   <td className="py-3 px-4">$5,757.60</td>
                   <td className="py-3 px-4">$17,272.80</td>
                   <td className="py-3 px-4 text-rose-500 font-bold">$28,788.00</td>
@@ -372,7 +374,7 @@ export const AdobeAlternativePage: React.FC = () => {
                   <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-bold">+$28,788.00</td>
                 </tr>
                 <tr>
-                  <td className="py-3 px-4 font-semibold text-on-surface">50-Person Company</td>
+                  <td className="py-3 px-4 font-semibold text-on-surface">{t("adobeAlternative.team50")}</td>
                   <td className="py-3 px-4">$14,394.00</td>
                   <td className="py-3 px-4">$43,182.00</td>
                   <td className="py-3 px-4 text-rose-500 font-bold">$71,970.00</td>
@@ -389,9 +391,7 @@ export const AdobeAlternativePage: React.FC = () => {
 
         {/* Section 2 — Why people are switching right now */}
         <section className="space-y-6 bg-surface-container-low border border-border-muted rounded-3xl p-6 sm:p-8 shadow-sm">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
-            Why people are switching right now
-          </h2>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">{t('adobeAlternative.whySwitching', { defaultValue: 'Why people are switching right now' })}</h2>
 
           <div className="space-y-4 text-sm sm:text-base text-on-surface-variant leading-relaxed font-medium">
             <p>
@@ -406,9 +406,7 @@ export const AdobeAlternativePage: React.FC = () => {
         {/* Section 3 — Pick your task */}
         <section id="pick-your-task" className="space-y-6 scroll-mt-20">
           <div className="space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
-              Pick your task
-            </h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">{t('adobeAlternative.pickTask', { defaultValue: 'Pick your task' })}</h2>
             <p className="text-sm text-on-surface-variant font-medium">
               Click any tool below to launch it instantly in your browser:
             </p>
@@ -473,46 +471,46 @@ export const AdobeAlternativePage: React.FC = () => {
 
           {/* Architectural 3 Generations */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-on-surface">The 3 Generations of PDF Tools: Why WebAssembly Changes Everything</h3>
+            <h3 className="text-xl font-bold text-on-surface">{t("adobeAlternative.genTitle")}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 rounded-2xl bg-surface border border-border-muted space-y-2">
-                <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-500">Gen 1: Desktop Monoliths</span>
-                <h4 className="font-bold text-sm text-on-surface">Adobe Acrobat, Foxit, Nitro</h4>
+                <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-500">{t("adobeAlternative.gen1")}</span>
+                <h4 className="font-bold text-sm text-on-surface">{t('adobeAlternative.competitorDesktop', { defaultValue: 'Adobe Acrobat, Foxit, Nitro' })}</h4>
                 <p className="text-xs text-on-surface-variant leading-relaxed">
-                  2GB+ desktop installers, persistent background licensing daemons, OS privilege elevation, and frequent security vulnerabilities requiring emergency patching.
+                  {t("adobeAlternative.gen1Desc")}
                 </p>
               </div>
 
               <div className="p-4 rounded-2xl bg-surface border border-border-muted space-y-2">
-                <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-500">Gen 2: Cloud Converters</span>
-                <h4 className="font-bold text-sm text-on-surface">Smallpdf, iLovePDF, Soda</h4>
+                <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-500">{t("adobeAlternative.gen2")}</span>
+                <h4 className="font-bold text-sm text-on-surface">{t('adobeAlternative.competitorWeb', { defaultValue: 'Smallpdf, iLovePDF, Soda' })}</h4>
                 <p className="text-xs text-on-surface-variant leading-relaxed">
-                  Zero install, but forces uploading sensitive bank records, contracts, and tax filings to remote multi-tenant servers, violating GDPR Art. 28 and HIPAA compliance rules.
+                  {t("adobeAlternative.gen2Desc")}
                 </p>
               </div>
 
               <div className="p-4 rounded-2xl bg-surface border border-emerald-500/30 bg-emerald-500/5 space-y-2">
-                <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">Gen 3: Client WebAssembly</span>
-                <h4 className="font-bold text-sm text-emerald-700 dark:text-emerald-300">PDFMinty</h4>
+                <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">{t("adobeAlternative.gen3")}</span>
+                <h4 className="font-bold text-sm text-emerald-700 dark:text-emerald-300">{t('adobeAlternative.pdfmintyLabel', { defaultValue: 'PDFMinty' })}</h4>
                 <p className="text-xs text-on-surface-variant leading-relaxed">
-                  Instant in-browser execution with zero uploads. Byte manipulation occurs in your device's memory sandbox via compiled WebAssembly with full offline PWA support.
+                  {t("adobeAlternative.gen3Desc")}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-lg font-bold">When Is Acrobat Still Necessary?</h3>
+            <h3 className="text-lg font-bold">{t('adobeAlternative.whenAcrobatNeeded', { defaultValue: 'When Is Acrobat Still Necessary?' })}</h3>
             <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
               We believe in honest technology recommendations. You should retain Adobe Acrobat Pro if your workflow strictly requires:
             </p>
             <ul className="list-disc pl-5 text-xs sm:text-sm text-on-surface-variant space-y-1.5">
-              <li>Complex dynamic XML Forms Architecture (XFA) processing.</li>
-              <li>Enterprise-level multi-signer routing workflows with strict cryptographic hardware token authentication.</li>
-              <li>High-end prepress color separation and commercial print offset calibrations.</li>
+              <li>{t("adobeAlternative.xfaProcessing")}</li>
+              <li>{t("adobeAlternative.entFeatures1")}</li>
+              <li>{t("adobeAlternative.entFeatures2")}</li>
             </ul>
             <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-              For everyday document handling—such as merging reports, extracting confidential pages, redacting metadata, or adding signatures—PdfMinty provides an instant, zero-cost, and private solution.
+              {t("adobeAlternative.everydayNotice")}
             </p>
           </div>
         </section>
@@ -524,12 +522,8 @@ export const AdobeAlternativePage: React.FC = () => {
               <HelpCircle className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-xs sm:text-sm text-on-surface-variant font-medium">
-                Everything you need to know about switching from Adobe Acrobat to PDFMinty
-              </p>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">{t('adobeAlternative.faqTitle', { defaultValue: 'Frequently Asked Questions' })}</h2>
+              <p className="text-xs sm:text-sm text-on-surface-variant font-medium">{t('adobeAlternative.faqDesc', { defaultValue: 'Everything you need to know about switching from Adobe Acrobat to PDFMinty' })}</p>
             </div>
           </div>
 
@@ -578,18 +572,14 @@ export const AdobeAlternativePage: React.FC = () => {
 
         {/* Closing CTA */}
         <section className="text-center bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-3xl p-8 sm:p-12 space-y-6 shadow-xl">
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-            Stop paying to move pages around.
-          </h2>
-          <p className="text-base sm:text-lg font-bold text-emerald-100 max-w-xl mx-auto">
-            Every tool. No account. No upload. No cost.
-          </p>
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight">{t('adobeAlternative.stopPayingTitle', { defaultValue: 'Stop paying to move pages around.' })}</h2>
+          <p className="text-base sm:text-lg font-bold text-emerald-100 max-w-xl mx-auto">{t('adobeAlternative.everyToolDesc', { defaultValue: 'Every tool. No account. No upload. No cost.' })}</p>
           <div className="pt-2">
             <Link
               to={ROUTES.HOME}
               className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-900 dark:!bg-white dark:!text-emerald-900 hover:dark:!bg-emerald-50 font-black text-base rounded-2xl transition-all shadow-lg hover:bg-emerald-50 hover:scale-105 active:scale-100"
             >
-              <span>Try PDFMinty →</span>
+              <span>{t("adobeAlternative.tryMinty")}</span>
             </Link>
           </div>
         </section>

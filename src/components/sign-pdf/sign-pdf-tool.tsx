@@ -1,6 +1,7 @@
 import { FileText, Minus, Plus } from 'lucide-react'
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '../ui/button'
 
@@ -15,6 +16,7 @@ import { UploadScreen } from './upload-screen'
 const EMPTY_SIGNATURES: SignatureSet = { fullName: '', initialsText: '', signature: null, initials: null }
 
 export function SignPdfTool() {
+  const { t } = useTranslation('common')
   const [file, setFile] = useState<File | null>(null)
   const [bytes, setBytes] = useState<ArrayBuffer | null>(null)
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null)
@@ -46,11 +48,11 @@ export function SignPdfTool() {
 
   const openFile = useCallback(async (nextFile: File) => {
     if (nextFile.type !== 'application/pdf' && !nextFile.name.toLowerCase().endsWith('.pdf')) {
-      setError('Please choose a PDF file.')
+      setError(t('signPdf.errors.choosePdf', { defaultValue: 'Please choose a PDF file.' }))
       return
     }
     if (nextFile.size > 50 * 1024 * 1024) {
-      setError('This PDF is larger than 50 MB.')
+      setError(t('signPdf.errors.fileTooLarge', { defaultValue: 'This PDF is larger than 50 MB.' }))
       return
     }
     setError(null)
@@ -61,9 +63,9 @@ export function SignPdfTool() {
       setFile(nextFile); setBytes(nextBytes); setDoc(nextDoc); setPages(nextPages); setFields([]); setSelectedId(null)
     } catch (err) {
       console.error('[v0] PDF load failed', err)
-      setError('This file could not be opened. Please try another PDF.')
+      setError(t('signPdf.errors.cannotOpen', { defaultValue: 'This file could not be opened. Please try another PDF.' }))
     }
-  }, [])
+  }, [t])
 
   const addField = useCallback((pageIndex: number, kind: FieldKind, nx: number, ny: number) => {
     const defaults: Record<FieldKind, { w: number; h: number }> = {
@@ -86,7 +88,7 @@ export function SignPdfTool() {
       const link = document.createElement('a'); link.href = url; link.download = `${file?.name.replace(/\.pdf$/i, '') || 'document'}-signed.pdf`; link.click(); URL.revokeObjectURL(url)
     } catch (err) {
       console.error('[v0] PDF export failed', err)
-      setError('The signed PDF could not be created. Please try again.')
+      setError(t('signPdf.errors.exportFailed', { defaultValue: 'The signed PDF could not be created. Please try again.' }))
     } finally { setExporting(false) }
   }
 
@@ -99,11 +101,34 @@ export function SignPdfTool() {
       <main ref={viewerRef} className="min-w-0 flex-1 overflow-auto bg-slate-200/50 dark:bg-slate-950 px-6 py-8">
         <div className="mx-auto flex max-w-[980px] flex-col gap-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2 text-sm text-slate-500"><FileText className="size-4 shrink-0" /><span className="truncate">{file?.name}</span><span>· {pages.length} page{pages.length === 1 ? '' : 's'}</span></div>
+            <div className="flex min-w-0 items-center gap-2 text-sm text-slate-500">
+              <FileText className="size-4 shrink-0" />
+              <span className="truncate">{file?.name}</span>
+              <span>
+                ·{' '}
+                {pages.length === 1
+                  ? t('signPdf.header.pageCount', { count: 1, defaultValue: '1 page' })
+                  : t('signPdf.header.pagesCount', { count: pages.length, defaultValue: `${pages.length} pages` })}
+              </span>
+            </div>
             <div className="flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1 shadow-sm">
-              <Button variant="ghost" size="icon-xs" aria-label="Zoom out" onClick={() => setZoom((value) => Math.max(0.7, value - 0.1))}><Minus /></Button>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                aria-label={t('signPdf.header.zoomOut', { defaultValue: 'Zoom out' })}
+                onClick={() => setZoom((value) => Math.max(0.7, value - 0.1))}
+              >
+                <Minus />
+              </Button>
               <span className="w-12 text-center text-xs font-medium text-slate-900 dark:text-slate-100">{Math.round(zoom * 100)}%</span>
-              <Button variant="ghost" size="icon-xs" aria-label="Zoom in" onClick={() => setZoom((value) => Math.min(1.5, value + 0.1))}><Plus /></Button>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                aria-label={t('signPdf.header.zoomIn', { defaultValue: 'Zoom in' })}
+                onClick={() => setZoom((value) => Math.min(1.5, value + 0.1))}
+              >
+                <Plus />
+              </Button>
             </div>
           </div>
           {error ? <p role="alert" className="rounded-md bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-600 dark:text-rose-400">{error}</p> : null}

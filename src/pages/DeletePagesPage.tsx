@@ -1,17 +1,18 @@
-import { ArrowLeft, Trash2, AlertCircle, AlertTriangle, Loader2, CheckSquare, Square, Download } from 'lucide-react';
+import { Trash2, AlertCircle, AlertTriangle, Loader2, CheckSquare, Square, Download } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const DeletePagesPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [pagesStr, setPagesStr] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -74,7 +75,7 @@ export const DeletePagesPage: React.FC = () => {
       } catch (err: unknown) {
         if (myToken !== operationTokenRef.current) return;
         const message = err instanceof Error ? err.message : 'Failed to read PDF.';
-        setError(`Failed to read PDF: ${message}`);
+        setError(t('deletePages.readError', { message, defaultValue: `Failed to read PDF: ${message}` }));
         setTotalPages(0);
         return;
       }
@@ -101,7 +102,11 @@ export const DeletePagesPage: React.FC = () => {
       } catch (err: unknown) {
         if (myToken !== operationTokenRef.current) return;
         logger.error('Failed to render previews:', err);
-        setError('Previews could not be rendered, but you can still delete pages using standard input.');
+        setError(
+          t('deletePages.previewWarning', {
+            defaultValue: 'Previews could not be rendered, but you can still delete pages using standard input.',
+          })
+        );
       } finally {
         if (myToken === operationTokenRef.current) {
           setRenderingThumbnails(false);
@@ -140,7 +145,11 @@ export const DeletePagesPage: React.FC = () => {
   const handleDelete = async () => {
     if (!selectedFile) return;
     if (!pagesStr.trim()) {
-      setError('Please provide page indices to delete. Examples: "2, 4, 6"');
+      setError(
+        t('deletePages.provideIndices', {
+          defaultValue: 'Please provide page indices to delete. Examples: "2, 4, 6"',
+        })
+      );
       return;
     }
 
@@ -151,7 +160,11 @@ export const DeletePagesPage: React.FC = () => {
       // Use the totalPages state (fetched via getPageCount), not thumbnails.length.
       // This ensures manual deletion works even when preview rendering fails.
       if (totalPages === 0) {
-        setError('Could not determine document page count. Please try re-uploading.');
+        setError(
+          t('deletePages.pageCountError', {
+            defaultValue: 'Could not determine document page count. Please try re-uploading.',
+          })
+        );
         setLoading(false);
         return;
       }
@@ -178,20 +191,32 @@ export const DeletePagesPage: React.FC = () => {
 
       if (invalidTokens.length > 0) {
         setError(
-          `Invalid page number(s): ${invalidTokens.join(', ')}. Document has ${totalPages} page(s). Use numbers between 1 and ${totalPages}.`
+          t('deletePages.invalidPageNumber', {
+            tokens: invalidTokens.join(', '),
+            total: totalPages,
+            defaultValue: `Invalid page number(s): ${invalidTokens.join(', ')}. Document has ${totalPages} page(s). Use numbers between 1 and ${totalPages}.`,
+          })
         );
         setLoading(false);
         return;
       }
 
       if (validPages.length === 0) {
-        setError('Please enter at least one valid page number to delete.');
+        setError(
+          t('deletePages.atLeastOneValid', {
+            defaultValue: 'Please enter at least one valid page number to delete.',
+          })
+        );
         setLoading(false);
         return;
       }
 
       if (validPages.length === totalPages) {
-        setError('Cannot delete all pages of the document.');
+        setError(
+          t('deletePages.cannotDeleteAll', {
+            defaultValue: 'Cannot delete all pages of the document.',
+          })
+        );
         setLoading(false);
         return;
       }
@@ -213,7 +238,10 @@ export const DeletePagesPage: React.FC = () => {
       logger.error('Delete pages error:', err);
       const message = err instanceof Error ? err.message : String(err);
       setError(
-        message || 'An unexpected failure occurred. Verify indices match document dimensions.'
+        message ||
+          t('deletePages.unexpectedError', {
+            defaultValue: 'An unexpected failure occurred. Verify indices match document dimensions.',
+          })
       );
     } finally {
       setLoading(false);
@@ -223,28 +251,7 @@ export const DeletePagesPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="delete_pages_container">
       <SEO slug="delete-pages-pdf" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Delete PDF Pages Free — Remove Unwanted Pages Online
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['delete-pages-pdf'].maxSingleMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Strip unwanted pages, sections, or trailing indexes from your PDF document. Files must be under {TOOL_SIZE_LIMITS['delete-pages-pdf'].maxSingleMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="delete-pages-pdf" limitMB={TOOL_SIZE_LIMITS['delete-pages-pdf'].maxSingleMB} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
@@ -254,8 +261,6 @@ export const DeletePagesPage: React.FC = () => {
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
-                title="Select a PDF to organize"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['delete-pages-pdf'].maxSingleMB}MB)`}
                 accept="application/pdf"
                 maxSizeMB={TOOL_SIZE_LIMITS['delete-pages-pdf'].maxSingleMB}
               />
@@ -267,7 +272,8 @@ export const DeletePagesPage: React.FC = () => {
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
                   <p className="text-xs text-slate-400">
-                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB •{' '}
+                    {t('deletePages.pdfDocument', { defaultValue: 'PDF Document' })}
                   </p>
                 </div>
                 <button
@@ -285,9 +291,9 @@ export const DeletePagesPage: React.FC = () => {
                       setDownloadUrl(null);
                     }
                   }}
-                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
-                  Change File
+                  {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                 </button>
               </div>
             )}
@@ -297,10 +303,16 @@ export const DeletePagesPage: React.FC = () => {
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="delete_pages_success_banner">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                <span>Pages Deleted Successfully! Your modified PDF has been generated.</span>
+                <span>
+                  {t('deletePages.successTitle', {
+                    defaultValue: 'Pages Deleted Successfully! Your modified PDF has been generated.',
+                  })}
+                </span>
               </div>
               <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                The selected pages have been stripped from your document completely offline.
+                {t('deletePages.successDesc', {
+                  defaultValue: 'The selected pages have been removed completely offline in your browser.',
+                })}
               </p>
               {downloadUrl && (
                 <div className="pt-2">
@@ -311,7 +323,7 @@ export const DeletePagesPage: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
                     <Download className="w-4 h-4 animate-bounce" />
-                    <span>Download Stripped PDF</span>
+                    <span>{t('deletePages.downloadStripped', { defaultValue: 'Download Stripped PDF' })}</span>
                   </a>
                 </div>
               )}
@@ -320,8 +332,11 @@ export const DeletePagesPage: React.FC = () => {
 
           {!selectedFile && (
             <EmptyState
-              title="Upload a PDF to delete pages"
-              description="Select a document above to inspect page thumbnails and click to remove unwanted pages."
+              title={t('deletePages.emptyTitle', { defaultValue: 'Upload a PDF to delete pages' })}
+              description={t('deletePages.emptyDesc', {
+                defaultValue:
+                  'Select a document above to inspect page thumbnails and click to remove unwanted pages.',
+              })}
             />
           )}
 
@@ -329,7 +344,7 @@ export const DeletePagesPage: React.FC = () => {
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                 <h3 className="text-sm font-extrabold text-slate-700">
-                  Select Pages to Delete
+                  {t('deletePages.selectPagesToDelete', { defaultValue: 'Select Pages to Delete' })}
                 </h3>
                 {thumbnails.length > 0 && (
                   <div className="flex items-center space-x-2">
@@ -337,13 +352,13 @@ export const DeletePagesPage: React.FC = () => {
                       onClick={selectAll}
                       className="text-xs font-semibold text-rose-600 hover:underline bg-slate-50 py-1 px-2.5 rounded-lg border border-slate-200"
                     >
-                      Delete All
+                      {t('deletePages.deleteAll', { defaultValue: 'Delete All' })}
                     </button>
                     <button
                       onClick={clearSelection}
                       className="text-xs font-semibold text-slate-500 hover:underline bg-slate-50 py-1 px-2.5 rounded-lg border border-slate-200"
                     >
-                      Keep All
+                      {t('deletePages.keepAll', { defaultValue: 'Keep All' })}
                     </button>
                   </div>
                 )}
@@ -356,7 +371,7 @@ export const DeletePagesPage: React.FC = () => {
                 >
                   <Loader2 className="w-8 h-8 text-rose-600 animate-spin" />
                   <p className="text-xs font-bold text-slate-400">
-                    Loading document pages structure...
+                    {t('deletePages.loadingPages', { defaultValue: 'Loading document pages structure...' })}
                   </p>
                 </div>
               ) : thumbnails.length > 0 ? (
@@ -371,6 +386,10 @@ export const DeletePagesPage: React.FC = () => {
                         key={item.page}
                         id={`delete-page-thumbnail-btn-${item.page}`}
                         onClick={() => togglePageDeletion(item.page)}
+                        aria-label={t('deletePages.pageAriaLabel', {
+                          page: item.page,
+                          defaultValue: `Page ${item.page}`,
+                        })}
                         className={`group relative aspect-[3/4] bg-slate-50 border-2 rounded-xl overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transition-all p-1 flex flex-col justify-between ${
                           isSelected
                             ? 'border-rose-500 ring-4 ring-rose-500/10'
@@ -388,7 +407,10 @@ export const DeletePagesPage: React.FC = () => {
                         <div className="w-full h-[85%] bg-white rounded-lg overflow-hidden flex items-center justify-center shadow-inner">
                           <img
                             src={item.dataUrl}
-                            alt={`Page ${item.page}`}
+                            alt={t('deletePages.pageNumber', {
+                              page: item.page,
+                              defaultValue: `Page ${item.page}`,
+                            })}
                             referrerPolicy="no-referrer"
                             className="max-w-full max-h-full object-contain"
                           />
@@ -398,7 +420,10 @@ export const DeletePagesPage: React.FC = () => {
                           <span
                             className={`text-[10px] font-extrabold ${isSelected ? 'text-rose-600' : 'text-slate-500'}`}
                           >
-                            Page {item.page}
+                            {t('deletePages.pageNumber', {
+                              page: item.page,
+                              defaultValue: `Page ${item.page}`,
+                            })}
                           </span>
                         </div>
                       </button>
@@ -408,7 +433,9 @@ export const DeletePagesPage: React.FC = () => {
               ) : (
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-center">
                   <p className="text-xs text-slate-500">
-                    Could not load individual page previews.
+                    {t('deletePages.couldNotLoadPreviews', {
+                      defaultValue: 'Could not load individual page previews.',
+                    })}
                   </p>
                 </div>
               )}
@@ -418,10 +445,12 @@ export const DeletePagesPage: React.FC = () => {
           <div className="bg-amber-50 p-4 rounded-xl flex items-start space-x-2 border border-amber-200 text-xs text-amber-800 leading-normal">
             <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold">Cautionary notice:</p>
+              <p className="font-bold">{t('deletePages.cautionTitle', { defaultValue: 'Cautionary notice:' })}</p>
               <p className="mt-0.5">
-                Deleting pages is an irreversible destructive operation. Make sure to retain copy
-                backups of the source document prior to conversion.
+                {t('deletePages.cautionDesc', {
+                  defaultValue:
+                    'Deleting pages is an irreversible destructive operation. Make sure to retain copy backups of the source document prior to conversion.',
+                })}
               </p>
             </div>
           </div>
@@ -431,7 +460,7 @@ export const DeletePagesPage: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
             <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Target Pages
+              {t('deletePages.targetPagesTitle', { defaultValue: 'Target Pages' })}
             </h3>
 
             <div className="space-y-2">
@@ -439,21 +468,23 @@ export const DeletePagesPage: React.FC = () => {
                 htmlFor="pages_csv"
                 className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
               >
-                Pages to delete:
+                {t('deletePages.pagesToDeleteLabel', { defaultValue: 'Pages to delete:' })}
               </label>
               <input
                 id="pages_csv"
                 type="text"
                 value={pagesStr}
                 onChange={(e) => setPagesStr(e.target.value)}
-                placeholder="e.g. 2, 5, 8"
+                placeholder={t('deletePages.placeholder', { defaultValue: 'e.g. 2, 5, 8' })}
                 className="w-full border border-slate-300 rounded-xl py-2 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 disabled={!selectedFile}
               />
             </div>
 
             <p className="text-xs text-slate-400">
-              Specify precise, 1-based index numbers divided by commas to trim.
+              {t('deletePages.specifyHelp', {
+                defaultValue: 'Specify precise, 1-based index numbers divided by commas to trim.',
+              })}
             </p>
           </div>
 
@@ -477,12 +508,12 @@ export const DeletePagesPage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Stripping pages...</span>
+                  <span>{t('deletePages.strippingButton', { defaultValue: 'Stripping pages...' })}</span>
                 </span>
               ) : (
                 <>
                   <Trash2 className="w-4 h-4" />
-                  <span>Remove Pages</span>
+                  <span>{t('deletePages.deleteButton', { defaultValue: 'Remove Pages' })}</span>
                 </>
               )}
             </button>

@@ -1,18 +1,17 @@
-import { ArrowLeft, Bookmark, AlertCircle, Download } from 'lucide-react';
+import { Bookmark, AlertCircle, Download } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
-import { TOOLS } from '../config/seo-data';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const WatermarkPage: React.FC = () => {
-  const toolInfo = TOOLS.find((t) => t.id === 'watermark');
+  const { t } = useTranslation('common');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [text, setText] = useState<string>('CONFIDENTIAL');
   const [size, setSize] = useState<number>(45);
@@ -96,11 +95,11 @@ export const WatermarkPage: React.FC = () => {
   const handleWatermark = async () => {
     if (!selectedFile) return;
     if (!text.trim()) {
-      setError('Please enter watermark text.');
+      setError(t('watermarkPdf.emptyTextError', { defaultValue: 'Please enter watermark text.' }));
       return;
     }
     if (text.length > 60) {
-      setError('Watermark text is too long. Maximum 60 characters.');
+      setError(t('watermarkPdf.textTooLongError', { defaultValue: 'Watermark text is too long. Maximum 60 characters.' }));
       return;
     }
 
@@ -130,48 +129,44 @@ export const WatermarkPage: React.FC = () => {
     } catch (err: unknown) {
        logger.error('Watermark error:', err);
        const message = err instanceof Error ? err.message : String(err);
-       setError(message || 'An unexpected error occurred while adding the watermark.');
+       setError(message || t('watermarkPdf.watermarkError', { defaultValue: 'An unexpected error occurred while adding the watermark.' }));
     } finally {
       setLoading(false);
     }
   };
 
+  const colorOptions = [
+    { hex: '#94a3b8', label: t('watermarkPdf.colorGray', { defaultValue: 'Gray' }) },
+    { hex: '#ef4444', label: t('watermarkPdf.colorRed', { defaultValue: 'Red' }) },
+    { hex: '#22c55e', label: t('watermarkPdf.colorGreen', { defaultValue: 'Green' }) },
+    { hex: '#3b82f6', label: t('watermarkPdf.colorBlue', { defaultValue: 'Blue' }) },
+    { hex: '#f59e0b', label: t('watermarkPdf.colorAmber', { defaultValue: 'Amber' }) },
+  ];
+
+  const presets = [
+    { key: 'confidential', label: t('watermarkPdf.presetConfidential', { defaultValue: 'CONFIDENTIAL' }) },
+    { key: 'draft', label: t('watermarkPdf.presetDraft', { defaultValue: 'DRAFT' }) },
+    { key: 'doNotCopy', label: t('watermarkPdf.presetDoNotCopy', { defaultValue: 'DO NOT COPY' }) },
+    { key: 'approved', label: t('watermarkPdf.presetApproved', { defaultValue: 'APPROVED' }) },
+    { key: 'final', label: t('watermarkPdf.presetFinal', { defaultValue: 'FINAL' }) },
+  ];
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="watermark_page_container">
       <SEO slug="watermark-pdf" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            {toolInfo?.h1 || 'Watermark PDF'}
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['watermark-pdf'].maxSingleMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Overlay diagonal text blocks onto pages to label status or prevent data leaks. Files must be under {TOOL_SIZE_LIMITS['watermark-pdf'].maxSingleMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="watermark-pdf" limitMB={TOOL_SIZE_LIMITS['watermark-pdf'].maxSingleMB} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <Bookmark className="w-5 h-5 text-purple-600" />
+            <div className="flex items-center gap-2 text-primary font-bold">
+              <Bookmark className="w-5 h-5 text-purple-600" />
+              <span>{t('watermarkPdf.workspace', { defaultValue: 'Document Workspace' })}</span>
+            </div>
 
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
-                title="Select a PDF to watermark"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['watermark-pdf'].maxSingleMB}MB)`}
                 maxSizeMB={TOOL_SIZE_LIMITS['watermark-pdf'].maxSingleMB}
               />
             ) : (
@@ -183,7 +178,7 @@ export const WatermarkPage: React.FC = () => {
                   <div className="truncate pr-4">
                     <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
                     <p className="text-xs text-slate-400">
-                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {t('watermarkPdf.pdfDocument', { defaultValue: 'PDF Document' })}
                     </p>
                   </div>
                   <button
@@ -195,9 +190,9 @@ export const WatermarkPage: React.FC = () => {
                         setDownloadUrl(null);
                       }
                     }}
-                    className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
+                    className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                   >
-                    Change File
+                    {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                   </button>
                 </div>
 
@@ -205,10 +200,10 @@ export const WatermarkPage: React.FC = () => {
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                     <h3 className="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
-                      <span>Real-time Visual Preview</span>
+                      <span>{t('watermarkPdf.previewTitle', { defaultValue: 'Real-time Visual Preview' })}</span>
                     </h3>
                     <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-150">
-                      Page 1
+                      {t('watermarkPdf.page1', { defaultValue: 'Page 1' })}
                     </span>
                   </div>
 
@@ -216,14 +211,16 @@ export const WatermarkPage: React.FC = () => {
                     {renderingPreview ? (
                       <div className="flex flex-col items-center gap-2.5 text-slate-400">
                         <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-[10px] font-bold tracking-wider uppercase animate-pulse">Loading Document...</span>
+                        <span className="text-[10px] font-bold tracking-wider uppercase animate-pulse">
+                          {t('watermarkPdf.loadingDoc', { defaultValue: 'Loading Document...' })}
+                        </span>
                       </div>
                     ) : previewUrl ? (
                       <div className="relative w-full h-full flex items-center justify-center bg-slate-50">
                         {/* Rendered PDF Page Background */}
                         <img
                           src={previewUrl}
-                          alt="PDF Page 1 Preview"
+                          alt={t('watermarkPdf.page1Alt', { defaultValue: 'PDF Page 1 Preview' })}
                           className="w-full h-full object-contain pointer-events-none"
                         />
 
@@ -287,7 +284,7 @@ export const WatermarkPage: React.FC = () => {
                         )}
 
                         <div className="text-[9px] text-slate-400 font-bold self-center text-center mt-auto bg-slate-50 px-2 py-1 rounded border border-slate-100">
-                          Template View
+                          {t('watermarkPdf.templateView', { defaultValue: 'Template View' })}
                         </div>
                       </div>
                     )}
@@ -301,11 +298,8 @@ export const WatermarkPage: React.FC = () => {
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="watermark_success_banner">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                <span>Watermark Applied Successfully! Your stamped PDF has been generated.</span>
+                <span>{t('watermarkPdf.successTitle', { defaultValue: 'Watermark Applied Successfully! Your stamped PDF has been generated.' })}</span>
               </div>
-              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                The watermark text has been overlayed onto your document pages locally in your browser.
-              </p>
               {downloadUrl && (
                 <div className="pt-2">
                   <a
@@ -315,7 +309,7 @@ export const WatermarkPage: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
                     <Download className="w-4 h-4 animate-bounce" />
-                    <span>Download Stamped PDF</span>
+                    <span>{t('watermarkPdf.downloadStamped', { defaultValue: 'Download Stamped PDF' })}</span>
                   </a>
                 </div>
               )}
@@ -327,7 +321,7 @@ export const WatermarkPage: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
             <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Watermark Config
+              {t('watermarkPdf.settingsTitle', { defaultValue: 'Watermark Config' })}
             </h3>
 
             <div className="space-y-3">
@@ -336,31 +330,31 @@ export const WatermarkPage: React.FC = () => {
                   htmlFor="watermark_text"
                   className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
                 >
-                  Stamp Text:
+                  {t('watermarkPdf.stampTextLabel', { defaultValue: 'Stamp Text:' })}
                 </label>
                 <input
                   id="watermark_text"
                   type="text"
                   maxLength={60}
-                  aria-label="Watermark text"
+                  aria-label={t('watermarkPdf.stampTextLabel', { defaultValue: 'Stamp Text:' })}
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder="e.g. DRAFT"
+                  placeholder={t('watermarkPdf.stampTextPlaceholder', { defaultValue: 'e.g. DRAFT' })}
                   className="w-full border border-slate-300 rounded-xl py-2 px-3.5 text-sm font-bold tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   disabled={!selectedFile}
                 />
                 
                 {/* Quick Presets */}
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {['CONFIDENTIAL', 'DRAFT', 'DO NOT COPY', 'APPROVED', 'FINAL'].map((preset) => (
+                  {presets.map((preset) => (
                     <button
-                      key={preset}
+                      key={preset.key}
                       type="button"
-                      onClick={() => setText(preset)}
-                      className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-600 transition-colors"
+                      onClick={() => setText(preset.label)}
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-600 transition-colors cursor-pointer"
                       disabled={!selectedFile}
                     >
-                      {preset}
+                      {preset.label}
                     </button>
                   ))}
                 </div>
@@ -375,7 +369,7 @@ export const WatermarkPage: React.FC = () => {
                   htmlFor="stamp_size"
                   className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
                 >
-                  Font Size: {size}px
+                  {t('watermarkPdf.fontSizeLabel', { size, defaultValue: `Font Size: ${size}px` })}
                 </label>
                 <input
                   id="stamp_size"
@@ -394,7 +388,7 @@ export const WatermarkPage: React.FC = () => {
                   htmlFor="stamp_opacity"
                   className="text-xs font-bold text-slate-600 uppercase tracking-wider block"
                 >
-                  Opacity: {(opacity * 100).toFixed(0)}%
+                  {t('watermarkPdf.opacityLabel', { opacity: (opacity * 100).toFixed(0), defaultValue: `Opacity: ${(opacity * 100).toFixed(0)}%` })}
                 </label>
                 <input
                   id="stamp_opacity"
@@ -411,23 +405,17 @@ export const WatermarkPage: React.FC = () => {
 
               <div className="space-y-1.5">
                 <span className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
-                  Stamp Color:
+                  {t('watermarkPdf.colorLabel', { defaultValue: 'Stamp Color:' })}
                 </span>
                 <div className="flex items-center space-x-2">
-                  {[
-                    { hex: '#94a3b8', label: 'Gray' },
-                    { hex: '#ef4444', label: 'Red' },
-                    { hex: '#22c55e', label: 'Green' },
-                    { hex: '#3b82f6', label: 'Blue' },
-                    { hex: '#f59e0b', label: 'Amber' },
-                  ].map((item) => (
+                  {colorOptions.map((item) => (
                     <button
                       key={item.hex}
                       type="button"
                       onClick={() => setColor(item.hex)}
-                      aria-label={`Watermark color: ${item.label}`}
+                      aria-label={t('watermarkPdf.colorAria', { label: item.label, defaultValue: `Watermark color: ${item.label}` })}
                       aria-pressed={color === item.hex}
-                      className={`w-8 h-8 rounded-full border-2 transition-transform ${
+                      className={`w-8 h-8 rounded-full border-2 transition-transform cursor-pointer ${
                         color === item.hex
                           ? 'border-slate-800 scale-110 shadow-sm'
                           : 'border-transparent hover:scale-105'
@@ -461,12 +449,12 @@ export const WatermarkPage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Superimposing stamp...</span>
+                  <span>{t('watermarkPdf.processingButton', { defaultValue: 'Superimposing stamp...' })}</span>
                 </span>
               ) : (
                 <>
                   <Bookmark className="w-4 h-4" />
-                  <span>Apply Watermark</span>
+                  <span>{t('watermarkPdf.applyButton', { defaultValue: 'Apply Watermark' })}</span>
                 </>
               )}
             </button>

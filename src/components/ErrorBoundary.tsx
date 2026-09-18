@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import { ShieldAlert, RefreshCw, FileText } from 'lucide-react';
 import React, { Component, ErrorInfo } from 'react';
 
@@ -77,13 +78,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
             className="text-2xl font-bold font-sans text-on-surface mb-2"
             id="error-boundary-title"
           >
-            Something went wrong
+            {i18next.t('errorBoundary.somethingWentWrong', { defaultValue: 'Something went wrong' })}
           </h1>
           <p
             className="text-sm text-on-surface-variant max-w-sm mb-4 leading-relaxed"
             id="error-boundary-desc"
           >
-            An unexpected error occurred in the view interface.
+            {i18next.t('errorBoundary.unexpected', { defaultValue: 'An unexpected error occurred in the view interface.' })}
           </p>
 
           {fileCtx && (fileCtx.fileName || fileCtx.fileSizeFormatted) && (
@@ -118,7 +119,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
               className="inline-flex items-center gap-2 bg-[#00FFC2] hover:bg-[#00e6af] text-black font-semibold px-6 py-3 rounded-xl shadow-lg transition-transform active:scale-95 duration-100 cursor-pointer text-xs uppercase tracking-wider"
             >
               <RefreshCw className="w-4 h-4" />
-              Reload Application
+              {i18next.t('errorBoundary.reload', { defaultValue: 'Reload Application' })}
             </button>
             <a
               href="/blog/"

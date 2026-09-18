@@ -1,5 +1,4 @@
 import {
-  ArrowLeft,
   Sparkles,
   Send,
   FileText,
@@ -9,20 +8,21 @@ import {
 } from 'lucide-react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
-import { TOOLS } from '../config/seo-data';
 import { getPdfJs } from '../core/index';
 import { PDFSanitizer } from '../core/PDFSanitizer';
 import { logger } from '../utils/logger';
 
 export const AiAnalyzePage: React.FC = () => {
-  const toolInfo = TOOLS.find((t) => t.id === 'intelligence');
+  const { t } = useTranslation('common');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedText, setExtractedText] = useState<string>('');
@@ -208,31 +208,7 @@ export const AiAnalyzePage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-5xl mx-auto" id="ai_analyze_page">
       <SEO slug="ai-analyze-pdf" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center space-x-2">
-            <Sparkles className="w-6 h-6 text-amber-500 fill-amber-100 animate-pulse" />
-            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              {toolInfo?.h1 || 'AI Analyze & Assistant'}
-            </h1>
-          </div>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          PDF text is extracted locally on your device; the AI Analyze tool only sends extracted text to Google Gemini after you explicitly check a consent box.
-        </p>
-      </div>
+      <ToolHeader slug="ai-analyze-pdf" limitMB={TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Side: Upload & Inspection */}
@@ -240,7 +216,7 @@ export const AiAnalyzePage: React.FC = () => {
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center space-x-2">
               <FileText className="w-4 h-4 text-emerald-600" />
-              <span>Document Upload</span>
+              <span>{t('aiAnalyze.documentUpload', { defaultValue: 'Document Upload' })}</span>
             </h3>
 
             {!selectedFile ? (
@@ -248,14 +224,9 @@ export const AiAnalyzePage: React.FC = () => {
                 <FileUploader
                   onFilesSelected={handleFilesSelected}
                   accept=".pdf,application/pdf"
-                  title="Select PDF for AI review"
-                  subtitle={`Drag a PDF file here (Max limit: ${TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}MB)`}
                   maxSizeMB={TOOL_SIZE_LIMITS['ai-analyze'].maxSingleMB}
                 />
-                <EmptyState
-                  title="Upload a PDF for AI Analysis"
-                  description="Select a document above to extract text and ask Gemini questions or request summaries."
-                />
+                <EmptyState />
               </>
             ) : (
               <div className="space-y-4">
@@ -282,9 +253,9 @@ export const AiAnalyzePage: React.FC = () => {
                       setAiResult('');
                       setHasConsented(false);
                     }}
-                    className="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-2.5 rounded-lg"
+                    className="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-2.5 rounded-lg cursor-pointer"
                   >
-                    Clear
+                    {t('toolCommon.changeFile', { defaultValue: 'Clear' })}
                   </button>
                 </div>
 
@@ -294,13 +265,13 @@ export const AiAnalyzePage: React.FC = () => {
                     id="extraction_spinner"
                   >
                     <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />
-                    <span>Extracting PDF text locally...</span>
+                    <span>{t('aiAnalyze.extractingText', { defaultValue: 'Extracting PDF text locally...' })}</span>
                   </div>
                 ) : extractedText ? (
                   <div className="space-y-3">
                     <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center space-x-1.5 text-xs text-emerald-800 font-medium">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      <span>Text indexes loaded successfully!</span>
+                      <span>{t('aiAnalyze.textIndexesLoaded', { defaultValue: 'Text indexes loaded successfully!' })}</span>
                     </div>
 
                     {extractedText && totalPages > 12 && (
@@ -322,11 +293,11 @@ export const AiAnalyzePage: React.FC = () => {
           </div>
 
           <div className="bg-slate-100 p-4 rounded-xl space-y-2 border border-slate-200 text-xs text-slate-500 leading-normal">
-            <p className="font-bold text-slate-700">Privacy Information (read carefully):</p>
+            <p className="font-bold text-slate-700">{t("aiAnalyze.privacyInfoTitle")}</p>
             <p>
-              Your <strong>PDF file itself never leaves your browser</strong> — all rendering and text
-              extraction happens locally. However, the <strong>extracted text content</strong> (up to the
-              first 12 pages) is sent to our server and forwarded to <strong>Google Gemini</strong> for
+              
+              
+              
               analysis. If your document contains sensitive personal information (SSNs, passwords, financial
               data, medical records), that text will be transmitted.
             </p>
@@ -342,9 +313,7 @@ export const AiAnalyzePage: React.FC = () => {
                 className="mt-0.5"
                 aria-label="Consent to sending extracted text to Google Gemini for analysis"
               />
-              <span className="text-slate-700 font-medium">
-                I understand the extracted text will be sent to Google Gemini and I consent.
-              </span>
+              <span className="text-slate-700 font-medium">{t('aiAnalyze.consentCheckbox', { defaultValue: 'I understand the extracted text will be sent to Google Gemini and I consent.' })}</span>
             </label>
           </div>
         </div>
@@ -353,9 +322,7 @@ export const AiAnalyzePage: React.FC = () => {
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between min-h-[420px] space-y-6">
             <div className="space-y-4 flex-1">
-              <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-                AI Control Center
-              </h3>
+              <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">{t('aiAnalyze.controlCenter', { defaultValue: 'AI Control Center' })}</h3>
 
               <div className="flex flex-wrap gap-2">
                 <button
@@ -440,18 +407,18 @@ export const AiAnalyzePage: React.FC = () => {
                   <div className="flex items-start gap-3 text-xs text-amber-800 bg-amber-50/50 border border-amber-200 p-4.5 rounded-2xl shadow-sm flex-col w-full">
                     <div className="flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                      <p className="font-extrabold text-amber-900">⏳ AI is busy. Please try again in a few minutes.</p>
+                      <p className="font-extrabold text-amber-900">{t("aiAnalyze.busyMessage")}</p>
                     </div>
                     <div className="pl-6 space-y-1 text-slate-600 font-medium leading-relaxed">
-                      <p>Or use our offline tools: <Link to={ROUTES.HOME} className="underline text-emerald-700 hover:text-emerald-800 font-bold">Merge, Split</Link></p>
-                      <p>Rate limit reached. Please wait a few minutes before trying again.</p>
+                      <p>{t("aiAnalyze.orUseOffline")} <Link to={ROUTES.HOME} className="underline text-emerald-700 hover:text-emerald-800 font-bold">{t("tools.mergePdf")} &amp; {t("tools.splitPdf")}</Link></p>
+                      <p>{t('aiAnalyze.rateLimitReached', { defaultValue: 'Rate limit reached. Please wait a few minutes before trying again.' })}</p>
                     </div>
                   </div>
                 ) : (
                   <div className="flex items-start space-x-1.5 text-xs text-rose-700 bg-rose-50 border border-rose-100 p-3.5 rounded-xl shadow-sm">
                     <AlertCircle className="w-4 h-4 flex-shrink-0" />
                     <div>
-                      <p className="font-bold">Execution Error</p>
+                      <p className="font-bold">{t('aiAnalyze.executionError', { defaultValue: 'Execution Error' })}</p>
                       <p className="mt-0.5">{error}</p>
                     </div>
                   </div>
@@ -465,9 +432,7 @@ export const AiAnalyzePage: React.FC = () => {
                   id="ai_loader"
                 >
                   <span className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin"></span>
-                  <span className="text-xs font-semibold text-slate-500">
-                    Letting Gemini think...
-                  </span>
+                  <span className="text-xs font-semibold text-slate-500">{t('aiAnalyze.geminiThinking', { defaultValue: 'Letting Gemini think...' })}</span>
                 </div>
               ) : aiResult ? (
                 <div
@@ -476,7 +441,7 @@ export const AiAnalyzePage: React.FC = () => {
                 >
                   <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider pb-1.5 border-b border-slate-200">
                     <Sparkles className="w-4 h-4 text-amber-500" />
-                    <span>Gemini Core Insights</span>
+                    <span>{t('aiAnalyze.geminiInsights', { defaultValue: 'Gemini Core Insights' })}</span>
                   </div>
                   <div className="text-sm text-slate-800 leading-relaxed font-sans whitespace-pre-wrap whitespace-pre-line prose max-w-none">
                     {aiResult}

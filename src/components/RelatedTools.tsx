@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
 import { RELATED_TOOL_MAPPING } from '../config/seo-data';
@@ -6,6 +7,7 @@ import { RELATED_TOOL_MAPPING } from '../config/seo-data';
 import { useLayout } from './Layout';
 
 export const RelatedTools: React.FC = () => {
+  const { t } = useTranslation('common');
   const { pathname = '/' } = useLocation() || {};
   const { toolsList = [] } = useLayout() || {};
 
@@ -41,7 +43,7 @@ export const RelatedTools: React.FC = () => {
   return (
     <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800" id="related_tools_box">
       <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-4">
-        Related PDF Tools
+        {t('relatedTools.title', { defaultValue: 'Related PDF Tools' })}
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
         {related.map((tool) => (
@@ -52,10 +54,10 @@ export const RelatedTools: React.FC = () => {
           >
             <div>
               <span className="font-bold text-sm text-slate-800 dark:text-slate-100 block hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                {tool.name}
+                {t(`tools.${tool.slug}.name`, { defaultValue: tool.name })}
               </span>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 block line-clamp-2 mt-1">
-                {tool.shortDescription || tool.description}
+                {t(`tools.${tool.slug}.desc`, { defaultValue: tool.shortDescription || tool.description })}
               </span>
             </div>
           </Link>

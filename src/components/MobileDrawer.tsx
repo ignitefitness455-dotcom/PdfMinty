@@ -61,7 +61,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                 : 'border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white'
             }`}
           >
-            Home
+            {t('mobileDrawer.home', { defaultValue: 'Home' })}
           </Link>
           <Link
             to={ROUTES.HOME}
@@ -73,7 +73,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             }}
             className="text-center px-1.5 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white text-xs"
           >
-            Tools
+            {t('mobileDrawer.tools', { defaultValue: 'Tools' })}
           </Link>
           <Link
             to={ROUTES.BLOG}
@@ -84,7 +84,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                 : 'border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white'
             }`}
           >
-            Blog
+            {t('mobileDrawer.blog', { defaultValue: 'Blog' })}
           </Link>
           <Link
             to={ROUTES.ABOUT_US}
@@ -95,7 +95,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                 : 'border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white'
             }`}
           >
-            About
+            {t('mobileDrawer.about', { defaultValue: 'About' })}
           </Link>
           <Link
             to={ROUTES.CONTACT}
@@ -106,12 +106,12 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                 : 'border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white'
             }`}
           >
-            Contact
+            {t('mobileDrawer.contact', { defaultValue: 'Contact' })}
           </Link>
         </div>
         <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
           <p className="px-4 text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">
-            Individual Utilities
+            {t('mobileDrawer.individualUtilities', { defaultValue: 'Individual Utilities' })}
           </p>
           <div className="grid grid-cols-1 gap-2">
             {menuItems.map((item) => {
@@ -166,11 +166,13 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                   )}
                 </span>
                 <span>
-                  {theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+                  {theme === 'dark'
+                    ? t('mobileDrawer.switchToLight', { defaultValue: 'Switch to Light Theme' })
+                    : t('mobileDrawer.switchToDark', { defaultValue: 'Switch to Dark Theme' })}
                 </span>
               </div>
               <span className="hidden text-xs text-slate-400 dark:text-slate-500 font-mono pr-2">
-                Toggle
+                {t('mobileDrawer.toggleLabel', { defaultValue: 'Toggle' })}
               </span>
             </button>
           </div>

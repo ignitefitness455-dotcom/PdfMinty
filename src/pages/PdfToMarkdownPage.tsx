@@ -1,6 +1,5 @@
 import JSZip from 'jszip';
 import {
-  ArrowLeft,
   FileCode2,
   AlertCircle,
   Copy,
@@ -12,10 +11,12 @@ import {
   Sparkles,
 } from 'lucide-react';
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
 import { ROUTES } from '../config/routes';
 import { useToast } from '../contexts/ToastContext';
@@ -67,7 +68,7 @@ function renderInlineFormatting(text: string): React.ReactNode[] {
 
 function renderMarkdownToJsx(markdown: string): React.ReactNode {
   if (!markdown.trim()) {
-    return <p className="text-slate-400 italic">No content to display.</p>;
+    return <p className="text-slate-400 italic">{t('pdfToMarkdown.noContent', { defaultValue: 'No content to display.' })}</p>;
   }
 
   const blocks = markdown.split(/\n{2,}/);
@@ -186,6 +187,7 @@ function renderMarkdownToJsx(markdown: string): React.ReactNode {
 }
 
 export const PdfToMarkdownPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const { showToast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [extractImages, setExtractImages] = useState<boolean>(false);
@@ -392,28 +394,7 @@ export const PdfToMarkdownPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-5xl mx-auto" id="pdf_to_markdown_container">
       <SEO slug="pdf-to-markdown" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            PDF to Markdown Free — Convert PDF to Editable MD
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {limitMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Convert PDF documents into clean, structured Markdown text locally in your browser. Extracts headings, paragraphs, lists, tables, and images without uploading files to remote servers. Files must be under {limitMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="pdf-to-markdown" limitMB={limitMB} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
@@ -421,7 +402,7 @@ export const PdfToMarkdownPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center space-x-2 font-bold text-slate-800">
                 <FileCode2 className="w-5 h-5 text-emerald-600" />
-                <span>Source Document</span>
+                <span>{t('pdfToMarkdown.sourceDocument', { defaultValue: 'Source Document' })}</span>
               </span>
             </div>
 
@@ -429,8 +410,6 @@ export const PdfToMarkdownPage: React.FC = () => {
               <FileUploader
                 onFilesSelected={handleFilesSelected}
                 accept=".pdf,application/pdf"
-                title="Select PDF to convert to Markdown"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${limitMB}MB)`}
                 maxSizeMB={limitMB}
               />
             ) : (
@@ -451,9 +430,9 @@ export const PdfToMarkdownPage: React.FC = () => {
                     setImages([]);
                   }}
                   disabled={loading}
-                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1.5 px-3 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1.5 px-3 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 cursor-pointer"
                 >
-                  Change File
+                  {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                 </button>
               </div>
             )}
@@ -461,7 +440,7 @@ export const PdfToMarkdownPage: React.FC = () => {
             {loading && progress && (
               <div className="space-y-2 pt-2">
                 <div className="flex justify-between text-xs font-bold text-slate-600">
-                  <span>Extracting text structure...</span>
+                  <span>{t('pdfToMarkdown.extractingText', { defaultValue: 'Extracting text structure...' })}</span>
                   <span>
                     Page {progress.current} of {progress.total} (
                     {Math.round((progress.current / progress.total) * 100)}%)
@@ -480,9 +459,7 @@ export const PdfToMarkdownPage: React.FC = () => {
 
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Conversion Options
-            </h3>
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">{t('pdfToMarkdown.conversionOptions', { defaultValue: 'Conversion Options' })}</h3>
 
             <label
               htmlFor="extract_images_opt"
@@ -498,10 +475,8 @@ export const PdfToMarkdownPage: React.FC = () => {
                 className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 w-4 h-4"
               />
               <div className="text-xs">
-                <span className="font-bold text-slate-800 block">Extract images too</span>
-                <span className="text-slate-500 block mt-0.5">
-                  Package embedded figures alongside Markdown links into a downloadable .zip archive.
-                </span>
+                <span className="font-bold text-slate-800 block">{t('pdfToMarkdown.extractImagesToo', { defaultValue: 'Extract images too' })}</span>
+                <span className="text-slate-500 block mt-0.5">{t('pdfToMarkdown.extractImagesDesc', { defaultValue: 'Package embedded figures alongside Markdown links into a downloadable .zip archive.' })}</span>
               </div>
             </label>
 
@@ -510,11 +485,11 @@ export const PdfToMarkdownPage: React.FC = () => {
                 <div className="flex items-start gap-3 text-xs text-amber-800 bg-amber-50/50 border border-amber-200 p-4 rounded-xl shadow-sm flex-col w-full">
                   <div className="flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                    <p className="font-extrabold text-amber-900">⏳ AI is busy. Please try again in a few minutes.</p>
+                    <p className="font-extrabold text-amber-900">{t("pdfToMarkdown.busyMessage")}</p>
                   </div>
                   <div className="pl-6 space-y-1 text-slate-600 font-medium leading-relaxed">
-                    <p>Or use our offline tools: <Link to={ROUTES.HOME} className="underline text-emerald-700 hover:text-emerald-800 font-bold">Merge, Split</Link></p>
-                    <p>Rate limit reached. Please wait a few minutes before trying again.</p>
+                    <p>{t("pdfToMarkdown.orUseOffline")} <Link to={ROUTES.HOME} className="underline text-emerald-700 hover:text-emerald-800 font-bold">{t("tools.mergePdf")} &amp; {t("tools.splitPdf")}</Link></p>
+                    <p>{t('pdfToMarkdown.rateLimitReached', { defaultValue: 'Rate limit reached. Please wait a few minutes before trying again.' })}</p>
                   </div>
                 </div>
               ) : (
@@ -549,12 +524,12 @@ export const PdfToMarkdownPage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Converting...</span>
+                  <span>{t('toolCommon.processing', { defaultValue: 'Converting...' })}</span>
                 </span>
               ) : (
                 <>
                   <FileCode2 className="w-4 h-4" />
-                  <span>Smart Layout Convert (Fast)</span>
+                  <span>{t('toolCommon.process', { defaultValue: 'Smart Layout Convert (Fast)' })}</span>
                 </>
               )}
             </button>
@@ -569,7 +544,7 @@ export const PdfToMarkdownPage: React.FC = () => {
               }`}
             >
               <Sparkles className="w-4 h-4 text-amber-600" />
-              <span>AI Vision OCR Mode (For Scanned / Image PDFs)</span>
+              <span>{t("pdfToMarkdown.aiVisionMode")}</span>
             </button>
           </div>
         </div>
@@ -580,7 +555,7 @@ export const PdfToMarkdownPage: React.FC = () => {
           <div className="flex items-start space-x-3.5">
             <Sparkles className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
             <div className="space-y-1 text-xs md:text-sm text-amber-900">
-              <p className="font-extrabold text-base text-amber-950">Scanned / Image-Only PDF Detected</p>
+              <p className="font-extrabold text-base text-amber-950">{t("pdfToMarkdown.scannedDetected")}</p>
               <p>
                 Standard text-layer extraction yielded minimal text because this PDF is composed of scanned images. Use our Multimodal AI Vision OCR engine to transcribe pages and tables directly into clean Markdown.
               </p>
@@ -592,7 +567,7 @@ export const PdfToMarkdownPage: React.FC = () => {
             className="py-2.5 px-5 rounded-xl font-bold text-xs bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center space-x-2 transition-all shadow-sm flex-shrink-0 cursor-pointer"
           >
             <Sparkles className="w-4 h-4" />
-            <span>Transcribe with AI Vision OCR</span>
+            <span>{t('pdfToMarkdown.transcribeWithAI', { defaultValue: 'Transcribe with AI Vision OCR' })}</span>
           </button>
         </div>
       )}
@@ -601,7 +576,7 @@ export const PdfToMarkdownPage: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-200">
             <div className="flex items-center space-x-2">
-              <span className="font-extrabold text-slate-900 text-base">Conversion Output</span>
+              <span className="font-extrabold text-slate-900 text-base">{t('pdfToMarkdown.conversionOutput', { defaultValue: 'Conversion Output' })}</span>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
                 {pageCount} {pageCount === 1 ? 'Page' : 'Pages'}
               </span>
@@ -637,7 +612,7 @@ export const PdfToMarkdownPage: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
                 <Eye className="w-4 h-4 text-emerald-600" />
-                <span>Rendered Preview</span>
+                <span>{t('pdfToMarkdown.renderedPreview', { defaultValue: 'Rendered Preview' })}</span>
               </div>
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-inner max-h-[500px] overflow-y-auto">
                 {renderMarkdownToJsx(markdownText)}
@@ -647,7 +622,7 @@ export const PdfToMarkdownPage: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
                 <Code2 className="w-4 h-4 text-emerald-600" />
-                <label htmlFor="raw_markdown_editor">Raw Markdown Editor</label>
+                <label htmlFor="raw_markdown_editor">{t("pdfToMarkdown.rawEditor")}</label>
               </div>
               <textarea
                 id="raw_markdown_editor"

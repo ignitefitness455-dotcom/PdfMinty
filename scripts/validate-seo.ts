@@ -13,6 +13,7 @@ console.log('🔍 Starting Comprehensive Production Technical SEO & Canonical Va
 
 // 1. Validate _redirects for chains, loops, non-trailing slashes, status codes, and valid destinations
 import { TOOLS } from '../src/config/seo-data';
+import { SUPPORTED_LOCALES, I18N_TOOL_SLUGS, DEFAULT_LOCALE } from '../src/i18n/config';
 
 const validCanonicalRoutes = new Set<string>([
   '/',
@@ -22,14 +23,27 @@ const validCanonicalRoutes = new Set<string>([
   '/terms-of-service/',
   '/adobe-acrobat-alternative/',
   '/blog/',
-  '/bn/',
-  '/bn/merge-pdf/',
+  '/index.html',
 ]);
 
+// Add all supported localized homepages
+SUPPORTED_LOCALES.forEach((loc) => {
+  if (loc !== DEFAULT_LOCALE) {
+    validCanonicalRoutes.add(`/${loc}/`);
+  }
+});
+
+// Add all tools and localized tools
 TOOLS.forEach((t) => {
   const slug = t.slug.replace(/^\//, '').replace(/\/$/, '');
   validCanonicalRoutes.add(`/${slug}/`);
-  validCanonicalRoutes.add(`/bn/${slug}/`);
+  if ((I18N_TOOL_SLUGS as readonly string[]).includes(slug)) {
+    SUPPORTED_LOCALES.forEach((loc) => {
+      if (loc !== DEFAULT_LOCALE) {
+        validCanonicalRoutes.add(`/${loc}/${slug}/`);
+      }
+    });
+  }
 });
 
 const redirectMap = new Map<string, string>();
@@ -58,7 +72,7 @@ try {
           isMisconfigured = true;
           misconfiguredRedirects++;
         }
-        if (status && status !== '301' && status !== '302' && status !== '404') {
+        if (status && status !== '301' && status !== '302' && status !== '404' && status !== '200') {
           console.error(`❌ Unexpected redirect status code in line: "${line}"`);
           hasError = true;
           isMisconfigured = true;

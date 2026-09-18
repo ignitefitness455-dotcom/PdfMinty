@@ -1,7 +1,10 @@
 import { Award, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const TrustBadgeSection: React.FC = () => {
+  const { t } = useTranslation('common');
+
   return (
     <section
       id="featured-community-section"
@@ -20,17 +23,20 @@ export const TrustBadgeSection: React.FC = () => {
           {/* Eyebrow badge */}
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide uppercase">
             <Award className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Community Verified</span>
+            <span>{t('home.trustBadge.eyebrow', { defaultValue: 'Community Verified' })}</span>
           </div>
 
           {/* Title */}
           <h3 id="featured-badge-title" className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-            Recognized &amp; Featured Across Leading Platforms
+            {t('home.trustBadge.title', { defaultValue: 'Recognized & Featured Across Leading Platforms' })}
           </h3>
 
           {/* Trust Subtext */}
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
-            PdfMinty is recognized on top product directories as a trusted privacy-first, client-side PDF utility. Your documents are processed entirely in your browser and never touch a remote server.
+            {t('home.trustBadge.description', {
+              defaultValue:
+                'PdfMinty is recognized on top product directories as a trusted privacy-first, client-side PDF utility. Your documents are processed entirely in your browser and never touch a remote server.',
+            })}
           </p>
 
           {/* Featured Badges Grid/Flex */}
@@ -41,7 +47,7 @@ export const TrustBadgeSection: React.FC = () => {
               href="https://launchbuff.com/products/pdfminty-8g15b8"
               target="_blank"
               rel="noopener noreferrer"
-              title="Featured on LaunchBuff"
+              title={t('home.trustBadge.launchbuffTitle', { defaultValue: 'Featured on LaunchBuff' })}
               className="group inline-block transition-transform duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-2xl"
             >
               <img
@@ -60,7 +66,7 @@ export const TrustBadgeSection: React.FC = () => {
               href="https://launchstag.com/p/pdfminty"
               target="_blank"
               rel="noopener noreferrer"
-              title="Featured on Launchstag"
+              title={t('home.trustBadge.launchstagTitle', { defaultValue: 'Featured on Launchstag' })}
               className="group inline-block transition-transform duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-2xl"
             >
               <img
@@ -86,15 +92,15 @@ export const TrustBadgeSection: React.FC = () => {
           <div className="pt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" aria-hidden="true" />
-              <span>100% In-Browser Privacy</span>
+              <span>{t('home.trustBadge.privacyBadge', { defaultValue: '100% In-Browser Privacy' })}</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" aria-hidden="true" />
-              <span>Verified Directory Listings</span>
+              <span>{t('home.trustBadge.verifiedBadge', { defaultValue: 'Verified Directory Listings' })}</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" aria-hidden="true" />
-              <span>Zero Data Logging</span>
+              <span>{t('home.trustBadge.loggingBadge', { defaultValue: 'Zero Data Logging' })}</span>
             </span>
           </div>
         </div>

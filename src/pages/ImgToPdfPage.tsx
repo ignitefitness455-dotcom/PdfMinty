@@ -1,17 +1,18 @@
-import { ArrowLeft, Image, Download, Trash2, AlertCircle } from 'lucide-react';
+import { Image, Download, Trash2, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const ImgToPdfPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const [images, setImages] = useState<{ file: File; id: string; url: string }[]>([]);
   const [pageSize, setPageSize] = useState<'fit' | 'A4' | 'Letter'>('fit');
   const [loading, setLoading] = useState(false);
@@ -52,9 +53,13 @@ export const ImgToPdfPage: React.FC = () => {
 
     if (combinedBytes > maxTotalBytes) {
       setError(
-        `Uploading failed! The combined size of all your images (${(combinedBytes / 1024 / 1024).toFixed(
-          2
-        )} MB) exceeds the absolute combined limit of ${TOOL_SIZE_LIMITS['image-to-pdf'].maxTotalMB} MB. Please use fewer/smaller images.`
+        t('imageToPdf.maxSizeError', {
+          size: (combinedBytes / 1024 / 1024).toFixed(2),
+          limit: TOOL_SIZE_LIMITS['image-to-pdf'].maxTotalMB,
+          defaultValue: `Uploading failed! The combined size of all your images (${(combinedBytes / 1024 / 1024).toFixed(
+            2
+          )} MB) exceeds the absolute combined limit of ${TOOL_SIZE_LIMITS['image-to-pdf'].maxTotalMB} MB. Please use fewer/smaller images.`,
+        })
       );
       return;
     }
@@ -92,7 +97,7 @@ export const ImgToPdfPage: React.FC = () => {
 
   const handleConvert = async () => {
     if (images.length === 0) {
-      setError('Please add at least 1 image file.');
+      setError(t('imageToPdf.minFilesError', { defaultValue: 'Please add at least 1 image file.' }));
       return;
     }
 
@@ -130,7 +135,10 @@ export const ImgToPdfPage: React.FC = () => {
       logger.error('Image logic error:', err);
       const message = err instanceof Error ? err.message : String(err);
       setError(
-        message || 'Failed to convert selected images to PDF. Ensure standard PNG/JPG formats.'
+        message ||
+          t('imageToPdf.convertError', {
+            defaultValue: 'Failed to convert selected images to PDF. Ensure standard PNG/JPG formats.',
+          })
       );
     } finally {
       setLoading(false);
@@ -140,39 +148,19 @@ export const ImgToPdfPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="img_to_pdf_container">
       <SEO slug="image-to-pdf" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            JPG to PDF — Convert JPG Images to PDF Free
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB}MB per image
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Convert individual screenshots or sequential camera captures into an unified PDF file. Individual images must be under {TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB} MB (Max total: {TOOL_SIZE_LIMITS['image-to-pdf'].maxTotalMB} MB).
-        </p>
-      </div>
+      <ToolHeader slug="image-to-pdf" limitMB={TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <Image className="w-5 h-5 text-fuchsia-600" />
+            <div className="flex items-center gap-2 text-primary font-bold">
+              <Image className="w-5 h-5 text-fuchsia-600" />
+              <span>{t('imageToPdf.emptyTitle', { defaultValue: 'Upload images to convert to PDF' })}</span>
+            </div>
             <FileUploader
               onFilesSelected={handleFilesSelected}
               multiple
               accept="image/png, image/jpeg, image/jpg, image/webp, image/avif, image/gif, image/bmp, image/heic, image/heif"
-              title="Select images to convert"
-              subtitle={`Drag PNG, JPG, WebP, AVIF, GIF, BMP, or HEIC files here or browse (Max limit: ${TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB}MB per image)`}
               maxSizeMB={TOOL_SIZE_LIMITS['image-to-pdf'].maxSingleMB}
             />
           </div>
@@ -181,11 +169,8 @@ export const ImgToPdfPage: React.FC = () => {
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="img_to_pdf_success_banner">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                <span>PDF Created Successfully! Your images have been converted.</span>
+                <span>{t('imageToPdf.successTitle', { defaultValue: 'PDF Created Successfully! Your images have been converted.' })}</span>
               </div>
-              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                All selected images have been compiled into a high-quality PDF document.
-              </p>
               {downloadUrl && (
                 <div className="pt-2">
                   <a
@@ -195,7 +180,7 @@ export const ImgToPdfPage: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
                     <Download className="w-4 h-4 animate-bounce" />
-                    <span>Download Compiled PDF</span>
+                    <span>{t('imageToPdf.downloadCompiled', { defaultValue: 'Download Compiled PDF' })}</span>
                   </a>
                 </div>
               )}
@@ -204,8 +189,8 @@ export const ImgToPdfPage: React.FC = () => {
 
           {images.length === 0 ? (
             <EmptyState
-              title="Upload images to convert to PDF"
-              description="Select PNG, JPG, or WebP files above to build and organize your PDF document."
+              title={t('imageToPdf.emptyTitle', { defaultValue: 'Upload images to convert to PDF' })}
+              description={t('imageToPdf.emptyDesc', { defaultValue: 'Select PNG, JPG, or WebP files above to build and organize your PDF document.' })}
             />
           ) : (
             <div
@@ -214,14 +199,12 @@ export const ImgToPdfPage: React.FC = () => {
             >
               <div className="bg-slate-50 border-b border-slate-100 px-4 py-3 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Arrange Photo Deck ({images.length} added)
+                  {t('imageToPdf.deckTitle', { count: images.length, defaultValue: `Arrange Photo Deck (${images.length} added)` })}
                 </span>
                 <button
                   onClick={handleClearDeck}
                   className="text-xs font-semibold text-rose-600 hover:text-rose-700"
-                >
-                  Clear Deck
-                </button>
+                >{t('imageToPdf.clearDeck', { defaultValue: 'Clear Deck' })}</button>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4">
@@ -240,8 +223,8 @@ export const ImgToPdfPage: React.FC = () => {
                         <button
                           onClick={() => handleRemove(idx)}
                           className="absolute top-1.5 right-1.5 p-1.5 bg-rose-600 hover:bg-rose-700 hover:scale-110 active:scale-95 text-white rounded-lg shadow-sm transition-transform"
-                          title="Remove image"
-                          aria-label={`Remove image ${img.file.name}`}
+                          title={t('imageToPdf.removeImageTitle', { defaultValue: 'Remove image' })}
+                          aria-label={t('imageToPdf.removeImageAria', { name: img.file.name, defaultValue: `Remove image ${img.file.name}` })}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -266,7 +249,7 @@ export const ImgToPdfPage: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
             <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Layout Guidelines
+              {t('imageToPdf.layoutTitle', { defaultValue: 'Layout Guidelines' })}
             </h3>
             
             <div className="space-y-2">
@@ -274,29 +257,20 @@ export const ImgToPdfPage: React.FC = () => {
                 htmlFor="page-size-select"
                 className="block text-[11px] uppercase tracking-wide font-bold text-slate-500"
               >
-                Page Size
+                {t('imageToPdf.pageSizeLabel', { defaultValue: 'Page Size' })}
               </label>
               <select
                 id="page-size-select"
                 value={pageSize}
                 onChange={(e) => setPageSize(e.target.value as 'fit' | 'A4' | 'Letter')}
                 className="w-full text-sm p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-fuchsia-500 transition-colors"
-                aria-label="Page size for PDF pages"
+                aria-label={t('imageToPdf.pageSizeAria', { defaultValue: 'Page size for PDF pages' })}
                 disabled={loading}
               >
-                <option value="fit">Fit identical to Image</option>
-                <option value="A4">A4 (Standard Document)</option>
-                <option value="Letter">US Letter</option>
+                <option value="fit">{t('imageToPdf.pageSizeFit', { defaultValue: 'Fit identical to Image' })}</option>
+                <option value="A4">{t('imageToPdf.pageSizeA4', { defaultValue: 'A4 (Standard Document)' })}</option>
+                <option value="Letter">{t('imageToPdf.pageSizeLetter', { defaultValue: 'US Letter' })}</option>
               </select>
-            </div>
-
-            <p className="text-xs text-slate-500 leading-relaxed pt-2">
-              Uploaded files are mapped one-to-one to individual PDF pages. Standard widths match
-              original photo bounds for premium preservation.
-            </p>
-            <div className="p-3 bg-fuchsia-50 rounded-xl border border-fuchsia-100 text-[11px] text-fuchsia-800 font-medium leading-normal">
-              Conversion logic preserves details locally within browser memory. Safe and fully
-              sandbox insulated.
             </div>
           </div>
 
@@ -320,12 +294,12 @@ export const ImgToPdfPage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Compiling pages...</span>
+                  <span>{t('imageToPdf.compilingButton', { defaultValue: 'Compiling pages...' })}</span>
                 </span>
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  <span>Convert to PDF</span>
+                  <span>{t('imageToPdf.convertButton', { defaultValue: 'Convert to PDF' })}</span>
                 </>
               )}
             </button>

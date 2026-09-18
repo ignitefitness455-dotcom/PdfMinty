@@ -1,18 +1,17 @@
-import { ArrowLeft, RotateCw, AlertCircle, Download } from 'lucide-react';
+import { RotateCw, AlertCircle, Download } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
-import { TOOLS } from '../config/seo-data';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const RotatePage: React.FC = () => {
-  const toolInfo = TOOLS.find((t) => t.id === 'rotate');
+  const { t } = useTranslation('common');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [degrees, setDegrees] = useState<number>(90);
   const [loading, setLoading] = useState(false);
@@ -117,7 +116,12 @@ export const RotatePage: React.FC = () => {
     } catch (err: unknown) {
       logger.error('Rotate error:', err);
       const message = err instanceof Error ? err.message : String(err);
-      setError(message || 'An unexpected error occurred while rotating the PDF.');
+      setError(
+        message ||
+          t('rotatePdf.unexpectedError', {
+            defaultValue: 'An unexpected error occurred while rotating the PDF.',
+          })
+      );
     } finally {
       setLoading(false);
     }
@@ -127,27 +131,7 @@ export const RotatePage: React.FC = () => {
     <div className="space-y-6 max-w-4xl mx-auto" id="rotate_page_container">
       <SEO slug="rotate-pdf" />
 
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            {toolInfo?.h1 || 'Rotate PDF Pages'}
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['rotate-pdf'].maxSingleMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Correct orientation or re-align horizontally skewed page plates offline instantly. Files must be under {TOOL_SIZE_LIMITS['rotate-pdf'].maxSingleMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="rotate-pdf" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
@@ -158,8 +142,6 @@ export const RotatePage: React.FC = () => {
               <FileUploader
                 onFilesSelected={handleFilesSelected}
                 accept=".pdf,application/pdf"
-                title="Select a PDF to rotate"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['rotate-pdf'].maxSingleMB}MB)`}
                 maxSizeMB={TOOL_SIZE_LIMITS['rotate-pdf'].maxSingleMB}
               />
             ) : (
@@ -171,7 +153,8 @@ export const RotatePage: React.FC = () => {
                   <div className="truncate pr-4">
                     <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
                     <p className="text-xs text-slate-400">
-                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB •{' '}
+                      {t('rotatePdf.pdfDocument', { defaultValue: 'PDF Document' })}
                     </p>
                   </div>
                   <button
@@ -185,7 +168,7 @@ export const RotatePage: React.FC = () => {
                     }}
                     className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
                   >
-                    Change File
+                    {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                   </button>
                 </div>
 
@@ -193,10 +176,10 @@ export const RotatePage: React.FC = () => {
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                     <h3 className="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                      <span>Real-time Rotation Preview</span>
+                      <span>{t('toolCommon.preview', { defaultValue: 'Live Preview' })}</span>
                     </h3>
                     <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-150">
-                      Page 1 • {degrees}°
+                      {t('rotatePdf.page', { defaultValue: 'Page' })} 1 • {degrees}°
                     </span>
                   </div>
 
@@ -205,7 +188,9 @@ export const RotatePage: React.FC = () => {
                     {renderingPreview ? (
                       <div className="flex flex-col items-center gap-2.5 text-slate-400">
                         <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-[10px] font-bold tracking-wider uppercase animate-pulse">Loading Document...</span>
+                        <span className="text-[10px] font-bold tracking-wider uppercase animate-pulse">
+                          {t('rotatePdf.loadingDocument', { defaultValue: 'Loading Document...' })}
+                        </span>
                       </div>
                     ) : (
                       <div 
@@ -215,7 +200,7 @@ export const RotatePage: React.FC = () => {
                         {previewUrl ? (
                           <img
                             src={previewUrl}
-                            alt="PDF Page 1 Preview"
+                            alt={t('rotatePdf.previewAlt', { page: 1, defaultValue: 'PDF Page 1 Preview' })}
                             className="w-full h-full object-contain pointer-events-none"
                           />
                         ) : (
@@ -239,7 +224,7 @@ export const RotatePage: React.FC = () => {
                               </div>
                             </div>
                             <div className="text-[9px] text-slate-400 font-bold self-center text-center mt-auto bg-slate-50 px-2 py-1 rounded border border-slate-100">
-                              Template View
+                              {t('rotatePdf.templateView', { defaultValue: 'Template View' })}
                             </div>
                           </div>
                         )}
@@ -255,10 +240,16 @@ export const RotatePage: React.FC = () => {
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="rotate_success_banner">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                <span>Rotation Completed Successfully! Your rotated PDF has been generated.</span>
+                <span>
+                  {t('rotatePdf.successTitle', {
+                    defaultValue: 'Rotation Completed Successfully! Your rotated PDF has been generated.',
+                  })}
+                </span>
               </div>
               <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                The pages have been rotated and saved completely offline in your browser.
+                {t('rotatePdf.successDesc', {
+                  defaultValue: 'The pages have been rotated and saved completely offline in your browser.',
+                })}
               </p>
               {downloadUrl && (
                 <div className="pt-2">
@@ -269,7 +260,7 @@ export const RotatePage: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
                     <Download className="w-4 h-4 animate-bounce" />
-                    <span>Download Rotated PDF</span>
+                    <span>{t('rotatePdf.downloadRotated', { defaultValue: 'Download Rotated PDF' })}</span>
                   </a>
                 </div>
               )}
@@ -281,7 +272,7 @@ export const RotatePage: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
             <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Rotation Angle
+              {t('rotatePdf.rotationAngle', { defaultValue: 'Rotation Angle' })}
             </h3>
 
             <div className="grid grid-cols-3 gap-2">
@@ -291,7 +282,7 @@ export const RotatePage: React.FC = () => {
                   type="button"
                   onClick={() => setDegrees(deg)}
                   aria-pressed={degrees === deg}
-                  aria-label={`Rotate ${deg} degrees`}
+                  aria-label={t('rotatePdf.rotateDegreesAria', { deg, defaultValue: `Rotate ${deg} degrees` })}
                   className={`py-3.5 rounded-xl border font-bold text-sm transition-all ${
                     degrees === deg
                       ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-500/15'
@@ -304,7 +295,9 @@ export const RotatePage: React.FC = () => {
               ))}
             </div>
             <p className="text-xs text-slate-400">
-              Clockwise rotation applied unconditionally across all page grids.
+              {t('rotatePdf.angleHelp', {
+                defaultValue: 'Clockwise rotation applied unconditionally across all page grids.',
+              })}
             </p>
           </div>
 
@@ -328,12 +321,12 @@ export const RotatePage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center space-x-1.5">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Rotating sheets...</span>
+                  <span>{t('rotatePdf.rotatingButton', { defaultValue: 'Rotating sheets...' })}</span>
                 </span>
               ) : (
                 <>
                   <RotateCw className="w-4 h-4" />
-                  <span>Rotate PDF</span>
+                  <span>{t('rotatePdf.rotateButton', { defaultValue: 'Rotate PDF' })}</span>
                 </>
               )}
             </button>

@@ -1,19 +1,20 @@
 import JSZip from 'jszip';
-import { ArrowLeft, Eye, Download, AlertCircle, Sparkles } from 'lucide-react';
+import { Eye, Download, AlertCircle, Sparkles } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '../components/EmptyState';
 import { FileUploader } from '../components/FileUploader';
 import { SEO } from '../components/SEO';
+import { ToolHeader } from '../components/ToolHeader';
 import { TOOL_SIZE_LIMITS } from '../config/constants';
-import { ROUTES } from '../config/routes';
 import { getPdfJs } from '../core/index';
 import { WorkerManager } from '../core/WorkerManager';
 import { downloadBlob } from '../utils/download';
 import { logger } from '../utils/logger';
 
 export const PdfToImgPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [imageUrls, setImageUrls] = useState<{ page: number; dataUrl: string; format: string }[]>([]);
@@ -163,7 +164,9 @@ export const PdfToImgPage: React.FC = () => {
       const errMsg = err instanceof Error ? err.message : String(err);
       setError(
         errMsg ||
-          'Error occurred during PDF parsing. Encrypted documents are not supported for canvas extraction.'
+          t('pdfToImg.parseError', {
+            defaultValue: 'Error occurred during PDF parsing. Encrypted documents are not supported for canvas extraction.',
+          })
       );
     } finally {
       if (myToken === operationTokenRef.current) {
@@ -187,39 +190,19 @@ export const PdfToImgPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto" id="pdf_to_img_container">
       <SEO slug="pdf-to-image" />
-
-      <Link
-        to={ROUTES.HOME}
-        className="inline-flex items-center space-x-1 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
-      </Link>
-
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            PDF to JPG — Convert PDF to High Quality JPG Images Free
-          </h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Limit: {TOOL_SIZE_LIMITS['pdf-to-image'].maxSingleMB}MB
-          </span>
-        </div>
-        <p className="text-slate-500 text-sm">
-          Extract PDF layouts and export each page into high-definition raster PNG files offline. Files must be under {TOOL_SIZE_LIMITS['pdf-to-image'].maxSingleMB} MB.
-        </p>
-      </div>
+      <ToolHeader slug="pdf-to-image" limitMB={TOOL_SIZE_LIMITS['pdf-to-image'].maxSingleMB} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <Eye className="w-5 h-5 text-violet-600" />
+            <div className="flex items-center gap-2 text-primary font-bold">
+              <Eye className="w-5 h-5 text-violet-600" />
+              <span>{t('pdfToImg.workspace', { defaultValue: 'Document Workspace' })}</span>
+            </div>
 
             {!selectedFile ? (
               <FileUploader
                 onFilesSelected={handleFilesSelected}
-                title="Select a PDF to convert"
-                subtitle={`Drag a PDF file here or browse (Max limit: ${TOOL_SIZE_LIMITS['pdf-to-image'].maxSingleMB}MB)`}
                 maxSizeMB={TOOL_SIZE_LIMITS['pdf-to-image'].maxSingleMB}
               />
             ) : (
@@ -230,7 +213,8 @@ export const PdfToImgPage: React.FC = () => {
                 <div className="truncate pr-4">
                   <p className="text-sm font-bold text-slate-800 truncate">{selectedFile.name}</p>
                   <p className="text-xs text-slate-400">
-                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB •{' '}
+                    {t('pdfToImg.pdfDocument', { defaultValue: 'PDF Document' })}
                   </p>
                 </div>
                 <button
@@ -246,9 +230,9 @@ export const PdfToImgPage: React.FC = () => {
                       setDownloadUrl(null);
                     }
                   }}
-                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors"
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-white border border-slate-200 py-1 px-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
-                  Change File
+                  {t('toolCommon.changeFile', { defaultValue: 'Change File' })}
                 </button>
               </div>
             )}
@@ -258,11 +242,8 @@ export const PdfToImgPage: React.FC = () => {
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col gap-3 text-xs text-emerald-800 font-bold" id="pdf_to_img_success_banner">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 pulse-mint"></span>
-                <span>Conversion Completed Successfully! Your files are ready.</span>
+                <span>{t('pdfToImg.successTitle', { defaultValue: 'Conversion Completed Successfully! Your files are ready.' })}</span>
               </div>
-              <p className="text-slate-500 text-[11px] font-semibold leading-normal">
-                PDF pages have been converted to raster images offline.
-              </p>
               {downloadUrl && (
                 <div className="pt-2">
                   <a
@@ -272,7 +253,7 @@ export const PdfToImgPage: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
                     <Download className="w-4 h-4 animate-bounce" />
-                    <span>Download Compiled Images (ZIP / Image)</span>
+                    <span>{t('pdfToImg.downloadCompiled', { defaultValue: 'Download Compiled Images (ZIP / Image)' })}</span>
                   </a>
                 </div>
               )}
@@ -282,7 +263,7 @@ export const PdfToImgPage: React.FC = () => {
           {progress && (
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm" role="status" aria-live="polite">
               <div className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-2">
-                <span>Rendering pages...</span>
+                <span>{t('pdfToImg.renderingProgress', { defaultValue: 'Rendering pages...' })}</span>
                 <span>{progress.current} / {progress.total}</span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
@@ -296,8 +277,8 @@ export const PdfToImgPage: React.FC = () => {
 
           {!selectedFile && (
             <EmptyState
-              title="Upload a PDF to convert to images"
-              description="Select a document above to render and extract high-definition image files."
+              title={t('pdfToImg.emptyTitle', { defaultValue: 'Upload a PDF to convert to images' })}
+              description={t('pdfToImg.emptyDesc', { defaultValue: 'Select a document above to render and extract high-definition image files.' })}
             />
           )}
 
@@ -307,7 +288,7 @@ export const PdfToImgPage: React.FC = () => {
               id="rendered_img_deck"
             >
               <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider block">
-                Rendered Pages Decodes
+                {t('pdfToImg.renderedPagesTitle', { defaultValue: 'Rendered Pages Decodes' })}
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -325,7 +306,9 @@ export const PdfToImgPage: React.FC = () => {
                       />
                     </div>
                     <div className="mt-3 flex items-center justify-between text-xs">
-                      <span className="font-bold text-slate-700">Page {item.page}</span>
+                      <span className="font-bold text-slate-700">
+                        {t('pdfToImg.pageLabel', { page: item.page, defaultValue: `Page ${item.page}` })}
+                      </span>
                       <button
                         onClick={() => downloadImage(item.dataUrl, item.page, item.format)}
                         className="py-1 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-md flex items-center space-x-1"
@@ -345,16 +328,18 @@ export const PdfToImgPage: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit space-y-6">
           <div className="space-y-4">
             <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-              Image Export
+              {t('pdfToImg.exportTitle', { defaultValue: 'Image Export' })}
             </h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Export is performed entirely inside your browser. No document data is ever sent to a server.
+              {t('pdfToImg.exportDesc', {
+                defaultValue: 'Export is performed entirely inside your browser. No document data is ever sent to a server.',
+              })}
             </p>
 
             <div className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="export_format_select" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Export Format:
+                  {t('pdfToImg.formatLabel', { defaultValue: 'Export Format:' })}
                 </label>
                 <select
                   id="export_format_select"
@@ -362,14 +347,18 @@ export const PdfToImgPage: React.FC = () => {
                   onChange={(e) => setExportFormat(e.target.value as 'image/png' | 'image/jpeg')}
                   className="w-full border border-slate-300 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                 >
-                  <option value="image/png">PNG (Lossless, higher quality)</option>
-                  <option value="image/jpeg">JPEG (Smaller file size, fast sharing)</option>
+                  <option value="image/png">
+                    {t('pdfToImg.formatPng', { defaultValue: 'PNG (Lossless, higher quality)' })}
+                  </option>
+                  <option value="image/jpeg">
+                    {t('pdfToImg.formatJpeg', { defaultValue: 'JPEG (Smaller file size, fast sharing)' })}
+                  </option>
                 </select>
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="scale_select" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Render Quality:
+                  {t('pdfToImg.qualityLabel', { defaultValue: 'Render Quality:' })}
                 </label>
                 <select
                   id="scale_select"
@@ -377,15 +366,21 @@ export const PdfToImgPage: React.FC = () => {
                   onChange={(e) => setScale(parseFloat(e.target.value) as 1.0 | 1.5 | 2.0)}
                   className="w-full border border-slate-300 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                 >
-                  <option value="1">1.0x (Smaller, faster)</option>
-                  <option value="1.5">1.5x (Balanced)</option>
-                  <option value="2">2.0x (High-res, larger file)</option>
+                  <option value="1">
+                    {t('pdfToImg.qualitySmall', { defaultValue: '1.0x (Smaller, faster)' })}
+                  </option>
+                  <option value="1.5">
+                    {t('pdfToImg.qualityBalanced', { defaultValue: '1.5x (Balanced)' })}
+                  </option>
+                  <option value="2">
+                    {t('pdfToImg.qualityHigh', { defaultValue: '2.0x (High-res, larger file)' })}
+                  </option>
                 </select>
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="max_pages_limit_select" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Max pages to convert:
+                  {t('pdfToImg.maxPagesLabel', { defaultValue: 'Max pages to convert:' })}
                 </label>
                 <select
                   id="max_pages_limit_select"
@@ -393,25 +388,42 @@ export const PdfToImgPage: React.FC = () => {
                   onChange={(e) => setMaxPagesLimit(e.target.value)}
                   className="w-full border border-slate-300 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                 >
-                  <option value="5">First 5 Pages</option>
-                  <option value="10">First 10 Pages</option>
-                  <option value="15">First 15 Pages</option>
-                  <option value="30">First 30 Pages</option>
-                  <option value="all">All Pages (Unlimited)</option>
+                  <option value="5">
+                    {t('pdfToImg.pages5', { defaultValue: 'First 5 Pages' })}
+                  </option>
+                  <option value="10">
+                    {t('pdfToImg.pages10', { defaultValue: 'First 10 Pages' })}
+                  </option>
+                  <option value="15">
+                    {t('pdfToImg.pages15', { defaultValue: 'First 15 Pages' })}
+                  </option>
+                  <option value="30">
+                    {t('pdfToImg.pages30', { defaultValue: 'First 30 Pages' })}
+                  </option>
+                  <option value="all">
+                    {t('pdfToImg.pagesAll', { defaultValue: 'All Pages (Unlimited)' })}
+                  </option>
                 </select>
               </div>
             </div>
 
             {(maxPagesLimit === 'all' || parseInt(maxPagesLimit, 10) > 15) && (
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[10px] text-amber-800 leading-normal">
-                <span className="font-bold block mb-0.5">⚠️ Memory warning:</span>
-                Rendering many pages at high-definition scales uses significant browser memory and CPU locally. For very large PDF files, this might cause your browser tab to temporarily freeze.
+                <span className="font-bold block mb-0.5">
+                  {t('pdfToImg.memoryWarningTitle', { defaultValue: '⚠️ Memory warning:' })}
+                </span>
+                {t('pdfToImg.memoryWarningText', {
+                  defaultValue:
+                    'Rendering many pages at high-definition scales uses significant browser memory and CPU locally. For very large PDF files, this might cause your browser tab to temporarily freeze.',
+                })}
               </div>
             )}
 
             <div className="p-3 bg-violet-50 rounded-xl border border-violet-100 text-[11px] text-violet-800 font-medium leading-normal flex items-center space-x-1.5">
               <Sparkles className="w-4 h-4 text-violet-500 flex-shrink-0" />
-              <span>Converts PDF plates locally to raw PNG grids</span>
+              <span>
+                {t('pdfToImg.featureBadge', { defaultValue: 'Converts PDF plates locally to raw PNG grids' })}
+              </span>
             </div>
           </div>
 
@@ -436,12 +448,12 @@ export const PdfToImgPage: React.FC = () => {
                 {loading ? (
                   <span className="flex items-center space-x-1.5">
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    <span>Extracting layers...</span>
+                    <span>{t('pdfToImg.extractingButton', { defaultValue: 'Extracting layers...' })}</span>
                   </span>
                 ) : (
                   <>
                     <Eye className="w-4 h-4" />
-                    <span>Render Pages</span>
+                    <span>{t('pdfToImg.renderButton', { defaultValue: 'Render Pages' })}</span>
                   </>
                 )}
               </button>

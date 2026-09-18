@@ -1,4 +1,5 @@
 import { CalendarDays, GripVertical, Loader2, Pencil, PenLine, Type, UserRound } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { cn } from '../../lib/utils'
 import { Button } from '../ui/button'
@@ -40,20 +41,27 @@ export function SignSidebar({
   onExport,
   onReset,
 }: Props) {
+  const { t } = useTranslation('common')
   const hasSignature = Boolean(signatures.signature)
 
   return (
     <aside className="flex h-full flex-col bg-white dark:bg-slate-900 lg:border-l lg:border-slate-200 dark:lg:border-slate-800">
       <div className="flex-1 overflow-y-auto">
         <div className="border-b border-slate-200 dark:border-slate-800 px-5 py-5">
-          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Signing options</h2>
+          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            {t('signPdf.sidebar.signingOptions', { defaultValue: 'Signing options' })}
+          </h2>
         </div>
 
         <div className="flex flex-col gap-3 px-5 py-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Your signature</span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              {t('signPdf.sidebar.yourSignature', { defaultValue: 'Your signature' })}
+            </span>
             <Button variant="ghost" size="xs" onClick={onEditSignature}>
-              {hasSignature ? 'Change' : 'Create'}
+              {hasSignature
+                ? t('signPdf.sidebar.change', { defaultValue: 'Change' })
+                : t('signPdf.sidebar.create', { defaultValue: 'Create' })}
             </Button>
           </div>
           <button
@@ -62,9 +70,11 @@ export function SignSidebar({
             className="flex h-24 items-center justify-center overflow-hidden rounded-lg border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 transition-colors hover:border-emerald-600/60"
           >
             {signatures.signature ? (
-              <img src={signatures.signature.dataUrl} alt="Your signature preview" className="max-h-16 max-w-full object-contain" />
+              <img src={signatures.signature.dataUrl} alt={t('signPdf.sidebar.sigAlt', { defaultValue: 'Your signature preview' })} className="max-h-16 max-w-full object-contain" />
             ) : (
-              <span className="text-sm text-slate-500">Click to set your signature</span>
+              <span className="text-sm text-slate-500">
+                {t('signPdf.sidebar.clickToSet', { defaultValue: 'Click to set your signature' })}
+              </span>
             )}
           </button>
           {signatures.fullName ? (
@@ -77,9 +87,14 @@ export function SignSidebar({
 
         <div className="flex flex-col gap-3 border-t border-slate-200 dark:border-slate-800 px-5 py-5">
           <div>
-            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Fields</span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              {t('signPdf.sidebar.fields', { defaultValue: 'Fields' })}
+            </span>
             <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
-              Click a field, then click on the document to place it. You can also drag it onto a page.
+              {t('signPdf.sidebar.fieldsHelp', {
+                defaultValue:
+                  'Click a field, then click on the document to place it. You can also drag it onto a page.',
+              })}
             </p>
           </div>
           <ul className="flex flex-col gap-2">
@@ -114,7 +129,9 @@ export function SignSidebar({
                     <span className={cn('flex size-8 items-center justify-center rounded-md', active ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100')}>
                       {icon}
                     </span>
-                    <span className="flex-1 font-medium">{FIELD_LABEL[kind]}</span>
+                    <span className="flex-1 font-medium">
+                      {t(`signPdf.fields.${kind}`, { defaultValue: FIELD_LABEL[kind] })}
+                    </span>
                     <GripVertical className="size-4 text-slate-400" aria-hidden="true" />
                   </button>
                 </li>
@@ -125,28 +142,36 @@ export function SignSidebar({
 
         <div className="flex flex-col gap-2 border-t border-slate-200 dark:border-slate-800 px-5 py-5">
           <Label htmlFor="sign-date" className="text-sm font-semibold">
-            Date format
+            {t('signPdf.sidebar.dateFormat', { defaultValue: 'Date format' })}
           </Label>
           <Input id="sign-date" value={dateText} onChange={(e) => onDateChange(e.target.value)} />
-          <p className="text-xs text-slate-500">Used for every Date field you place.</p>
+          <p className="text-xs text-slate-500">
+            {t('signPdf.sidebar.dateHelp', { defaultValue: 'Used for every Date field you place.' })}
+          </p>
         </div>
       </div>
 
       <div className="flex flex-col gap-2 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
         <Button
           size="lg"
-          className="h-12 w-full rounded-xl text-base font-semibold shadow-lg shadow-emerald-500/25"
+          className="h-12 w-full rounded-xl text-base font-semibold shadow-lg shadow-emerald-500/25 cursor-pointer"
           disabled={fieldCount === 0 || exporting}
           onClick={onExport}
         >
           {exporting ? <Loader2 className="size-5 animate-spin" aria-hidden="true" /> : null}
-          {exporting ? 'Signing…' : 'Sign'}
+          {exporting
+            ? t('signPdf.sidebar.signing', { defaultValue: 'Signing…' })
+            : t('signPdf.sidebar.signButton', { defaultValue: 'Sign & Download' })}
         </Button>
         <p className="text-center text-xs text-slate-500">
-          {fieldCount === 0 ? 'Place at least one field to continue' : `${fieldCount} field${fieldCount === 1 ? '' : 's'} placed`}
+          {fieldCount === 0
+            ? t('signPdf.sidebar.placeFieldPrompt', { defaultValue: 'Place at least one field to continue' })
+            : fieldCount === 1
+            ? t('signPdf.sidebar.fieldsPlaced', { count: 1, defaultValue: '1 field placed' })
+            : t('signPdf.sidebar.fieldsPlaced_plural', { count: fieldCount, defaultValue: `${fieldCount} fields placed` })}
         </p>
-        <Button variant="ghost" size="sm" className="text-slate-500" onClick={onReset}>
-          Choose another file
+        <Button variant="ghost" size="sm" className="text-slate-500 cursor-pointer" onClick={onReset}>
+          {t('signPdf.sidebar.chooseAnother', { defaultValue: 'Choose another file' })}
         </Button>
       </div>
     </aside>
