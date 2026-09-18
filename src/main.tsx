@@ -21,6 +21,7 @@ const getBasename = (): string => {
   const path = window.location.pathname;
   const segments = path.split('/').filter(Boolean);
   const first = segments[0] as typeof SUPPORTED_LOCALES[number];
+
   if (first && first !== DEFAULT_LOCALE && SUPPORTED_LOCALES.includes(first)) {
     i18n.changeLanguage(first);
     if (typeof document !== 'undefined') {
@@ -29,20 +30,10 @@ const getBasename = (): string => {
     return `/${first}`;
   }
 
-  // Fallback to user's explicitly selected locale from storage, or DEFAULT_LOCALE
-  let targetLocale = DEFAULT_LOCALE;
-  try {
-    const saved = (localStorage.getItem('pdfminty_locale') || localStorage.getItem('i18nextLng')) as typeof SUPPORTED_LOCALES[number];
-    if (saved && SUPPORTED_LOCALES.includes(saved)) {
-      targetLocale = saved;
-    }
-  } catch {
-    // Ignore storage restrictions
-  }
-
-  i18n.changeLanguage(targetLocale);
+  // Unprefixed routes default to DEFAULT_LOCALE (en)
+  i18n.changeLanguage(DEFAULT_LOCALE);
   if (typeof document !== 'undefined') {
-    document.documentElement.lang = targetLocale;
+    document.documentElement.lang = DEFAULT_LOCALE;
   }
   return '/';
 };

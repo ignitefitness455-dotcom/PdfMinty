@@ -1,10 +1,27 @@
 import i18n from 'i18next';
-import resourcesToBackend from 'i18next-resources-to-backend';
 import { initReactI18next } from 'react-i18next';
 
+import bnCommon from '../locales/bn/common.json';
+import bnFaq from '../locales/bn/faq.json';
+import bnMergePdf from '../locales/bn/merge-pdf.json';
+import deCommon from '../locales/de/common.json';
+import deFaq from '../locales/de/faq.json';
+import deMergePdf from '../locales/de/merge-pdf.json';
 import enCommon from '../locales/en/common.json';
 import enFaq from '../locales/en/faq.json';
 import enMergePdf from '../locales/en/merge-pdf.json';
+import esCommon from '../locales/es/common.json';
+import esFaq from '../locales/es/faq.json';
+import esMergePdf from '../locales/es/merge-pdf.json';
+import frCommon from '../locales/fr/common.json';
+import frFaq from '../locales/fr/faq.json';
+import frMergePdf from '../locales/fr/merge-pdf.json';
+import hiCommon from '../locales/hi/common.json';
+import hiFaq from '../locales/hi/faq.json';
+import hiMergePdf from '../locales/hi/merge-pdf.json';
+import zhCommon from '../locales/zh/common.json';
+import zhFaq from '../locales/zh/faq.json';
+import zhMergePdf from '../locales/zh/merge-pdf.json';
 
 // Supported locales defined in ONE config array so adding more locales touches only this place
 export const SUPPORTED_LOCALES = ['en', 'de', 'fr', 'es', 'bn', 'hi', 'zh'] as const;
@@ -12,6 +29,16 @@ export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const DEFAULT_LOCALE: SupportedLocale = 'en';
 export const DEFAULT_NAMESPACE = 'common';
+
+export const resources = {
+  en: { common: enCommon, faq: enFaq, 'merge-pdf': enMergePdf },
+  bn: { common: bnCommon, faq: bnFaq, 'merge-pdf': bnMergePdf },
+  de: { common: deCommon, faq: deFaq, 'merge-pdf': deMergePdf },
+  es: { common: esCommon, faq: esFaq, 'merge-pdf': esMergePdf },
+  fr: { common: frCommon, faq: frFaq, 'merge-pdf': frMergePdf },
+  hi: { common: hiCommon, faq: hiFaq, 'merge-pdf': hiMergePdf },
+  zh: { common: zhCommon, faq: zhFaq, 'merge-pdf': zhMergePdf },
+};
 
 export interface LocaleMetadata {
   code: SupportedLocale;
@@ -106,8 +133,9 @@ export function getLocalizedPath(baseSlug: string, locale: SupportedLocale): str
  * Otherwise, it falls back to that locale's homepage (e.g. /de/ or /).
  */
 export function getSwitchLocalePath(currentPathname: string, targetLocale: SupportedLocale): string {
-  const pathWithoutQuery = (currentPathname || '').split('?')[0];
-  const segments = pathWithoutQuery.split('/').filter(Boolean);
+  const [pathOnly] = (currentPathname || '').split(/(?=[?#])/);
+  const extra = (currentPathname || '').substring(pathOnly ? pathOnly.length : 0);
+  const segments = pathOnly ? pathOnly.split('/').filter(Boolean) : [];
 
   const hasLocalePrefix =
     segments.length > 0 &&
@@ -118,12 +146,14 @@ export function getSwitchLocalePath(currentPathname: string, targetLocale: Suppo
   const baseSlug = baseSegments.join('/');
   const cleanSlug = baseSlug.replace(/^\//, '').replace(/\/$/, '');
 
+  let basePath = '';
   if (cleanSlug) {
-    return getLocalizedPath(cleanSlug, targetLocale);
+    basePath = getLocalizedPath(cleanSlug, targetLocale);
+  } else {
+    basePath = targetLocale === DEFAULT_LOCALE ? '/' : `/${targetLocale}/`;
   }
 
-  // Fallback to that locale's homepage
-  return targetLocale === DEFAULT_LOCALE ? '/' : `/${targetLocale}/`;
+  return `${basePath}${extra}`;
 }
 
 export function getCanonicalUrl(
@@ -170,23 +200,10 @@ export function getInitialLocale(): SupportedLocale {
   return DEFAULT_LOCALE;
 }
 
-export const resources = {
-  en: {
-    common: enCommon,
-    'merge-pdf': enMergePdf,
-    faq: enFaq,
-  },
-};
-
 const initialLocale = getInitialLocale();
 
 i18n
   .use(initReactI18next)
-  .use(
-    resourcesToBackend((language: string, namespace: string) => {
-      return import(`../locales/${language}/${namespace}.json`);
-    })
-  )
   .init({
     lng: initialLocale,
     fallbackLng: DEFAULT_LOCALE,
@@ -199,6 +216,8 @@ i18n
     },
     react: {
       useSuspense: false,
+      bindI18n: 'languageChanged loaded',
+      bindI18nStore: 'added removed',
     },
   });
 

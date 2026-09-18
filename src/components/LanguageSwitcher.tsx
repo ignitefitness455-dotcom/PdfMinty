@@ -87,8 +87,8 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
 
   const handleLocaleChange = (targetLocale: SupportedLocale) => {
     setIsOpen(false);
+    if (onSelect) onSelect();
     if (targetLocale === activeLocale) {
-      if (onSelect) onSelect();
       return;
     }
 
