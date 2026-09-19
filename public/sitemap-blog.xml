@@ -398,4 +398,15 @@
       <image:caption>Can&apos;t copy text from a PDF? It&apos;s usually a scanned image, a copy-protection flag, or broken fonts. Here are 5 fixes, including OCR that works without uploading your file.</image:caption>
     </image:image>
   </url>
+  <url>
+    <loc>https://pdfminty.com/blog/pdf-form-wont-let-me-type/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://pdfminty.com/og-image.png</image:loc>
+      <image:title>PDF Form Won&apos;t Let You Type? How to Fill Non-Fillable Forms</image:title>
+      <image:caption>PDF form won&apos;t let you type? The form is flattened or an image. Here are 5 ways to fill non-fillable PDF forms — add text, sign, and save without printing anything.</image:caption>
+    </image:image>
+  </url>
 </urlset>

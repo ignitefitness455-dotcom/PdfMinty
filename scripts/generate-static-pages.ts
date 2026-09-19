@@ -441,21 +441,13 @@ ${relatedTools.map((t: ToolSEOInfo) => `  <li><a href="/${t.slug}/">${t.name}</a
       finalBody += getRelatedToolsHtml(item.slug);
     }
 
-    // In <noscript>, convert all <h1> tags to <h2> so the entire document has strictly ONE unique <h1> (inside #root)
-    const noscriptBody = finalBody.replace(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi, '<h2 class="text-2xl font-bold mb-4">$1</h2>');
-
-    // Pre-inject longFormBody directly inside the React hydration root element (#root) AND in <noscript> for universal bot/crawler visibility!
+    // Pre-inject longFormBody directly inside the React root element (#root) for bot/crawler visibility without duplicate noscript block
     const preRenderedContent: string = `
     <div id="root">
       <article class="prose max-w-4xl mx-auto py-12 px-6 dark:prose-invert font-sans" id="static-pre-render-container">
         ${finalBody}
       </article>
     </div>
-    <noscript>
-      <div class="prose max-w-4xl mx-auto py-12 px-6 font-sans">
-        ${noscriptBody}
-      </div>
-    </noscript>
     `;
     
     // Replace empty #root mount tag with populated static HTML

@@ -26,7 +26,7 @@ export const ROUTES = {
   SANITIZE_PDF: `/${TOOLS.find((t) => t.id === 'sanitize-pdf')?.slug || 'sanitize-pdf'}/`,
   SIGN_PDF: `/${TOOLS.find((t) => t.id === 'sign-pdf')?.slug || 'sign-pdf'}/`,
   OCR_PDF: `/${TOOLS.find((t) => t.id === 'ocr-pdf')?.slug || 'ocr-pdf'}/`,
-  TRUST_ARTICLE: `/${TOOLS.find((t) => t.id === 'trust-article')?.slug || 'is-it-safe-to-upload-pdf-to-online-tools'}/`,
+  TRUST_ARTICLE: `/${TOOLS.find((t) => t.id === 'trust-article')?.slug || 'blog/is-it-safe-to-upload-pdf-to-online-tools'}/`,
   BLOG: '/blog/',
   BLOG_POST: '/blog/:postSlug/',
   PRIVACY_POLICY: '/privacy-policy/',

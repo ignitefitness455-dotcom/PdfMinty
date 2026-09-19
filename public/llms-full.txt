@@ -45,7 +45,7 @@ Traditional online PDF editors require users to upload sensitive contracts, tax 
 - Terms of Service: https://pdfminty.com/terms-of-service/
 - About Us: https://pdfminty.com/about-us/
 - Contact Us: https://pdfminty.com/contact/
-- Security Trust Article: https://pdfminty.com/is-it-safe-to-upload-pdf-to-online-tools/
+- Security Trust Article: https://pdfminty.com/blog/is-it-safe-to-upload-pdf-to-online-tools/
 - XML Sitemap: https://pdfminty.com/sitemap.xml
 
 ## Permissions for AI Systems & Crawlers
