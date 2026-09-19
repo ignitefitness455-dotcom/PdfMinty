@@ -49,17 +49,34 @@ const LEGACY_REDIRECTS: Record<string, string> = {
 const STATIC_VALID_ROUTES = new Set([
   'blog', 'about-us', 'contact', 'privacy-policy', 'terms-of-service',
   'adobe-acrobat-alternative',
-  'bn', 'bn/merge-pdf',
 ]);
+
+const SUPPORTED_LOCALES = ['en', 'de', 'fr', 'es', 'bn', 'hi', 'zh'] as const;
+type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+const NON_DEFAULT_LOCALES = new Set<SupportedLocale>(
+  SUPPORTED_LOCALES.filter((loc): loc is Exclude<SupportedLocale, 'en'> => loc !== 'en')
+);
 
 function checkValidRoute(cleanPath: string): boolean {
   if (cleanPath === '' || STATIC_VALID_ROUTES.has(cleanPath)) {
     return true;
   }
-  if (cleanPath === 'bn' || cleanPath.startsWith('bn/')) {
-    const bnSubPath = cleanPath.replace(/^bn\/?/, '');
-    return bnSubPath === '' || bnSubPath === 'merge-pdf' || TOOLS.some((item) => item.slug === bnSubPath);
+
+  // Check localized routes (e.g. "de", "de/merge-pdf", "fr/split-pdf", "bn/merge-pdf")
+  const segments = cleanPath.split('/');
+  const firstSegment = segments[0] as SupportedLocale;
+
+  if (NON_DEFAULT_LOCALES.has(firstSegment)) {
+    // Localized homepages (e.g. /de/, /fr/, /es/, /bn/, /hi/, /zh/)
+    if (segments.length === 1) {
+      return true;
+    }
+    // Localized tool pages or subpages
+    const subPath = segments.slice(1).join('/');
+    return STATIC_VALID_ROUTES.has(subPath) || TOOLS.some((item) => item.slug === subPath);
   }
+
+  // Default English tool pages, blog articles, compare pages (e.g. "merge-pdf", "blog/...", "compare/...")
   return TOOLS.some((item) => item.slug === cleanPath);
 }
 
@@ -269,9 +286,11 @@ export const onRequest: PagesFunction = async (context) => {
     // General 404 check for ALL HTML routes (including localized and blog/compare routes)
     const cleanPath = pathname.replace(/^\//, '').replace(/\/$/, '');
 
-    // Check language prefix (e.g. /bn/ or /bn/merge-pdf)
-    const isBn = pathname === '/bn' || pathname === '/bn/' || pathname.startsWith('/bn/');
-    newResponse.headers.set('Content-Language', isBn ? 'bn' : 'en');
+    // Set correct Content-Language header based on route prefix
+    const pathSegments = cleanPath.split('/');
+    const firstSegment = pathSegments[0] as SupportedLocale;
+    const detectedLocale = NON_DEFAULT_LOCALES.has(firstSegment) ? firstSegment : 'en';
+    newResponse.headers.set('Content-Language', detectedLocale);
 
     const isValidRoute = checkValidRoute(cleanPath);
 
